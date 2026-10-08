@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <script src="panel-init.js"></script>
+  <script type="module" src="../../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 600; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 300; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Light.woff2") format("woff2"); }
+    body { font-family: "72", sans-serif; font-size: 0.875rem; background: #f5f6f7; color: #131e29; margin: 0; padding: 2rem; }
+    .panel-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .panel-subtitle { font-size: 0.875rem; color: #6a7588; margin-bottom: 2rem; }
+    .demo-section { margin-bottom: 2rem; }
+    .demo-section-header { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #6a7588; margin-bottom: 1rem; padding-bottom: 0.375rem; border-bottom: 1px solid #e5e5e5; }
+    .demo-section-body { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 0.75rem; }
+    .demo-section-body.column { flex-direction: column; align-items: stretch; }
+    ui5-button { --sapButton_FontFamily: "72", sans-serif; }
+    ui5-button::part(text) { font-family: "72", sans-serif; font-weight: 400; }
+  </style>
+</head>
+<body>
+
+  <div class="panel-title">Message Strip</div>
+  <div class="panel-subtitle">An inline notification banner with type-based styling, optional icon, and close button.</div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">All Types</div>
+    <div class="demo-section-body column">
+      <ui5-message-strip design="Information" show-icon show-close-button>
+        Information — default icon and close button.
+      </ui5-message-strip>
+      <ui5-message-strip design="Positive" show-icon show-close-button>
+        Positive (Success) — operation completed successfully.
+      </ui5-message-strip>
+      <ui5-message-strip design="Critical" show-icon show-close-button>
+        Critical (Warning) — review before continuing.
+      </ui5-message-strip>
+      <ui5-message-strip design="Negative" show-icon show-close-button>
+        Negative (Error) — please fix the following errors.
+      </ui5-message-strip>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">Variants</div>
+    <div class="demo-section-body column">
+      <ui5-message-strip design="Information" show-icon>
+        No close button — persistent message.
+      </ui5-message-strip>
+      <ui5-message-strip design="Information" show-icon>
+        <ui5-icon slot="icon" name="locked"></ui5-icon>
+        Custom icon (locked).
+      </ui5-message-strip>
+      <ui5-message-strip design="Negative" show-close-button>
+        No icon — with a <a href="https://www.sap.com" target="_blank" style="color:inherit;font-weight:600;">link in the message</a>.
+      </ui5-message-strip>
+    </div>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <script src="panel-init.js"></script>
+  <script type="module" src="../../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    body { font-family: "72", sans-serif; font-size: 0.875rem; background: #f5f6f7; color: #131e29; margin: 0; padding: 2rem; }
+    .panel-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .panel-subtitle { font-size: 0.875rem; color: #6a7588; margin-bottom: 2rem; }
+    .demo-section { margin-bottom: 2rem; }
+    .demo-section-header { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #6a7588; margin-bottom: 1rem; padding-bottom: 0.375rem; border-bottom: 1px solid #e5e5e5; }
+    .demo-section-body { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 1rem; }
+    ui5-list { width: 360px; background: #fff; border-radius: 0.5rem; }
+  </style>
+</head>
+<body>
+  <div class="panel-title">List</div>
+  <div class="panel-subtitle">Displays a vertical collection of items, supporting selection, navigation, and icons.</div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">Standard List</div>
+    <div class="demo-section-body">
+      <ui5-list header-text="Purchase Orders">
+        <ui5-li icon="sales-order" description="Created Apr 22, 2025">PO-2024-0049 — Acme Supplies</ui5-li>
+        <ui5-li icon="sales-order" description="Created Apr 20, 2025">PO-2024-0048 — Tech GmbH</ui5-li>
+        <ui5-li icon="sales-order" description="Created Apr 18, 2025">PO-2024-0047 — Office World</ui5-li>
+        <ui5-li icon="sales-order" description="Created Apr 15, 2025">PO-2024-0046 — Logistics AG</ui5-li>
+      </ui5-list>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">With Selection (Multi)</div>
+    <div class="demo-section-body">
+      <ui5-list header-text="Team Members" selection-mode="Multiple">
+        <ui5-li icon="employee" selected>Maria Schmidt</ui5-li>
+        <ui5-li icon="employee" selected>Thomas Wagner</ui5-li>
+        <ui5-li icon="employee">Elena Petrova</ui5-li>
+        <ui5-li icon="employee">Kenji Nakamura</ui5-li>
+        <ui5-li icon="employee">Sofia Rossi</ui5-li>
+      </ui5-list>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">With Status &amp; Info</div>
+    <div class="demo-section-body">
+      <ui5-list header-text="Approval Requests" separators="Inner">
+        <ui5-li additional-text="Approved" additional-text-state="Positive" icon="task" description="Budget request Q1">Budget Approval #BR-001</ui5-li>
+        <ui5-li additional-text="Pending" additional-text-state="Critical" icon="task" description="New vendor onboarding">Vendor Request #VR-042</ui5-li>
+        <ui5-li additional-text="Rejected" additional-text-state="Negative" icon="task" description="Contract amendment">Contract Change #CC-017</ui5-li>
+        <ui5-li additional-text="Draft" icon="task" description="Prepared for review">HR Policy Update #HP-003</ui5-li>
+      </ui5-list>
+    </div>
+  </div>
+</body>
+</html>

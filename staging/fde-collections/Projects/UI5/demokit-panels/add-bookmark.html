@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Bookmark Button</title>
+  <script src="panel-init.js"></script>
+  <script type="module" src="../../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 600; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 300; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Light.woff2") format("woff2"); }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "72", sans-serif; font-size: 0.875rem; background: var(--sapBackgroundColor, #f5f6f7); padding: 2rem; color: var(--sapTextColor, #131e29); }
+    .panel-title { font-size: 1.5rem; font-weight: 700; color: #131e29; margin-bottom: 0.375rem; }
+    .panel-subtitle { font-size: 0.8125rem; color: var(--sapContent_LabelColor, #6a7588); margin-bottom: 2rem; }
+    .demo-section { background: #fff; border: 1px solid var(--sapList_BorderColor, #e5e5e5); border-radius: 8px; margin-bottom: 1.25rem; overflow: hidden; }
+    .demo-section-header { padding: 0.75rem 1rem; border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5); font-size: 0.8125rem; font-weight: 600; color: var(--sapContent_LabelColor, #6a7588); display: flex; align-items: center; justify-content: space-between; }
+    .demo-section-tag { font-family: monospace; font-size: 0.75rem; color: #0064d9; font-weight: 400; }
+    .demo-section-body { padding: 1.25rem 1rem; display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: flex-start; }
+    .demo-section-body.column { flex-direction: column; }
+    .demo-section-body.block { display: block; padding: 0; }
+  </style>
+</head>
+<body>
+  <div class="panel-title">Add Bookmark Button</div>
+  <div class="panel-subtitle">Allows users to save the current app state as a tile on the Fiori Launchpad. Equivalent to sap.ushell.ui.footerbar.AddBookmarkButton — rendered as a button that opens a "Save as Tile" dialog.</div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">
+      Add Bookmark Button
+      <span class="demo-section-tag">ui5-button + ui5-dialog</span>
+    </div>
+    <div class="demo-section-body">
+      <ui5-button id="bm-btn" icon="bookmark" design="Transparent" tooltip="Save as Tile">Add Bookmark</ui5-button>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">
+      In a Footer Bar (typical placement)
+      <span class="demo-section-tag">Launchpad footer pattern</span>
+    </div>
+    <div class="demo-section-body" style="justify-content:space-between; background:var(--sapBackgroundColor,#f5f6f7); border-radius:0 0 8px 8px;">
+      <ui5-button design="Transparent" icon="nav-back">Back</ui5-button>
+      <ui5-button id="bm-btn-2" icon="bookmark" design="Transparent" tooltip="Save as Tile">Add Bookmark</ui5-button>
+    </div>
+  </div>
+
+  <!-- Save as Tile dialog -->
+  <ui5-dialog id="bm-dialog" header-text="Save as Tile" style="--_ui5-v2-dialog-content-min-height:auto;">
+    <div style="padding:1rem; display:flex; flex-direction:column; gap:1rem; min-width:320px;">
+      <div style="display:flex; flex-direction:column; gap:0.3rem;">
+        <ui5-label required show-colon>Title</ui5-label>
+        <ui5-input id="bm-title" value="Sample Bookmark title" style="width:100%;"></ui5-input>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:0.3rem;">
+        <ui5-label show-colon>Subtitle</ui5-label>
+        <ui5-input id="bm-subtitle" value="Sample subtitle" style="width:100%;"></ui5-input>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:0.3rem;">
+        <ui5-label show-colon>Information</ui5-label>
+        <ui5-input id="bm-info" value="Sample Info" style="width:100%;"></ui5-input>
+      </div>
+      <div style="display:flex; gap:1rem;">
+        <div style="display:flex; flex-direction:column; gap:0.3rem; flex:1;">
+          <ui5-label show-colon>Number Unit</ui5-label>
+          <ui5-input value="USD" style="width:100%;"></ui5-input>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:0.3rem; flex:1;">
+          <ui5-label show-colon>Icon</ui5-label>
+          <ui5-input value="attachment" style="width:100%;"></ui5-input>
+        </div>
+      </div>
+      <!-- Tile preview -->
+      <div style="background:var(--sapBackgroundColor,#f5f6f7); border-radius:6px; padding:0.75rem; border:1px solid var(--sapList_BorderColor,#e5e5e5);">
+        <div style="font-size:0.6875rem; font-weight:600; color:var(--sapContent_LabelColor,#6a7588); margin-bottom:0.5rem; text-transform:uppercase; letter-spacing:0.06em;">Tile Preview</div>
+        <div style="width:174px; height:112px; background:linear-gradient(135deg,#0070f2,#0040b0); border-radius:8px; padding:0.75rem; display:flex; flex-direction:column; justify-content:space-between; box-shadow:0 2px 8px rgba(0,0,0,0.15);">
+          <div>
+            <ui5-icon name="attachment" style="color:#fff; font-size:1.5rem;"></ui5-icon>
+          </div>
+          <div>
+            <div id="bm-preview-title" style="font-size:0.8125rem; font-weight:700; color:#fff; line-height:1.3;">Sample Bookmark title</div>
+            <div id="bm-preview-subtitle" style="font-size:0.6875rem; color:rgba(255,255,255,0.75); margin-top:0.1rem;">Sample subtitle</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div slot="footer" style="display:flex; justify-content:flex-end; gap:0.5rem; padding:0.5rem 1rem;">
+      <ui5-button design="Emphasized" id="bm-save-btn">Save</ui5-button>
+      <ui5-button design="Transparent" id="bm-cancel-btn">Cancel</ui5-button>
+    </div>
+  </ui5-dialog>
+
+  <script>
+    function openBookmarkDialog() { document.getElementById('bm-dialog').open = true; }
+    document.getElementById('bm-btn').addEventListener('click', openBookmarkDialog);
+    document.getElementById('bm-btn-2').addEventListener('click', openBookmarkDialog);
+    document.getElementById('bm-save-btn').addEventListener('click', function() { document.getElementById('bm-dialog').open = false; });
+    document.getElementById('bm-cancel-btn').addEventListener('click', function() { document.getElementById('bm-dialog').open = false; });
+    document.getElementById('bm-title').addEventListener('input', function(e) {
+      document.getElementById('bm-preview-title').textContent = e.target.value || 'Title';
+    });
+    document.getElementById('bm-subtitle').addEventListener('input', function(e) {
+      document.getElementById('bm-preview-subtitle').textContent = e.target.value || 'Subtitle';
+    });
+  </script>
+</body>
+</html>

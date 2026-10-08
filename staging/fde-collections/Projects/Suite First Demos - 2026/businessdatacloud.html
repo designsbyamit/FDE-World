@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Business Data Cloud</title>
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 600; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 300; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Light.woff2") format("woff2"); }
+    html, body { height: 100%; overflow: hidden; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "72", sans-serif; background: var(--sapBackgroundColor, #f5f6f7); color: var(--sapTextColor, #1d2d3e); }
+  </style>
+</head>
+<body>
+  <script type="module" src="../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <script src="../../lib/shared/shellbar.js"></script>
+  <app-shellbar title="Business Data Cloud" base-path="../../"></app-shellbar>
+
+<script>
+  var SF_NAV = {
+    'SAP Start': 'index.html',
+    'S/4HANA Cloud': 's4hana.html',
+    'SuccessFactors': 'successfactors.html',
+    'Concur': 'concur.html',
+    'Sales Cloud': 'salescloud.html',
+    'Ariba': 'ariba.html',
+    'Business Data Cloud': 'businessdatacloud.html'
+  };
+  document.addEventListener('DOMContentLoaded', function () {
+    function wirePs() {
+      var popover = document.querySelector('#app-ps-popover');
+      if (!popover) { setTimeout(wirePs, 100); return; }
+      popover.addEventListener('click', function (e) {
+        var item = e.target.closest('.app-ps-item');
+        if (!item) return;
+        var label = item.querySelector('span');
+        if (!label) return;
+        var href = SF_NAV[label.textContent.trim()];
+        if (href) location.href = href;
+      });
+    }
+    wirePs();
+  });
+</script>
+  </div>
+</body>
+</html>

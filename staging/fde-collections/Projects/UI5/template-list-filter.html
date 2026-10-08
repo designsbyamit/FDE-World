@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>List with Filters | Template</title>
+
+  <script data-ui5-config type="application/json">{ "theme": "sap_horizon" }</script>
+  <script type="module" src="../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <script src="../../lib/shared/shellbar.js"></script>
+
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 600; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 300; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Light.woff2") format("woff2"); }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    ui5-button { --sapButton_FontFamily: "72", sans-serif; }
+    ui5-button::part(text) { font-family: "72", sans-serif; font-weight: 400; }
+
+    html, body {
+      font-family: "72", sans-serif;
+      background: var(--sapBackgroundColor, #f5f6f7);
+      color: var(--sapTextColor, #131e29);
+      min-height: 100vh;
+    }
+
+    /* ─── Page Header ─────────────────────────────────────────── */
+    .page-header {
+      padding: 0.75rem 2rem 1rem;
+      background: var(--sapBaseColor, #fff);
+      border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      box-shadow: var(--sapContent_Shadow1, 0 2px 4px rgba(0,0,0,.08));
+      transition: box-shadow 0.2s;
+      position: relative;
+      z-index: 10;
+    }
+    .page-header.filters-open {
+      box-shadow: none;
+      border-bottom-color: transparent;
+    }
+    .page-header ui5-breadcrumbs { display: block; margin-bottom: 0.4rem; }
+
+    .variant-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      margin-top: 0.25rem;
+    }
+    .variant-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--sapLinkColor, #0070f2);
+      cursor: pointer;
+      line-height: 1.2;
+      border: none;
+      background: none;
+      padding: 0;
+      font-family: "72", sans-serif;
+    }
+    .variant-title:hover { text-decoration: underline; }
+    .variant-arrow::part(button) {
+      border: none;
+      background: none;
+      padding: 0.125rem 0.25rem;
+    }
+
+    /* ─── Filter Toggle Row ────────────────────────────────────── */
+    .filter-toggle-row {
+      position: relative;
+      height: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9;
+    }
+    .filter-toggle-row ui5-button::part(button) {
+      box-shadow: var(--sapContent_Shadow1, 0 2px 4px rgba(0,0,0,.08));
+    }
+
+    /* ─── Filter Bar ───────────────────────────────────────────── */
+    .filter-bar {
+      display: none;
+      background: var(--sapBaseColor, #fff);
+      border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      box-shadow: var(--sapContent_Shadow1, 0 2px 4px rgba(0,0,0,.08));
+      padding: 1rem 2rem 1.25rem;
+      position: relative;
+      z-index: 8;
+    }
+    .filter-bar.open { display: block; }
+
+    .filter-fields {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .filter-field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    .filter-field label {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--sapContent_LabelColor, #556b82);
+    }
+    .filter-field ui5-select { width: 225px; }
+
+    .filter-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* ─── Page Content ─────────────────────────────────────────── */
+    .page-content { padding: 1.5rem 2rem; }
+
+    /* ─── Table Card ───────────────────────────────────────────── */
+    .table-card {
+      background: var(--sapBaseColor, #fff);
+      border: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      border-radius: 0.375rem;
+      overflow: hidden;
+    }
+
+    .table-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 0.75rem;
+      border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      gap: 1rem;
+    }
+    .table-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--sapTextColor, #131e29);
+      white-space: nowrap;
+    }
+    .table-toolbar-right { display: flex; align-items: center; gap: 0.375rem; }
+    .toolbar-separator { width: 1px; height: 1.25rem; background: var(--sapList_BorderColor, #e5e5e5); margin: 0 0.125rem; }
+
+    /* ─── Skeleton Loader ──────────────────────────────────────── */
+    @keyframes sap-pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .skeleton-table { width: 100%; border-collapse: collapse; }
+    .skeleton-table th, .skeleton-table td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5);
+    }
+    .skeleton-table th:first-child, .skeleton-table td:first-child { padding-inline-start: 1rem; }
+    .skel-bar {
+      height: 0.875rem;
+      border-radius: 0.25rem;
+      background: var(--sapList_BorderColor, #e5e5e5);
+      animation: sap-pulse 1.4s ease-in-out infinite;
+    }
+    .skel-bar.skel-hd { height: 0.75rem; background: var(--sapContent_LabelColor, #556b82); opacity: 0.25; }
+    .skel-bar.w-40 { width: 40%; }
+    .skel-bar.w-55 { width: 55%; }
+    .skel-bar.w-70 { width: 70%; }
+    .skel-bar.w-30 { width: 30%; }
+    .skel-bar.w-80 { width: 80%; }
+    .skel-bar.w-50 { width: 50%; }
+    .skel-bar.w-60 { width: 60%; }
+    .skel-bar.w-20 { width: 20%; }
+    .skel-bar.w-45 { width: 45%; }
+    .skel-bar.w-90 { width: 90%; }
+    .skel-checkbox { width: 1rem; height: 1rem; border-radius: 0.25rem; background: var(--sapList_BorderColor, #e5e5e5); animation: sap-pulse 1.4s ease-in-out infinite; }
+
+    .table-skeleton { display: block; }
+    .table-real { display: none; }
+
+    /* ─── Cell styles ──────────────────────────────────────────── */
+    .cell-link { color: var(--sapLinkColor, #0070f2); cursor: pointer; text-decoration: none; }
+    .cell-link:hover { text-decoration: underline; }
+
+    /* ─── Pagination ───────────────────────────────────────────── */
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.125rem;
+      padding: 0.875rem;
+      border-top: 1px solid var(--sapList_BorderColor, #e5e5e5);
+    }
+    .page-btn {
+      min-width: 26px; height: 26px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 0.5rem;
+      font-family: "72", sans-serif;
+      font-size: 0.875rem;
+      cursor: pointer;
+      border: none;
+      background: none;
+      color: var(--sapTextColor, #131e29);
+      padding: 0 0.35rem;
+      transition: background 0.15s;
+    }
+    .page-btn:hover { background: var(--sapList_HoverBackground, #f0f2f5); }
+    .page-btn.active { color: var(--sapLinkColor, #0070f2); font-weight: 600; text-decoration: underline; }
+    .page-btn.nav { color: var(--sapContent_LabelColor, #556b82); }
+    .page-btn svg { width: 12px; height: 12px; }
+
+    /* ─── No results ───────────────────────────────────────────── */
+    .no-results {
+      display: none;
+      padding: 2.5rem 1rem;
+      text-align: center;
+      color: var(--sapContent_LabelColor, #556b82);
+      font-size: 0.875rem;
+    }
+    .no-results.visible { display: block; }
+  </style>
+</head>
+<body>
+
+  <app-shellbar title="SAP Fiori" show-search base-path="../../"></app-shellbar>
+
+  <!-- Variant Popover -->
+  <ui5-popover id="pop-variants" placement="Bottom" horizontal-align="Start" style="width: 260px">
+    <ui5-list id="variant-list" mode="SingleSelect" separators="None">
+      <ui5-li data-variant="all" selected>All Items</ui5-li>
+      <ui5-li data-variant="pending">Pending Review</ui5-li>
+      <ui5-li data-variant="high">High Priority</ui5-li>
+    </ui5-list>
+    <div slot="footer" style="display:flex; align-items:center; gap:0.5rem; padding:0.5rem; border-top:1px solid var(--sapList_BorderColor,#e5e5e5);">
+      <ui5-button design="Emphasized" id="btn-save-as">Save As</ui5-button>
+      <ui5-button design="Transparent" id="btn-manage">Manage</ui5-button>
+    </div>
+  </ui5-popover>
+
+  <!-- Page Header -->
+  <div class="page-header" id="page-header">
+    <ui5-breadcrumbs>
+      <ui5-breadcrumbs-item href="#">SAP Fiori</ui5-breadcrumbs-item>
+      <ui5-breadcrumbs-item>Records</ui5-breadcrumbs-item>
+    </ui5-breadcrumbs>
+    <div class="variant-bar">
+      <button class="variant-title" id="btn-variant-title">All Items</button>
+      <ui5-button class="variant-arrow" id="btn-variant-arrow" design="Transparent" icon="slim-arrow-down" tooltip="Open variants"></ui5-button>
+    </div>
+  </div>
+
+  <!-- Filter Toggle Row -->
+  <div class="filter-toggle-row">
+    <ui5-button id="btn-filter-toggle" design="Default" icon="slim-arrow-down" tooltip="Show filters">Filters</ui5-button>
+  </div>
+
+  <!-- Filter Bar -->
+  <div class="filter-bar" id="filter-bar">
+    <div class="filter-fields">
+      <div class="filter-field">
+        <label>Category</label>
+        <ui5-select id="filter-category">
+          <ui5-option selected>All</ui5-option>
+          <ui5-option>Software</ui5-option>
+          <ui5-option>Hardware</ui5-option>
+          <ui5-option>Services</ui5-option>
+          <ui5-option>Consulting</ui5-option>
+        </ui5-select>
+      </div>
+      <div class="filter-field">
+        <label>Status</label>
+        <ui5-select id="filter-status">
+          <ui5-option selected>All</ui5-option>
+          <ui5-option>Approved</ui5-option>
+          <ui5-option>Pending</ui5-option>
+          <ui5-option>Rejected</ui5-option>
+          <ui5-option>In Progress</ui5-option>
+        </ui5-select>
+      </div>
+      <div class="filter-field">
+        <label>Currency</label>
+        <ui5-select id="filter-currency">
+          <ui5-option selected>All</ui5-option>
+          <ui5-option>USD</ui5-option>
+          <ui5-option>EUR</ui5-option>
+          <ui5-option>GBP</ui5-option>
+          <ui5-option>JPY</ui5-option>
+        </ui5-select>
+      </div>
+      <div class="filter-field">
+        <label>Assigned To</label>
+        <ui5-select id="filter-assigned">
+          <ui5-option selected>All</ui5-option>
+          <ui5-option>Maria Santos</ui5-option>
+          <ui5-option>James Holloway</ui5-option>
+          <ui5-option>Priya Nair</ui5-option>
+          <ui5-option>Luca Ferretti</ui5-option>
+        </ui5-select>
+      </div>
+    </div>
+    <div class="filter-actions">
+      <ui5-button design="Emphasized" id="btn-go">Go</ui5-button>
+      <ui5-button design="Transparent">Adapt Filters</ui5-button>
+    </div>
+  </div>
+
+  <!-- Page Content -->
+  <div class="page-content">
+    <div class="table-card">
+
+      <!-- Table Toolbar -->
+      <div class="table-toolbar">
+        <span class="table-title" id="table-title">Records (8)</span>
+        <div class="table-toolbar-right">
+          <div class="toolbar-separator"></div>
+          <ui5-button design="Transparent" icon="action-settings" tooltip="Settings"></ui5-button>
+          <ui5-button design="Transparent" icon="full-screen" tooltip="Fullscreen"></ui5-button>
+        </div>
+      </div>
+
+      <!-- Skeleton Loader -->
+      <div class="table-skeleton" id="table-skeleton">
+        <table class="skeleton-table">
+          <thead>
+            <tr>
+              <th style="width:2.5rem"><div class="skel-checkbox"></div></th>
+              <th><div class="skel-bar skel-hd w-40"></div></th>
+              <th><div class="skel-bar skel-hd w-55"></div></th>
+              <th><div class="skel-bar skel-hd w-50"></div></th>
+              <th><div class="skel-bar skel-hd w-40"></div></th>
+              <th><div class="skel-bar skel-hd w-30"></div></th>
+              <th><div class="skel-bar skel-hd w-45"></div></th>
+              <th><div class="skel-bar skel-hd w-40"></div></th>
+              <th><div class="skel-bar skel-hd w-60"></div></th>
+            </tr>
+          </thead>
+          <tbody id="skel-rows"></tbody>
+        </table>
+      </div>
+
+      <!-- Real Table -->
+      <div class="table-real" id="table-real">
+        <ui5-table id="main-table">
+          <ui5-table-selection-multi slot="features"></ui5-table-selection-multi>
+          <ui5-table-header-row slot="headerRow">
+            <ui5-table-header-cell width="110px" style="padding-inline-start: 1rem">Record ID</ui5-table-header-cell>
+            <ui5-table-header-cell width="160px">Name</ui5-table-header-cell>
+            <ui5-table-header-cell width="120px">Category</ui5-table-header-cell>
+            <ui5-table-header-cell width="120px">Created</ui5-table-header-cell>
+            <ui5-table-header-cell width="110px">Amount</ui5-table-header-cell>
+            <ui5-table-header-cell width="90px">Currency</ui5-table-header-cell>
+            <ui5-table-header-cell width="130px">Status</ui5-table-header-cell>
+            <ui5-table-header-cell>Assigned To</ui5-table-header-cell>
+          </ui5-table-header-row>
+
+          <ui5-table-row interactive data-status="all">
+            <ui5-table-cell style="padding-inline-start: 1rem"><a class="cell-link">REC-00201</a></ui5-table-cell>
+            <ui5-table-cell>Acme Corp Order</ui5-table-cell>
+            <ui5-table-cell>Software</ui5-table-cell>
+            <ui5-table-cell>04/02/2026</ui5-table-cell>
+            <ui5-table-cell>12,400.00</ui5-table-cell>
+            <ui5-table-cell>USD</ui5-table-cell>
+            <ui5-table-cell><ui5-tag design="Positive">Approved</ui5-tag></ui5-table-cell>
+            <ui5-table-cell>Maria Santos</ui5-table-cell>
+            <ui5-table-row-action-navigation slot="actions"></ui5-table-row-action-navigation>
+          </ui5-table-row>
+
+          <ui5-table-row interactive data-status="pending">
+            <ui5-table-cell style="padding-inline-start: 1rem"><a class="cell-link">REC-00198</a></ui5-table-cell>
+            <ui5-table-cell>Global Industries Request</ui5-table-cell>
+            <ui5-table-cell>Consulting</ui5-table-cell>
+            <ui5-table-cell>04/03/2026</ui5-table-cell>
+            <ui5-table-cell>5,750.00</ui5-table-cell>
+            <ui5-table-cell>EUR</ui5-table-cell>
+            <ui5-table-cell><ui5-tag design="Critical">Pending</ui5-tag></ui5-table-cell>
+            <ui5-table-cell>James Holloway</ui5-table-cell>
+            <ui5-table-row-action-navigation slot="actions"></ui5-table-row-action-navigation>
+          </ui5-table-row>
+
+          <ui5-table-row interactive data-status="high">
+            <ui5-table-cell style="padding-inline-start: 1rem"><a class="cell-link">REC-00195</a></ui5-table-cell>
+            <ui5-table-cell>Summit Dynamics Contract</ui5-table-cell>
+            <ui5-table-cell>Services</ui5-table-cell>
+            <ui5-table-cell>04/04/2026</ui5-table-cell>
+            <ui5-table-cell>98,000.00</ui5-table-cell>
+            <ui5-table-cell>USD</ui5-table-cell>
+            <ui5-table-cell><ui5-tag design="Positive">Approved</ui5-tag></ui5-table-cell>
+            <ui5-table-cell>Priya Nair</ui5-table-cell>
+            <ui5-table-row-action-navigation slot="actions"></ui5-table-row-action-navigation>
+          </ui5-table-row>
+
+          <ui5-table-row interactive data-status="pending">
+            <ui5-table-cell style="padding-inline-start: 1rem"><a class="cell-link">REC-00191</a></ui5-table-cell>
+            <ui5-table-cell>Horizon Supplies PO</ui5-table-cell>
+            <ui5-table-cell>Hardware</ui5-table-cell>
+            <ui5-table-cell>04/05/2026</ui5-table-cell>
+            <ui5-table-cell>3,200.00</ui5-table-cell>
+            <ui5-table-cell>GBP</ui5-table-cell>
+            <ui5-table-cell><ui5-tag design="Critical">Pending</ui5-tag></ui5-table-cell>
+            <ui5-table-cell>Luca Ferretti</ui5-table-cell>
+            <ui5-table-row-action-navigation slot="actions"></ui5-table-row-action-navigation>
+          </ui5-table-row>
+
+          <ui5-table-row interactive data-status="all">
+            <ui5-table-cell style="padding-inline-start: 1rem"><a class="cell-link">REC-00187</a></ui5-table-cell>
+            <ui5-table-cell>Stellar Tech Invoice</ui5-table-cell>
+            <ui5-table-cell>Software</ui5-table-cell>
+            <ui5-table-cell>04/06/2026</ui5-table-cell>
+            <ui5-table-cell>21,600.00</ui5-table-cell>
+            <ui5-table-cell>USD</ui5-table-cell>
+            <ui5-table-cell><ui5-tag design="Negative">Rejected</ui5-tag></ui5-table-cell>
+            <ui5-table-cell>Maria Santos</ui5-table-cell>
+            <ui5-table-row-action-navigation slot="actions"></ui5-table-row-action-navigation>
+          </ui5-table-row>
+
+          <ui5-table-row interactive data-status="high">
+            <ui5-table-cell style="padding-inline-start: 1rem"><a class="cell-link">REC-00184</a></ui5-table-cell>
+            <ui5-table-cell>Vertex Partners Deal</ui5-table-cell>
+            <ui5-table-cell>Consulting</ui5-table-cell>
+            <ui5-table-cell>04/07/2026</ui5-table-cell>
+            <ui5-table-cell>145,000.00</ui5-table-cell>
+            <ui5-table-cell>EUR</ui5-table-cell>
+            <ui5-table-cell><ui5-tag design="Information">In Progress</ui5-tag></ui5-table-cell>
+            <ui5-table-cell>James Holloway</ui5-table-cell>
+            <ui5-table-row-action-navigation slot="actions"></ui5-table-row-action-navigation>
+          </ui5-table-row>
+
+          <ui5-table-row interactive data-status="all">
+            <ui5-table-cell style="padding-inline-start: 1rem"><a class="cell-link">REC-00180</a></ui5-table-cell>
+            <ui5-table-cell>Pinnacle Group Quote</ui5-table-cell>
+            <ui5-table-cell>Services</ui5-table-cell>
+            <ui5-table-cell>04/08/2026</ui5-table-cell>
+            <ui5-table-cell>8,900.00</ui5-table-cell>
+            <ui5-table-cell>JPY</ui5-table-cell>
+            <ui5-table-cell><ui5-tag design="Positive">Approved</ui5-tag></ui5-table-cell>
+            <ui5-table-cell>Priya Nair</ui5-table-cell>
+            <ui5-table-row-action-navigation slot="actions"></ui5-table-row-action-navigation>
+          </ui5-table-row>
+
+          <ui5-table-row interactive data-status="high">
+            <ui5-table-cell style="padding-inline-start: 1rem"><a class="cell-link">REC-00176</a></ui5-table-cell>
+            <ui5-table-cell>NovaBridge Systems Order</ui5-table-cell>
+            <ui5-table-cell>Hardware</ui5-table-cell>
+            <ui5-table-cell>04/09/2026</ui5-table-cell>
+            <ui5-table-cell>67,250.00</ui5-table-cell>
+            <ui5-table-cell>USD</ui5-table-cell>
+            <ui5-table-cell><ui5-tag design="Information">In Progress</ui5-tag></ui5-table-cell>
+            <ui5-table-cell>Luca Ferretti</ui5-table-cell>
+            <ui5-table-row-action-navigation slot="actions"></ui5-table-row-action-navigation>
+          </ui5-table-row>
+        </ui5-table>
+
+        <div class="no-results" id="no-results">No records match the selected view.</div>
+      </div>
+
+      <!-- Pagination -->
+      <div class="pagination">
+        <button class="page-btn nav" aria-label="Previous page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg></button>
+        <button class="page-btn active">1</button>
+        <button class="page-btn">2</button>
+        <button class="page-btn">3</button>
+        <button class="page-btn nav" aria-label="Next page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></button>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    /* ─── Skeleton rows ─────────────────────────────────────── */
+    const skelWidths = [
+      ['w-40','w-70','w-50','w-30','w-45','w-40','w-55','w-60'],
+      ['w-40','w-80','w-45','w-30','w-50','w-40','w-55','w-70'],
+      ['w-40','w-60','w-55','w-30','w-40','w-40','w-50','w-80'],
+      ['w-40','w-75','w-50','w-30','w-45','w-40','w-60','w-65'],
+      ['w-40','w-70','w-45','w-30','w-55','w-40','w-50','w-70'],
+      ['w-40','w-80','w-55','w-30','w-40','w-40','w-55','w-60'],
+      ['w-40','w-65','w-50','w-30','w-50','w-40','w-60','w-75'],
+      ['w-40','w-70','w-45','w-30','w-45','w-40','w-55','w-80'],
+    ];
+    const skelBody = document.getElementById('skel-rows');
+    skelWidths.forEach(function(row, i) {
+      const tr = document.createElement('tr');
+      const tdCb = document.createElement('td');
+      tdCb.innerHTML = '<div class="skel-checkbox"></div>';
+      tr.appendChild(tdCb);
+      row.forEach(function(w, j) {
+        const td = document.createElement('td');
+        const delay = ((i * 8 + j) * 0.05) % 0.6;
+        td.innerHTML = '<div class="skel-bar ' + w + '" style="animation-delay:' + delay + 's"></div>';
+        tr.appendChild(td);
+      });
+      skelBody.appendChild(tr);
+    });
+
+    /* ─── Reveal real table after 2s ───────────────────────── */
+    setTimeout(function() {
+      document.getElementById('table-skeleton').style.display = 'none';
+      document.getElementById('table-real').style.display = 'block';
+    }, 2000);
+
+    /* ─── Filter toggle ─────────────────────────────────────── */
+    const btnToggle = document.getElementById('btn-filter-toggle');
+    const filterBar = document.getElementById('filter-bar');
+    const pageHeader = document.getElementById('page-header');
+    let filtersOpen = false;
+
+    btnToggle.addEventListener('click', function() {
+      filtersOpen = !filtersOpen;
+      filterBar.classList.toggle('open', filtersOpen);
+      pageHeader.classList.toggle('filters-open', filtersOpen);
+      btnToggle.setAttribute('icon', filtersOpen ? 'slim-arrow-up' : 'slim-arrow-down');
+      btnToggle.setAttribute('tooltip', filtersOpen ? 'Hide filters' : 'Show filters');
+    });
+
+    /* ─── Variant popover ───────────────────────────────────── */
+    const popVariants = document.getElementById('pop-variants');
+    const variantTitle = document.getElementById('btn-variant-title');
+    const variantArrow = document.getElementById('btn-variant-arrow');
+
+    function openVariantPop(opener) {
+      popVariants.opener = opener;
+      popVariants.open = true;
+    }
+
+    variantTitle.addEventListener('click', function() { openVariantPop(variantTitle); });
+    variantArrow.addEventListener('click', function() { openVariantPop(variantArrow); });
+
+    /* ─── Variant selection + row filtering ─────────────────── */
+    const variantList = document.getElementById('variant-list');
+    const tableTitle = document.getElementById('table-title');
+    const noResults = document.getElementById('no-results');
+    const mainTable = document.getElementById('main-table');
+
+    function applyVariant(variant, label) {
+      variantTitle.textContent = label;
+      const rows = mainTable.querySelectorAll('ui5-table-row');
+      let visible = 0;
+
+      rows.forEach(function(row) {
+        const status = row.getAttribute('data-status');
+        let show = false;
+        if (variant === 'all') {
+          show = true;
+        } else if (variant === 'pending') {
+          show = status === 'pending';
+        } else if (variant === 'high') {
+          show = status === 'high';
+        }
+        row.style.display = show ? '' : 'none';
+        if (show) visible++;
+      });
+
+      tableTitle.textContent = label + ' (' + visible + ')';
+
+      if (visible === 0) {
+        noResults.classList.add('visible');
+        mainTable.style.display = 'none';
+      } else {
+        noResults.classList.remove('visible');
+        mainTable.style.display = '';
+      }
+
+      popVariants.open = false;
+    }
+
+    variantList.addEventListener('item-click', function(e) {
+      const item = e.detail.item;
+      const variant = item.getAttribute('data-variant');
+      const label = item.textContent.trim();
+      applyVariant(variant, label);
+    });
+  </script>
+
+</body>
+</html>

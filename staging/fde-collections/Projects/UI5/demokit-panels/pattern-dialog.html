@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <script src="panel-init.js"></script>
+  <script type="module" src="../../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 600; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 300; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Light.woff2") format("woff2"); }
+    body { font-family: "72", sans-serif; font-size: 0.875rem; background: #f5f6f7; color: #131e29; margin: 0; padding: 2rem; }
+    .panel-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .panel-subtitle { font-size: 0.875rem; color: #6a7588; margin-bottom: 2rem; }
+    .demo-section { margin-bottom: 2rem; }
+    .demo-section-header { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #6a7588; margin-bottom: 1rem; padding-bottom: 0.375rem; border-bottom: 1px solid #e5e5e5; }
+    .demo-section-body { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; }
+    ui5-button { --sapButton_FontFamily: "72", sans-serif; }
+    ui5-button::part(text) { font-family: "72", sans-serif; font-weight: 400; }
+    .dlg-form { display: grid; grid-template-columns: 120px 1fr; gap: 0.5rem 0.75rem; align-items: center; margin-bottom: 1rem; }
+  </style>
+</head>
+<body>
+
+  <div class="panel-title">Dialog Patterns</div>
+  <div class="panel-subtitle">Common dialog variants: confirmation, form input, and error/warning messages. Click the buttons below to trigger each dialog.</div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">Confirmation Dialog</div>
+    <div class="demo-section-body">
+      <ui5-button design="Negative" icon="delete" onclick="document.getElementById('dlg-confirm').open=true">Delete Item</ui5-button>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">Form Dialog</div>
+    <div class="demo-section-body">
+      <ui5-button design="Emphasized" icon="add" onclick="document.getElementById('dlg-form').open=true">Create Employee</ui5-button>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">Error / Warning Dialog</div>
+    <div class="demo-section-body">
+      <ui5-button design="Negative" icon="alert" onclick="document.getElementById('dlg-error').open=true">Show Error</ui5-button>
+      <ui5-button design="Attention" icon="warning2" onclick="document.getElementById('dlg-warning').open=true">Show Warning</ui5-button>
+    </div>
+  </div>
+
+  <!-- Confirmation dialog -->
+  <ui5-dialog id="dlg-confirm" header-text="Delete Item" state="Warning">
+    <div style="padding:1rem 0;">
+      Are you sure you want to delete <strong>Notebook Basic 15</strong>? This action cannot be undone.
+    </div>
+    <div slot="footer" style="display:flex;justify-content:flex-start;gap:0.5rem;padding:0.5rem 0.25rem;">
+      <ui5-button design="Negative" onclick="document.getElementById('dlg-confirm').open=false">Delete</ui5-button>
+      <ui5-button design="Transparent" onclick="document.getElementById('dlg-confirm').open=false">Cancel</ui5-button>
+    </div>
+  </ui5-dialog>
+
+  <!-- Form dialog -->
+  <ui5-dialog id="dlg-form" header-text="Create Employee" style="width:480px;">
+    <div style="padding:1rem 0;">
+      <div class="dlg-form">
+        <ui5-label required>First Name</ui5-label>
+        <ui5-input placeholder="Enter first name"></ui5-input>
+        <ui5-label required>Last Name</ui5-label>
+        <ui5-input placeholder="Enter last name"></ui5-input>
+        <ui5-label>Department</ui5-label>
+        <ui5-select>
+          <ui5-option selected>Engineering</ui5-option>
+          <ui5-option>Product</ui5-option>
+          <ui5-option>Sales</ui5-option>
+          <ui5-option>HR</ui5-option>
+        </ui5-select>
+        <ui5-label>Email</ui5-label>
+        <ui5-input type="Email" placeholder="name@example.com"></ui5-input>
+      </div>
+    </div>
+    <div slot="footer" style="display:flex;justify-content:flex-start;gap:0.5rem;padding:0.5rem 0.25rem;">
+      <ui5-button design="Emphasized" onclick="document.getElementById('dlg-form').open=false">Save</ui5-button>
+      <ui5-button design="Transparent" onclick="document.getElementById('dlg-form').open=false">Cancel</ui5-button>
+    </div>
+  </ui5-dialog>
+
+  <!-- Error dialog -->
+  <ui5-dialog id="dlg-error" header-text="Error" state="Negative">
+    <div style="padding:1rem 0; display:flex; gap:1rem; align-items:flex-start;">
+      <ui5-icon name="error" style="font-size:2rem; color:#bb0000; flex-shrink:0;"></ui5-icon>
+      <div>
+        <div style="font-weight:600; margin-bottom:0.5rem;">Could not save changes</div>
+        <div style="color:#6a7588;">The server returned an error. Please check your connection and try again. If the problem persists, contact your system administrator.</div>
+      </div>
+    </div>
+    <div slot="footer" style="display:flex;justify-content:flex-start;gap:0.5rem;padding:0.5rem 0.25rem;">
+      <ui5-button design="Emphasized" onclick="document.getElementById('dlg-error').open=false">OK</ui5-button>
+    </div>
+  </ui5-dialog>
+
+  <!-- Warning dialog -->
+  <ui5-dialog id="dlg-warning" header-text="Warning" state="Warning">
+    <div style="padding:1rem 0; display:flex; gap:1rem; align-items:flex-start;">
+      <ui5-icon name="warning2" style="font-size:2rem; color:#e9730c; flex-shrink:0;"></ui5-icon>
+      <div>
+        <div style="font-weight:600; margin-bottom:0.5rem;">Unsaved changes</div>
+        <div style="color:#6a7588;">You have unsaved changes. If you leave now, your changes will be lost.</div>
+      </div>
+    </div>
+    <div slot="footer" style="display:flex;justify-content:flex-start;gap:0.5rem;padding:0.5rem 0.25rem;">
+      <ui5-button design="Emphasized" onclick="document.getElementById('dlg-warning').open=false">Stay</ui5-button>
+      <ui5-button design="Transparent" onclick="document.getElementById('dlg-warning').open=false">Leave</ui5-button>
+    </div>
+  </ui5-dialog>
+
+</body>
+</html>

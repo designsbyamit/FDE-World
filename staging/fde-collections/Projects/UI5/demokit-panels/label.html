@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <script src="panel-init.js"></script>
+  <script type="module" src="../../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    body { font-family: "72", sans-serif; font-size: 0.875rem; background: #f5f6f7; color: #131e29; margin: 0; padding: 2rem; }
+    .panel-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .panel-subtitle { font-size: 0.875rem; color: #6a7588; margin-bottom: 2rem; }
+    .demo-section { margin-bottom: 2rem; }
+    .demo-section-header { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #6a7588; margin-bottom: 1rem; padding-bottom: 0.375rem; border-bottom: 1px solid #e5e5e5; }
+    .demo-section-body { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 1rem; }
+    .form-row { display: flex; flex-direction: column; gap: 0.25rem; width: 240px; }
+    .form-row ui5-input, .form-row ui5-select { width: 100%; }
+  </style>
+</head>
+<body>
+  <div class="panel-title">Label</div>
+  <div class="panel-subtitle">Describes a form field; supports required indicator and colon suffix.</div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">Basic</div>
+    <div class="demo-section-body">
+      <div class="form-row">
+        <ui5-label for="firstName">First Name</ui5-label>
+        <ui5-input id="firstName" value="Maria"></ui5-input>
+      </div>
+      <div class="form-row">
+        <ui5-label for="lastName">Last Name</ui5-label>
+        <ui5-input id="lastName" value="Schmidt"></ui5-input>
+      </div>
+      <div class="form-row">
+        <ui5-label for="dept">Department</ui5-label>
+        <ui5-input id="dept" value="Procurement"></ui5-input>
+      </div>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">Required Fields</div>
+    <div class="demo-section-body">
+      <div class="form-row">
+        <ui5-label for="emailReq" required>Email Address</ui5-label>
+        <ui5-input id="emailReq" value="maria.schmidt@example.com" type="Email"></ui5-input>
+      </div>
+      <div class="form-row">
+        <ui5-label for="vendorReq" required>Vendor Name</ui5-label>
+        <ui5-input id="vendorReq" placeholder="Enter vendor name" value-state="Negative">
+          <div slot="valueStateMessage">Vendor name is required.</div>
+        </ui5-input>
+      </div>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">With Colon</div>
+    <div class="demo-section-body">
+      <div style="display:grid; grid-template-columns: auto 1fr; gap:0.5rem 1rem; align-items:center; max-width: 400px;">
+        <ui5-label show-colon>Order Number</ui5-label>
+        <span style="font-weight:600;">PO-2024-0049</span>
+        <ui5-label show-colon>Created By</ui5-label>
+        <span>Maria Schmidt</span>
+        <ui5-label show-colon>Status</ui5-label>
+        <span style="color:#107e3e; font-weight:600;">Approved</span>
+        <ui5-label show-colon>Total Amount</ui5-label>
+        <span style="font-weight:600;">€ 12,500.00</span>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

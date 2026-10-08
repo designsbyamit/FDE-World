@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="../../lib/assets/favicon.ico">
+  <title>Grovemart Retail Group — Customer 360</title>
+  <script data-ui5-config type="application/json">{ "theme":"sap_horizon" }</script>
+  <script type="module" src="../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <script src="../../lib/shared/shellbar.js"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <app-shellbar title="Collection Assistant" base-path="../../" avatar-initials="AL"></app-shellbar>
+  <div class="page-header"><ui5-breadcrumbs><ui5-breadcrumbs-item href="index.html">Collection Worklist</ui5-breadcrumbs-item><ui5-breadcrumbs-item>Grovemart Retail Group</ui5-breadcrumbs-item></ui5-breadcrumbs></div>
+  <header class="object-header">
+    <div class="object-top"><div><div class="object-title">Grovemart Retail Group</div><div class="subtitle">Customer C123 · Consolidated customer view</div></div><ui5-tag design="Negative">High Priority</ui5-tag></div>
+    <div class="object-meta"><span><span class="muted">Collector</span> Alan Morgan</span><span><span class="muted">Authorized company codes</span> 1000, 2000</span><span><span class="muted">Customer language</span> English (EN)</span></div>
+  </header>
+  <div class="scope-bar"><div class="scope-control"><span class="field-label">View data for</span><ui5-segmented-button id="scopeControl"><ui5-segmented-button-item data-code="all" selected>All Company Codes</ui5-segmented-button-item><ui5-segmented-button-item data-code="1000">1000</ui5-segmented-button-item><ui5-segmented-button-item data-code="2000">2000</ui5-segmented-button-item></ui5-segmented-button></div><div class="scope-summary" id="scopeSummary">Consolidated across 2 company codes</div></div>
+  <main class="object-content">
+    <section class="insight-card"><div class="insight-title"><ui5-icon name="business-objects-experience"></ui5-icon>Insights and Recommendations · Customer level</div><div class="insight-copy">Grovemart is high priority across company codes 1000 and 2000. The oldest open item is 42 days overdue, with three blocked orders and £300.00 total overdue. Coordinate outreach at customer level while executing actions for the responsible company code.</div></section>
+    <section class="kpi-grid" aria-label="Account overview">
+      <div class="kpi-card"><div class="kpi-value" id="kpiOverdue">£300.00</div><div class="kpi-label">Overdue Amount</div></div><div class="kpi-card"><div class="kpi-value" id="kpiEom">£425.00</div><div class="kpi-label">Due by End of Month</div></div><div class="kpi-card"><div class="kpi-value" id="kpiBlocked">3</div><div class="kpi-label">Blocked Orders</div></div><div class="kpi-card"><div class="kpi-value" id="kpiCredit">£45.00</div><div class="kpi-label">Credit Balance</div></div><div class="kpi-card"><div class="kpi-value" id="kpiDays">38 days</div><div class="kpi-label">Minimum Predicted Arrear Days</div></div>
+    </section>
+    <div class="two-col">
+      <div>
+        <section class="section-card">
+          <div class="section-card-header"><div class="section-title">Open Items</div><span class="small-note" id="openItemsScope">All company codes</span></div>
+          <ui5-table>
+            <ui5-table-header-row slot="headerRow"><ui5-table-header-cell width="120px" style="padding-inline-start:1rem">Company Code</ui5-table-header-cell><ui5-table-header-cell width="130px">Invoice</ui5-table-header-cell><ui5-table-header-cell width="130px">Due Date</ui5-table-header-cell><ui5-table-header-cell width="130px">Open Amount</ui5-table-header-cell><ui5-table-header-cell width="120px">Status</ui5-table-header-cell></ui5-table-header-row>
+            <ui5-table-row class="item-row" data-code="1000" interactive><ui5-table-cell style="padding-inline-start:1rem">1000</ui5-table-cell><ui5-table-cell><a class="company-link" href="#">51004821</a></ui5-table-cell><ui5-table-cell>07/03/2026</ui5-table-cell><ui5-table-cell>£60.00</ui5-table-cell><ui5-table-cell><ui5-tag design="Negative">Overdue</ui5-tag></ui5-table-cell><ui5-table-row-action-navigation slot="actions"></ui5-table-row-action-navigation></ui5-table-row>
+            <ui5-table-row class="item-row" data-code="1000" interactive><ui5-table-cell style="padding-inline-start:1rem">1000</ui5-table-cell><ui5-table-cell><a class="company-link" href="#">51005294</a></ui5-table-cell><ui5-table-cell>07/10/2026</ui5-table-cell><ui5-table-cell>£40.00</ui5-table-cell><ui5-table-cell><ui5-tag design="Negative">Overdue</ui5-tag></ui5-table-cell><ui5-table-row-action-navigation slot="actions"></ui5-table-row-action-navigation></ui5-table-row>
+            <ui5-table-row class="item-row" data-code="2000" interactive><ui5-table-cell style="padding-inline-start:1rem">2000</ui5-table-cell><ui5-table-cell><a class="company-link" href="#">51008492</a></ui5-table-cell><ui5-table-cell>08/04/2026</ui5-table-cell><ui5-table-cell>£120.00</ui5-table-cell><ui5-table-cell><ui5-tag design="Negative">Overdue</ui5-tag></ui5-table-cell><ui5-table-row-action-navigation slot="actions"></ui5-table-row-action-navigation></ui5-table-row>
+            <ui5-table-row class="item-row" data-code="2000" interactive><ui5-table-cell style="padding-inline-start:1rem">2000</ui5-table-cell><ui5-table-cell><a class="company-link" href="#">51008731</a></ui5-table-cell><ui5-table-cell>08/07/2026</ui5-table-cell><ui5-table-cell>£80.00</ui5-table-cell><ui5-table-cell><ui5-tag design="Negative">Overdue</ui5-tag></ui5-table-cell><ui5-table-row-action-navigation slot="actions"></ui5-table-row-action-navigation></ui5-table-row>
+          </ui5-table>
+        </section>
+        <section class="section-card"><div class="section-card-header"><div class="section-title">Customer Contacts</div><span class="small-note">Mapped by company code</span></div><div class="contact-list"><div class="contact contact-row" data-code="1000"><div class="contact-name">Sarah Mitchell</div><div class="contact-meta">Accounts Payable · s.mitchell@grovemart.co.uk · Company code 1000</div></div><div class="contact contact-row" data-code="2000"><div class="contact-name">Daniel Reed</div><div class="contact-meta">Finance Manager · d.reed@grovemart.co.uk · Company code 2000</div></div><div class="contact contact-row" data-code="all"><div class="contact-name">Shared Accounts Payable</div><div class="contact-meta">ap@grovemart.co.uk · All company codes</div></div></div><div class="annotation"><ui5-icon name="message-warning"></ui5-icon><span>Contact-to-company-code mapping requires a schema decision because contacts are currently stored at segment level.</span></div></section>
+      </div>
+      <aside>
+        <section class="nba-card"><div class="nba-eyebrow" id="nbaEyebrow">Next Best Action · Select a company code</div><div class="nba-title" id="nbaTitle">Choose the company code to act on</div><div class="nba-copy" id="nbaCopy">Recommendations are calculated at company-code level. Select 1000 or 2000 above to review the responsible balance and email template.</div><div class="nba-action"><ui5-button id="emailAction" design="Default" icon="email" disabled>Send Email</ui5-button></div></section>
+        <section class="section-card"><div class="section-card-header"><div class="section-title">Company Code Breakdown</div></div><div class="contact-list"><div class="contact"><div class="contact-name">1000 · Nestlé UK Operations</div><div class="contact-meta">£100.00 overdue · 1 blocked order · English template</div></div><div class="contact"><div class="contact-name">2000 · Nestlé UK Distribution</div><div class="contact-meta">£200.00 overdue · 2 blocked orders · English template</div></div></div><div class="annotation"><ui5-icon name="message-warning"></ui5-icon><span>Mixed-currency consolidation and company-code credit-balance sourcing remain implementation decisions.</span></div></section>
+      </aside>
+    </div>
+  </main>
+  <script>
+    const values={all:{summary:'Consolidated across 2 company codes',overdue:'£300.00',eom:'£425.00',blocked:'3',credit:'£45.00',days:'38 days'},1000:{summary:'Company code 1000 · Nestlé UK Operations',overdue:'£100.00',eom:'£175.00',blocked:'1',credit:'£15.00',days:'42 days'},2000:{summary:'Company code 2000 · Nestlé UK Distribution',overdue:'£200.00',eom:'£250.00',blocked:'2',credit:'£30.00',days:'38 days'}};
+    function setScope(code){const value=values[code];document.getElementById('scopeSummary').textContent=value.summary;document.getElementById('kpiOverdue').textContent=value.overdue;document.getElementById('kpiEom').textContent=value.eom;document.getElementById('kpiBlocked').textContent=value.blocked;document.getElementById('kpiCredit').textContent=value.credit;document.getElementById('kpiDays').textContent=value.days;document.getElementById('openItemsScope').textContent=code==='all'?'All company codes':'Company code '+code;document.querySelectorAll('.item-row').forEach(row=>row.hidden=code!=='all'&&row.dataset.code!==code);document.querySelectorAll('.contact-row').forEach(row=>row.hidden=code!=='all'&&row.dataset.code!=='all'&&row.dataset.code!==code);const action=document.getElementById('emailAction');action.disabled=code==='all';document.getElementById('nbaEyebrow').textContent=code==='all'?'Next Best Action · Select a company code':'Next Best Action · Company code '+code;document.getElementById('nbaTitle').textContent=code==='all'?'Choose the company code to act on':'Send payment reminder for '+code;document.getElementById('nbaCopy').textContent=code==='all'?'Recommendations are calculated at company-code level. Select 1000 or 2000 above to review the responsible balance and email template.':value.overdue+' is overdue for company code '+code+'. The email will use the '+code+' template and the customer BP language (English).'}
+    document.getElementById('scopeControl').addEventListener('selection-change',event=>setScope(event.detail.selectedItems[0].dataset.code));
+    const requested=new URLSearchParams(location.search).get('company');if(requested&&values[requested]){customElements.whenDefined('ui5-segmented-button-item').then(()=>{document.querySelectorAll('ui5-segmented-button-item').forEach(item=>item.selected=item.dataset.code===requested);setScope(requested)})}
+  </script>
+</body>
+</html>

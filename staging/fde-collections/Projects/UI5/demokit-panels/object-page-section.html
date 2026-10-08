@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Object Page Section</title>
+  <script src="panel-init.js"></script>
+  <script type="module" src="../../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 600; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 300; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Light.woff2") format("woff2"); }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "72", sans-serif; font-size: 0.875rem; background: var(--sapBackgroundColor, #f5f6f7); padding: 2rem; color: var(--sapTextColor, #131e29); }
+    .panel-title { font-size: 1.5rem; font-weight: 700; color: #131e29; margin-bottom: 0.375rem; }
+    .panel-subtitle { font-size: 0.8125rem; color: var(--sapContent_LabelColor, #6a7588); margin-bottom: 2rem; }
+    .demo-section { background: #fff; border: 1px solid var(--sapList_BorderColor, #e5e5e5); border-radius: 8px; margin-bottom: 1.25rem; overflow: hidden; }
+    .demo-section-header { padding: 0.75rem 1rem; border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5); font-size: 0.8125rem; font-weight: 600; color: var(--sapContent_LabelColor, #6a7588); display: flex; align-items: center; justify-content: space-between; }
+    .demo-section-tag { font-family: monospace; font-size: 0.75rem; color: #0064d9; font-weight: 400; }
+    .demo-section-body { padding: 1.25rem 1rem; display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: flex-start; }
+    .demo-section-body.column { flex-direction: column; }
+    .demo-section-body.block { display: block; padding: 0; }
+  </style>
+</head>
+<body>
+  <div class="panel-title">Object Page Section</div>
+  <div class="panel-subtitle">An Object Page with multiple named sections accessible via anchor navigation. Each section contains a colour-coded content block. Equivalent to sap.uxap.ObjectPageSection with multiple sections — rendered using ui5-dynamic-page.</div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">
+      5 Sections via Anchor Navigation
+      <span class="demo-section-tag">ui5-dynamic-page · 5 sections</span>
+    </div>
+    <div class="demo-section-body block" style="padding:0;">
+      <div style="height:520px; border:1px solid var(--sapList_BorderColor,#e5e5e5); border-radius:8px; overflow:hidden;">
+        <ui5-dynamic-page id="ops-page">
+
+          <ui5-dynamic-page-title slot="titleArea">
+            <ui5-title slot="heading" level="H3">Expand/Collapse sample</ui5-title>
+            <ui5-button slot="actionsBar" design="Emphasized">Edit</ui5-button>
+            <ui5-button slot="actionsBar" design="Transparent">Share</ui5-button>
+            <ui5-button slot="navigationBar" design="Transparent" icon="nav-back" tooltip="Back"></ui5-button>
+          </ui5-dynamic-page-title>
+
+          <ui5-dynamic-page-header slot="headerArea">
+            <div style="display:flex;gap:0.5rem;flex-wrap:wrap;" id="ops-anchors">
+              <ui5-button design="Transparent" id="ops-anchor-1" onclick="opsScrollTo('ops-s1',1)" style="border-bottom:2px solid var(--sapSelectedColor,#0064d9);border-radius:0;">Section 1</ui5-button>
+              <ui5-button design="Transparent" id="ops-anchor-2" onclick="opsScrollTo('ops-s2',2)">Section 2</ui5-button>
+              <ui5-button design="Transparent" id="ops-anchor-3" onclick="opsScrollTo('ops-s3',3)">Section 3</ui5-button>
+              <ui5-button design="Transparent" id="ops-anchor-4" onclick="opsScrollTo('ops-s4',4)">Section 4</ui5-button>
+              <ui5-button design="Transparent" id="ops-anchor-5" onclick="opsScrollTo('ops-s5',5)">Section 5</ui5-button>
+            </div>
+          </ui5-dynamic-page-header>
+
+          <div slot="content" id="ops-content" style="padding:1.5rem 1rem;">
+
+            <div id="ops-s1" style="margin-bottom:2rem;">
+              <div style="font-size:1rem;font-weight:700;color:var(--sapTextColor,#131e29);margin-bottom:0.75rem;padding-bottom:0.5rem;border-bottom:1px solid var(--sapList_BorderColor,#e5e5e5);">Section 1</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+                <div style="background:var(--sapList_SelectionBackgroundColor,#e8f0fe);border:1px solid var(--sapSelectedColor,#0064d9);border-radius:6px;padding:1rem;">
+                  <div style="font-size:0.75rem;font-weight:700;color:var(--sapSelectedColor,#0064d9);margin-bottom:0.5rem;text-transform:uppercase;letter-spacing:0.06em;">Subsection 1.1</div>
+                  <div style="display:grid;grid-template-columns:120px 1fr;gap:0.375rem 0.75rem;font-size:0.875rem;">
+                    <span style="color:var(--sapContent_LabelColor,#6a7588);">Block</span><span>Blue T1</span>
+                    <span style="color:var(--sapContent_LabelColor,#6a7588);">Status</span><span>Active</span>
+                  </div>
+                </div>
+                <div style="background:var(--sapList_SelectionBackgroundColor,#e8f0fe);border:1px solid var(--sapSelectedColor,#0064d9);border-radius:6px;padding:1rem;">
+                  <div style="font-size:0.75rem;font-weight:700;color:var(--sapSelectedColor,#0064d9);margin-bottom:0.5rem;text-transform:uppercase;letter-spacing:0.06em;">Subsection 1.2</div>
+                  <div style="display:grid;grid-template-columns:120px 1fr;gap:0.375rem 0.75rem;font-size:0.875rem;">
+                    <span style="color:var(--sapContent_LabelColor,#6a7588);">Block</span><span>Blue T2</span>
+                    <span style="color:var(--sapContent_LabelColor,#6a7588);">Status</span><span>Active</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div id="ops-s2" style="margin-bottom:2rem;">
+              <div style="font-size:1rem;font-weight:700;color:var(--sapTextColor,#131e29);margin-bottom:0.75rem;padding-bottom:0.5rem;border-bottom:1px solid var(--sapList_BorderColor,#e5e5e5);">Section 2</div>
+              <div style="background:var(--sapBackgroundColor,#f5f6f7);border:1px solid var(--sapList_BorderColor,#e5e5e5);border-radius:6px;padding:1rem;font-size:0.875rem;color:var(--sapContent_LabelColor,#6a7588);">No content — empty section placeholder.</div>
+            </div>
+
+            <div id="ops-s3" style="margin-bottom:2rem;">
+              <div style="font-size:1rem;font-weight:700;color:var(--sapTextColor,#131e29);margin-bottom:0.75rem;padding-bottom:0.5rem;border-bottom:1px solid var(--sapList_BorderColor,#e5e5e5);">Section 3</div>
+              <div style="background:#fef7ec;border:1px solid var(--sapCriticalColor,#e76500);border-radius:6px;padding:1rem;">
+                <div style="font-size:0.75rem;font-weight:700;color:var(--sapCriticalColor,#e76500);margin-bottom:0.5rem;text-transform:uppercase;letter-spacing:0.06em;">Block Orange T3</div>
+                <div style="display:grid;grid-template-columns:120px 1fr;gap:0.375rem 0.75rem;font-size:0.875rem;">
+                  <span style="color:var(--sapContent_LabelColor,#6a7588);">Type</span><span>Warning</span>
+                  <span style="color:var(--sapContent_LabelColor,#6a7588);">Priority</span><span>Medium</span>
+                </div>
+              </div>
+            </div>
+
+            <div id="ops-s4" style="margin-bottom:2rem;">
+              <div style="font-size:1rem;font-weight:700;color:var(--sapTextColor,#131e29);margin-bottom:0.75rem;padding-bottom:0.5rem;border-bottom:1px solid var(--sapList_BorderColor,#e5e5e5);">Section 4</div>
+              <div style="background:#eefaee;border:1px solid var(--sapPositiveColor,#196800);border-radius:6px;padding:1rem;">
+                <div style="font-size:0.75rem;font-weight:700;color:var(--sapPositiveColor,#196800);margin-bottom:0.5rem;text-transform:uppercase;letter-spacing:0.06em;">Block Green T4</div>
+                <div style="display:grid;grid-template-columns:120px 1fr;gap:0.375rem 0.75rem;font-size:0.875rem;">
+                  <span style="color:var(--sapContent_LabelColor,#6a7588);">Type</span><span>Success</span>
+                  <span style="color:var(--sapContent_LabelColor,#6a7588);">Priority</span><span>Low</span>
+                </div>
+              </div>
+            </div>
+
+            <div id="ops-s5">
+              <div style="font-size:1rem;font-weight:700;color:var(--sapTextColor,#131e29);margin-bottom:0.75rem;padding-bottom:0.5rem;border-bottom:1px solid var(--sapList_BorderColor,#e5e5e5);">Section 5</div>
+              <div style="background:#fdecea;border:1px solid var(--sapNegativeColor,#aa0808);border-radius:6px;padding:1rem;">
+                <div style="font-size:0.75rem;font-weight:700;color:var(--sapNegativeColor,#aa0808);margin-bottom:0.5rem;text-transform:uppercase;letter-spacing:0.06em;">Block Red T5</div>
+                <div style="display:grid;grid-template-columns:120px 1fr;gap:0.375rem 0.75rem;font-size:0.875rem;">
+                  <span style="color:var(--sapContent_LabelColor,#6a7588);">Type</span><span>Error</span>
+                  <span style="color:var(--sapContent_LabelColor,#6a7588);">Priority</span><span>High</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </ui5-dynamic-page>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function opsScrollTo(id, n) {
+      document.querySelectorAll('#ops-anchors ui5-button').forEach(function(b, i) {
+        b.style.borderBottom = (i + 1 === n) ? '2px solid var(--sapSelectedColor,#0064d9)' : '';
+        b.style.borderRadius = (i + 1 === n) ? '0' : '';
+      });
+      var el = document.getElementById(id);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  </script>
+</body>
+</html>

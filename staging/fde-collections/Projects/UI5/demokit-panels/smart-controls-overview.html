@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Controls Overview</title>
+  <script src="panel-init.js"></script>
+  <script type="module" src="../../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 600; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 300; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Light.woff2") format("woff2"); }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "72", sans-serif; font-size: 0.875rem; background: var(--sapBackgroundColor, #f5f6f7); padding: 2rem; color: var(--sapTextColor, #131e29); }
+    .panel-title { font-size: 1.5rem; font-weight: 700; color: #131e29; margin-bottom: 0.375rem; }
+    .panel-subtitle { font-size: 0.8125rem; color: var(--sapContent_LabelColor, #6a7588); margin-bottom: 2rem; }
+    .demo-section { background: #fff; border: 1px solid var(--sapList_BorderColor, #e5e5e5); border-radius: 8px; margin-bottom: 1.25rem; overflow: hidden; }
+    .demo-section-header { padding: 0.75rem 1rem; border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5); font-size: 0.8125rem; font-weight: 600; color: var(--sapContent_LabelColor, #6a7588); display: flex; align-items: center; justify-content: space-between; }
+    .demo-section-tag { font-family: monospace; font-size: 0.75rem; color: #0064d9; font-weight: 400; }
+    .demo-section-body { padding: 1.25rem 1rem; display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: flex-start; }
+    .demo-section-body.column { flex-direction: column; }
+    .demo-section-body.block { display: block; padding: 0; }
+  </style>
+</head>
+<body>
+  <div class="panel-title">Smart Controls Overview</div>
+  <div class="panel-subtitle">A showcase of sap.ui.comp Smart Controls — SmartFilterBar with dynamic date range conditions (custom DateRangeType), SmartTable with OData binding, SmartForm with SmartField inputs, and SmartList. Equivalent to sap.ui.comp.sample.smartcontrols — rendered with ui5-filter-bar, ui5-table, and ui5-form.</div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">
+      Smart Filter Bar + Smart Table
+      <span class="demo-section-tag">ui5-filter-bar · ui5-table · dynamic date range</span>
+    </div>
+    <div class="demo-section-body block" style="padding:0;">
+      <div style="background:#fff;border-bottom:1px solid var(--sapList_BorderColor,#e5e5e5);padding:0.75rem 1rem 1rem;">
+        <div style="display:flex;flex-wrap:wrap;gap:0.75rem;align-items:flex-end;">
+          <div style="display:flex;flex-direction:column;gap:0.25rem;width:200px;">
+            <label style="font-size:0.75rem;color:var(--sapContent_LabelColor,#6a7588);">Name</label>
+            <ui5-input placeholder="Enter name…" show-clear-icon></ui5-input>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:0.25rem;width:200px;">
+            <label style="font-size:0.75rem;color:var(--sapContent_LabelColor,#6a7588);">Category</label>
+            <ui5-select>
+              <ui5-option>All</ui5-option>
+              <ui5-option>Computers</ui5-option>
+              <ui5-option>Phones</ui5-option>
+              <ui5-option>Accessories</ui5-option>
+              <ui5-option>Projectors</ui5-option>
+            </ui5-select>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:0.25rem;width:200px;">
+            <label style="font-size:0.75rem;color:var(--sapContent_LabelColor,#6a7588);">Availability</label>
+            <ui5-date-picker placeholder="Select date…"></ui5-date-picker>
+          </div>
+          <div style="display:flex;align-items:flex-end;gap:0.5rem;">
+            <ui5-button design="Emphasized">Go</ui5-button>
+            <span style="font-size:0.875rem;color:var(--sapLinkColor,#0064d9);cursor:pointer;padding-bottom:0.25rem;">Adapt Filters (1)</span>
+          </div>
+        </div>
+      </div>
+      <div style="padding:0.5rem 0.75rem;border-bottom:1px solid var(--sapList_BorderColor,#e5e5e5);display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-size:1rem;font-weight:700;">Products (5)</span>
+        <div style="display:flex;gap:0.25rem;">
+          <ui5-button design="Transparent" icon="action-settings" tooltip="Personalise"></ui5-button>
+          <ui5-button design="Transparent" icon="share" tooltip="Export"></ui5-button>
+        </div>
+      </div>
+      <ui5-table>
+        <ui5-table-header-row slot="headerRow">
+          <ui5-table-header-cell style="padding-inline-start:1rem">Name</ui5-table-header-cell>
+          <ui5-table-header-cell>Category</ui5-table-header-cell>
+          <ui5-table-header-cell>Supplier</ui5-table-header-cell>
+          <ui5-table-header-cell width="120px">Availability</ui5-table-header-cell>
+          <ui5-table-header-cell width="100px">Price</ui5-table-header-cell>
+        </ui5-table-header-row>
+        <ui5-table-row interactive><ui5-table-cell style="padding-inline-start:1rem">Notebook Pro</ui5-table-cell><ui5-table-cell>Computers</ui5-table-cell><ui5-table-cell>Very Best Screens</ui5-table-cell><ui5-table-cell><ui5-tag design="Set3" color-scheme="7">In Stock</ui5-tag></ui5-table-cell><ui5-table-cell>956.00 EUR</ui5-table-cell></ui5-table-row>
+        <ui5-table-row interactive><ui5-table-cell style="padding-inline-start:1rem">ITelO Vault</ui5-table-cell><ui5-table-cell>Phones</ui5-table-cell><ui5-table-cell>Telecomunicaciones Star</ui5-table-cell><ui5-table-cell><ui5-tag design="Set3" color-scheme="7">In Stock</ui5-tag></ui5-table-cell><ui5-table-cell>299.00 EUR</ui5-table-cell></ui5-table-row>
+        <ui5-table-row interactive><ui5-table-cell style="padding-inline-start:1rem">Notebook Basic 15</ui5-table-cell><ui5-table-cell>Computers</ui5-table-cell><ui5-table-cell>Exact Screens</ui5-table-cell><ui5-table-cell><ui5-tag design="Set3" color-scheme="2">Out of Stock</ui5-tag></ui5-table-cell><ui5-table-cell>499.00 EUR</ui5-table-cell></ui5-table-row>
+        <ui5-table-row interactive><ui5-table-cell style="padding-inline-start:1rem">Flat X Large</ui5-table-cell><ui5-table-cell>Accessories</ui5-table-cell><ui5-table-cell>Telecomunicaciones Star</ui5-table-cell><ui5-table-cell><ui5-tag design="Set3" color-scheme="7">In Stock</ui5-tag></ui5-table-cell><ui5-table-cell>1,679.00 EUR</ui5-table-cell></ui5-table-row>
+        <ui5-table-row interactive><ui5-table-cell style="padding-inline-start:1rem">Ergo Screen</ui5-table-cell><ui5-table-cell>Computers</ui5-table-cell><ui5-table-cell>Precise Controls</ui5-table-cell><ui5-table-cell><ui5-tag design="Set3" color-scheme="5">Limited</ui5-tag></ui5-table-cell><ui5-table-cell>1,230.00 EUR</ui5-table-cell></ui5-table-row>
+      </ui5-table>
+    </div>
+  </div>
+</body>
+</html>

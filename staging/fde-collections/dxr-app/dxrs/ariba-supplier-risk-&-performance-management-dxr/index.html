@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Ariba Supplier Risk & Performance Management DXR</title>
+<style>
+  @font-face{font-family:"72";font-weight:400;src:url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2")}
+  @font-face{font-family:"72";font-weight:700;src:url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2")}
+  @font-face{font-family:"72";font-weight:600;src:url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2")}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"72","72full",-apple-system,sans-serif;background:#f5f6f7;color:#1d2d3e;}
+  .header{background:#fff;border-bottom:1px solid #e5e5e5;padding:1.25rem 2rem 1.5rem;position:sticky;top:0;z-index:10;}
+  .layout{display:grid;grid-template-columns:300px 1fr;max-width:1280px;margin:0 auto;padding:2rem;gap:0;align-items:start;}
+  .nav{position:sticky;top:calc(var(--hh,120px) + 2rem);background:#fff;border:1px solid #e5e5e5;border-radius:0.5rem;padding:1rem 0;margin-right:2rem;}
+  .nav-label{font-size:0.6875rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#556b82;padding:0 1rem 0.5rem;}
+  .nav a{display:block;padding:0.4375rem 1rem;font-size:0.8125rem;color:#1d2d3e;text-decoration:none;}
+  .nav a:hover{background:#f0f4f8;color:#0064d9;}
+  p{font-size:0.875rem;line-height:1.6;margin-bottom:0.75rem;}
+  p:last-child{margin-bottom:0;}
+  ul,ol{padding-left:1.25rem;margin-bottom:0.75rem;}
+  li{font-size:0.875rem;line-height:1.6;margin-bottom:0.25rem;}
+  strong{font-weight:700;}
+</style>
+</head>
+<body>
+<div class="header" id="hdr">
+  <div style="font-size:0.8125rem;color:#0064d9;margin-bottom:0.375rem;"><a href="../" style="color:#0064d9;text-decoration:none;">← FDE Design Excellence Reviews</a></div>
+  <div style="font-size:1.5rem;font-weight:700;margin-bottom:0.375rem;">Ariba Supplier Risk & Performance Management DXR</div>
+  <div style="font-size:0.875rem;color:#556b82;display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+    <span>Product: SAP Ariba Supplier Risk & Performance Management</span><span>·</span>
+    <span>Created by J. Doe · 2026-06-01T17:55:26.552936+00:00</span><span>·</span>
+    <span>Last edited by J. Doe · 2026-06-01T17:55:26.552936+00:00</span><span>·</span>
+    <span style="display:inline-block;font-size:0.75rem;font-weight:600;padding:0.2rem 0.625rem;border-radius:0.75rem;background:#e8edf2;color:#4a6785">Draft</span>
+  </div>
+</div>
+<div class="layout">
+  <nav class="nav">
+    <div class="nav-label">Contents</div>
+    <a href="#sintro">Introduction</a><a href="#sstrengths">Strengths</a><a href="#sareas_of_improvement">Areas of Improvement</a><a href="#srecommendations">Recommendations</a>
+  </nav>
+  <div>
+        <div style="background:#fff;border:1px solid #e5e5e5;border-radius:0.5rem;overflow:hidden;margin-bottom:1.5rem;" id="sintro">
+          <div style="padding:1rem 1.25rem;border-bottom:1px solid #e5e5e5;background:#f7f8f9;">
+            <div style="font-size:0.9375rem;font-weight:700;">Introduction</div>
+          </div>
+          <div style="padding:1.25rem;"><p>This report summarizes the UX design excellence review of the Ariba Supplier Risk & Performance Management product, conducted across the supplier home, list, detail, creation, and evaluation experiences. The review draws on a structured issue inventory spanning usability, visual, content, and getting-started dimensions, complemented by a working session with the product team that walked through supplier performance evaluation workflows end-to-end. The product is functionally ambitious — supporting configurable evaluation programs, qualitative and (eventually) quantitative scoring, multi-reviewer workflows, and category- and region-specific setup — and the team has a credible roadmap including AI agents, WalkMe-based onboarding, IBAN validation, and address lookup. However, in its current state the experience reads as an early-stage assembly: foundational flows work, but the UX shows recurring weaknesses in information hierarchy, visual consistency, terminology clarity, and onboarding. The cumulative effect is a product that feels capable yet unpolished, with enough small frictions and conceptual ambiguities to erode user trust before the underlying capabilities can deliver value.</p></div>
+        </div>
+        <div style="background:#fff;border:1px solid #e5e5e5;border-radius:0.5rem;overflow:hidden;margin-bottom:1.5rem;" id="sstrengths">
+          <div style="padding:1rem 1.25rem;border-bottom:1px solid #e5e5e5;background:#f7f8f9;">
+            <div style="font-size:0.9375rem;font-weight:700;">Strengths</div>
+          </div>
+          <div style="padding:1.25rem;"><ul style="padding-left:1.25rem;margin-bottom:0.75rem;"><li>The evaluation framework supports configurable scoring models across commodities, regions, and time periods, with multi-reviewer and approver workflows that reflect the flexibility enterprise procurement requires.</li><li>Draft auto-save preserves user input when navigating away from supplier creation forms, reducing re-entry frustration during multi-step workflows.</li><li>The supplier list loads all suppliers by default rather than requiring an explicit Go action, removing a needless step and creating a more immediate sense of the data available.</li><li>A clear product roadmap is in place to address known gaps — including AI agents for supplier creation and qualification, IBAN validation, address lookup services (USPS, DNB), benchmarking data, and WalkMe-based contextual help.</li><li>Duplicate-supplier detection is built into the creation flow, helping prevent redundant records across the internal system and S/4HANA.</li></ul></div>
+        </div>
+        <div style="background:#fff;border:1px solid #e5e5e5;border-radius:0.5rem;overflow:hidden;margin-bottom:1.5rem;" id="sareas_of_improvement">
+          <div style="padding:1rem 1.25rem;border-bottom:1px solid #e5e5e5;background:#f7f8f9;">
+            <div style="font-size:0.9375rem;font-weight:700;">Areas of Improvement</div>
+          </div>
+          <div style="padding:1.25rem;"><ul style="padding-left:1.25rem;margin-bottom:0.75rem;"><li><strong>Weak information hierarchy and use of screen real estate</strong>: Across the home page, supplier detail, and creation screens, high-value content (Insights, mandatory Contacts, evaluation results) is pushed below the fold while lower-priority elements (large carousels, oversized AI summary, large empty states, decorative search treatments) consume prime space. Layouts are non-responsive, leaving wide empty areas on larger screens while forcing vertical scrolling, which signals that content priority has not been deliberately designed.</li><li><strong>Inconsistent visual treatment and fragmented layout</strong>: Misaligned card titles and form fields, inconsistent status styling, double scrollbars in modals, nested card-within-card containers, dense table rows, cropped labels, and heavy bordered containers appear throughout the product. Individually minor, these issues collectively create a cobbled, unpolished impression that erodes user trust in an enterprise context.</li><li><strong>Terminology and conceptual ambiguity</strong>: Users encounter labels and concepts that are unclear or unexplained — Ready state, Lifecycle Status with multiple simultaneous values, Standard evaluation, Qualified versus Preferred, Qualification Status options, Bank Key duplication, Start Evaluation versus Save, New Object placeholders, and UUIDs shown in place of names. Without contextual guidance, users must infer meaning, leading to hesitation and incorrect input.</li><li><strong>Insights and scores lack interpretive context</strong>: Scores, ratings, and insights are presented as raw numbers without benchmarks, thresholds, response counts, or recommended next actions. Users have no frame of reference for whether a 64 is good or bad, whether a low response rate undermines a rating, or what to do with an insight once read — limiting the analytical value the product is meant to deliver.</li><li><strong>Workflow friction from manual entry and missing validation</strong>: Supplier creation, partner setup, IBAN entry, address entry (including the international version), cert expiration tracking, and supplier lookup all rely on manual input with limited validation, no lookup services, and no favorites or recents. This adds cognitive load, invites data-quality errors with downstream consequences, and falls short of modern enterprise software expectations.</li><li><strong>Insufficient onboarding and discoverability</strong>: There is no first-run guidance, no clear What's New treatment for the 2602 release (currently buried on page 5 of a 9-item carousel), and no contextual help for complex fields or warning-message workflows. New users are left to discover the product on their own, while experienced users miss release information and capability updates.</li></ul></div>
+        </div>
+        <div style="background:#fff;border:1px solid #e5e5e5;border-radius:0.5rem;overflow:hidden;margin-bottom:1.5rem;" id="srecommendations">
+          <div style="padding:1rem 1.25rem;border-bottom:1px solid #e5e5e5;background:#f7f8f9;">
+            <div style="font-size:0.9375rem;font-weight:700;">Recommendations</div>
+          </div>
+          <div style="padding:1.25rem;"><ul style="padding-left:1.25rem;margin-bottom:0.75rem;"><li>Conduct a layout and information-hierarchy pass on the home page, supplier detail, and creation screens: implement a responsive grid, surface Insights and required fields above the fold, and reduce the footprint of large empty states, carousels, and the AI summary so high-value content is reachable without scrolling.</li><li>Run a full visual consistency audit aligned to Fiori design tokens: standardize card header alignment, status styling, table density, modal sizing (eliminating double scrollbars), container nesting, and field alignment across all screens, and resolve cropping and minor visual bugs before GA.</li><li>Establish a content and terminology standard: review ambiguous labels (Ready, Lifecycle Status, Standard, Qualified vs. Preferred, Bank Key, New Object, Start Evaluation), replace generic placeholders with object-specific titles, resolve UUID display, and add WalkMe-based contextual help for fields and workflows that cannot be self-explanatory.</li><li>Make insights and scores actionable: add benchmarking and threshold context to scores, indicate low response rates on supplier ratings, provide aggregated views across evaluation periods and across subjective and objective data, and embed clear next-step actions directly into insight cards.</li><li>Reduce manual-entry friction by accelerating planned investments: prioritize address lookup (USPS, DNB), IBAN validation, cert expiration alerts, AI agents for supplier and partner creation, and supplier favorites or recents, while improving column ordering and eliminating redundant fields (e.g., Filename vs. Attachment) in supporting tables.</li><li>Build a deliberate getting-started layer: implement WalkMe Welcome and What's New for release announcements (starting with 2602), add first-run product orientation, and use contextual companions to explain evaluation concepts, qualification statuses, and warning-message resolution flows.</li></ul></div>
+        </div></div>
+</div>
+<script>
+  var hdr=document.getElementById('hdr');
+  function setHh(){document.documentElement.style.setProperty('--hh',hdr.offsetHeight+'px');}
+  setHh(); window.addEventListener('scroll',setHh);
+</script>
+</body>
+</html>

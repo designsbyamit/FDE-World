@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Collection Assistant — Concepts</title>
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 600; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2"); }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "72", sans-serif;
+      background: #f5f6f7;
+      color: #1d2d3e;
+      min-height: 100vh;
+    }
+
+    .header {
+      background: #fff;
+      border-bottom: 1px solid #d9d9d9;
+      padding: 2rem 3rem;
+    }
+
+    .header h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #1d2d3e;
+    }
+
+    .header p {
+      font-size: 0.875rem;
+      color: #556b82;
+      margin-top: 0.25rem;
+    }
+
+    .content {
+      padding: 2.5rem 3rem;
+      max-width: 900px;
+    }
+
+    .section {
+      margin-bottom: 2.5rem;
+    }
+
+    .section-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #556b82;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.75rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid #e5e5e5;
+    }
+
+    .concept-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .concept-list li a {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.875rem 1rem;
+      background: #fff;
+      border: 1px solid #e5e5e5;
+      border-radius: 0.5rem;
+      text-decoration: none;
+      color: #0064d9;
+      font-size: 0.9375rem;
+      font-weight: 600;
+      transition: box-shadow 0.15s, border-color 0.15s;
+    }
+
+    .concept-list li a:hover {
+      box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+      border-color: #0064d9;
+    }
+
+    .concept-list li a .arrow {
+      margin-left: auto;
+      color: #8c9cb0;
+      font-size: 0.875rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>Collection Assistant</h1>
+    <p>Prototype concepts — click any link to open in a new tab</p>
+  </div>
+
+  <div class="content">
+
+    <div class="section">
+      <div class="section-title">Worklist</div>
+      <ul class="concept-list">
+        <li>
+          <a href="worklist.html" target="_blank">
+            Collection Worklist
+            <span class="arrow">↗</span>
+          </a>
+        </li>
+        <li>
+          <a href="worklist-new-concept.html" target="_blank">
+            Worklist — New Concept
+            <span class="arrow">↗</span>
+          </a>
+        </li>
+        <li>
+          <a href="worklist-priority.html" target="_blank">
+            Worklist — Priority View
+            <span class="arrow">↗</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Detail Page</div>
+      <ul class="concept-list">
+        <li>
+          <a href="detail.html" target="_blank">
+            Customer Detail
+            <span class="arrow">↗</span>
+          </a>
+        </li>
+        <li>
+          <a href="detail-concept.html" target="_blank">
+            Detail — Concept
+            <span class="arrow">↗</span>
+          </a>
+        </li>
+        <li>
+          <a href="detail-suggestion-used.html" target="_blank">
+            Detail — AI Suggestion Used
+            <span class="arrow">↗</span>
+          </a>
+        </li>
+        <li>
+          <a href="detail-suggestion-not-used.html" target="_blank">
+            Detail — AI Suggestion Not Used
+            <span class="arrow">↗</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Agent Signal</div>
+      <ul class="concept-list">
+        <li>
+          <a href="detail-nba.html" target="_blank">
+            Confident
+            <span class="arrow">↗</span>
+          </a>
+        </li>
+        <li>
+          <a href="detail-nba-learning.html" target="_blank">
+            Learning
+            <span class="arrow">↗</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Supervisor Dashboard</div>
+      <ul class="concept-list">
+        <li>
+          <a href="supervisor-dashboard.html" target="_blank">
+            Version 1
+            <span class="arrow">↗</span>
+          </a>
+        </li>
+        <li>
+          <a href="supervisor-dashboard-v2.html" target="_blank">
+            Version 2
+            <span class="arrow">↗</span>
+          </a>
+        </li>
+        <li>
+          <a href="supervisor-dashboard-v3.html" target="_blank">
+            Version 3
+            <span class="arrow">↗</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Analytics</div>
+      <ul class="concept-list">
+        <li>
+          <a href="suggestion-evaluations-v2.html" target="_blank">
+            Suggestion Evaluations
+            <span class="arrow">↗</span>
+          </a>
+        </li>
+        <li>
+          <a href="cfo-dashboard.html" target="_blank">
+            CFO Dashboard
+            <span class="arrow">↗</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Agent Experience</div>
+      <ul class="concept-list">
+        <li>
+          <a href="agentic-experience-checklist.html" target="_blank">
+            Agentic Experience Readiness Checklist
+            <span class="arrow">↗</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Other</div>
+      <ul class="concept-list">
+        <li>
+          <a href="admin.html" target="_blank">
+            Administration
+            <span class="arrow">↗</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+  </div>
+
+</body>
+</html>

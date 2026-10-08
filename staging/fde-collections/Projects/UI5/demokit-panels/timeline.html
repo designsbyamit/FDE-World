@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <script src="panel-init.js"></script>
+  <script type="module" src="../../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    body { font-family: "72", sans-serif; font-size: 0.875rem; background: #f5f6f7; color: #131e29; margin: 0; padding: 2rem; }
+    .panel-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .panel-subtitle { font-size: 0.875rem; color: #6a7588; margin-bottom: 2rem; }
+    .demo-section { margin-bottom: 2rem; }
+    .demo-section-header { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #6a7588; margin-bottom: 1rem; padding-bottom: 0.375rem; border-bottom: 1px solid #e5e5e5; }
+    .demo-section-body { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 1rem; }
+  </style>
+</head>
+<body>
+  <div class="panel-title">Timeline</div>
+  <div class="panel-subtitle">Displays a sequence of events in chronological order with icons and detail text.</div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">Vertical Timeline — Order History</div>
+    <div class="demo-section-body">
+      <ui5-timeline style="max-width:560px;">
+        <ui5-timeline-item
+          title-text="Order Delivered"
+          subtitle-text="Apr 22, 2025 · 10:14 AM"
+          icon="status-completed"
+          name="Delivery Team">
+          Package confirmed received by warehouse. All 14 line items accounted for and stored.
+        </ui5-timeline-item>
+        <ui5-timeline-item
+          title-text="Shipped"
+          subtitle-text="Apr 20, 2025 · 08:30 AM"
+          icon="shipping-status"
+          name="Logistics Express">
+          Shipment dispatched from Frankfurt hub. Tracking number: TRK-20250420-8821.
+        </ui5-timeline-item>
+        <ui5-timeline-item
+          title-text="Purchase Order Approved"
+          subtitle-text="Apr 18, 2025 · 03:45 PM"
+          icon="accept"
+          name="Thomas Wagner">
+          PO-2024-0049 approved by budget holder. Released to procurement for fulfillment.
+        </ui5-timeline-item>
+        <ui5-timeline-item
+          title-text="Purchase Order Submitted"
+          subtitle-text="Apr 17, 2025 · 11:00 AM"
+          icon="create"
+          name="Maria Schmidt">
+          Purchase order created for Acme Supplies GmbH totaling €12,500.00. Pending approval.
+        </ui5-timeline-item>
+      </ui5-timeline>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">Horizontal Timeline — Project Milestones</div>
+    <div class="demo-section-body">
+      <ui5-timeline layout="Horizontal" style="width:100%; max-width:700px;">
+        <ui5-timeline-item
+          title-text="Kickoff"
+          subtitle-text="Jan 10, 2025"
+          icon="journey-arrive">
+          Project officially started with stakeholder alignment meeting.
+        </ui5-timeline-item>
+        <ui5-timeline-item
+          title-text="Design Phase"
+          subtitle-text="Feb 3, 2025"
+          icon="palette">
+          UX prototypes reviewed and approved by product team.
+        </ui5-timeline-item>
+        <ui5-timeline-item
+          title-text="Development"
+          subtitle-text="Mar 1, 2025"
+          icon="developer-settings">
+          Sprint 1 of 4 commenced. Feature backlog prioritized.
+        </ui5-timeline-item>
+        <ui5-timeline-item
+          title-text="Go-Live"
+          subtitle-text="May 15, 2025"
+          icon="flag">
+          Planned production deployment date.
+        </ui5-timeline-item>
+      </ui5-timeline>
+    </div>
+  </div>
+</body>
+</html>

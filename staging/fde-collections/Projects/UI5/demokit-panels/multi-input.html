@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <script src="panel-init.js"></script>
+  <script type="module" src="../../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    body { font-family: "72", sans-serif; font-size: 0.875rem; background: #f5f6f7; color: #131e29; margin: 0; padding: 2rem; }
+    .panel-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .panel-subtitle { font-size: 0.875rem; color: #6a7588; margin-bottom: 2rem; }
+    .demo-section { margin-bottom: 2rem; }
+    .demo-section-header { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #6a7588; margin-bottom: 1rem; padding-bottom: 0.375rem; border-bottom: 1px solid #e5e5e5; }
+    .demo-section-body { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 1rem; }
+    ui5-multi-input { width: 380px; }
+  </style>
+</head>
+<body>
+  <div class="panel-title">Multi Input</div>
+  <div class="panel-subtitle">An input field that displays selected values as tokens and supports suggestions.</div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">Basic — Pre-populated</div>
+    <div class="demo-section-body">
+      <ui5-multi-input placeholder="Add recipients…">
+        <ui5-token slot="tokens" text="maria.schmidt@example.com"></ui5-token>
+        <ui5-token slot="tokens" text="thomas.wagner@example.com"></ui5-token>
+        <ui5-token slot="tokens" text="elena.petrova@example.com"></ui5-token>
+      </ui5-multi-input>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">With Suggestions</div>
+    <div class="demo-section-body">
+      <ui5-multi-input placeholder="Add countries…" show-suggestions>
+        <ui5-token slot="tokens" text="Germany"></ui5-token>
+        <ui5-token slot="tokens" text="France"></ui5-token>
+        <ui5-suggestion-item text="Austria"></ui5-suggestion-item>
+        <ui5-suggestion-item text="Belgium"></ui5-suggestion-item>
+        <ui5-suggestion-item text="Denmark"></ui5-suggestion-item>
+        <ui5-suggestion-item text="Finland"></ui5-suggestion-item>
+        <ui5-suggestion-item text="Netherlands"></ui5-suggestion-item>
+        <ui5-suggestion-item text="Sweden"></ui5-suggestion-item>
+      </ui5-multi-input>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">Value States</div>
+    <div class="demo-section-body">
+      <ui5-multi-input placeholder="Required field" value-state="Negative">
+        <div slot="valueStateMessage">At least one value is required.</div>
+      </ui5-multi-input>
+
+      <ui5-multi-input placeholder="Validated" value-state="Positive">
+        <ui5-token slot="tokens" text="IT-Procurement"></ui5-token>
+        <ui5-token slot="tokens" text="HR-Admin"></ui5-token>
+      </ui5-multi-input>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">Disabled &amp; Read-only</div>
+    <div class="demo-section-body">
+      <ui5-multi-input disabled placeholder="Disabled">
+        <ui5-token slot="tokens" text="Token 1"></ui5-token>
+        <ui5-token slot="tokens" text="Token 2"></ui5-token>
+      </ui5-multi-input>
+      <ui5-multi-input readonly placeholder="Read-only">
+        <ui5-token slot="tokens" text="Read Token A"></ui5-token>
+        <ui5-token slot="tokens" text="Read Token B"></ui5-token>
+      </ui5-multi-input>
+    </div>
+  </div>
+</body>
+</html>

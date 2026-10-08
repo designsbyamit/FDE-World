@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <script src="panel-init.js"></script>
+  <script type="module" src="../../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    body { font-family: "72", sans-serif; font-size: 0.875rem; background: #f5f6f7; color: #131e29; margin: 0; padding: 2rem; }
+    .panel-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .panel-subtitle { font-size: 0.875rem; color: #6a7588; margin-bottom: 2rem; }
+    .demo-section { margin-bottom: 2rem; }
+    .demo-section-header { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #6a7588; margin-bottom: 1rem; padding-bottom: 0.375rem; border-bottom: 1px solid #e5e5e5; }
+    .demo-section-body { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 1rem; }
+    .note { font-size: 0.8125rem; color: #6a7588; background: #fff; border: 1px solid #e5e5e5; border-radius: 0.375rem; padding: 0.75rem 1rem; max-width: 560px; margin-bottom: 1.5rem; }
+    .filter-demo { background: #fff; border: 1px solid #e5e5e5; border-radius: 0.5rem; padding: 1.5rem; max-width: 480px; }
+    .filter-demo-title { font-weight: 700; margin-bottom: 1rem; font-size: 0.9375rem; }
+  </style>
+</head>
+<body>
+  <div class="panel-title">Filter Item</div>
+  <div class="panel-subtitle">A child element of Filter Bar, representing one filterable field with a label and input.</div>
+
+  <div class="note">
+    <strong>ui5-filter-item</strong> is used as a slot child within <strong>ui5-filter-bar</strong> (from <code>@ui5/webcomponents-fiori</code>). It wraps any input component and adds a filter label. The examples below show typical configurations as they appear inside a Filter Bar.
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">Typical Filter Items</div>
+    <div class="demo-section-body">
+      <div class="filter-demo">
+        <div class="filter-demo-title">Filter Bar (simplified view)</div>
+        <ui5-filter-bar style="width:100%;" hide-filter-configuration>
+          <ui5-filter-item label="Order Status" slot="filterItems">
+            <ui5-select slot="field" style="width:100%;">
+              <ui5-option selected>All</ui5-option>
+              <ui5-option>Approved</ui5-option>
+              <ui5-option>Pending</ui5-option>
+              <ui5-option>Rejected</ui5-option>
+            </ui5-select>
+          </ui5-filter-item>
+          <ui5-filter-item label="Vendor" slot="filterItems">
+            <ui5-input slot="field" placeholder="Enter vendor name" style="width:100%;"></ui5-input>
+          </ui5-filter-item>
+          <ui5-filter-item label="Order Date" slot="filterItems">
+            <ui5-date-picker slot="field" style="width:100%;"></ui5-date-picker>
+          </ui5-filter-item>
+          <ui5-filter-item label="Min Amount (EUR)" slot="filterItems">
+            <ui5-input slot="field" type="Number" placeholder="0.00" style="width:100%;"></ui5-input>
+          </ui5-filter-item>
+        </ui5-filter-bar>
+      </div>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">With Required Indicator</div>
+    <div class="demo-section-body">
+      <div class="filter-demo">
+        <ui5-filter-bar style="width:100%;" hide-filter-configuration>
+          <ui5-filter-item label="Company Code" slot="filterItems" required>
+            <ui5-select slot="field" style="width:100%;">
+              <ui5-option selected>1000 — SAP AG</ui5-option>
+              <ui5-option>2000 — SAP Labs</ui5-option>
+              <ui5-option>3000 — SAP EMEA</ui5-option>
+            </ui5-select>
+          </ui5-filter-item>
+          <ui5-filter-item label="Fiscal Year" slot="filterItems" required>
+            <ui5-select slot="field" style="width:100%;">
+              <ui5-option selected>2025</ui5-option>
+              <ui5-option>2024</ui5-option>
+              <ui5-option>2023</ui5-option>
+            </ui5-select>
+          </ui5-filter-item>
+        </ui5-filter-bar>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

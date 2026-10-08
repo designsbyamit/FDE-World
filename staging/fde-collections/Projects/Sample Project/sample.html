@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Supplier Onboarding</title>
+  <link rel="icon" href="../../lib/assets/favicon.ico">
+
+  <script data-ui5-config type="application/json">
+    { "theme": "sap_horizon" }
+  </script>
+  <script type="module" src="../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <script src="../../lib/shared/shellbar.js"></script>
+
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 600; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 300; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Light.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 900; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Black.woff2") format("woff2"); }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    ui5-button { --sapButton_FontFamily: "72", sans-serif; }
+    ui5-button::part(text) { font-family: "72", sans-serif; font-weight: 400; }
+
+    html, body {
+      font-family: "72", sans-serif;
+      background: var(--sapBackgroundColor, #f5f6f7);
+      color: var(--sapTextColor, #131e29);
+      min-height: 100vh;
+    }
+
+    /* ── Page Header ── */
+    .page-header {
+      padding: 0.75rem 2rem 1rem;
+      background: var(--sapBaseColor, #fff);
+      padding-top: calc(0.75rem + 6px);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+
+    /* ── Variant selector ── */
+    .variant-btn {
+      display: inline-flex; align-items: center;
+      font-size: 1.5rem; font-weight: 900; font-family: "72", sans-serif;
+      color: var(--sapButton_Emphasized_Background, #0064d9); background: none; border: none; cursor: pointer;
+      padding: 0;
+    }
+
+    /* ── Page Content ── */
+    .page-content { padding: 1.5rem 2rem; }
+
+    /* ── Table Card ── */
+    .table-card {
+      background: var(--sapBaseColor, #fff);
+      border: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      border-radius: 0.375rem;
+      overflow: hidden;
+    }
+
+    /* ── Table Toolbar ── */
+    .toolbar-btn-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .table-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 0.75rem;
+      border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      gap: 1rem;
+    }
+    .table-title { font-size: 1rem; font-weight: 600; color: var(--sapTextColor, #131e29); white-space: nowrap; }
+    .table-toolbar-right { display: flex; align-items: center; gap: 0.375rem; }
+    .toolbar-separator { width: 1px; height: 1.25rem; background: var(--sapList_BorderColor, #e5e5e5); margin: 0 0.125rem; }
+    .toolbar-search { width: 200px; }
+
+    /* ── Filter Bar ── */
+    .filter-bar {
+      background: var(--sapBaseColor, #fff);
+      border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      padding: 0 2rem 20px;
+    }
+    .filter-fields {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: flex-end;
+    }
+    .filter-fields.collapsed { display: none; }
+    .filter-field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      width: 225px;
+    }
+    .filter-field label { font-size: 0.875rem; color: var(--sapContent_LabelColor, #556b82); }
+    .filter-field ui5-input,
+    .filter-field ui5-select { width: 225px; }
+    .filter-actions { display: flex; align-items: flex-end; gap: 0.5rem; }
+
+    /* ── Skeleton loader ── */
+    @keyframes sap-pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.4; }
+    }
+    .skeleton-table { width: 100%; border-collapse: collapse; }
+    .skeleton-table td { padding: 0.75rem 0.5rem; border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5); vertical-align: middle; }
+    .skeleton-table td:first-child { padding-inline-start: 1rem; }
+    .skel-bar {
+      background: #e0e4e9;
+      border-radius: 4px;
+      height: 14px;
+      display: block;
+      animation: sap-pulse 0.8s ease-in-out 1.5;
+    }
+    .filter-toggle-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.375rem;
+      height: 0;
+      position: relative;
+      z-index: 10;
+    }
+    .filter-toggle-row ui5-button::part(button) {
+      box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+      border-radius: 0.5rem;
+      background: var(--sapBaseColor, #fff);
+    }
+    .filter-toggle-btn-wrap {
+      border-radius: 0.625rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.14);
+      background: var(--sapBaseColor, #fff);
+      line-height: 0;
+    }
+
+    .ai-status { display: flex; align-items: center; gap: 0.3rem; white-space: nowrap; }
+    .ai-status ui5-icon { color: var(--sapInformativeColor); }
+
+    /* ── Pagination ── */
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.125rem;
+      padding: 0.875rem;
+      border-top: 1px solid var(--sapList_BorderColor, #e5e5e5);
+    }
+    .page-btn {
+      min-width: 26px; height: 26px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 0.5rem;
+      font-family: "72", sans-serif;
+      font-size: 0.875rem;
+      cursor: pointer;
+      border: none;
+      background: none;
+      color: var(--sapTextColor, #131e29);
+      padding: 0 0.35rem;
+      transition: background 0.15s;
+    }
+    .page-btn:hover { background: var(--sapList_HoverBackground, #f0f2f5); }
+    .page-btn.active { color: var(--sapLinkColor, #0070f2); font-weight: 600; text-decoration: underline; }
+    .page-btn.nav { color: var(--sapContent_LabelColor, #556b82); }
+    .page-btn svg { width: 12px; height: 12px; }
+  </style>
+</head>
+<body>
+
+  <!-- Shell Bar -->
+  <app-shellbar title="Sample Project" hide-product-switch base-path="../../"></app-shellbar>
+
+  <ui5-popover id="navMenu" placement="Bottom" horizontal-align="Start" style="width:280px">
+    <ui5-list separators="None">
+      <ui5-li onclick="location.href='sample.html'" style="cursor:pointer">Supplier Onboarding</ui5-li>
+    </ui5-list>
+  </ui5-popover>
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div style="display:flex; align-items:center; justify-content:space-between">
+      <div style="display:flex; align-items:center; gap:0.25rem; padding-top:0.25rem">
+        <button class="variant-btn" id="variantBtn" onclick="toggleVariant(event)">
+          <span id="variantLabel">Supplier Onboarding — Action Required</span>
+        </button>
+        <ui5-button id="variantChevron" design="Transparent" icon="slim-arrow-down" size="Small" onclick="toggleVariant(event)" style="height:26px"></ui5-button>
+      </div>
+    </div>
+  </div>
+
+  <ui5-popover id="variantPop" header-text="My Views" placement="Bottom" horizontal-align="Center" style="width:380px">
+    <ui5-list id="variantList" separators="None" mode="SingleSelect">
+      <ui5-li data-key="action" selected onclick="selectVariant('Supplier Onboarding — Action Required')">Supplier Onboarding — Action Required</ui5-li>
+      <ui5-li data-key="all" onclick="selectVariant('Supplier Onboarding — All In Progress')">Supplier Onboarding — All In Progress</ui5-li>
+    </ui5-list>
+    <div slot="footer" style="display:flex; justify-content:flex-end; align-items:center; gap:0.5rem; padding:0.5rem; width:100%; box-sizing:border-box">
+      <ui5-button design="Emphasized" style="height:26px">Save As</ui5-button>
+      <ui5-button design="Transparent" style="height:26px">Manage</ui5-button>
+    </div>
+  </ui5-popover>
+
+  <!-- Filter Bar -->
+  <div class="filter-bar" id="filterBar" style="display:none">
+    <div class="filter-fields" id="filterFields">
+      <div class="filter-field">
+        <ui5-input placeholder="Search" show-clear-icon>
+          <ui5-icon slot="icon" name="search"></ui5-icon>
+        </ui5-input>
+      </div>
+      <div class="filter-field">
+        <label>Region:</label>
+        <ui5-select>
+          <ui5-option>All</ui5-option>
+          <ui5-option>EMEA</ui5-option>
+          <ui5-option>Americas</ui5-option>
+          <ui5-option>APAC</ui5-option>
+        </ui5-select>
+      </div>
+      <div class="filter-field">
+        <label>Category:</label>
+        <ui5-select>
+          <ui5-option>All</ui5-option>
+          <ui5-option>Direct Materials</ui5-option>
+          <ui5-option>Indirect Services</ui5-option>
+          <ui5-option>Logistics</ui5-option>
+        </ui5-select>
+      </div>
+      <div class="filter-field">
+        <label>Status:</label>
+        <ui5-select>
+          <ui5-option>All</ui5-option>
+          <ui5-option>Pending Review</ui5-option>
+          <ui5-option>In Progress</ui5-option>
+          <ui5-option>Approved</ui5-option>
+        </ui5-select>
+      </div>
+      <div class="filter-actions">
+        <ui5-button design="Emphasized">Go</ui5-button>
+        <ui5-button design="Transparent" id="adaptFiltersBtn">Adapt Filters</ui5-button>
+      </div>
+    </div>
+  </div>
+
+  <div class="filter-toggle-row ui5-content-density-compact">
+    <div class="filter-toggle-btn-wrap"><ui5-button id="filterToggle" design="Default" icon="slim-arrow-down" tooltip="Expand filters" onclick="toggleFilter()"></ui5-button></div>
+    <div class="filter-toggle-btn-wrap" id="pinBtn" style="display:none"><ui5-button design="Default" icon="pushpin-off" tooltip="Pin filters"></ui5-button></div>
+  </div>
+
+  <script>
+    function toggleVariant(e) {
+      e.stopPropagation();
+      var pop = document.getElementById('variantPop');
+      pop.opener = document.getElementById('variantChevron');
+      var currentLabel = document.getElementById('variantLabel').textContent.trim();
+      document.querySelectorAll('#variantList ui5-li').forEach(function(li) {
+        li.textContent.trim() === currentLabel ? li.setAttribute('selected', '') : li.removeAttribute('selected');
+      });
+      pop.open = !pop.open;
+    }
+    function selectVariant(label) {
+      document.getElementById('variantLabel').textContent = label;
+      document.getElementById('variantPop').open = false;
+      var actionOnly = label === 'Supplier Onboarding — Action Required';
+
+      if (!actionOnly) {
+        var skeleton = document.getElementById('skeletonOverlay');
+        var realTable = document.getElementById('realTable');
+        skeleton.style.display = '';
+        realTable.style.display = 'none';
+        skeleton.querySelectorAll('.skel-bar').forEach(function(el) {
+          el.style.animation = 'none'; el.offsetHeight; el.style.animation = '';
+        });
+        setTimeout(function() {
+          skeleton.style.display = 'none';
+          realTable.style.display = '';
+          var visible = 0;
+          document.querySelectorAll('ui5-table-row').forEach(function(row) {
+            row.style.display = ''; visible++;
+          });
+          document.querySelector('.table-title').textContent = 'Suppliers (' + visible + ')';
+          document.getElementById('pagination').style.display = '';
+        }, 1200);
+      } else {
+        var visible = 0;
+        document.querySelectorAll('ui5-table-row').forEach(function(row) {
+          var show = row.hasAttribute('data-action');
+          row.style.display = show ? '' : 'none';
+          if (show) visible++;
+        });
+        document.querySelector('.table-title').textContent = 'Suppliers (' + visible + ')';
+        document.getElementById('pagination').style.display = 'none';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      setTimeout(function() {
+        document.getElementById('skeletonOverlay').style.display = 'none';
+        document.getElementById('realTable').style.display = '';
+      }, 2400);
+
+      setTimeout(function() {
+        var menuBtn = document.querySelector('app-shellbar ui5-button[icon="menu2"]');
+        if (menuBtn) {
+          menuBtn.addEventListener('click', function() {
+            var pop = document.getElementById('navMenu');
+            pop.opener = menuBtn;
+            pop.open = !pop.open;
+          });
+        }
+      }, 300);
+      selectVariant('Supplier Onboarding — Action Required');
+    });
+
+    function toggleFilter() {
+      const bar = document.getElementById('filterBar');
+      const btn = document.getElementById('filterToggle');
+      const pin = document.getElementById('pinBtn');
+      const header = document.querySelector('.page-header');
+      const collapsed = bar.style.display === 'none';
+      bar.style.display = collapsed ? '' : 'none';
+      btn.setAttribute('icon', collapsed ? 'slim-arrow-up' : 'slim-arrow-down');
+      btn.setAttribute('tooltip', collapsed ? 'Collapse filters' : 'Expand filters');
+      pin.style.display = collapsed ? '' : 'none';
+      header.style.boxShadow = collapsed ? 'none' : '0 2px 6px rgba(0,0,0,0.08)';
+      bar.style.boxShadow = collapsed ? '0 2px 6px rgba(0,0,0,0.08)' : 'none';
+    }
+  </script>
+
+  <!-- Page Content -->
+  <div class="page-content">
+    <div class="table-card">
+
+      <!-- Table Toolbar -->
+      <div class="table-toolbar">
+        <span class="table-title">Suppliers (15)</span>
+        <div class="table-toolbar-right">
+          <div class="toolbar-btn-group">
+            <ui5-button design="Transparent" icon="action-settings" tooltip="Settings"></ui5-button>
+            <ui5-button design="Transparent" icon="full-screen" tooltip="Fullscreen"></ui5-button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Skeleton overlay -->
+      <div id="skeletonOverlay">
+        <table class="skeleton-table" aria-hidden="true">
+          <tbody>
+            <tr><td><span class="skel-bar" style="width:100px"></span></td><td><span class="skel-bar" style="width:160px"></span></td><td><span class="skel-bar" style="width:80px"></span></td><td><span class="skel-bar" style="width:120px"></span></td><td><span class="skel-bar" style="width:80px"></span></td><td><span class="skel-bar" style="width:50px;border-radius:8px"></span></td><td><span class="skel-bar" style="width:100px"></span></td><td></td></tr>
+            <tr><td><span class="skel-bar" style="width:100px"></span></td><td><span class="skel-bar" style="width:140px"></span></td><td><span class="skel-bar" style="width:80px"></span></td><td><span class="skel-bar" style="width:100px"></span></td><td><span class="skel-bar" style="width:80px"></span></td><td><span class="skel-bar" style="width:50px;border-radius:8px"></span></td><td><span class="skel-bar" style="width:80px"></span></td><td></td></tr>
+            <tr><td><span class="skel-bar" style="width:100px"></span></td><td><span class="skel-bar" style="width:175px"></span></td><td><span class="skel-bar" style="width:80px"></span></td><td><span class="skel-bar" style="width:110px"></span></td><td><span class="skel-bar" style="width:80px"></span></td><td><span class="skel-bar" style="width:50px;border-radius:8px"></span></td><td><span class="skel-bar" style="width:90px"></span></td><td></td></tr>
+            <tr><td><span class="skel-bar" style="width:100px"></span></td><td><span class="skel-bar" style="width:150px"></span></td><td><span class="skel-bar" style="width:80px"></span></td><td><span class="skel-bar" style="width:130px"></span></td><td><span class="skel-bar" style="width:80px"></span></td><td><span class="skel-bar" style="width:50px;border-radius:8px"></span></td><td><span class="skel-bar" style="width:70px"></span></td><td></td></tr>
+            <tr><td><span class="skel-bar" style="width:100px"></span></td><td><span class="skel-bar" style="width:130px"></span></td><td><span class="skel-bar" style="width:80px"></span></td><td><span class="skel-bar" style="width:90px"></span></td><td><span class="skel-bar" style="width:80px"></span></td><td><span class="skel-bar" style="width:50px;border-radius:8px"></span></td><td><span class="skel-bar" style="width:100px"></span></td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Table -->
+      <ui5-table id="realTable" style="display:none">
+        <ui5-table-selection-multi slot="features"></ui5-table-selection-multi>
+        <ui5-table-header-row slot="headerRow">
+          <ui5-table-header-cell width="140px" style="padding-inline-start: 1rem;">Supplier ID</ui5-table-header-cell>
+          <ui5-table-header-cell>Supplier Name</ui5-table-header-cell>
+          <ui5-table-header-cell width="100px">Country</ui5-table-header-cell>
+          <ui5-table-header-cell width="160px">Category</ui5-table-header-cell>
+          <ui5-table-header-cell width="130px">Submitted</ui5-table-header-cell>
+          <ui5-table-header-cell width="130px">Status</ui5-table-header-cell>
+          <ui5-table-header-cell width="170px">AI Recommendation</ui5-table-header-cell>
+          <ui5-table-header-cell width="32px"></ui5-table-header-cell>
+        </ui5-table-header-row>
+
+        <ui5-table-row data-action="true">
+          <ui5-table-cell style="padding-inline-start: 1rem"><span style="white-space:nowrap">SUP-100423</span></ui5-table-cell>
+          <ui5-table-cell><span style="color:var(--sapLinkColor,#0070f2);white-space:nowrap">Arcturus Materials GmbH</span></ui5-table-cell>
+          <ui5-table-cell><span style="white-space:nowrap">Germany</span></ui5-table-cell>
+          <ui5-table-cell><span style="white-space:nowrap">Direct Materials</span></ui5-table-cell>
+          <ui5-table-cell><span style="white-space:nowrap" data-rel="-3">—</span></ui5-table-cell>
+          <ui5-table-cell><span style="background:var(--sapErrorBackground,#fce4e4);color:var(--sapNegativeColor,#bb0000);padding:0.2rem 0.6rem;border-radius:8px;font-size:0.8125rem;white-space:nowrap">Pending Review</span></ui5-table-cell>
+          <ui5-table-cell><div class="ai-status"><ui5-icon name="information"></ui5-icon> Request Documents</div></ui5-table-cell>
+          <ui5-table-cell style="color:#8c9fac;text-align:center">›</ui5-table-cell>
+        </ui5-table-row>
+
+        <ui5-table-row data-action="true">
+          <ui5-table-cell style="padding-inline-start: 1rem"><span style="white-space:nowrap">SUP-100451</span></ui5-table-cell>
+          <ui5-table-cell><span style="color:var(--sapLinkColor,#0070f2);white-space:nowrap">Noventa Logistics SA</span></ui5-table-cell>
+          <ui5-table-cell><span style="white-space:nowrap">France</span></ui5-table-cell>
+          <ui5-table-cell><span style="white-space:nowrap">Logistics</span></ui5-table-cell>
+          <ui5-table-cell><span style="white-space:nowrap" data-rel="-5">—</span></ui5-table-cell>
+          <ui5-table-cell><span style="background:var(--sapErrorBackground,#fce4e4);color:var(--sapNegativeColor,#bb0000);padding:0.2rem 0.6rem;border-radius:8px;font-size:0.8125rem;white-space:nowrap">Pending Review</span></ui5-table-cell>
+          <ui5-table-cell><div class="ai-status"><ui5-icon name="information"></ui5-icon> Verify Tax ID</div></ui5-table-cell>
+          <ui5-table-cell style="color:#8c9fac;text-align:center">›</ui5-table-cell>
+        </ui5-table-row>
+
+        <ui5-table-row data-action="true">
+          <ui5-table-cell style="padding-inline-start: 1rem"><span style="white-space:nowrap">SUP-100478</span></ui5-table-cell>
+          <ui5-table-cell><span style="color:var(--sapLinkColor,#0070f2);white-space:nowrap">Meridian Parts Co.</span></ui5-table-cell>
+          <ui5-table-cell><span style="white-space:nowrap">USA</span></ui5-table-cell>
+          <ui5-table-cell><span style="white-space:nowrap">Direct Materials</span></ui5-table-cell>
+          <ui5-table-cell><span style="white-space:nowrap" data-rel="-1">—</span></ui5-table-cell>
+          <ui5-table-cell><span style="background:var(--sapErrorBackground,#fce4e4);color:var(--sapNegativeColor,#bb0000);padding:0.2rem 0.6rem;border-radius:8px;font-size:0.8125rem;white-space:nowrap">Pending Review</span></ui5-table-cell>
+          <ui5-table-cell><div class="ai-status"><ui5-icon name="information"></ui5-icon> Approve Supplier</div></ui5-table-cell>
+          <ui5-table-cell style="color:#8c9fac;text-align:center">›</ui5-table-cell>
+        </ui5-table-row>
+
+        <ui5-table-row>
+          <ui5-table-cell style="padding-inline-start: 1rem"><span style="white-space:nowrap">SUP-100312</span></ui5-table-cell>
+          <ui5-table-cell><span style="color:var(--sapLinkColor,#0070f2);white-space:nowrap">Kelvin Industrial Supplies</span></ui5-table-cell>
+          <ui5-table-cell><span style="white-space:nowrap">UK</span></ui5-table-cell>
+          <ui5-table-cell><span style="white-space:nowrap">Indirect Services</span></ui5-table-cell>
+          <ui5-table-cell><span style="white-space:nowrap" data-rel="-8">—</span></ui5-table-cell>
+          <ui5-table-cell><span style="background:#f7d4a8;color:#7a4a0f;padding:0.2rem 0.6rem;border-radius:8px;font-size:0.8125rem;white-space:nowrap">In Progress</span></ui5-table-cell>
+          <ui5-table-cell><span style="color:#5B738B">—</span></ui5-table-cell>
+          <ui5-table-cell style="color:#8c9fac;text-align:center">›</ui5-table-cell>
+        </ui5-table-row>
+
+        <ui5-table-row>
+          <ui5-table-cell style="padding-inline-start: 1rem"><span style="white-space:nowrap">SUP-100390</span></ui5-table-cell>
+          <ui5-table-cell><span style="color:var(--sapLinkColor,#0070f2);white-space:nowrap">Tanaka Precision Ltd</span></ui5-table-cell>
+          <ui5-table-cell><span style="white-space:nowrap">Japan</span></ui5-table-cell>
+          <ui5-table-cell><span style="white-space:nowrap">Direct Materials</span></ui5-table-cell>
+          <ui5-table-cell><span style="white-space:nowrap" data-rel="-6">—</span></ui5-table-cell>
+          <ui5-table-cell><span style="background:#f7d4a8;color:#7a4a0f;padding:0.2rem 0.6rem;border-radius:8px;font-size:0.8125rem;white-space:nowrap">In Progress</span></ui5-table-cell>
+          <ui5-table-cell><span style="color:#5B738B">—</span></ui5-table-cell>
+          <ui5-table-cell style="color:#8c9fac;text-align:center">›</ui5-table-cell>
+        </ui5-table-row>
+
+        <ui5-table-row>
+          <ui5-table-cell style="padding-inline-start: 1rem"><span style="white-space:nowrap">SUP-100407</span></ui5-table-cell>
+          <ui5-table-cell><span style="color:var(--sapLinkColor,#0070f2);white-space:nowrap">Solara Energy Components</span></ui5-table-cell>
+          <ui5-table-cell><span style="white-space:nowrap">Spain</span></ui5-table-cell>
+          <ui5-table-cell><span style="white-space:nowrap">Direct Materials</span></ui5-table-cell>
+          <ui5-table-cell><span style="white-space:nowrap" data-rel="-10">—</span></ui5-table-cell>
+          <ui5-table-cell><span style="background:#f7d4a8;color:#7a4a0f;padding:0.2rem 0.6rem;border-radius:8px;font-size:0.8125rem;white-space:nowrap">In Progress</span></ui5-table-cell>
+          <ui5-table-cell><span style="color:#5B738B">—</span></ui5-table-cell>
+          <ui5-table-cell style="color:#8c9fac;text-align:center">›</ui5-table-cell>
+        </ui5-table-row>
+
+        <ui5-table-row>
+          <ui5-table-cell style="padding-inline-start: 1rem"><span style="white-space:nowrap">SUP-100289</span></ui5-table-cell>
+          <ui5-table-cell><span style="color:var(--sapLinkColor,#0070f2);white-space:nowrap">Bridgepoint Freight AG</span></ui5-table-cell>
+          <ui5-table-cell><span style="white-space:nowrap">Switzerland</span></ui5-table-cell>
+          <ui5-table-cell><span style="white-space:nowrap">Logistics</span></ui5-table-cell>
+          <ui5-table-cell><span style="white-space:nowrap" data-rel="-12">—</span></ui5-table-cell>
+          <ui5-table-cell><span style="background:#f7d4a8;color:#7a4a0f;padding:0.2rem 0.6rem;border-radius:8px;font-size:0.8125rem;white-space:nowrap">In Progress</span></ui5-table-cell>
+          <ui5-table-cell><span style="color:#5B738B">—</span></ui5-table-cell>
+          <ui5-table-cell style="color:#8c9fac;text-align:center">›</ui5-table-cell>
+        </ui5-table-row>
+
+        <ui5-table-row>
+          <ui5-table-cell style="padding-inline-start: 1rem"><span style="white-space:nowrap">SUP-100341</span></ui5-table-cell>
+          <ui5-table-cell><span style="color:var(--sapLinkColor,#0070f2);white-space:nowrap">Vantage Packaging Inc.</span></ui5-table-cell>
+          <ui5-table-cell><span style="white-space:nowrap">Canada</span></ui5-table-cell>
+          <ui5-table-cell><span style="white-space:nowrap">Indirect Services</span></ui5-table-cell>
+          <ui5-table-cell><span style="white-space:nowrap" data-rel="-14">—</span></ui5-table-cell>
+          <ui5-table-cell><span style="background:#f7d4a8;color:#7a4a0f;padding:0.2rem 0.6rem;border-radius:8px;font-size:0.8125rem;white-space:nowrap">In Progress</span></ui5-table-cell>
+          <ui5-table-cell><span style="color:#5B738B">—</span></ui5-table-cell>
+          <ui5-table-cell style="color:#8c9fac;text-align:center">›</ui5-table-cell>
+        </ui5-table-row>
+
+        <ui5-table-row>
+          <ui5-table-cell style="padding-inline-start: 1rem"><span style="white-space:nowrap">SUP-100256</span></ui5-table-cell>
+          <ui5-table-cell><span style="color:var(--sapLinkColor,#0070f2);white-space:nowrap">Auriga Steel Works</span></ui5-table-cell>
+          <ui5-table-cell><span style="white-space:nowrap">India</span></ui5-table-cell>
+          <ui5-table-cell><span style="white-space:nowrap">Direct Materials</span></ui5-table-cell>
+          <ui5-table-cell><span style="white-space:nowrap" data-rel="-16">—</span></ui5-table-cell>
+          <ui5-table-cell><span style="background:#f7d4a8;color:#7a4a0f;padding:0.2rem 0.6rem;border-radius:8px;font-size:0.8125rem;white-space:nowrap">In Progress</span></ui5-table-cell>
+          <ui5-table-cell><span style="color:#5B738B">—</span></ui5-table-cell>
+          <ui5-table-cell style="color:#8c9fac;text-align:center">›</ui5-table-cell>
+        </ui5-table-row>
+
+        <ui5-table-row>
+          <ui5-table-cell style="padding-inline-start: 1rem"><span style="white-space:nowrap">SUP-100198</span></ui5-table-cell>
+          <ui5-table-cell><span style="color:var(--sapLinkColor,#0070f2);white-space:nowrap">Crestline Facilities BV</span></ui5-table-cell>
+          <ui5-table-cell><span style="white-space:nowrap">Netherlands</span></ui5-table-cell>
+          <ui5-table-cell><span style="white-space:nowrap">Indirect Services</span></ui5-table-cell>
+          <ui5-table-cell><span style="white-space:nowrap" data-rel="-18">—</span></ui5-table-cell>
+          <ui5-table-cell><span style="background:#e0e0e0;color:#444;padding:0.2rem 0.6rem;border-radius:8px;font-size:0.8125rem;white-space:nowrap">Approved</span></ui5-table-cell>
+          <ui5-table-cell><span style="color:#5B738B">—</span></ui5-table-cell>
+          <ui5-table-cell style="color:#8c9fac;text-align:center">›</ui5-table-cell>
+        </ui5-table-row>
+
+        <ui5-table-row>
+          <ui5-table-cell style="padding-inline-start: 1rem"><span style="white-space:nowrap">SUP-100167</span></ui5-table-cell>
+          <ui5-table-cell><span style="color:var(--sapLinkColor,#0070f2);white-space:nowrap">Eastfield Transport Pty</span></ui5-table-cell>
+          <ui5-table-cell><span style="white-space:nowrap">Australia</span></ui5-table-cell>
+          <ui5-table-cell><span style="white-space:nowrap">Logistics</span></ui5-table-cell>
+          <ui5-table-cell><span style="white-space:nowrap" data-rel="-20">—</span></ui5-table-cell>
+          <ui5-table-cell><span style="background:#e0e0e0;color:#444;padding:0.2rem 0.6rem;border-radius:8px;font-size:0.8125rem;white-space:nowrap">Approved</span></ui5-table-cell>
+          <ui5-table-cell><span style="color:#5B738B">—</span></ui5-table-cell>
+          <ui5-table-cell style="color:#8c9fac;text-align:center">›</ui5-table-cell>
+        </ui5-table-row>
+
+        <ui5-table-row>
+          <ui5-table-cell style="padding-inline-start: 1rem"><span style="white-space:nowrap">SUP-100143</span></ui5-table-cell>
+          <ui5-table-cell><span style="color:var(--sapLinkColor,#0070f2);white-space:nowrap">Pinnacle Raw Materials</span></ui5-table-cell>
+          <ui5-table-cell><span style="white-space:nowrap">Brazil</span></ui5-table-cell>
+          <ui5-table-cell><span style="white-space:nowrap">Direct Materials</span></ui5-table-cell>
+          <ui5-table-cell><span style="white-space:nowrap" data-rel="-22">—</span></ui5-table-cell>
+          <ui5-table-cell><span style="background:#e0e0e0;color:#444;padding:0.2rem 0.6rem;border-radius:8px;font-size:0.8125rem;white-space:nowrap">Approved</span></ui5-table-cell>
+          <ui5-table-cell><span style="color:#5B738B">—</span></ui5-table-cell>
+          <ui5-table-cell style="color:#8c9fac;text-align:center">›</ui5-table-cell>
+        </ui5-table-row>
+
+        <ui5-table-row>
+          <ui5-table-cell style="padding-inline-start: 1rem"><span style="white-space:nowrap">SUP-100119</span></ui5-table-cell>
+          <ui5-table-cell><span style="color:var(--sapLinkColor,#0070f2);white-space:nowrap">Northwall IT Services</span></ui5-table-cell>
+          <ui5-table-cell><span style="white-space:nowrap">Poland</span></ui5-table-cell>
+          <ui5-table-cell><span style="white-space:nowrap">Indirect Services</span></ui5-table-cell>
+          <ui5-table-cell><span style="white-space:nowrap" data-rel="-25">—</span></ui5-table-cell>
+          <ui5-table-cell><span style="background:#e0e0e0;color:#444;padding:0.2rem 0.6rem;border-radius:8px;font-size:0.8125rem;white-space:nowrap">Approved</span></ui5-table-cell>
+          <ui5-table-cell><span style="color:#5B738B">—</span></ui5-table-cell>
+          <ui5-table-cell style="color:#8c9fac;text-align:center">›</ui5-table-cell>
+        </ui5-table-row>
+
+        <ui5-table-row>
+          <ui5-table-cell style="padding-inline-start: 1rem"><span style="white-space:nowrap">SUP-100094</span></ui5-table-cell>
+          <ui5-table-cell><span style="color:var(--sapLinkColor,#0070f2);white-space:nowrap">Redstone Chemicals KK</span></ui5-table-cell>
+          <ui5-table-cell><span style="white-space:nowrap">Japan</span></ui5-table-cell>
+          <ui5-table-cell><span style="white-space:nowrap">Direct Materials</span></ui5-table-cell>
+          <ui5-table-cell><span style="white-space:nowrap" data-rel="-28">—</span></ui5-table-cell>
+          <ui5-table-cell><span style="background:#e0e0e0;color:#444;padding:0.2rem 0.6rem;border-radius:8px;font-size:0.8125rem;white-space:nowrap">Approved</span></ui5-table-cell>
+          <ui5-table-cell><span style="color:#5B738B">—</span></ui5-table-cell>
+          <ui5-table-cell style="color:#8c9fac;text-align:center">›</ui5-table-cell>
+        </ui5-table-row>
+
+        <ui5-table-row>
+          <ui5-table-cell style="padding-inline-start: 1rem"><span style="white-space:nowrap">SUP-100071</span></ui5-table-cell>
+          <ui5-table-cell><span style="color:var(--sapLinkColor,#0070f2);white-space:nowrap">Harlow Freight Solutions</span></ui5-table-cell>
+          <ui5-table-cell><span style="white-space:nowrap">UK</span></ui5-table-cell>
+          <ui5-table-cell><span style="white-space:nowrap">Logistics</span></ui5-table-cell>
+          <ui5-table-cell><span style="white-space:nowrap" data-rel="-30">—</span></ui5-table-cell>
+          <ui5-table-cell><span style="background:#e0e0e0;color:#444;padding:0.2rem 0.6rem;border-radius:8px;font-size:0.8125rem;white-space:nowrap">Approved</span></ui5-table-cell>
+          <ui5-table-cell><span style="color:#5B738B">—</span></ui5-table-cell>
+          <ui5-table-cell style="color:#8c9fac;text-align:center">›</ui5-table-cell>
+        </ui5-table-row>
+
+      </ui5-table>
+
+      <!-- Pagination: shown only in All In Progress view -->
+      <div class="pagination" id="pagination" style="display:none">
+        <button class="page-btn nav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg></button>
+        <button class="page-btn">1</button>
+        <button class="page-btn active">2</button>
+        <button class="page-btn">3</button>
+        <button class="page-btn">4</button>
+        <button class="page-btn">5</button>
+        <button class="page-btn nav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></button>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      function relDate(offsetDays) {
+        const d = new Date();
+        d.setDate(d.getDate() + offsetDays);
+        return (d.getMonth() + 1).toString().padStart(2, '0') + '/' +
+               d.getDate().toString().padStart(2, '0') + '/' +
+               d.getFullYear();
+      }
+      document.querySelectorAll('[data-rel]').forEach(function (el) {
+        el.textContent = relDate(parseInt(el.getAttribute('data-rel'), 10));
+      });
+    })();
+  </script>
+
+</body>
+</html>

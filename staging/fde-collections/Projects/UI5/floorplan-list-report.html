@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>List Report | Floorplan</title>
+
+  <script data-ui5-config type="application/json">{ "theme": "sap_horizon" }</script>
+  <script type="module" src="../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <script src="../../lib/shared/shellbar.js"></script>
+
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 600; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 300; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Light.woff2") format("woff2"); }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      font-family: "72", sans-serif;
+      background: var(--sapBackgroundColor, #f5f6f7);
+      color: var(--sapTextColor, #131e29);
+      min-height: 100vh;
+    }
+
+    ui5-button {
+      --sapButton_FontFamily: "72", sans-serif;
+    }
+    ui5-button::part(text) {
+      font-family: "72", sans-serif;
+      font-weight: 400;
+    }
+
+    .filter-bar {
+      background: var(--sapBaseColor, #fff);
+      border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5);
+    }
+
+    .filter-toggle-row {
+      display: flex;
+      align-items: center;
+      padding: 0.5rem 1.5rem;
+      border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5);
+    }
+
+    .filter-fields-row {
+      display: flex;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      gap: 0.75rem 1rem;
+      padding: 1rem 1.5rem;
+    }
+
+    .filter-field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .filter-label {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--sapContent_LabelColor, #556b82);
+    }
+
+    .filter-field ui5-input,
+    .filter-field ui5-select {
+      width: 225px;
+    }
+
+    .filter-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-left: auto;
+      padding-bottom: 0;
+      align-self: flex-end;
+    }
+
+    .filter-bar-collapsed .filter-fields-row {
+      display: none;
+    }
+
+    .filter-bar-collapsed .filter-toggle-row {
+      border-bottom: none;
+    }
+
+    .page-content {
+      padding: 1.5rem 2rem;
+    }
+
+    .table-card {
+      background: var(--sapBaseColor, #fff);
+      border: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      border-radius: 0.375rem;
+      overflow: hidden;
+    }
+
+    .table-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 0.75rem;
+      border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      gap: 1rem;
+    }
+
+    .table-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--sapTextColor, #131e29);
+      white-space: nowrap;
+    }
+
+    .table-toolbar-right {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+    }
+
+    .toolbar-separator {
+      width: 1px;
+      height: 1.25rem;
+      background: var(--sapList_BorderColor, #e5e5e5);
+      margin: 0 0.125rem;
+    }
+
+    .cell-link {
+      color: var(--sapLinkColor, #0070f2);
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .cell-link:hover { text-decoration: underline; }
+
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.125rem;
+      padding: 0.875rem;
+      border-top: 1px solid var(--sapList_BorderColor, #e5e5e5);
+    }
+
+    .page-btn {
+      min-width: 26px;
+      height: 26px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 0.5rem;
+      font-family: "72", sans-serif;
+      font-size: 0.875rem;
+      cursor: pointer;
+      border: none;
+      background: none;
+      color: var(--sapTextColor, #131e29);
+      padding: 0 0.35rem;
+      transition: background 0.15s;
+    }
+    .page-btn:hover { background: var(--sapList_HoverBackground, #f0f2f5); }
+    .page-btn.active { color: var(--sapLinkColor, #0070f2); font-weight: 600; text-decoration: underline; }
+    .page-btn.nav { color: var(--sapContent_IconColor, #556b82); }
+    .page-btn svg { width: 12px; height: 12px; }
+  </style>
+</head>
+<body>
+
+  <app-shellbar title="Purchase Orders" base-path="../../"></app-shellbar>
+
+  <div class="filter-bar" id="filterBar">
+    <div class="filter-toggle-row">
+      <ui5-button design="Transparent" icon="filter" id="toggleFiltersBtn">Filters (2)</ui5-button>
+    </div>
+    <div class="filter-fields-row">
+      <div class="filter-field">
+        <span class="filter-label">Supplier</span>
+        <ui5-input placeholder="Any Supplier" show-clear-icon></ui5-input>
+      </div>
+      <div class="filter-field">
+        <span class="filter-label">Status</span>
+        <ui5-select>
+          <ui5-option selected>All</ui5-option>
+          <ui5-option>Open</ui5-option>
+          <ui5-option>Approved</ui5-option>
+          <ui5-option>Rejected</ui5-option>
+        </ui5-select>
+      </div>
+      <div class="filter-field">
+        <span class="filter-label">Date From</span>
+        <ui5-input placeholder="dd.mm.yyyy" show-clear-icon></ui5-input>
+      </div>
+      <div class="filter-field">
+        <span class="filter-label">Date To</span>
+        <ui5-input placeholder="dd.mm.yyyy" show-clear-icon></ui5-input>
+      </div>
+      <div class="filter-actions">
+        <ui5-button design="Transparent">Adapt Filters</ui5-button>
+        <ui5-button design="Emphasized">Go</ui5-button>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-content">
+    <div class="table-card">
+
+      <div class="table-toolbar">
+        <span class="table-title">Purchase Orders (42)</span>
+        <div class="table-toolbar-right">
+          <ui5-button design="Emphasized">Create</ui5-button>
+          <ui5-button design="Default">Delete</ui5-button>
+          <div class="toolbar-separator"></div>
+          <ui5-button design="Transparent" icon="sort" tooltip="Sort"></ui5-button>
+          <ui5-button design="Transparent" icon="filter" tooltip="Filter"></ui5-button>
+          <ui5-button design="Transparent" icon="action-settings" tooltip="Settings"></ui5-button>
+          <div class="toolbar-separator"></div>
+          <ui5-button design="Transparent" icon="download" tooltip="Export"></ui5-button>
+        </div>
+      </div>
+
+      <ui5-table>
+        <ui5-table-selection-multi slot="features"></ui5-table-selection-multi>
+        <ui5-table-header-row slot="headerRow">
+          <ui5-table-header-cell width="130px" style="padding-inline-start: 1rem">PO Number</ui5-table-header-cell>
+          <ui5-table-header-cell width="200px">Supplier</ui5-table-header-cell>
+          <ui5-table-header-cell width="130px">Creation Date</ui5-table-header-cell>
+          <ui5-table-header-cell width="120px">Net Amount</ui5-table-header-cell>
+          <ui5-table-header-cell width="90px">Currency</ui5-table-header-cell>
+          <ui5-table-header-cell width="110px">Status</ui5-table-header-cell>
+          <ui5-table-header-cell width="130px">Delivery Date</ui5-table-header-cell>
+        </ui5-table-header-row>
+
+        <ui5-table-row interactive>
+          <ui5-table-cell style="padding-inline-start: 1rem"><a class="cell-link">4500001234</a></ui5-table-cell>
+          <ui5-table-cell>Acme Industrial Supply</ui5-table-cell>
+          <ui5-table-cell>12.01.2026</ui5-table-cell>
+          <ui5-table-cell>48,250.00</ui5-table-cell>
+          <ui5-table-cell>EUR</ui5-table-cell>
+          <ui5-table-cell><ui5-tag design="Positive">Approved</ui5-tag></ui5-table-cell>
+          <ui5-table-cell>15.02.2026</ui5-table-cell>
+          <ui5-table-row-action-navigation slot="actions"></ui5-table-row-action-navigation>
+        </ui5-table-row>
+
+        <ui5-table-row interactive>
+          <ui5-table-cell style="padding-inline-start: 1rem"><a class="cell-link">4500001235</a></ui5-table-cell>
+          <ui5-table-cell>Müller &amp; Söhne GmbH</ui5-table-cell>
+          <ui5-table-cell>14.01.2026</ui5-table-cell>
+          <ui5-table-cell>12,800.00</ui5-table-cell>
+          <ui5-table-cell>EUR</ui5-table-cell>
+          <ui5-table-cell><ui5-tag design="Information">Open</ui5-tag></ui5-table-cell>
+          <ui5-table-cell>28.02.2026</ui5-table-cell>
+          <ui5-table-row-action-navigation slot="actions"></ui5-table-row-action-navigation>
+        </ui5-table-row>
+
+        <ui5-table-row interactive>
+          <ui5-table-cell style="padding-inline-start: 1rem"><a class="cell-link">4500001236</a></ui5-table-cell>
+          <ui5-table-cell>Global Parts Ltd.</ui5-table-cell>
+          <ui5-table-cell>17.01.2026</ui5-table-cell>
+          <ui5-table-cell>93,410.50</ui5-table-cell>
+          <ui5-table-cell>USD</ui5-table-cell>
+          <ui5-table-cell><ui5-tag design="Positive">Approved</ui5-tag></ui5-table-cell>
+          <ui5-table-cell>10.03.2026</ui5-table-cell>
+          <ui5-table-row-action-navigation slot="actions"></ui5-table-row-action-navigation>
+        </ui5-table-row>
+
+        <ui5-table-row interactive>
+          <ui5-table-cell style="padding-inline-start: 1rem"><a class="cell-link">4500001237</a></ui5-table-cell>
+          <ui5-table-cell>Tata Supply Chain Co.</ui5-table-cell>
+          <ui5-table-cell>19.01.2026</ui5-table-cell>
+          <ui5-table-cell>7,650.00</ui5-table-cell>
+          <ui5-table-cell>INR</ui5-table-cell>
+          <ui5-table-cell><ui5-tag design="Negative">Rejected</ui5-tag></ui5-table-cell>
+          <ui5-table-cell>05.03.2026</ui5-table-cell>
+          <ui5-table-row-action-navigation slot="actions"></ui5-table-row-action-navigation>
+        </ui5-table-row>
+
+        <ui5-table-row interactive>
+          <ui5-table-cell style="padding-inline-start: 1rem"><a class="cell-link">4500001238</a></ui5-table-cell>
+          <ui5-table-cell>Nordic Components AS</ui5-table-cell>
+          <ui5-table-cell>22.01.2026</ui5-table-cell>
+          <ui5-table-cell>31,075.00</ui5-table-cell>
+          <ui5-table-cell>EUR</ui5-table-cell>
+          <ui5-table-cell><ui5-tag design="Critical">In Review</ui5-tag></ui5-table-cell>
+          <ui5-table-cell>20.03.2026</ui5-table-cell>
+          <ui5-table-row-action-navigation slot="actions"></ui5-table-row-action-navigation>
+        </ui5-table-row>
+
+        <ui5-table-row interactive>
+          <ui5-table-cell style="padding-inline-start: 1rem"><a class="cell-link">4500001239</a></ui5-table-cell>
+          <ui5-table-cell>Precision Tech Inc.</ui5-table-cell>
+          <ui5-table-cell>25.01.2026</ui5-table-cell>
+          <ui5-table-cell>156,900.00</ui5-table-cell>
+          <ui5-table-cell>USD</ui5-table-cell>
+          <ui5-table-cell><ui5-tag design="Positive">Approved</ui5-tag></ui5-table-cell>
+          <ui5-table-cell>01.04.2026</ui5-table-cell>
+          <ui5-table-row-action-navigation slot="actions"></ui5-table-row-action-navigation>
+        </ui5-table-row>
+
+        <ui5-table-row interactive>
+          <ui5-table-cell style="padding-inline-start: 1rem"><a class="cell-link">4500001240</a></ui5-table-cell>
+          <ui5-table-cell>Iberia Materiales S.L.</ui5-table-cell>
+          <ui5-table-cell>28.01.2026</ui5-table-cell>
+          <ui5-table-cell>22,340.00</ui5-table-cell>
+          <ui5-table-cell>EUR</ui5-table-cell>
+          <ui5-table-cell><ui5-tag design="Information">Open</ui5-tag></ui5-table-cell>
+          <ui5-table-cell>15.04.2026</ui5-table-cell>
+          <ui5-table-row-action-navigation slot="actions"></ui5-table-row-action-navigation>
+        </ui5-table-row>
+
+        <ui5-table-row interactive>
+          <ui5-table-cell style="padding-inline-start: 1rem"><a class="cell-link">4500001241</a></ui5-table-cell>
+          <ui5-table-cell>Sakura Trading KK</ui5-table-cell>
+          <ui5-table-cell>31.01.2026</ui5-table-cell>
+          <ui5-table-cell>5,200.00</ui5-table-cell>
+          <ui5-table-cell>JPY</ui5-table-cell>
+          <ui5-table-cell><ui5-tag design="Critical">In Review</ui5-tag></ui5-table-cell>
+          <ui5-table-cell>22.04.2026</ui5-table-cell>
+          <ui5-table-row-action-navigation slot="actions"></ui5-table-row-action-navigation>
+        </ui5-table-row>
+      </ui5-table>
+
+      <div class="pagination">
+        <button class="page-btn nav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg></button>
+        <button class="page-btn active">1</button>
+        <button class="page-btn">2</button>
+        <button class="page-btn">3</button>
+        <button class="page-btn nav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></button>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('toggleFiltersBtn').addEventListener('click', function() {
+      document.getElementById('filterBar').classList.toggle('filter-bar-collapsed');
+    });
+  </script>
+
+</body>
+</html>

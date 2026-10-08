@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Multi Edit</title>
+  <script src="panel-init.js"></script>
+  <script type="module" src="../../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 600; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 300; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Light.woff2") format("woff2"); }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "72", sans-serif; font-size: 0.875rem; background: var(--sapBackgroundColor, #f5f6f7); padding: 2rem; color: var(--sapTextColor, #131e29); }
+    .panel-title { font-size: 1.5rem; font-weight: 700; color: #131e29; margin-bottom: 0.375rem; }
+    .panel-subtitle { font-size: 0.8125rem; color: var(--sapContent_LabelColor, #6a7588); margin-bottom: 2rem; }
+    .demo-section { background: #fff; border: 1px solid var(--sapList_BorderColor, #e5e5e5); border-radius: 8px; margin-bottom: 1.25rem; overflow: hidden; }
+    .demo-section-header { padding: 0.75rem 1rem; border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5); font-size: 0.8125rem; font-weight: 600; color: var(--sapContent_LabelColor, #6a7588); display: flex; align-items: center; justify-content: space-between; }
+    .demo-section-tag { font-family: monospace; font-size: 0.75rem; color: #0064d9; font-weight: 400; }
+    .demo-section-body { padding: 1.25rem 1rem; display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: flex-start; }
+    .demo-section-body.column { flex-direction: column; }
+    .demo-section-body.block { display: block; padding: 0; }
+  </style>
+</head>
+<body>
+  <div class="panel-title">Smart Multi Edit</div>
+  <div class="panel-subtitle">A SmartTable with an "Edit Multiple" toolbar button that opens a multi-edit dialog, allowing bulk changes to selected rows. The button is enabled only when rows are selected. Equivalent to sap.ui.comp.smartmultiedit — rendered as a ui5-table with row selection and a multi-edit dialog.</div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">
+      Employees table with bulk Edit Multiple
+      <span class="demo-section-tag">sap.ui.comp.smartmultiedit · SmartTable · multi-select</span>
+    </div>
+    <div class="demo-section-body block" style="padding:0;">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:0.5rem 0.875rem;border-bottom:1px solid var(--sapList_BorderColor,#e5e5e5);">
+        <span style="font-size:1rem;font-weight:700;">Employees</span>
+        <ui5-button id="sme-edit-btn" design="Transparent" disabled onclick="smeOpenDialog()">Edit Multiple</ui5-button>
+      </div>
+      <ui5-table id="sme-table">
+        <ui5-table-selection-multi slot="features" id="sme-selection"></ui5-table-selection-multi>
+        <ui5-table-header-row slot="headerRow">
+          <ui5-table-header-cell style="padding-inline-start:1rem" width="160px">Name</ui5-table-header-cell>
+          <ui5-table-header-cell width="120px">Department</ui5-table-header-cell>
+          <ui5-table-header-cell width="120px">Birthday</ui5-table-header-cell>
+          <ui5-table-header-cell width="100px">Status</ui5-table-header-cell>
+        </ui5-table-header-row>
+        <ui5-table-row>
+          <ui5-table-cell style="padding-inline-start:1rem">Alice Johnson</ui5-table-cell>
+          <ui5-table-cell>Engineering</ui5-table-cell>
+          <ui5-table-cell>04/12/1988</ui5-table-cell>
+          <ui5-table-cell><ui5-tag design="Set3" color-scheme="7">Active</ui5-tag></ui5-table-cell>
+        </ui5-table-row>
+        <ui5-table-row>
+          <ui5-table-cell style="padding-inline-start:1rem">Bob Martinez</ui5-table-cell>
+          <ui5-table-cell>Sales</ui5-table-cell>
+          <ui5-table-cell>09/03/1975</ui5-table-cell>
+          <ui5-table-cell><ui5-tag design="Set3" color-scheme="7">Active</ui5-tag></ui5-table-cell>
+        </ui5-table-row>
+        <ui5-table-row>
+          <ui5-table-cell style="padding-inline-start:1rem">Carol White</ui5-table-cell>
+          <ui5-table-cell>Finance</ui5-table-cell>
+          <ui5-table-cell>07/22/1990</ui5-table-cell>
+          <ui5-table-cell><ui5-tag design="Set3" color-scheme="5">On Leave</ui5-tag></ui5-table-cell>
+        </ui5-table-row>
+        <ui5-table-row>
+          <ui5-table-cell style="padding-inline-start:1rem">David Kim</ui5-table-cell>
+          <ui5-table-cell>Engineering</ui5-table-cell>
+          <ui5-table-cell>11/30/1982</ui5-table-cell>
+          <ui5-table-cell><ui5-tag design="Set3" color-scheme="7">Active</ui5-tag></ui5-table-cell>
+        </ui5-table-row>
+        <ui5-table-row>
+          <ui5-table-cell style="padding-inline-start:1rem">Eva Müller</ui5-table-cell>
+          <ui5-table-cell>HR</ui5-table-cell>
+          <ui5-table-cell>02/14/1994</ui5-table-cell>
+          <ui5-table-cell><ui5-tag design="Set3" color-scheme="2">Inactive</ui5-tag></ui5-table-cell>
+        </ui5-table-row>
+      </ui5-table>
+    </div>
+  </div>
+
+  <ui5-dialog id="sme-dialog" header-text="Edit Multiple (2 selected)" style="min-width:360px;">
+    <div style="padding:1.25rem;display:flex;flex-direction:column;gap:1rem;">
+      <div style="display:flex;flex-direction:column;gap:0.25rem;">
+        <label style="font-size:0.75rem;color:var(--sapContent_LabelColor,#6a7588);">Department</label>
+        <ui5-select style="width:100%;">
+          <ui5-option>Keep existing values</ui5-option>
+          <ui5-option>Engineering</ui5-option>
+          <ui5-option>Sales</ui5-option>
+          <ui5-option>Finance</ui5-option>
+          <ui5-option>HR</ui5-option>
+        </ui5-select>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:0.25rem;">
+        <label style="font-size:0.75rem;color:var(--sapContent_LabelColor,#6a7588);">Status</label>
+        <ui5-select style="width:100%;">
+          <ui5-option>Keep existing values</ui5-option>
+          <ui5-option>Active</ui5-option>
+          <ui5-option>On Leave</ui5-option>
+          <ui5-option>Inactive</ui5-option>
+        </ui5-select>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:0.25rem;">
+        <label style="font-size:0.75rem;color:var(--sapContent_LabelColor,#6a7588);">Birthday</label>
+        <ui5-date-picker style="width:100%;"></ui5-date-picker>
+      </div>
+    </div>
+    <div slot="footer" style="display:flex;justify-content:flex-end;gap:0.5rem;padding:0.625rem 1rem;">
+      <ui5-button design="Emphasized" onclick="document.getElementById('sme-dialog').open=false;">Apply</ui5-button>
+      <ui5-button design="Transparent" onclick="document.getElementById('sme-dialog').open=false;">Cancel</ui5-button>
+    </div>
+  </ui5-dialog>
+
+  <script>
+    function smeOpenDialog() {
+      var dlg = document.getElementById('sme-dialog');
+      if (dlg) dlg.open = true;
+    }
+    (function() {
+      var sel = document.querySelector('#sme-table ui5-table-selection-multi');
+      var btn = document.getElementById('sme-edit-btn');
+      if (sel && btn) {
+        sel.addEventListener('selection-change', function() {
+          var selected = document.querySelectorAll('#sme-table ui5-table-row[selected]');
+          btn.disabled = selected.length === 0;
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

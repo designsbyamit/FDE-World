@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Object Page Block Base</title>
+  <script src="panel-init.js"></script>
+  <script type="module" src="../../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 600; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 300; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Light.woff2") format("woff2"); }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "72", sans-serif; font-size: 0.875rem; background: var(--sapBackgroundColor, #f5f6f7); padding: 2rem; color: var(--sapTextColor, #131e29); }
+    .panel-title { font-size: 1.5rem; font-weight: 700; color: #131e29; margin-bottom: 0.375rem; }
+    .panel-subtitle { font-size: 0.8125rem; color: var(--sapContent_LabelColor, #6a7588); margin-bottom: 2rem; }
+    .demo-section { background: #fff; border: 1px solid var(--sapList_BorderColor, #e5e5e5); border-radius: 8px; margin-bottom: 1.25rem; overflow: hidden; }
+    .demo-section-header { padding: 0.75rem 1rem; border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5); font-size: 0.8125rem; font-weight: 600; color: var(--sapContent_LabelColor, #6a7588); display: flex; align-items: center; justify-content: space-between; }
+    .demo-section-tag { font-family: monospace; font-size: 0.75rem; color: #0064d9; font-weight: 400; }
+    .demo-section-body { padding: 1.25rem 1rem; display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: flex-start; }
+    .demo-section-body.column { flex-direction: column; }
+    .demo-section-body.block { display: block; padding: 0; }
+  </style>
+</head>
+<body>
+  <div class="panel-title">Object Page Block Base</div>
+  <div class="panel-subtitle">An object-centric full-screen page with a sticky header, snapped title, anchor navigation bar, and sections with sub-sections containing content blocks. Equivalent to sap.uxap.ObjectPageLayout — rendered using ui5-dynamic-page with manual section anchors.</div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">
+      Object Page — Single View with Sections
+      <span class="demo-section-tag">ui5-dynamic-page · anchor tabs · content blocks</span>
+    </div>
+    <div class="demo-section-body block" style="padding:0;">
+      <div style="height:520px; border:1px solid var(--sapList_BorderColor,#e5e5e5); border-radius:8px; overflow:hidden;">
+        <ui5-dynamic-page id="op-page">
+
+          <ui5-dynamic-page-title slot="titleArea">
+            <ui5-title slot="heading" level="H3">Single View</ui5-title>
+            <ui5-button slot="actionsBar" design="Emphasized">Edit</ui5-button>
+            <ui5-button slot="actionsBar" design="Transparent">Share</ui5-button>
+            <ui5-button slot="navigationBar" design="Transparent" icon="nav-back" tooltip="Back"></ui5-button>
+          </ui5-dynamic-page-title>
+
+          <ui5-dynamic-page-header slot="headerArea">
+            <div style="display:flex;gap:0.5rem;">
+              <ui5-button design="Transparent" id="op-anchor-general" onclick="opScrollTo('op-general')" style="border-bottom:2px solid var(--sapSelectedColor,#0064d9);border-radius:0;">General Information</ui5-button>
+              <ui5-button design="Transparent" id="op-anchor-details" onclick="opScrollTo('op-details')">Details</ui5-button>
+              <ui5-button design="Transparent" id="op-anchor-contacts" onclick="opScrollTo('op-contacts')">Contacts</ui5-button>
+            </div>
+          </ui5-dynamic-page-header>
+
+          <div slot="content" style="padding:1.5rem 1rem;">
+
+            <div id="op-general" style="margin-bottom:2rem;">
+              <div style="font-size:1rem;font-weight:700;color:var(--sapTextColor,#131e29);margin-bottom:0.75rem;padding-bottom:0.5rem;border-bottom:1px solid var(--sapList_BorderColor,#e5e5e5);">General Information</div>
+              <div style="background:var(--sapList_SelectionBackgroundColor,#e8f0fe);border:1px solid var(--sapSelectedColor,#0064d9);border-radius:6px;padding:1rem;margin-bottom:0.75rem;">
+                <div style="font-size:0.875rem;font-weight:600;color:var(--sapSelectedColor,#0064d9);margin-bottom:0.5rem;">Example Block (Blue)</div>
+                <div style="display:grid;grid-template-columns:140px 1fr;gap:0.375rem 1rem;font-size:0.875rem;">
+                  <span style="color:var(--sapContent_LabelColor,#6a7588);">Object Title</span><span>Single View</span>
+                  <span style="color:var(--sapContent_LabelColor,#6a7588);">Category</span><span>Standard</span>
+                  <span style="color:var(--sapContent_LabelColor,#6a7588);">Created By</span><span>John Smith</span>
+                  <span style="color:var(--sapContent_LabelColor,#6a7588);">Created On</span><span>04/17/2024</span>
+                </div>
+              </div>
+            </div>
+
+            <div id="op-details" style="margin-bottom:2rem;">
+              <div style="font-size:1rem;font-weight:700;color:var(--sapTextColor,#131e29);margin-bottom:0.75rem;padding-bottom:0.5rem;border-bottom:1px solid var(--sapList_BorderColor,#e5e5e5);">Details</div>
+              <div style="background:var(--sapBackgroundColor,#f5f6f7);border:1px solid var(--sapList_BorderColor,#e5e5e5);border-radius:6px;padding:1rem;margin-bottom:0.75rem;">
+                <div style="font-size:0.875rem;font-weight:600;color:var(--sapTextColor,#131e29);margin-bottom:0.5rem;">Technical Details</div>
+                <div style="display:grid;grid-template-columns:140px 1fr;gap:0.375rem 1rem;font-size:0.875rem;">
+                  <span style="color:var(--sapContent_LabelColor,#6a7588);">System</span><span>S/4HANA Cloud</span>
+                  <span style="color:var(--sapContent_LabelColor,#6a7588);">Version</span><span>2024.Q1</span>
+                  <span style="color:var(--sapContent_LabelColor,#6a7588);">Status</span><span><ui5-tag design="Set3" color-scheme="7">Active</ui5-tag></span>
+                </div>
+              </div>
+            </div>
+
+            <div id="op-contacts">
+              <div style="font-size:1rem;font-weight:700;color:var(--sapTextColor,#131e29);margin-bottom:0.75rem;padding-bottom:0.5rem;border-bottom:1px solid var(--sapList_BorderColor,#e5e5e5);">Contacts</div>
+              <div style="display:flex;gap:1rem;flex-wrap:wrap;">
+                <div style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem;background:#fff;border:1px solid var(--sapList_BorderColor,#e5e5e5);border-radius:8px;min-width:200px;">
+                  <ui5-avatar initials="JS" color-scheme="Accent6" size="M"></ui5-avatar>
+                  <div><div style="font-size:0.875rem;font-weight:600;">John Smith</div><div style="font-size:0.75rem;color:var(--sapContent_LabelColor,#6a7588);">Product Owner</div></div>
+                </div>
+                <div style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem;background:#fff;border:1px solid var(--sapList_BorderColor,#e5e5e5);border-radius:8px;min-width:200px;">
+                  <ui5-avatar initials="MG" color-scheme="Accent2" size="M"></ui5-avatar>
+                  <div><div style="font-size:0.875rem;font-weight:600;">Maria Garcia</div><div style="font-size:0.75rem;color:var(--sapContent_LabelColor,#6a7588);">Developer</div></div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </ui5-dynamic-page>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function opScrollTo(id) {
+      var page = document.getElementById('op-page');
+      var el = document.getElementById(id);
+      if (page && el) {
+        var content = page.shadowRoot ? page.shadowRoot.querySelector('[part="content"]') : null;
+        if (content) { content.scrollTop = el.offsetTop - 16; }
+        else { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+      }
+    }
+  </script>
+</body>
+</html>

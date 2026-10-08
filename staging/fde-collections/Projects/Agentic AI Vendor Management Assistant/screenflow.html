@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" href="../../lib/assets/favicon.ico">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Screen Flow — Vendor Management Assistant</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #dde1e7;
+      min-height: 100vh;
+      overflow-x: auto;
+    }
+
+    /* ── Toolbar ── */
+    .toolbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 44px;
+      background: #2c2c2c;
+      display: flex;
+      align-items: center;
+      padding: 0 1.25rem;
+      gap: 1.5rem;
+      z-index: 1000;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+    .toolbar-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #fff;
+      white-space: nowrap;
+    }
+    .toolbar-divider { width: 1px; height: 20px; background: #555; }
+    .toolbar-legend {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+    }
+    .toolbar-spacer { flex: 1; }
+    .toolbar-btn {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: #1a1a2e;
+      background: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 5px 14px;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .toolbar-btn:hover { background: #e8e8f0; }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      font-size: 0.75rem;
+      color: #ccc;
+      white-space: nowrap;
+    }
+    .legend-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .legend-line {
+      width: 24px; height: 2px;
+      flex-shrink: 0;
+    }
+
+    /* ── Canvas ── */
+    .canvas {
+      padding: 72px 48px 80px;
+      min-width: 3600px;
+    }
+
+    /* ── Flow section ── */
+    .flow-section {
+      margin-bottom: 72px;
+    }
+    .flow-section-title {
+      font-size: 1.375rem;
+      font-weight: 700;
+      color: #1a1a2e;
+      margin-bottom: 28px;
+      letter-spacing: -0.01em;
+    }
+    .flow-section-title span {
+      display: inline-block;
+      background: #1a1a2e;
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-right: 0.5rem;
+      vertical-align: middle;
+      letter-spacing: 0.05em;
+    }
+    .sub-flow-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #1a1a2e;
+      margin-bottom: 18px;
+      letter-spacing: -0.01em;
+    }
+    .sub-flow-title span {
+      display: inline-block;
+      background: #1a1a2e;
+      color: #fff;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 4px;
+      margin-right: 0.4rem;
+      vertical-align: middle;
+      letter-spacing: 0.05em;
+    }
+    .sub-flow-title-3 {
+      font-size: 0.8125rem;
+      font-weight: 700;
+      color: #1a1a2e;
+      margin-bottom: 14px;
+      letter-spacing: -0.01em;
+    }
+    .sub-flow-title-3 span {
+      display: inline-block;
+      background: #3d3d5c;
+      color: #fff;
+      font-size: 0.625rem;
+      font-weight: 600;
+      padding: 1px 6px;
+      border-radius: 4px;
+      margin-right: 0.4rem;
+      vertical-align: middle;
+      letter-spacing: 0.05em;
+    }
+
+    /* ── Flow row ── */
+    .flow-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 0;
+      position: relative;
+    }
+
+    /* ── Screen card ── */
+    .screen-card {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      flex-shrink: 0;
+    }
+    .screen-label {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: #1a1a2e;
+      margin-bottom: 8px;
+      max-width: 280px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .screen-label::before {
+      content: '';
+      display: inline-block;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      background: #9ca3af;
+    }
+    .persona-badge.vendor ~ .screen-label::before  { background: #5b21b6; }
+    .persona-badge.reviewer ~ .screen-label::before { background: #0369a1; }
+    .persona-badge.system ~ .screen-label::before   { background: #15803d; }
+    .screen-sublabel {
+      font-size: 0.6875rem;
+      color: #6b7280;
+      margin-bottom: 8px;
+      max-width: 280px;
+      margin-top: -4px;
+      font-style: italic;
+    }
+    .screen-frame {
+      width: 280px;
+      height: 175px;
+      border-radius: 6px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.08);
+      background: #fff;
+      position: relative;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+      flex-shrink: 0;
+    }
+    .screen-frame:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.22), 0 0 0 1px rgba(0,0,0,0.08);
+    }
+    .screen-frame iframe {
+      width: 1280px;
+      height: 800px;
+      border: none;
+      transform: scale(0.21875);
+      transform-origin: top left;
+      pointer-events: none;
+    }
+    .screen-frame-overlay {
+      position: absolute;
+      inset: 0;
+      cursor: pointer;
+    }
+    .screen-tag {
+      margin-top: 7px;
+      font-size: 0.6875rem;
+      color: #1a1a2e;
+      max-width: 280px;
+      line-height: 1.4;
+    }
+
+    /* ── Persona badge ── */
+    .persona-badge {
+      display: none;
+    }
+
+    /* ── Connector ── */
+    .connector {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      padding: 0 6px;
+      align-self: flex-start;
+      margin-top: 113px;
+    }
+    .connector-line {
+      display: flex;
+      align-items: center;
+      gap: 0;
+    }
+    .arrow-shaft {
+      height: 2px;
+      background: #e91e8c;
+    }
+    .arrow-head {
+      width: 0; height: 0;
+      border-top: 5px solid transparent;
+      border-bottom: 5px solid transparent;
+      border-left: 8px solid #e91e8c;
+      flex-shrink: 0;
+    }
+    .arrow-shaft.dashed {
+      background: repeating-linear-gradient(90deg, #e91e8c 0, #e91e8c 5px, transparent 5px, transparent 10px);
+    }
+    .connector-label {
+      font-size: 0.6875rem;
+      color: #e91e8c;
+      font-weight: 500;
+      margin-top: 4px;
+      white-space: nowrap;
+      text-align: center;
+    }
+
+    /* ── Branch connector ── */
+    .branch-container {
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+      flex-shrink: 0;
+    }
+    .branch-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 0;
+    }
+    .branch-col-wrap {
+      display: flex;
+      flex-direction: row;
+      align-items: flex-start;
+      flex-shrink: 0;
+      position: relative;
+    }
+    .branch-col-vert {
+      position: relative;
+      width: 2px;
+      flex-shrink: 0;
+      align-self: stretch;
+    }
+    .branch-col-vert::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: var(--vert-top, 113px);
+      height: var(--vert-height, 0px);
+      background: #e91e8c;
+      width: 2px;
+    }
+    .branch-col-rows {
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      gap: 48px;
+    }
+    .branch-col-row {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+    .branch-col-row::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 113px;
+      width: 52px;
+      height: 2px;
+      background: #e91e8c;
+    }
+    .branch-col-row::after {
+      content: '';
+      position: absolute;
+      left: 52px;
+      top: 108px;
+      width: 0;
+      height: 0;
+      border-top: 5px solid transparent;
+      border-bottom: 5px solid transparent;
+      border-left: 8px solid #e91e8c;
+    }
+    .branch-col-row-content {
+      padding-left: 60px;
+    }
+
+    /* ── Section divider ── */
+    .section-divider {
+      height: 1px;
+      background: rgba(0,0,0,0.12);
+      margin: 8px 0 64px;
+      width: 100%;
+    }
+
+    /* ── Annotation box ── */
+    .annotation {
+      background: #fffbeb;
+      border: 1.5px solid #fcd34d;
+      border-radius: 6px;
+      padding: 10px 14px;
+      font-size: 0.75rem;
+      color: #78350f;
+      line-height: 1.5;
+      max-width: 260px;
+      margin-top: 12px;
+    }
+    .annotation strong { font-weight: 600; display: block; margin-bottom: 3px; }
+
+    /* ── OR badge ── */
+    .or-badge {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: #fff;
+      border: 2px solid #9ca3af;
+      font-size: 0.6875rem;
+      font-weight: 700;
+      color: #6b7280;
+      flex-shrink: 0;
+      margin: 4px auto;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div class="toolbar-title">Vendor Management Assistant — Screen Flow</div>
+    <div class="toolbar-divider"></div>
+    <div class="toolbar-legend">
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#5b21b6"></div> Vendor
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#0369a1"></div> Reviewer
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#15803d"></div> System / Agent
+      </div>
+      <div class="legend-item">
+        <div class="legend-line" style="background:#e91e8c"></div> Navigation
+      </div>
+      <div class="legend-item">
+        <div class="legend-line" style="background:#e91e8c; background: repeating-linear-gradient(90deg,#e91e8c 0,#e91e8c 5px,transparent 5px,transparent 10px)"></div> Optional / Conditional
+      </div>
+    </div>
+    <div class="toolbar-spacer"></div>
+    <button class="toolbar-btn" onclick="window.open('vendor-profile.html','_blank')">View Prototype</button>
+  </div>
+
+  <div class="canvas">
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- FLOW 1 — VENDOR EXPERIENCE                             -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div class="flow-section">
+      <div class="flow-section-title"><span>FLOW 1</span> Vendor Experience</div>
+      <div class="flow-row">
+
+        <div class="screen-card">
+          <div class="persona-badge vendor">Vendor · James Whitfield</div>
+          <div class="screen-label">Vendor Profile</div>
+          <div class="screen-frame" onclick="window.open('vendor-profile.html','_blank')">
+            <iframe src="vendor-profile.html" scrolling="no" tabindex="-1"></iframe>
+            <div class="screen-frame-overlay"></div>
+          </div>
+          <div class="screen-tag">Vendor views their profile in read-only state. All fields are display-only until they click Edit in the footer.</div>
+        </div>
+
+        <div class="connector" style="margin-top:113px;">
+          <div class="connector-line">
+            <div class="arrow-shaft" style="width:44px"></div>
+            <div class="arrow-head"></div>
+          </div>
+        </div>
+
+        <div class="screen-card">
+          <div class="persona-badge vendor">Vendor · James Whitfield</div>
+          <div class="screen-label">Edit Vendor Profile</div>
+          <div class="screen-frame" onclick="window.open('vendor-profile.html?state=edit','_blank')">
+            <iframe src="vendor-profile.html?state=edit" scrolling="no" tabindex="-1"></iframe>
+            <div class="screen-frame-overlay"></div>
+          </div>
+          <div class="screen-tag">Vendor updates fields. All inputs become editable, and Save Changes and Cancel buttons appear in the footer. Vendor clicks Save Changes to proceed.</div>
+        </div>
+
+        <!-- T-junction -->
+        <div class="connector" style="margin-top:147px;">
+          <div class="connector-line">
+            <div class="arrow-shaft" style="width:44px"></div>
+            <div class="arrow-head"></div>
+          </div>
+        </div>
+
+        <div class="branch-col-wrap" id="branch-col">
+          <div class="branch-col-vert" id="branch-vert"></div>
+          <div class="branch-col-rows">
+
+            <div class="branch-col-row">
+            <div class="branch-col-row-content">
+            <!-- PATH A — Low risk -->
+            <div style="display:flex; flex-direction:column;">
+            <div class="sub-flow-title"><span>Flow 1a</span> Low Risk Field Changes</div>
+            <div id="path-a" style="display:flex; align-items:flex-start; gap:0;">
+            <div class="screen-card">
+              <div class="persona-badge vendor">Vendor · James Whitfield</div>
+              <div class="screen-label">Review Changes</div>
+              <div class="screen-frame" onclick="window.open('vendor-profile.html?state=review-low','_blank')">
+                <iframe src="vendor-profile.html?state=review-low" scrolling="no" tabindex="-1"></iframe>
+                <div class="screen-frame-overlay"></div>
+              </div>
+              <div class="screen-tag">Before/after comparison for all changed fields. No document upload required. Vendor clicks OK to confirm and apply changes.</div>
+            </div>
+            <div class="connector">
+              <div class="connector-line">
+                <div class="arrow-shaft" style="width:44px"></div>
+                <div class="arrow-head"></div>
+              </div>
+            </div>
+            <div class="screen-card">
+              <div class="persona-badge vendor">Vendor · James Whitfield</div>
+              <div class="screen-label">Submitting Changes</div>
+              <div class="screen-frame" onclick="window.open('vendor-profile.html?state=progress-low','_blank')">
+                <iframe src="vendor-profile.html?state=progress-low" scrolling="no" tabindex="-1"></iframe>
+                <div class="screen-frame-overlay"></div>
+              </div>
+              <div class="screen-tag">Progress bar shown while low-risk changes are applied to MDG. Advances automatically when complete.</div>
+            </div>
+            <div class="connector">
+              <div class="connector-line">
+                <div class="arrow-shaft" style="width:44px"></div>
+                <div class="arrow-head"></div>
+              </div>
+            </div>
+            <div class="screen-card">
+              <div class="persona-badge vendor">Vendor · James Whitfield</div>
+              <div class="screen-label">Changes Saved</div>
+              <div class="screen-frame" onclick="window.open('vendor-profile.html?state=success','_blank')">
+                <iframe src="vendor-profile.html?state=success" scrolling="no" tabindex="-1"></iframe>
+                <div class="screen-frame-overlay"></div>
+              </div>
+              <div class="screen-tag">Immediate confirmation — no approval needed. Vendor clicks OK to dismiss.</div>
+            </div>
+            <div class="connector">
+              <div class="connector-line">
+                <div class="arrow-shaft" style="width:44px"></div>
+                <div class="arrow-head"></div>
+              </div>
+            </div>
+            <div class="screen-card">
+              <div class="persona-badge vendor">Vendor · James Whitfield</div>
+              <div class="screen-label">Profile Updated</div>
+              <div class="screen-frame" onclick="window.open('vendor-profile.html?state=updated-low','_blank')">
+                <iframe src="vendor-profile.html?state=updated-low" scrolling="no" tabindex="-1"></iframe>
+                <div class="screen-frame-overlay"></div>
+              </div>
+              <div class="screen-tag">Profile returns to read-only state with the new values applied. Changed fields show a green Updated tag.</div>
+            </div>
+          </div>
+          </div><!-- /path-a wrapper -->
+          </div><!-- /branch-col-row-content -->
+          </div><!-- /branch-col-row -->
+
+          <div class="branch-col-row">
+          <div class="branch-col-row-content">
+          <!-- PATH B — Medium / High risk -->
+          <div style="display:flex; flex-direction:column;">
+          <div class="sub-flow-title"><span>Flow 1b</span> Medium and High Risk Field Changes</div>
+          <div id="path-b" style="display:flex; align-items:flex-start; gap:0;">
+            <div class="screen-card">
+              <div class="persona-badge vendor">Vendor · James Whitfield</div>
+              <div class="screen-label">Review and Upload Documents</div>
+              <div class="screen-frame" onclick="window.open('vendor-profile.html?state=review-docs','_blank')">
+                <iframe src="vendor-profile.html?state=review-docs" scrolling="no" tabindex="-1"></iframe>
+                <div class="screen-frame-overlay"></div>
+              </div>
+              <div class="screen-tag">Same before/after dialog, but upload zones appear for Medium and High risk fields. Vendor attaches supporting documents and clicks Submit to proceed.</div>
+            </div>
+            <div class="connector">
+              <div class="connector-line">
+                <div class="arrow-shaft" style="width:44px"></div>
+                <div class="arrow-head"></div>
+              </div>
+            </div>
+            <div class="screen-card">
+              <div class="persona-badge vendor">Vendor · James Whitfield</div>
+              <div class="screen-label">Submitting Changes</div>
+              <div class="screen-frame" onclick="window.open('vendor-profile.html?state=progress','_blank')">
+                <iframe src="vendor-profile.html?state=progress" scrolling="no" tabindex="-1"></iframe>
+                <div class="screen-frame-overlay"></div>
+              </div>
+              <div class="screen-tag">Progress bar shown while the agent validates uploaded documents and queues the change request. Advances automatically when complete.</div>
+            </div>
+            <div class="connector">
+              <div class="connector-line">
+                <div class="arrow-shaft" style="width:44px"></div>
+                <div class="arrow-head"></div>
+              </div>
+            </div>
+            <div class="screen-card">
+              <div class="persona-badge vendor">Vendor · James Whitfield</div>
+              <div class="screen-label">Request Submitted</div>
+              <div class="screen-frame" onclick="window.open('vendor-profile.html?state=success-pending','_blank')">
+                <iframe src="vendor-profile.html?state=success-pending" scrolling="no" tabindex="-1"></iframe>
+                <div class="screen-frame-overlay"></div>
+              </div>
+              <div class="screen-tag">Vendor is told the request is submitted and that changes requiring approval won't take effect until a reviewer approves them. Vendor clicks OK to dismiss.</div>
+            </div>
+            <div class="connector">
+              <div class="connector-line">
+                <div class="arrow-shaft" style="width:44px"></div>
+                <div class="arrow-head"></div>
+              </div>
+            </div>
+            <div class="screen-card">
+              <div class="persona-badge vendor">Vendor · James Whitfield</div>
+              <div class="screen-label">Waiting for Approval</div>
+              <div class="screen-frame" onclick="window.open('vendor-profile.html?state=submitted','_blank')">
+                <iframe src="vendor-profile.html?state=submitted" scrolling="no" tabindex="-1"></iframe>
+                <div class="screen-frame-overlay"></div>
+              </div>
+              <div class="screen-tag">A floating card slides in post-submission explaining what happens next. The agent processes the request and automatically notifies the approver by email.</div>
+            </div>
+            <div class="connector">
+              <div class="connector-line">
+                <div class="arrow-shaft" style="width:44px"></div>
+                <div class="arrow-head"></div>
+              </div>
+            </div>
+            <div class="screen-card">
+              <div class="persona-badge system">System</div>
+              <div class="screen-label">Email Sent to Approver</div>
+              <div style="width:280px; height:175px; border-radius:6px; background:#f0fdf4; border:1.5px solid #86efac; display:flex; align-items:center; justify-content:center;">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none"><rect x="2" y="4" width="20" height="16" rx="2" fill="#16a34a"/><path d="M2 7l10 7 10-7" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg>
+              </div>
+              <div class="screen-tag">An action-required email was sent to the approver, Linda Wei. See Flow 2 for her experience.</div>
+            </div>
+          </div>
+          </div><!-- /path-b wrapper -->
+          </div><!-- /branch-col-row-content -->
+          </div><!-- /branch-col-row -->
+
+          </div><!-- /branch-col-rows -->
+        </div><!-- /branch-col-wrap -->
+
+      </div>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- FLOW 2 — LINDA: EMAIL ENTRY POINT                      -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div class="flow-section">
+      <div class="flow-section-title"><span>FLOW 2</span> Reviewer Experience — Entry via Email</div>
+      <div class="flow-row">
+
+        <div class="screen-card">
+          <div class="persona-badge reviewer">Reviewer · Linda Wei</div>
+          <div class="screen-label">Action-Required Email</div>
+          <div class="screen-frame" onclick="window.open('email-action-required.html','_blank')">
+            <iframe src="email-action-required.html?state=open" scrolling="no" tabindex="-1"></iframe>
+            <div class="screen-frame-overlay"></div>
+          </div>
+          <div class="screen-tag">Linda receives an action-required notification with a direct link to the change request. She clicks Review Request to open it.</div>
+        </div>
+
+        <div class="connector">
+          <div class="connector-line">
+            <div class="arrow-shaft" style="width:52px"></div>
+            <div class="arrow-head"></div>
+          </div>
+        </div>
+
+        <div class="screen-card">
+          <div class="persona-badge reviewer">Reviewer · Linda Wei</div>
+          <div class="screen-label">Change Request Detail</div>
+          <div class="screen-frame" onclick="window.open('rep-request-detail.html?vendor=Meridian+Supply+Co.','_blank')">
+            <iframe src="rep-request-detail.html?vendor=Meridian+Supply+Co." scrolling="no" tabindex="-1"></iframe>
+            <div class="screen-frame-overlay"></div>
+          </div>
+          <div class="screen-tag">Normal approval — no OCR issues. Linda reviews before/after field changes, supporting documents, agent run timeline, and account history. She then clicks Approve, Reject, or Escalate.</div>
+        </div>
+
+        <!-- T-junction: new style -->
+        <div class="connector" style="margin-top:147px;">
+          <div class="connector-line">
+            <div class="arrow-shaft" style="width:44px"></div>
+            <div class="arrow-head"></div>
+          </div>
+        </div>
+
+        <div class="branch-col-wrap" id="f2-branch-col">
+          <div class="branch-col-vert" id="f2-branch-vert"></div>
+          <div class="branch-col-rows">
+
+          <div class="branch-col-row">
+          <div class="branch-col-row-content">
+          <div style="display:flex; flex-direction:column;">
+          <div class="sub-flow-title"><span>Flow 2a</span> Approve</div>
+          <div id="f2-path-a" class="branch-row" style="align-items:flex-start;">
+            <div class="screen-card">
+              <div class="persona-badge reviewer">Reviewer · Linda Wei</div>
+              <div class="screen-label">Approve Request</div>
+              <div class="screen-frame" onclick="window.open('rep-request-detail.html?vendor=Meridian+Supply+Co.&state=approve-dialog','_blank')">
+                <iframe src="rep-request-detail.html?vendor=Meridian+Supply+Co.&state=approve-dialog" scrolling="no" tabindex="-1"></iframe>
+                <div class="screen-frame-overlay"></div>
+              </div>
+              <div class="screen-tag">Linda clicks Approve Changes. A confirmation dialog asks her to confirm. She clicks Approve to proceed.</div>
+            </div>
+            <div class="connector">
+              <div class="connector-line">
+                <div class="arrow-shaft" style="width:52px"></div>
+                <div class="arrow-head"></div>
+              </div>
+            </div>
+            <div class="screen-card">
+              <div class="persona-badge reviewer">Reviewer · Linda Wei</div>
+              <div class="screen-label">Changes Approved</div>
+              <div class="screen-frame" onclick="window.open('rep-request-detail.html?vendor=Meridian+Supply+Co.&state=approved','_blank')">
+                <iframe src="rep-request-detail.html?vendor=Meridian+Supply+Co.&state=approved" scrolling="no" tabindex="-1"></iframe>
+                <div class="screen-frame-overlay"></div>
+              </div>
+              <div class="screen-tag">Approval confirmed. Action buttons are hidden. A green strip confirms the request is approved and MDG is updated.</div>
+            </div>
+            <div class="connector">
+              <div class="connector-line">
+                <div class="arrow-shaft" style="width:52px"></div>
+                <div class="arrow-head"></div>
+              </div>
+            </div>
+            <div class="screen-card">
+              <div class="persona-badge system">System</div>
+              <div class="screen-label">MDG Updated</div>
+              <div style="width:280px; height:175px; border-radius:6px; background:#f0fdf4; border:1.5px solid #86efac; display:flex; align-items:center; justify-content:center;">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="11" fill="#16a34a"/><path d="M7 12.5l3.5 3.5 6.5-7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+              <div class="screen-tag">Vendor profile changes go live in MDG. Agent timeline shows both Awaiting Approval and Update MDG steps turned green.</div>
+            </div>
+          </div>
+          </div><!-- /flow-2a wrapper -->
+          </div><!-- /branch-col-row-content -->
+          </div><!-- /branch-col-row -->
+
+          <div class="branch-col-row">
+          <div class="branch-col-row-content">
+          <div style="display:flex; flex-direction:column;">
+          <div class="sub-flow-title"><span>Flow 2b</span> Reject</div>
+          <div id="f2-path-b" class="branch-row">
+            <div class="screen-card">
+              <div class="persona-badge reviewer">Reviewer · Linda Wei</div>
+              <div class="screen-label">Reject Changes</div>
+              <div class="screen-frame" onclick="window.open('rep-request-detail.html?vendor=Meridian+Supply+Co.&state=reject-dialog','_blank')">
+                <iframe src="rep-request-detail.html?vendor=Meridian+Supply+Co.&state=reject-dialog" scrolling="no" tabindex="-1"></iframe>
+                <div class="screen-frame-overlay"></div>
+              </div>
+              <div class="screen-tag">Linda clicks Reject Changes. A dialog prompts her to enter a reason before confirming.</div>
+            </div>
+            <div class="connector">
+              <div class="connector-line">
+                <div class="arrow-shaft" style="width:52px"></div>
+                <div class="arrow-head"></div>
+              </div>
+            </div>
+            <div class="screen-card">
+              <div class="persona-badge reviewer">Reviewer · Linda Wei</div>
+              <div class="screen-label">Changes Rejected</div>
+              <div class="screen-frame" onclick="window.open('rep-request-detail.html?vendor=Meridian+Supply+Co.&state=rejected','_blank')">
+                <iframe src="rep-request-detail.html?vendor=Meridian+Supply+Co.&state=rejected" scrolling="no" tabindex="-1"></iframe>
+                <div class="screen-frame-overlay"></div>
+              </div>
+              <div class="screen-tag">Rejection confirmed. Action buttons are hidden. A red strip confirms the request is rejected and the vendor has been notified.</div>
+            </div>
+          </div>
+          </div><!-- /flow-2b wrapper -->
+          </div><!-- /branch-col-row-content -->
+          </div><!-- /branch-col-row -->
+
+          <div class="branch-col-row">
+          <div class="branch-col-row-content">
+          <div style="display:flex; flex-direction:column;">
+          <div class="sub-flow-title"><span>Flow 2c</span> Escalate</div>
+          <div id="f2-path-c" class="branch-row">
+            <div class="screen-card">
+              <div class="persona-badge reviewer">Reviewer · Linda Wei</div>
+              <div class="screen-label">Escalate to Manager</div>
+              <div class="screen-frame" onclick="window.open('rep-request-detail.html?vendor=Meridian+Supply+Co.&state=escalate-dialog','_blank')">
+                <iframe src="rep-request-detail.html?vendor=Meridian+Supply+Co.&state=escalate-dialog" scrolling="no" tabindex="-1"></iframe>
+                <div class="screen-frame-overlay"></div>
+              </div>
+              <div class="screen-tag">Linda clicks Escalate to Manager. A dialog prompts her to add context before confirming.</div>
+            </div>
+            <div class="connector">
+              <div class="connector-line">
+                <div class="arrow-shaft" style="width:52px"></div>
+                <div class="arrow-head"></div>
+              </div>
+            </div>
+            <div class="screen-card">
+              <div class="persona-badge reviewer">Reviewer · Linda Wei</div>
+              <div class="screen-label">Escalated to Manager</div>
+              <div class="screen-frame" onclick="window.open('rep-request-detail.html?vendor=Meridian+Supply+Co.&state=escalated','_blank')">
+                <iframe src="rep-request-detail.html?vendor=Meridian+Supply+Co.&state=escalated" scrolling="no" tabindex="-1"></iframe>
+                <div class="screen-frame-overlay"></div>
+              </div>
+              <div class="screen-tag">Escalation confirmed. Action buttons are hidden. An orange strip confirms the request has been escalated and the manager has been notified.</div>
+            </div>
+          </div>
+          </div><!-- /flow-2c wrapper -->
+          </div><!-- /branch-col-row-content -->
+          </div><!-- /branch-col-row -->
+
+          </div><!-- /branch-col-rows -->
+        </div><!-- /f2-branch-col branch-col-wrap -->
+
+      </div>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- FLOW 3 — LINDA: WORKLIST ENTRY POINT                   -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div class="flow-section">
+      <div class="flow-section-title"><span>FLOW 3</span> Reviewer Experience — Entry via Worklist</div>
+      <div class="flow-row">
+
+        <div class="screen-card">
+          <div class="persona-badge reviewer">Reviewer · Linda Wei</div>
+          <div class="screen-label">Vendor Change Requests Worklist</div>
+          <div class="screen-frame" onclick="window.open('vendor-change-requests.html','_blank')">
+            <iframe src="vendor-change-requests.html" scrolling="no" tabindex="-1"></iframe>
+            <div class="screen-frame-overlay"></div>
+          </div>
+          <div class="screen-tag">Linda navigates to the worklist. She can click a "Review and Approve" row (normal flow) or an orange "Review and Correct" row (OCR error flow).</div>
+        </div>
+
+        <!-- T-junction: new style -->
+        <div class="connector" style="margin-top:147px;">
+          <div class="connector-line">
+            <div class="arrow-shaft" style="width:44px"></div>
+            <div class="arrow-head"></div>
+          </div>
+        </div>
+
+        <div class="branch-col-wrap" id="wl-branch-col">
+          <div class="branch-col-vert" id="wl-branch-vert"></div>
+          <div class="branch-col-rows">
+
+          <!-- PATH A — Normal approval flow -->
+          <div class="branch-col-row">
+          <div class="branch-col-row-content">
+          <div style="display:flex; flex-direction:column;">
+          <div class="sub-flow-title"><span>Flow 3a</span> Normal Approval</div>
+          <div id="wl-path-a" style="display:flex; align-items:flex-start; gap:0;">
+
+            <div class="screen-card">
+              <div class="persona-badge reviewer">Reviewer · Linda Wei</div>
+              <div class="screen-label">Change Request Detail</div>
+              <div class="screen-frame" onclick="window.open('rep-request-detail.html?vendor=Meridian+Supply+Co.','_blank')">
+                <iframe src="rep-request-detail.html?vendor=Meridian+Supply+Co." scrolling="no" tabindex="-1"></iframe>
+                <div class="screen-frame-overlay"></div>
+              </div>
+              <div class="screen-tag">e.g. Meridian Supply Co. — normal review. Agent has completed verification. Linda clicks Approve, Reject, or Escalate.</div>
+            </div>
+
+            <!-- T-junction: new style (inner Flow 3a) -->
+            <div class="connector" style="margin-top:147px;">
+              <div class="connector-line">
+                <div class="arrow-shaft" style="width:44px"></div>
+                <div class="arrow-head"></div>
+              </div>
+            </div>
+
+            <div class="branch-col-wrap" id="f3a-branch-col">
+              <div class="branch-col-vert" id="f3a-branch-vert"></div>
+              <div class="branch-col-rows">
+
+              <div class="branch-col-row">
+              <div class="branch-col-row-content">
+              <div style="display:flex; flex-direction:column;">
+              <div class="sub-flow-title-3"><span>Flow 3a-i</span> Approve</div>
+              <div id="f3a-path-a" class="branch-row">
+                <div class="screen-card">
+                  <div class="persona-badge reviewer">Reviewer · Linda Wei</div>
+                  <div class="screen-label">Approve Request</div>
+                  <div class="screen-frame" onclick="window.open('rep-request-detail.html?vendor=Meridian+Supply+Co.&state=approve-dialog','_blank')">
+                    <iframe src="rep-request-detail.html?vendor=Meridian+Supply+Co.&state=approve-dialog" scrolling="no" tabindex="-1"></iframe>
+                    <div class="screen-frame-overlay"></div>
+                  </div>
+                  <div class="screen-tag">Linda clicks Approve Changes. A confirmation dialog asks her to confirm.</div>
+                </div>
+                <div class="connector">
+                  <div class="connector-line">
+                    <div class="arrow-shaft" style="width:52px"></div>
+                    <div class="arrow-head"></div>
+                  </div>
+                </div>
+                <div class="screen-card">
+                  <div class="persona-badge reviewer">Reviewer · Linda Wei</div>
+                  <div class="screen-label">Changes Approved</div>
+                  <div class="screen-frame" onclick="window.open('rep-request-detail.html?vendor=Meridian+Supply+Co.&state=approved','_blank')">
+                    <iframe src="rep-request-detail.html?vendor=Meridian+Supply+Co.&state=approved" scrolling="no" tabindex="-1"></iframe>
+                    <div class="screen-frame-overlay"></div>
+                  </div>
+                  <div class="screen-tag">Approval confirmed. Green strip shown. MDG updated.</div>
+                </div>
+              </div>
+              </div><!-- /flow-3a-i wrapper -->
+              </div><!-- /branch-col-row-content -->
+              </div><!-- /branch-col-row -->
+
+              <div class="branch-col-row">
+              <div class="branch-col-row-content">
+              <div style="display:flex; flex-direction:column;">
+              <div class="sub-flow-title-3"><span>Flow 3a-ii</span> Reject</div>
+              <div id="f3a-path-b" class="branch-row">
+                <div class="screen-card">
+                  <div class="persona-badge reviewer">Reviewer · Linda Wei</div>
+                  <div class="screen-label">Reject Changes</div>
+                  <div class="screen-frame" onclick="window.open('rep-request-detail.html?vendor=Meridian+Supply+Co.&state=reject-dialog','_blank')">
+                    <iframe src="rep-request-detail.html?vendor=Meridian+Supply+Co.&state=reject-dialog" scrolling="no" tabindex="-1"></iframe>
+                    <div class="screen-frame-overlay"></div>
+                  </div>
+                  <div class="screen-tag">Linda clicks Reject Changes. A dialog prompts her to enter a reason before confirming.</div>
+                </div>
+                <div class="connector">
+                  <div class="connector-line">
+                    <div class="arrow-shaft" style="width:52px"></div>
+                    <div class="arrow-head"></div>
+                  </div>
+                </div>
+                <div class="screen-card">
+                  <div class="persona-badge reviewer">Reviewer · Linda Wei</div>
+                  <div class="screen-label">Changes Rejected</div>
+                  <div class="screen-frame" onclick="window.open('rep-request-detail.html?vendor=Meridian+Supply+Co.&state=rejected','_blank')">
+                    <iframe src="rep-request-detail.html?vendor=Meridian+Supply+Co.&state=rejected" scrolling="no" tabindex="-1"></iframe>
+                    <div class="screen-frame-overlay"></div>
+                  </div>
+                  <div class="screen-tag">Rejection confirmed. Red strip shown. Vendor notified.</div>
+                </div>
+              </div>
+              </div><!-- /flow-3a-ii wrapper -->
+              </div><!-- /branch-col-row-content -->
+              </div><!-- /branch-col-row -->
+
+              <div class="branch-col-row">
+              <div class="branch-col-row-content">
+              <div style="display:flex; flex-direction:column;">
+              <div class="sub-flow-title-3"><span>Flow 3a-iii</span> Escalate</div>
+              <div id="f3a-path-c" class="branch-row">
+                <div class="screen-card">
+                  <div class="persona-badge reviewer">Reviewer · Linda Wei</div>
+                  <div class="screen-label">Escalate to Manager</div>
+                  <div class="screen-frame" onclick="window.open('rep-request-detail.html?vendor=Meridian+Supply+Co.&state=escalate-dialog','_blank')">
+                    <iframe src="rep-request-detail.html?vendor=Meridian+Supply+Co.&state=escalate-dialog" scrolling="no" tabindex="-1"></iframe>
+                    <div class="screen-frame-overlay"></div>
+                  </div>
+                  <div class="screen-tag">Linda clicks Escalate to Manager. A dialog prompts her to add context before confirming.</div>
+                </div>
+                <div class="connector">
+                  <div class="connector-line">
+                    <div class="arrow-shaft" style="width:52px"></div>
+                    <div class="arrow-head"></div>
+                  </div>
+                </div>
+                <div class="screen-card">
+                  <div class="persona-badge reviewer">Reviewer · Linda Wei</div>
+                  <div class="screen-label">Escalated to Manager</div>
+                  <div class="screen-frame" onclick="window.open('rep-request-detail.html?vendor=Meridian+Supply+Co.&state=escalated','_blank')">
+                    <iframe src="rep-request-detail.html?vendor=Meridian+Supply+Co.&state=escalated" scrolling="no" tabindex="-1"></iframe>
+                    <div class="screen-frame-overlay"></div>
+                  </div>
+                  <div class="screen-tag">Escalation confirmed. Orange strip shown. Manager notified.</div>
+                </div>
+              </div>
+              </div><!-- /flow-3a-iii wrapper -->
+              </div><!-- /branch-col-row-content -->
+              </div><!-- /branch-col-row -->
+
+              </div><!-- /branch-col-rows -->
+            </div><!-- /f3a-branch-col branch-col-wrap -->
+          </div><!-- /wl-path-a -->
+          </div><!-- /flow-3a wrapper -->
+          </div><!-- /branch-col-row-content -->
+          </div><!-- /branch-col-row -->
+
+          <!-- PATH B — OCR error flow -->
+          <div class="branch-col-row">
+          <div class="branch-col-row-content">
+          <div style="display:flex; flex-direction:column;">
+          <div class="sub-flow-title"><span>Flow 3b</span> OCR Error — Manual Verification</div>
+          <div id="wl-path-b" style="display:flex; align-items:flex-start; gap:0;">
+
+            <div class="screen-card">
+              <div class="persona-badge reviewer">Reviewer · Linda Wei</div>
+              <div class="screen-label">Change Request Detail — OCR Error State</div>
+              <div class="screen-frame" onclick="window.open('rep-request-detail.html?vendor=Atlas+Consulting+Partners','_blank')">
+                <iframe src="rep-request-detail.html?vendor=Atlas+Consulting+Partners" scrolling="no" tabindex="-1"></iframe>
+                <div class="screen-frame-overlay"></div>
+              </div>
+              <div class="screen-tag">e.g. Atlas Consulting Partners — OCR could not read the bank document. Amber strip shown, Bank Account cell highlighted, buttons replaced with "Confirm Match", "Flag Discrepancy", and "Escalate to Manager".</div>
+            </div>
+
+            <!-- T-junction: new style (inner Flow 3b) -->
+            <div class="connector" style="margin-top:147px;">
+              <div class="connector-line">
+                <div class="arrow-shaft" style="width:44px"></div>
+                <div class="arrow-head"></div>
+              </div>
+            </div>
+
+            <div class="branch-col-wrap" id="f3b-branch-col">
+              <div class="branch-col-vert" id="f3b-branch-vert"></div>
+              <div class="branch-col-rows">
+
+              <div class="branch-col-row">
+              <div class="branch-col-row-content">
+              <div style="display:flex; flex-direction:column;">
+              <div class="sub-flow-title-3"><span>Flow 3b-i</span> Confirm Match</div>
+              <div id="f3b-path-a" class="branch-row">
+                <div class="screen-card">
+                  <div class="persona-badge reviewer">Reviewer · Linda Wei</div>
+                  <div class="screen-label">Confirm Match Dialog</div>
+                  <div class="screen-frame" onclick="window.open('rep-request-detail.html?vendor=Atlas+Consulting+Partners&state=ocr-confirm-dialog','_blank')">
+                    <iframe src="rep-request-detail.html?vendor=Atlas+Consulting+Partners&state=ocr-confirm-dialog" scrolling="no" tabindex="-1"></iframe>
+                    <div class="screen-frame-overlay"></div>
+                  </div>
+                  <div class="screen-tag">Linda clicks Confirm Match. A dialog asks her to confirm the account number matches the document.</div>
+                </div>
+                <div class="connector">
+                  <div class="connector-line">
+                    <div class="arrow-shaft" style="width:52px"></div>
+                    <div class="arrow-head"></div>
+                  </div>
+                </div>
+                <div class="screen-card">
+                  <div class="persona-badge reviewer">Reviewer · Linda Wei</div>
+                  <div class="screen-label">Match Confirmed</div>
+                  <div class="screen-frame" onclick="window.open('rep-request-detail.html?vendor=Atlas+Consulting+Partners&state=ocr-confirmed','_blank')">
+                    <iframe src="rep-request-detail.html?vendor=Atlas+Consulting+Partners&state=ocr-confirmed" scrolling="no" tabindex="-1"></iframe>
+                    <div class="screen-frame-overlay"></div>
+                  </div>
+                  <div class="screen-tag">OCR Check turns green. Routing Decision resolves. Trustpair verification initiated — pending 1–3 business days.</div>
+                </div>
+              </div>
+              </div><!-- /flow-3b-i wrapper -->
+              </div><!-- /branch-col-row-content -->
+              </div><!-- /branch-col-row -->
+
+              <div class="branch-col-row">
+              <div class="branch-col-row-content">
+              <div style="display:flex; flex-direction:column;">
+              <div class="sub-flow-title-3"><span>Flow 3b-ii</span> Flag Discrepancy</div>
+              <div id="f3b-path-b" class="branch-row">
+                <div class="screen-card">
+                  <div class="persona-badge reviewer">Reviewer · Linda Wei</div>
+                  <div class="screen-label">Flag Discrepancy Dialog</div>
+                  <div class="screen-frame" onclick="window.open('rep-request-detail.html?vendor=Atlas+Consulting+Partners&state=ocr-flag-dialog','_blank')">
+                    <iframe src="rep-request-detail.html?vendor=Atlas+Consulting+Partners&state=ocr-flag-dialog" scrolling="no" tabindex="-1"></iframe>
+                    <div class="screen-frame-overlay"></div>
+                  </div>
+                  <div class="screen-tag">Linda clicks Flag Discrepancy. A dialog prompts her to describe the discrepancy before confirming.</div>
+                </div>
+                <div class="connector">
+                  <div class="connector-line">
+                    <div class="arrow-shaft" style="width:52px"></div>
+                    <div class="arrow-head"></div>
+                  </div>
+                </div>
+                <div class="screen-card">
+                  <div class="persona-badge reviewer">Reviewer · Linda Wei</div>
+                  <div class="screen-label">Discrepancy Flagged</div>
+                  <div class="screen-frame" onclick="window.open('rep-request-detail.html?vendor=Atlas+Consulting+Partners&state=ocr-flagged','_blank')">
+                    <iframe src="rep-request-detail.html?vendor=Atlas+Consulting+Partners&state=ocr-flagged" scrolling="no" tabindex="-1"></iframe>
+                    <div class="screen-frame-overlay"></div>
+                  </div>
+                  <div class="screen-tag">Discrepancy confirmed. Orange strip shown. Vendor notified to resubmit with a legible document.</div>
+                </div>
+              </div>
+              </div><!-- /flow-3b-ii wrapper -->
+              </div><!-- /branch-col-row-content -->
+              </div><!-- /branch-col-row -->
+
+              <div class="branch-col-row">
+              <div class="branch-col-row-content">
+              <div style="display:flex; flex-direction:column;">
+              <div class="sub-flow-title-3"><span>Flow 3b-iii</span> Escalate</div>
+              <div id="f3b-path-c" class="branch-row">
+                <div class="screen-card">
+                  <div class="persona-badge reviewer">Reviewer · Linda Wei</div>
+                  <div class="screen-label">Escalate to Manager</div>
+                  <div class="screen-frame" onclick="window.open('rep-request-detail.html?vendor=Atlas+Consulting+Partners&state=escalate-dialog','_blank')">
+                    <iframe src="rep-request-detail.html?vendor=Atlas+Consulting+Partners&state=escalate-dialog" scrolling="no" tabindex="-1"></iframe>
+                    <div class="screen-frame-overlay"></div>
+                  </div>
+                  <div class="screen-tag">Linda clicks Escalate to Manager. A dialog prompts her to add context before confirming.</div>
+                </div>
+                <div class="connector">
+                  <div class="connector-line">
+                    <div class="arrow-shaft" style="width:52px"></div>
+                    <div class="arrow-head"></div>
+                  </div>
+                </div>
+                <div class="screen-card">
+                  <div class="persona-badge reviewer">Reviewer · Linda Wei</div>
+                  <div class="screen-label">Escalated to Manager</div>
+                  <div class="screen-frame" onclick="window.open('rep-request-detail.html?vendor=Atlas+Consulting+Partners&state=escalated','_blank')">
+                    <iframe src="rep-request-detail.html?vendor=Atlas+Consulting+Partners&state=escalated" scrolling="no" tabindex="-1"></iframe>
+                    <div class="screen-frame-overlay"></div>
+                  </div>
+                  <div class="screen-tag">Escalation confirmed. Orange strip shown. Manager notified.</div>
+                </div>
+              </div>
+              </div><!-- /flow-3b-iii wrapper -->
+              </div><!-- /branch-col-row-content -->
+              </div><!-- /branch-col-row -->
+
+              </div><!-- /branch-col-rows -->
+            </div><!-- /f3b-branch-col branch-col-wrap -->
+          </div><!-- /wl-path-b -->
+          </div><!-- /flow-3b wrapper -->
+          </div><!-- /branch-col-row-content -->
+          </div><!-- /branch-col-row -->
+
+          </div><!-- /branch-col-rows -->
+        </div><!-- /wl-branch-col branch-col-wrap -->
+
+      </div>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- MISCELLANEOUS — UI VARIATIONS                          -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div class="flow-section">
+      <div class="flow-section-title"><span>MISC</span> UI Variations</div>
+      <div class="flow-row" style="flex-wrap:wrap; gap:48px 0;">
+
+        <div class="screen-card">
+          <div class="persona-badge reviewer">Reviewer · Linda Wei</div>
+          <div class="screen-label">Account History Tab</div>
+          <div class="screen-frame" onclick="window.open('rep-request-detail.html?vendor=Meridian+Supply+Co.&state=account-history','_blank')">
+            <iframe src="rep-request-detail.html?vendor=Meridian+Supply+Co.&state=account-history" scrolling="no" tabindex="-1"></iframe>
+            <div class="screen-frame-overlay"></div>
+          </div>
+          <div class="screen-tag">Account History tab open on the Change Request Detail page, showing the full chronological log of agent and system activity for this vendor.</div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    function drawVert(colId) {
+      var col = document.getElementById(colId);
+      if (!col) return;
+      var vert = col.querySelector('.branch-col-vert');
+      var rows = col.querySelectorAll(':scope > .branch-col-rows > .branch-col-row');
+      if (!vert || rows.length < 2) return;
+
+      var firstRow = rows[0];
+      var lastRow  = rows[rows.length - 1];
+      var colRect   = col.getBoundingClientRect();
+      var firstRect = firstRow.getBoundingClientRect();
+      var lastRect  = lastRow.getBoundingClientRect();
+
+      var top    = (firstRect.top - colRect.top) + 113;
+      var bottom = (lastRect.top  - colRect.top) + 113;
+      var height = bottom - top;
+      if (height <= 0) return;
+
+      vert.style.setProperty('--vert-top',    top    + 'px');
+      vert.style.setProperty('--vert-height', height + 'px');
+    }
+
+    function drawAllVerts() {
+      ['branch-col', 'f2-branch-col', 'wl-branch-col', 'f3a-branch-col', 'f3b-branch-col'].forEach(drawVert);
+    }
+
+    window.addEventListener('load', function() {
+      drawAllVerts();
+
+      var ro = new ResizeObserver(drawAllVerts);
+      ro.observe(document.querySelector('.canvas'));
+
+      document.querySelectorAll('.screen-frame iframe').forEach(function(iframe) {
+        iframe.addEventListener('load', drawAllVerts);
+      });
+    });
+  </script>
+</body>
+</html>

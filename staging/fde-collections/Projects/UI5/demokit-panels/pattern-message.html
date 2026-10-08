@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <script src="panel-init.js"></script>
+  <script type="module" src="../../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 600; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 300; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Light.woff2") format("woff2"); }
+    body { font-family: "72", sans-serif; font-size: 0.875rem; background: #f5f6f7; color: #131e29; margin: 0; padding: 2rem; }
+    .panel-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .panel-subtitle { font-size: 0.875rem; color: #6a7588; margin-bottom: 2rem; }
+    .demo-section { margin-bottom: 2rem; }
+    .demo-section-header { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #6a7588; margin-bottom: 1rem; padding-bottom: 0.375rem; border-bottom: 1px solid #e5e5e5; }
+    .demo-section-body { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; }
+    .demo-section-body.column { flex-direction: column; align-items: stretch; }
+    ui5-button { --sapButton_FontFamily: "72", sans-serif; }
+    ui5-button::part(text) { font-family: "72", sans-serif; font-weight: 400; }
+  </style>
+</head>
+<body>
+
+  <div class="panel-title">Message Patterns</div>
+  <div class="panel-subtitle">ui5-message-strip in all four design types, plus a message-box dialog variant triggered by a button.</div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">Message Strip — All Types</div>
+    <div class="demo-section-body column">
+      <ui5-message-strip design="Information" show-icon show-close-button>
+        <strong>Information:</strong> Your session will expire in 10 minutes. Save your work to avoid losing changes.
+      </ui5-message-strip>
+      <ui5-message-strip design="Positive" show-icon show-close-button>
+        <strong>Success:</strong> Purchase order PO-20240415 has been created and submitted for approval.
+      </ui5-message-strip>
+      <ui5-message-strip design="Critical" show-icon show-close-button>
+        <strong>Warning:</strong> The delivery date is outside the allowed range. Please review before submitting.
+      </ui5-message-strip>
+      <ui5-message-strip design="Negative" show-icon show-close-button>
+        <strong>Error:</strong> Required fields are missing: Name, Email. Please fill in all required fields.
+      </ui5-message-strip>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">Without Close Button</div>
+    <div class="demo-section-body column">
+      <ui5-message-strip design="Information" show-icon>
+        This record is locked by another user and is read-only until released.
+      </ui5-message-strip>
+      <ui5-message-strip design="Critical" show-icon>
+        Some items could not be loaded. Results may be incomplete.
+      </ui5-message-strip>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">Message Box Dialog</div>
+    <div class="demo-section-body">
+      <ui5-button design="Default" onclick="document.getElementById('msg-dlg-info').open=true">Information</ui5-button>
+      <ui5-button design="Positive" onclick="document.getElementById('msg-dlg-success').open=true">Success</ui5-button>
+      <ui5-button design="Attention" onclick="document.getElementById('msg-dlg-warning').open=true">Warning</ui5-button>
+      <ui5-button design="Negative" onclick="document.getElementById('msg-dlg-error').open=true">Error</ui5-button>
+    </div>
+  </div>
+
+  <ui5-dialog id="msg-dlg-info" header-text="Information">
+    <div style="padding:1rem 0; display:flex; gap:1rem; align-items:flex-start;">
+      <ui5-icon name="information" style="font-size:2rem; color:#0064d9; flex-shrink:0;"></ui5-icon>
+      <div>Your session will expire in 10 minutes. Please save your work.</div>
+    </div>
+    <div slot="footer" style="padding:0.5rem 0.25rem;">
+      <ui5-button design="Emphasized" onclick="document.getElementById('msg-dlg-info').open=false">OK</ui5-button>
+    </div>
+  </ui5-dialog>
+
+  <ui5-dialog id="msg-dlg-success" header-text="Success" state="Positive">
+    <div style="padding:1rem 0; display:flex; gap:1rem; align-items:flex-start;">
+      <ui5-icon name="sys-enter-2" style="font-size:2rem; color:#196800; flex-shrink:0;"></ui5-icon>
+      <div>Order PO-20240415 submitted successfully and is pending approval.</div>
+    </div>
+    <div slot="footer" style="padding:0.5rem 0.25rem;">
+      <ui5-button design="Emphasized" onclick="document.getElementById('msg-dlg-success').open=false">OK</ui5-button>
+    </div>
+  </ui5-dialog>
+
+  <ui5-dialog id="msg-dlg-warning" header-text="Warning" state="Warning">
+    <div style="padding:1rem 0; display:flex; gap:1rem; align-items:flex-start;">
+      <ui5-icon name="warning2" style="font-size:2rem; color:#e9730c; flex-shrink:0;"></ui5-icon>
+      <div>The delivery date is outside the allowed range. Do you want to continue?</div>
+    </div>
+    <div slot="footer" style="display:flex; gap:0.5rem; padding:0.5rem 0.25rem;">
+      <ui5-button design="Emphasized" onclick="document.getElementById('msg-dlg-warning').open=false">Continue</ui5-button>
+      <ui5-button design="Transparent" onclick="document.getElementById('msg-dlg-warning').open=false">Cancel</ui5-button>
+    </div>
+  </ui5-dialog>
+
+  <ui5-dialog id="msg-dlg-error" header-text="Error" state="Negative">
+    <div style="padding:1rem 0; display:flex; gap:1rem; align-items:flex-start;">
+      <ui5-icon name="error" style="font-size:2rem; color:#bb0000; flex-shrink:0;"></ui5-icon>
+      <div>Could not save the record. Required fields are missing: Name, Email.</div>
+    </div>
+    <div slot="footer" style="padding:0.5rem 0.25rem;">
+      <ui5-button design="Emphasized" onclick="document.getElementById('msg-dlg-error').open=false">Close</ui5-button>
+    </div>
+  </ui5-dialog>
+
+</body>
+</html>

@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Concur</title>
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 600; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 300; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Light.woff2") format("woff2"); }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "72", sans-serif; background: var(--sapBackgroundColor, #f5f6f7); color: var(--sapTextColor, #1d2d3e); }
+
+    /* ── Layout ── */
+    .page-layout {
+      display: flex;
+      height: calc(100vh - 44px);
+      overflow: hidden;
+    }
+
+    /* ── Left Icon Nav ── */
+    .side-nav {
+      width: 48px;
+      background: #1a3160;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0.75rem 0;
+      gap: 0.25rem;
+      flex-shrink: 0;
+    }
+    .side-nav-item {
+      width: 36px;
+      height: 36px;
+      border-radius: 0.375rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: rgba(255,255,255,0.65);
+      transition: background 0.15s;
+    }
+    .side-nav-item:hover { background: rgba(255,255,255,0.12); color: #fff; }
+    .side-nav-item.active { background: rgba(255,255,255,0.18); color: #fff; }
+    .side-nav-sep { width: 24px; height: 1px; background: rgba(255,255,255,0.15); margin: 0.25rem 0; }
+
+    /* ── Main scroll area ── */
+    .main-scroll {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      gap: 1rem;
+      padding: 1rem;
+    }
+
+    /* ── Left column ── */
+    .col-left { flex: 1; display: flex; flex-direction: column; gap: 1rem; min-width: 0; }
+
+    /* ── Right sidebar ── */
+    .col-right { width: 300px; flex-shrink: 0; display: flex; flex-direction: column; gap: 1rem; }
+
+    /* ── Hero Banner ── */
+    .hero {
+      background: linear-gradient(135deg, #003087 0%, #005db9 60%, #0070d2 100%);
+      border-radius: 0.5rem;
+      padding: 1.25rem 1.25rem 1rem;
+    }
+    .hero-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.875rem; }
+    .hero-greeting { }
+    .hero-date { font-size: 0.75rem; color: rgba(255,255,255,0.7); margin-bottom: 0.2rem; }
+    .hero-name { font-size: 1.375rem; font-weight: 700; color: #fff; }
+    .hero-actions { display: flex; gap: 0.5rem; }
+    .hero-btn {
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 0.25rem;
+      padding: 0.3rem 0.75rem;
+      font-size: 0.75rem;
+      color: #fff;
+      cursor: pointer;
+      font-family: "72", sans-serif;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    .hero-btn:hover { background: rgba(255,255,255,0.25); }
+
+    .hero-cards { display: flex; gap: 0.75rem; align-items: flex-start; }
+    .hero-report-card {
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 0.375rem;
+      padding: 0.75rem 1rem;
+      min-width: 160px;
+    }
+    .hero-report-label { font-size: 0.6875rem; color: rgba(255,255,255,0.7); margin-bottom: 0.25rem; }
+    .hero-report-amount { font-size: 1.25rem; font-weight: 700; color: #fff; }
+    .hero-report-status { font-size: 0.6875rem; color: rgba(255,255,255,0.6); margin-top: 0.2rem; }
+
+    .hero-action-cards { display: flex; gap: 0.625rem; flex: 1; }
+    .hero-action-card {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 0.375rem;
+      padding: 0.625rem 0.75rem;
+      cursor: pointer;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.4rem;
+      transition: background 0.15s;
+    }
+    .hero-action-card:hover { background: rgba(255,255,255,0.2); }
+    .hero-action-icon { color: rgba(255,255,255,0.85); }
+    .hero-action-label { font-size: 0.6875rem; color: #fff; text-align: center; line-height: 1.3; }
+
+    /* ── Section card ── */
+    .section-card {
+      background: var(--sapBaseColor, #fff);
+      border-radius: 0.5rem;
+      border: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      overflow: hidden;
+    }
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5);
+    }
+    .section-title { font-size: 0.875rem; font-weight: 600; color: var(--sapTextColor, #1d2d3e); }
+    .section-see-all { font-size: 0.75rem; color: var(--sapLinkColor, #0070f2); cursor: pointer; text-decoration: none; }
+    .section-see-all:hover { text-decoration: underline; }
+
+    /* ── For You Today tabs ── */
+    .tab-bar {
+      display: flex;
+      border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      padding: 0 1rem;
+      gap: 1.5rem;
+    }
+    .tab-item {
+      padding: 0.625rem 0;
+      font-size: 0.8125rem;
+      color: var(--sapContent_LabelColor, #556b82);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+    }
+    .tab-item.active { color: var(--sapLinkColor, #0070f2); border-bottom-color: var(--sapLinkColor, #0070f2); font-weight: 600; }
+
+    .for-you-body { padding: 0.75rem 1rem; display: flex; flex-direction: column; gap: 0.625rem; }
+
+    .fyt-card {
+      border: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      border-radius: 0.375rem;
+      padding: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .fyt-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.8125rem; font-weight: 600; color: var(--sapButton_Emphasized_TextColor, #fff); flex-shrink: 0;
+    }
+    .fyt-info { flex: 1; }
+    .fyt-name { font-size: 0.8125rem; font-weight: 600; color: var(--sapTextColor, #1d2d3e); }
+    .fyt-sub { font-size: 0.75rem; color: var(--sapContent_LabelColor, #556b82); }
+    .fyt-comment { font-size: 0.75rem; color: var(--sapContent_LabelColor, #556b82); display: flex; align-items: center; gap: 0.25rem; margin-top: 0.2rem; }
+    .fyt-right { display: flex; flex-direction: column; align-items: flex-end; gap: 0.375rem; }
+    .fyt-amount { font-size: 0.875rem; font-weight: 700; color: var(--sapTextColor, #1d2d3e); }
+    .btn-review {
+      background: #0057b8; color: var(--sapButton_Emphasized_TextColor, #fff); border: none; border-radius: 0.25rem;
+      padding: 0.3rem 0.75rem; font-size: 0.75rem; cursor: pointer; font-family: "72", sans-serif;
+    }
+    .btn-review:hover { background: #004a9e; }
+
+    .upnext-card {
+      border: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      border-radius: 0.375rem;
+      padding: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .upnext-label { font-size: 0.6875rem; font-weight: 600; color: var(--sapContent_LabelColor, #556b82); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.15rem; }
+    .upnext-route { font-size: 0.875rem; font-weight: 700; color: var(--sapTextColor, #1d2d3e); }
+    .upnext-flight { font-size: 0.75rem; color: var(--sapContent_LabelColor, #556b82); }
+    .flight-icon { color: #0057b8; }
+
+    /* ── Reports section ── */
+    .report-trip-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1rem;
+    }
+    .report-trip-name { font-size: 0.8125rem; font-weight: 600; color: var(--sapTextColor, #1d2d3e); }
+    .report-trip-tabs { display: flex; gap: 0; }
+    .report-tab {
+      padding: 0.25rem 0.625rem;
+      font-size: 0.75rem;
+      border: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      cursor: pointer;
+      color: var(--sapContent_LabelColor, #556b82);
+      background: var(--sapBaseColor, #fff);
+    }
+    .report-tab:first-child { border-radius: 4px 0 0 4px; }
+    .report-tab:last-child { border-radius: 0 4px 4px 0; border-left: none; }
+    .report-tab.active { background: var(--sapInformationBackground, #e8f4ff); color: var(--sapLinkColor, #0070f2); border-color: var(--sapLinkColor, #0070f2); }
+
+    .expense-table { width: 100%; border-collapse: collapse; }
+    .expense-table th {
+      font-size: 0.6875rem;
+      font-weight: 600;
+      color: var(--sapContent_LabelColor, #556b82);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 0.4rem 1rem;
+      text-align: left;
+      background: var(--sapBackgroundColor, #f5f6f7);
+      border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5);
+    }
+    .expense-table td {
+      padding: 0.5rem 1rem;
+      font-size: 0.8125rem;
+      color: var(--sapTextColor, #1d2d3e);
+      border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5);
+    }
+    .expense-table tr:last-child td { border-bottom: none; }
+    .expense-table tr:hover td { background: var(--sapList_HoverBackground, #f0f2f5); }
+    .receipt-num { color: var(--sapLinkColor, #0070f2); cursor: pointer; }
+    .badge-type {
+      background: var(--sapInformationBackground, #e8f4ff);
+      color: var(--sapLinkColor, #0070f2);
+      border-radius: 0.1875rem;
+      padding: 0.15rem 0.4rem;
+      font-size: 0.6875rem;
+      font-weight: 600;
+    }
+    .amount-col { text-align: right; font-weight: 600; }
+
+    .report-footer {
+      padding: 0.625rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid var(--sapList_BorderColor, #e5e5e5);
+    }
+    .drop-receipts {
+      font-size: 0.75rem;
+      color: var(--sapContent_LabelColor, #556b82);
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      border: 1px dashed var(--sapList_BorderColor, #e5e5e5);
+      border-radius: 0.25rem;
+      padding: 0.375rem 0.75rem;
+      cursor: pointer;
+    }
+    .drop-receipts:hover { border-color: var(--sapLinkColor, #0070f2); color: var(--sapLinkColor, #0070f2); }
+    .btn-submit {
+      background: #0057b8; color: var(--sapButton_Emphasized_TextColor, #fff); border: none; border-radius: 0.25rem;
+      padding: 0.375rem 1rem; font-size: 0.8125rem; cursor: pointer; font-family: "72", sans-serif; font-weight: 600;
+    }
+    .btn-submit:hover { background: #004a9e; }
+
+    /* ── Requests / Approvals sections ── */
+    .cards-row { display: flex; gap: 0.75rem; padding: 0.75rem 1rem; }
+    .mini-card {
+      flex: 1;
+      border: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      border-radius: 0.375rem;
+      padding: 0.75rem;
+    }
+    .mini-card-label { font-size: 0.6875rem; color: var(--sapContent_LabelColor, #556b82); margin-bottom: 0.25rem; }
+    .mini-card-name { font-size: 0.8125rem; font-weight: 600; color: var(--sapTextColor, #1d2d3e); margin-bottom: 0.15rem; }
+    .mini-card-amount { font-size: 1rem; font-weight: 700; color: var(--sapTextColor, #1d2d3e); }
+    .mini-card-status {
+      font-size: 0.6875rem;
+      color: var(--sapContent_LabelColor, #556b82);
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      margin-top: 0.25rem;
+    }
+    .mini-card-footer { display: flex; justify-content: flex-end; margin-top: 0.5rem; }
+
+    /* ── App Center ── */
+    .app-center-row { display: flex; gap: 0.75rem; padding: 0.75rem 1rem; }
+    .app-card {
+      flex: 1;
+      border: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      border-radius: 0.375rem;
+      padding: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      cursor: pointer;
+    }
+    .app-card:hover { border-color: var(--sapLinkColor, #0070f2); background: var(--sapInformationBackground, #e8f4ff); }
+    .app-logo {
+      width: 40px; height: 40px; border-radius: 0.5rem;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem; font-weight: 700;
+      flex-shrink: 0;
+    }
+    .app-logo-aa { background: #cc0000; color: #fff; }
+    .app-logo-uber { background: #000; color: #fff; }
+    .app-info-name { font-size: 0.8125rem; font-weight: 600; color: var(--sapTextColor, #1d2d3e); }
+    .app-info-sub { font-size: 0.75rem; color: var(--sapContent_LabelColor, #556b82); }
+
+    /* ── Right sidebar cards ── */
+    .trip-card {
+      background: var(--sapBaseColor, #fff);
+      border-radius: 0.5rem;
+      border: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      overflow: hidden;
+    }
+    .trip-photo {
+      height: 100px;
+      background: linear-gradient(160deg, #2c5f8a 0%, #1a3a5c 50%, #0d2240 100%);
+      position: relative;
+      display: flex;
+      align-items: flex-end;
+      padding: 0.625rem 0.75rem;
+    }
+    .trip-photo-city {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+    }
+    .trip-photo-city svg { width: 100%; height: 100%; opacity: 0.4; }
+    .trip-photo-label { position: relative; z-index: 1; }
+    .trip-photo-label-name { font-size: 1rem; font-weight: 700; color: #fff; }
+    .trip-photo-label-sub { font-size: 0.6875rem; color: rgba(255,255,255,0.8); }
+    .trip-info { padding: 0.75rem; }
+    .trip-badge {
+      display: inline-block;
+      background: var(--sapWarningBackground, #fef3c7);
+      color: var(--sapCriticalColor, #e9730c);
+      border-radius: 0.1875rem;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      padding: 0.15rem 0.4rem;
+      margin-bottom: 0.5rem;
+    }
+    .trip-dates { font-size: 0.75rem; color: var(--sapContent_LabelColor, #556b82); margin-bottom: 0.5rem; }
+    .btn-trip-overview {
+      width: 100%; background: var(--sapBaseColor, #fff); border: 1px solid var(--sapList_BorderColor, #e5e5e5); border-radius: 0.25rem;
+      padding: 0.375rem; font-size: 0.8125rem; cursor: pointer; font-family: "72", sans-serif;
+      color: var(--sapTextColor, #1d2d3e);
+    }
+    .btn-trip-overview:hover { border-color: var(--sapLinkColor, #0070f2); color: var(--sapLinkColor, #0070f2); }
+
+    /* Alerts */
+    .alerts-card { background: var(--sapBaseColor, #fff); border-radius: 0.5rem; border: 1px solid var(--sapList_BorderColor, #e5e5e5); overflow: hidden; }
+    .alerts-header { padding: 0.625rem 0.875rem; border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5); font-size: 0.8125rem; font-weight: 600; }
+    .alert-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      padding: 0.5rem 0.875rem;
+      border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5);
+    }
+    .alert-item:last-child { border-bottom: none; }
+    .alert-icon-warn { color: var(--sapWarningColor, #e9730c); flex-shrink: 0; margin-top: 1px; }
+    .alert-text { font-size: 0.75rem; color: var(--sapTextColor, #1d2d3e); line-height: 1.4; }
+    .alert-link { color: var(--sapLinkColor, #0070f2); cursor: pointer; text-decoration: none; }
+    .alert-link:hover { text-decoration: underline; }
+
+    /* Itinerary */
+    .itinerary-card { background: var(--sapBaseColor, #fff); border-radius: 0.5rem; border: 1px solid var(--sapList_BorderColor, #e5e5e5); overflow: hidden; }
+    .itin-header { padding: 0.625rem 0.875rem; border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5); font-size: 0.8125rem; font-weight: 600; }
+    .itin-item {
+      display: flex;
+      gap: 0.75rem;
+      padding: 0.625rem 0.875rem;
+      border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      align-items: flex-start;
+    }
+    .itin-item:last-child { border-bottom: none; }
+    .itin-icon-wrap {
+      width: 30px; height: 30px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .itin-icon-flight { background: var(--sapInformationBackground, #e8f4ff); color: var(--sapLinkColor, #0070f2); }
+    .itin-icon-hotel { background: #f3e8ff; color: #7c3aed; }
+    .itin-info-line { font-size: 0.8125rem; font-weight: 600; color: var(--sapTextColor, #1d2d3e); }
+    .itin-info-sub { font-size: 0.75rem; color: var(--sapContent_LabelColor, #556b82); }
+
+    .teammates { display: flex; align-items: center; gap: 0.375rem; padding: 0.5rem 0.875rem; border-top: 1px solid var(--sapList_BorderColor, #e5e5e5); }
+    .teammate-label { font-size: 0.6875rem; color: var(--sapContent_LabelColor, #556b82); margin-right: 0.25rem; }
+    .teammate-avatar {
+      width: 24px; height: 24px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.625rem; font-weight: 600; color: var(--sapButton_Emphasized_TextColor, #fff);
+      border: 2px solid var(--sapBaseColor, #fff);
+    }
+
+    /* Accordion cards */
+    .accordion-card { background: var(--sapBaseColor, #fff); border-radius: 0.5rem; border: 1px solid var(--sapList_BorderColor, #e5e5e5); overflow: hidden; }
+    .accordion-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 0.875rem;
+      cursor: pointer;
+      user-select: none;
+    }
+    .accordion-header:hover { background: var(--sapList_HoverBackground, #f0f2f5); }
+    .accordion-title { font-size: 0.8125rem; font-weight: 600; color: var(--sapTextColor, #1d2d3e); }
+    .accordion-chevron { color: var(--sapContent_LabelColor, #556b82); transition: transform 0.2s; }
+    .accordion-chevron.open { transform: rotate(180deg); }
+    .accordion-body { padding: 0.625rem 0.875rem; border-top: 1px solid var(--sapList_BorderColor, #e5e5e5); }
+
+    .expense-report-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5);
+    }
+    .expense-report-item:last-child { border-bottom: none; }
+    .er-name { font-size: 0.8125rem; font-weight: 600; color: var(--sapTextColor, #1d2d3e); }
+    .er-status { font-size: 0.6875rem; color: var(--sapContent_LabelColor, #556b82); }
+    .er-amount { font-size: 0.875rem; font-weight: 700; color: var(--sapTextColor, #1d2d3e); }
+
+    .policy-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.375rem 0;
+    }
+    .policy-icon { color: var(--sapContent_LabelColor, #556b82); }
+    .policy-text { font-size: 0.8125rem; color: var(--sapTextColor, #1d2d3e); flex: 1; }
+    .policy-chevron { color: var(--sapList_BorderColor, #e5e5e5); }
+    .policy-links { display: flex; gap: 0.875rem; padding-top: 0.5rem; border-top: 1px solid var(--sapList_BorderColor, #e5e5e5); margin-top: 0.25rem; }
+    .policy-link { font-size: 0.75rem; color: var(--sapLinkColor, #0070f2); cursor: pointer; text-decoration: none; }
+    .policy-link:hover { text-decoration: underline; }
+
+    .carbon-donut-wrap { display: flex; gap: 0.75rem; align-items: center; }
+    .carbon-text { }
+    .carbon-pct { font-size: 1.5rem; font-weight: 700; color: var(--sapTextColor, #1d2d3e); }
+    .carbon-sub { font-size: 0.75rem; color: var(--sapContent_LabelColor, #556b82); }
+    .carbon-powered { font-size: 0.6875rem; color: var(--sapContent_LabelColor, #556b82); margin-top: 0.375rem; }
+
+    .drop-zone-sm {
+      border: 1px dashed var(--sapList_BorderColor, #e5e5e5);
+      border-radius: 0.25rem;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.75rem;
+      color: var(--sapContent_LabelColor, #556b82);
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      cursor: pointer;
+      margin-bottom: 0.5rem;
+    }
+    .drop-zone-sm:hover { border-color: var(--sapLinkColor, #0070f2); color: var(--sapLinkColor, #0070f2); }
+  </style>
+</head>
+<body>
+  <script type="module" src="../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <script src="../../lib/shared/shellbar.js"></script>
+  <app-shellbar title="Concur" base-path="../../"></app-shellbar>
+
+  <div class="page-layout">
+
+    <!-- Left Icon Nav -->
+    <nav class="side-nav">
+      <div class="side-nav-item active" title="Home">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 12L12 3l9 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 10v9a1 1 0 001 1h4v-5h4v5h4a1 1 0 001-1v-9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="side-nav-item" title="Trips">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M20.5 8.5L12 2 3.5 8.5V22h5v-7h7v7h5V8.5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="10" r="2" stroke="currentColor" stroke-width="2"/></svg>
+      </div>
+      <div class="side-nav-item" title="Expenses">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="2" y="5" width="20" height="14" rx="2" stroke="currentColor" stroke-width="2"/><path d="M2 10h20" stroke="currentColor" stroke-width="2"/></svg>
+      </div>
+      <div class="side-nav-item" title="Requests">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M9 11l3 3L22 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="side-nav-sep"></div>
+      <div class="side-nav-item" title="Approvals">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="side-nav-item" title="Reports">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="side-nav-sep"></div>
+      <div class="side-nav-item" title="Settings">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/><path d="M12 1v3M12 20v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M1 12h3M20 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </div>
+    </nav>
+
+    <!-- Main scrollable content -->
+    <div class="main-scroll">
+
+      <!-- LEFT COLUMN -->
+      <div class="col-left">
+
+        <!-- Hero -->
+        <div class="hero">
+          <div class="hero-top">
+            <div class="hero-greeting">
+              <div class="hero-date">Friday, April 3rd, 2026</div>
+              <div class="hero-name">Hello, Jordan</div>
+            </div>
+            <div class="hero-actions">
+              <button class="hero-btn">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h16M4 18h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                Recap
+              </button>
+              <button class="hero-btn">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/><path d="M12 1v3M12 20v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M1 12h3M20 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                My Home Settings
+              </button>
+            </div>
+          </div>
+          <div class="hero-cards">
+            <div class="hero-report-card">
+              <div class="hero-report-label">June Report</div>
+              <div class="hero-report-amount">$1,500.00</div>
+              <div class="hero-report-status">Not Submitted</div>
+            </div>
+            <div class="hero-action-cards">
+              <div class="hero-action-card">
+                <div class="hero-action-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                </div>
+                <div class="hero-action-label">Create Request</div>
+              </div>
+              <div class="hero-action-card">
+                <div class="hero-action-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M20.5 8.5L3.5 8.5M12 2L12 5M17 3.5L15 6.5M7 3.5L9 6.5M3 12l1.5 7h15L21 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="hero-action-label">Plan a Trip</div>
+              </div>
+              <div class="hero-action-card">
+                <div class="hero-action-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="2" y="5" width="20" height="14" rx="2" stroke="currentColor" stroke-width="2"/><path d="M2 10h20" stroke="currentColor" stroke-width="2"/></svg>
+                </div>
+                <div class="hero-action-label">Request Cash Advance</div>
+              </div>
+              <div class="hero-action-card">
+                <div class="hero-action-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" stroke="currentColor" stroke-width="2"/><path d="M12 6v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                </div>
+                <div class="hero-action-label">Get Reimbursed</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- For You Today -->
+        <div class="section-card">
+          <div class="tab-bar">
+            <div class="tab-item active">For You Today (3)</div>
+            <div class="tab-item">Company Notes (8)</div>
+            <div style="flex:1"></div>
+            <a class="section-see-all" href="#">See All</a>
+          </div>
+          <div class="for-you-body">
+            <div class="fyt-card">
+              <div class="fyt-avatar">JS</div>
+              <div class="fyt-info">
+                <div class="fyt-name">Jessica Smith</div>
+                <div class="fyt-sub">Expense Report · Needs Approval</div>
+                <div class="fyt-comment">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" stroke="currentColor" stroke-width="2"/></svg>
+                  1 Comment
+                </div>
+              </div>
+              <div class="fyt-right">
+                <div class="fyt-amount">$50.00</div>
+                <button class="btn-review">Review</button>
+              </div>
+            </div>
+            <div class="upnext-card">
+              <div class="flight-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M21 16v-2l-8-5V3.5A1.5 1.5 0 0011.5 2v0A1.5 1.5 0 0010 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" fill="currentColor"/></svg>
+              </div>
+              <div>
+                <div class="upnext-label">Up Next</div>
+                <div class="upnext-route">Denver → Chicago</div>
+                <div class="upnext-flight">UA238 · Today</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Reports -->
+        <div class="section-card">
+          <div class="report-trip-header">
+            <div>
+              <div class="section-title">Reports</div>
+              <div style="font-size:0.75rem;color:var(--sapContent_LabelColor, #556b82);margin-top:0.15rem;">Chicago Trip (4 expenses)</div>
+            </div>
+            <div class="report-trip-tabs">
+              <div class="report-tab active">Expenses</div>
+              <div class="report-tab">Receipts</div>
+            </div>
+          </div>
+          <table class="expense-table">
+            <thead>
+              <tr>
+                <th style="width:80px">Receipt #</th>
+                <th>Payment</th>
+                <th>Expense Type</th>
+                <th>Vendor</th>
+                <th>Date</th>
+                <th style="text-align:right">Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="receipt-num">#1042</span></td>
+                <td>Corporate Card</td>
+                <td><span class="badge-type">Airfare</span></td>
+                <td>United Airlines</td>
+                <td>Mar 12</td>
+                <td class="amount-col">$420.00</td>
+              </tr>
+              <tr>
+                <td><span class="receipt-num">#1043</span></td>
+                <td>Personal</td>
+                <td><span class="badge-type">Taxi</span></td>
+                <td>Lyft</td>
+                <td>Mar 12</td>
+                <td class="amount-col">$28.50</td>
+              </tr>
+              <tr>
+                <td><span class="receipt-num">#1044</span></td>
+                <td>Personal</td>
+                <td><span class="badge-type">Meals</span></td>
+                <td>Corner Bakery</td>
+                <td>Mar 13</td>
+                <td class="amount-col">$14.75</td>
+              </tr>
+              <tr>
+                <td><span class="receipt-num">#1045</span></td>
+                <td>Personal</td>
+                <td><span class="badge-type">Meals</span></td>
+                <td>RPM Steak</td>
+                <td>Mar 13</td>
+                <td class="amount-col">$87.00</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="report-footer">
+            <div class="drop-receipts">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Drop receipts here
+            </div>
+            <button class="btn-submit">Submit Report</button>
+          </div>
+        </div>
+
+        <!-- Requests -->
+        <div class="section-card">
+          <div class="section-header">
+            <span class="section-title">Requests</span>
+            <a class="section-see-all" href="#">See All</a>
+          </div>
+          <div class="cards-row">
+            <div class="mini-card">
+              <div class="mini-card-label">Travel Request</div>
+              <div class="mini-card-name">Phoenix Trip</div>
+              <div class="mini-card-amount">$1,450.00</div>
+              <div class="mini-card-status">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/></svg>
+                Not Submitted
+              </div>
+              <div class="mini-card-footer">
+                <button class="btn-review" style="background:var(--sapBaseColor, #fff);color:var(--sapLinkColor, #0070f2);border:1px solid var(--sapLinkColor, #0070f2);">View</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Approvals -->
+        <div class="section-card">
+          <div class="section-header">
+            <span class="section-title">Approvals</span>
+            <a class="section-see-all" href="#">See All</a>
+          </div>
+          <div class="cards-row">
+            <div class="mini-card">
+              <div class="mini-card-label">Expense Report</div>
+              <div class="mini-card-name">Jessica Smith</div>
+              <div class="mini-card-amount">$50.00</div>
+              <div class="mini-card-footer">
+                <button class="btn-review">Review</button>
+              </div>
+            </div>
+            <div class="mini-card">
+              <div class="mini-card-label">Expense Report</div>
+              <div class="mini-card-name">Dominic Dunbar</div>
+              <div class="mini-card-amount">$300.00</div>
+              <div class="mini-card-footer">
+                <button class="btn-review">Review</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- App Center -->
+        <div class="section-card">
+          <div class="section-header">
+            <span class="section-title">App Center</span>
+            <a class="section-see-all" href="#">Explore Apps</a>
+          </div>
+          <div class="app-center-row">
+            <div class="app-card">
+              <div class="app-logo app-logo-aa">AA</div>
+              <div>
+                <div class="app-info-name">American Airlines</div>
+                <div class="app-info-sub">Book flights &amp; manage rewards</div>
+              </div>
+            </div>
+            <div class="app-card">
+              <div class="app-logo app-logo-uber">U</div>
+              <div>
+                <div class="app-info-name">Uber for Business</div>
+                <div class="app-info-sub">Request rides, auto-expensed</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /col-left -->
+
+      <!-- RIGHT COLUMN -->
+      <div class="col-right">
+
+        <!-- Upcoming Trips card -->
+        <div class="trip-card">
+          <div class="trip-photo">
+            <!-- Stylized Chicago skyline silhouette -->
+            <div class="trip-photo-city">
+              <svg viewBox="0 0 300 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+                <rect width="300" height="100" fill="#1a3a5c"/>
+                <rect x="10" y="55" width="12" height="45" fill="rgba(255,255,255,0.15)"/>
+                <rect x="15" y="40" width="6" height="15" fill="rgba(255,255,255,0.12)"/>
+                <rect x="30" y="45" width="18" height="55" fill="rgba(255,255,255,0.12)"/>
+                <rect x="38" y="30" width="4" height="15" fill="rgba(255,255,255,0.1)"/>
+                <rect x="55" y="35" width="22" height="65" fill="rgba(255,255,255,0.18)"/>
+                <rect x="63" y="20" width="8" height="15" fill="rgba(255,255,255,0.14)"/>
+                <rect x="85" y="50" width="14" height="50" fill="rgba(255,255,255,0.12)"/>
+                <rect x="106" y="40" width="20" height="60" fill="rgba(255,255,255,0.15)"/>
+                <rect x="133" y="30" width="16" height="70" fill="rgba(255,255,255,0.2)"/>
+                <rect x="140" y="15" width="4" height="15" fill="rgba(255,255,255,0.15)"/>
+                <rect x="156" y="50" width="12" height="50" fill="rgba(255,255,255,0.12)"/>
+                <rect x="175" y="42" width="18" height="58" fill="rgba(255,255,255,0.14)"/>
+                <rect x="200" y="55" width="10" height="45" fill="rgba(255,255,255,0.1)"/>
+                <rect x="218" y="45" width="16" height="55" fill="rgba(255,255,255,0.12)"/>
+                <rect x="240" y="38" width="14" height="62" fill="rgba(255,255,255,0.15)"/>
+                <rect x="260" y="50" width="12" height="50" fill="rgba(255,255,255,0.1)"/>
+                <rect x="278" y="44" width="10" height="56" fill="rgba(255,255,255,0.12)"/>
+              </svg>
+            </div>
+            <div class="trip-photo-label">
+              <div class="trip-photo-label-name">Chicago, IL</div>
+              <div class="trip-photo-label-sub">Business Trip</div>
+            </div>
+          </div>
+          <div class="trip-info">
+            <div class="trip-badge">in 2 days</div>
+            <div class="trip-dates">March 12–14, 2025</div>
+            <button class="btn-trip-overview">Trip Overview</button>
+          </div>
+        </div>
+
+        <!-- Alerts -->
+        <div class="alerts-card">
+          <div class="alerts-header">
+            <span style="color:var(--sapWarningColor, #e9730c);margin-right:0.375rem;">⚠</span> Alerts (3)
+          </div>
+          <div class="alert-item">
+            <svg class="alert-icon-warn" width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <div class="alert-text">Missing ticket for <a class="alert-link" href="#">UA238 outbound</a></div>
+          </div>
+          <div class="alert-item">
+            <svg class="alert-icon-warn" width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <div class="alert-text">Trip Needs Expense Report — <a class="alert-link" href="#">Create one now</a></div>
+          </div>
+          <div class="alert-item">
+            <svg class="alert-icon-warn" width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <div class="alert-text">Vendor not preferred supplier — <a class="alert-link" href="#">RPM Steak</a></div>
+          </div>
+        </div>
+
+        <!-- Your Itinerary -->
+        <div class="itinerary-card">
+          <div class="itin-header">Your Itinerary</div>
+          <div class="itin-item">
+            <div class="itin-icon-wrap itin-icon-flight">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M21 16v-2l-8-5V3.5A1.5 1.5 0 0011.5 2v0A1.5 1.5 0 0010 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" fill="currentColor"/></svg>
+            </div>
+            <div>
+              <div class="itin-info-line">DEN → ORD</div>
+              <div class="itin-info-sub">United Airlines UA238 · Mar 12</div>
+            </div>
+          </div>
+          <div class="itin-item">
+            <div class="itin-icon-wrap itin-icon-hotel">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M3 22V8a2 2 0 012-2h14a2 2 0 012 2v14M2 22h20M9 22v-4h6v4M3 10h18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div>
+              <div class="itin-info-line">Marriott Chicago Downtown</div>
+              <div class="itin-info-sub">Mar 12–14 · 2 nights</div>
+            </div>
+          </div>
+          <div class="itin-item">
+            <div class="itin-icon-wrap itin-icon-flight">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="transform:scaleX(-1)"><path d="M21 16v-2l-8-5V3.5A1.5 1.5 0 0011.5 2v0A1.5 1.5 0 0010 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" fill="currentColor"/></svg>
+            </div>
+            <div>
+              <div class="itin-info-line">ORD → DEN</div>
+              <div class="itin-info-sub">Delta AA238 · Mar 14</div>
+            </div>
+          </div>
+          <div class="teammates">
+            <span class="teammate-label">Traveling with</span>
+            <div class="teammate-avatar" style="background:#3b82f6;">MR</div>
+            <div class="teammate-avatar" style="background:#10b981;">SK</div>
+            <div class="teammate-avatar" style="background:#f59e0b;">PL</div>
+            <span style="font-size:0.6875rem;color:var(--sapContent_LabelColor, #556b82);margin-left:0.25rem;">+2</span>
+          </div>
+        </div>
+
+        <!-- Expense Report accordion -->
+        <div class="accordion-card">
+          <div class="accordion-header" onclick="this.querySelector('.accordion-chevron').classList.toggle('open'); this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none'">
+            <span class="accordion-title">Expense Reports</span>
+            <svg class="accordion-chevron open" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="accordion-body">
+            <div class="drop-zone-sm">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Upload Summary
+            </div>
+            <div class="expense-report-item">
+              <div>
+                <div class="er-name">New York Trip</div>
+                <div class="er-status">Not Submitted</div>
+              </div>
+              <div class="er-amount">$1,725.00</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Policy accordion -->
+        <div class="accordion-card">
+          <div class="accordion-header" onclick="this.querySelector('.accordion-chevron').classList.toggle('open'); this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none'">
+            <span class="accordion-title">Policy</span>
+            <svg class="accordion-chevron open" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="accordion-body">
+            <div class="policy-item">
+              <svg class="policy-icon" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" stroke="currentColor" stroke-width="2"/></svg>
+              <span class="policy-text">Hotels — Up to $250/night</span>
+              <svg class="policy-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="policy-item">
+              <svg class="policy-icon" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8zM6 1v3M10 1v3M14 1v3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+              <span class="policy-text">Meals — Up to $75/day</span>
+              <svg class="policy-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="policy-item">
+              <svg class="policy-icon" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="currentColor" stroke-width="2"/><path d="M14 2v6h6" stroke="currentColor" stroke-width="2"/></svg>
+              <span class="policy-text">Receipts — Required over $25</span>
+              <svg class="policy-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="policy-links">
+              <a class="policy-link" href="#">See All</a>
+              <a class="policy-link" href="#">Travel Policy</a>
+              <a class="policy-link" href="#">Expense Policy</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Emergency Contacts accordion -->
+        <div class="accordion-card">
+          <div class="accordion-header" onclick="this.querySelector('.accordion-chevron').classList.toggle('open'); var body = this.nextElementSibling; body.style.display = body.style.display === 'none' ? 'block' : 'none'">
+            <span class="accordion-title">Emergency Contacts</span>
+            <svg class="accordion-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="accordion-body" style="display:none">
+            <div style="font-size:0.8125rem;color:var(--sapTextColor, #1d2d3e);margin-bottom:0.25rem;font-weight:600;">Sarah Jordan</div>
+            <div style="font-size:0.75rem;color:var(--sapContent_LabelColor, #556b82);">Spouse · +1 (720) 555-0142</div>
+          </div>
+        </div>
+
+        <!-- Carbon Emissions accordion -->
+        <div class="accordion-card">
+          <div class="accordion-header" onclick="this.querySelector('.accordion-chevron').classList.toggle('open'); var body = this.nextElementSibling; body.style.display = body.style.display === 'none' ? 'block' : 'none'">
+            <span class="accordion-title">Carbon Emissions</span>
+            <svg class="accordion-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="accordion-body" style="display:none">
+            <div class="carbon-donut-wrap">
+              <svg width="64" height="64" viewBox="0 0 64 64">
+                <circle cx="32" cy="32" r="24" fill="none" stroke="#e5e7eb" stroke-width="10"/>
+                <circle cx="32" cy="32" r="24" fill="none" stroke="#10b981" stroke-width="10"
+                  stroke-dasharray="37.7 113.1" stroke-linecap="round"
+                  transform="rotate(-90 32 32)"/>
+                <text x="32" y="36" text-anchor="middle" font-size="12" font-weight="700" fill="#1d2d3e">25%</text>
+              </svg>
+              <div class="carbon-text">
+                <div class="carbon-pct">25%</div>
+                <div class="carbon-sub">of carbon budget used</div>
+                <div class="carbon-powered">Carbon Budget by Clarasight</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /col-right -->
+
+    </div><!-- /main-scroll -->
+  </div><!-- /page-layout -->
+
+
+<script>
+  var SF_NAV = {
+    'SAP Start': 'index.html',
+    'S/4HANA Cloud': 's4hana.html',
+    'SuccessFactors': 'successfactors.html',
+    'Concur': 'concur.html',
+    'Sales Cloud': 'salescloud.html',
+    'Ariba': 'ariba.html',
+    'Business Data Cloud': 'businessdatacloud.html'
+  };
+  document.addEventListener('DOMContentLoaded', function () {
+    function wirePs() {
+      var popover = document.querySelector('#app-ps-popover');
+      if (!popover) { setTimeout(wirePs, 100); return; }
+      popover.addEventListener('click', function (e) {
+        var item = e.target.closest('.app-ps-item');
+        if (!item) return;
+        var label = item.querySelector('span');
+        if (!label) return;
+        var href = SF_NAV[label.textContent.trim()];
+        if (href) location.href = href;
+      });
+    }
+    wirePs();
+  });
+</script>
+</body>
+</html>

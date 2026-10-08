@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <script src="panel-init.js"></script>
+  <script type="module" src="../../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    body { font-family: "72", sans-serif; font-size: 0.875rem; background: #f5f6f7; color: #131e29; margin: 0; padding: 2rem; }
+    .panel-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .panel-subtitle { font-size: 0.875rem; color: #6a7588; margin-bottom: 2rem; }
+    .demo-section { margin-bottom: 2rem; }
+    .demo-section-header { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #6a7588; margin-bottom: 1rem; padding-bottom: 0.375rem; border-bottom: 1px solid #e5e5e5; }
+    .demo-section-body { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 1rem; }
+    ui5-combobox { width: 260px; }
+  </style>
+</head>
+<body>
+  <div class="panel-title">ComboBox</div>
+  <div class="panel-subtitle">An input field with a dropdown list of suggestions; allows custom text entry.</div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">Basic</div>
+    <div class="demo-section-body">
+      <ui5-combobox placeholder="Select country">
+        <ui5-cb-item text="Germany"></ui5-cb-item>
+        <ui5-cb-item text="France"></ui5-cb-item>
+        <ui5-cb-item text="United Kingdom"></ui5-cb-item>
+        <ui5-cb-item text="Spain"></ui5-cb-item>
+        <ui5-cb-item text="Italy"></ui5-cb-item>
+        <ui5-cb-item text="Netherlands"></ui5-cb-item>
+      </ui5-combobox>
+
+      <ui5-combobox value="Germany" placeholder="Select country">
+        <ui5-cb-item text="Germany"></ui5-cb-item>
+        <ui5-cb-item text="France"></ui5-cb-item>
+        <ui5-cb-item text="United Kingdom"></ui5-cb-item>
+        <ui5-cb-item text="Spain"></ui5-cb-item>
+        <ui5-cb-item text="Italy"></ui5-cb-item>
+      </ui5-combobox>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">Value States</div>
+    <div class="demo-section-body">
+      <ui5-combobox value-state="Positive" value="Approved">
+        <ui5-cb-item text="Approved"></ui5-cb-item>
+        <ui5-cb-item text="Pending"></ui5-cb-item>
+        <ui5-cb-item text="Rejected"></ui5-cb-item>
+      </ui5-combobox>
+
+      <ui5-combobox value-state="Critical" value="Pending">
+        <ui5-cb-item text="Approved"></ui5-cb-item>
+        <ui5-cb-item text="Pending"></ui5-cb-item>
+        <ui5-cb-item text="Rejected"></ui5-cb-item>
+      </ui5-combobox>
+
+      <ui5-combobox value-state="Negative" value="Rejected">
+        <ui5-cb-item text="Approved"></ui5-cb-item>
+        <ui5-cb-item text="Pending"></ui5-cb-item>
+        <ui5-cb-item text="Rejected"></ui5-cb-item>
+      </ui5-combobox>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">Disabled &amp; Read-only</div>
+    <div class="demo-section-body">
+      <ui5-combobox disabled value="Disabled Field">
+        <ui5-cb-item text="Option 1"></ui5-cb-item>
+      </ui5-combobox>
+
+      <ui5-combobox readonly value="Read-Only Value">
+        <ui5-cb-item text="Option 1"></ui5-cb-item>
+      </ui5-combobox>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">With Icon</div>
+    <div class="demo-section-body">
+      <ui5-combobox placeholder="Search product category">
+        <ui5-icon slot="icon" name="product"></ui5-icon>
+        <ui5-cb-item text="Electronics"></ui5-cb-item>
+        <ui5-cb-item text="Office Supplies"></ui5-cb-item>
+        <ui5-cb-item text="Furniture"></ui5-cb-item>
+        <ui5-cb-item text="Software Licenses"></ui5-cb-item>
+        <ui5-cb-item text="Professional Services"></ui5-cb-item>
+      </ui5-combobox>
+    </div>
+  </div>
+</body>
+</html>

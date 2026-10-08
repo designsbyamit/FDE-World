@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Comparison Micro Chart</title>
+  <script src="panel-init.js"></script>
+  <script type="module" src="../../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 600; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 300; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Light.woff2") format("woff2"); }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "72", sans-serif; font-size: 0.875rem; background: var(--sapBackgroundColor, #f5f6f7); padding: 2rem; color: var(--sapTextColor, #131e29); }
+    .panel-title { font-size: 1.5rem; font-weight: 700; color: #131e29; margin-bottom: 0.375rem; }
+    .panel-subtitle { font-size: 0.8125rem; color: var(--sapContent_LabelColor, #6a7588); margin-bottom: 2rem; }
+    .demo-section { background: #fff; border: 1px solid var(--sapList_BorderColor, #e5e5e5); border-radius: 8px; margin-bottom: 1.25rem; overflow: hidden; }
+    .demo-section-header { padding: 0.75rem 1rem; border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5); font-size: 0.8125rem; font-weight: 600; color: var(--sapContent_LabelColor, #6a7588); display: flex; align-items: center; justify-content: space-between; }
+    .demo-section-tag { font-family: monospace; font-size: 0.75rem; color: #0064d9; font-weight: 400; }
+    .demo-section-body { padding: 1.25rem 1rem; display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: flex-start; }
+    .demo-section-body.column { flex-direction: column; }
+    .demo-section-body.block { display: block; padding: 0; }
+  </style>
+</head>
+<body>
+  <div class="panel-title">Smart Comparison Micro Chart</div>
+  <div class="panel-subtitle">A compact stacked bar micro chart comparing multiple revenue streams or series with criticality colouring and optional display values. Equivalent to sap.ui.comp.smartmicrochart.SmartComparisonMicroChart — rendered as inline SVG stacked bars.</div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">
+      Stacked bars · criticality + display values variants
+      <span class="demo-section-tag">SVG stacked bars · Revenues · Series entities</span>
+    </div>
+    <div class="demo-section-body block" style="display:flex;flex-direction:column;gap:1rem;">
+      <ui5-panel accessible-role="Region" style="width:100%;">
+        <ui5-toolbar slot="header"><ui5-title level="H6">Smart Stacked Bar Micro Chart With Criticality</ui5-title></ui5-toolbar>
+        <div style="display:flex;flex-direction:column;gap:0.5rem;padding:0.5rem 0;">
+          <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.8125rem;">
+            <span style="width:80px;color:var(--sapContent_LabelColor,#6a7588);">EMEA</span>
+            <div style="flex:1;height:18px;border-radius:3px;overflow:hidden;display:flex;">
+              <div style="width:40%;background:var(--sapPositiveColor,#196800);opacity:0.85;"></div>
+              <div style="width:35%;background:var(--sapCriticalColor,#e76500);opacity:0.85;"></div>
+              <div style="width:25%;background:var(--sapNegativeColor,#aa0808);opacity:0.85;"></div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.8125rem;">
+            <span style="width:80px;color:var(--sapContent_LabelColor,#6a7588);">Americas</span>
+            <div style="flex:1;height:18px;border-radius:3px;overflow:hidden;display:flex;">
+              <div style="width:55%;background:var(--sapPositiveColor,#196800);opacity:0.85;"></div>
+              <div style="width:30%;background:var(--sapCriticalColor,#e76500);opacity:0.85;"></div>
+              <div style="width:15%;background:var(--sapNegativeColor,#aa0808);opacity:0.85;"></div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.8125rem;">
+            <span style="width:80px;color:var(--sapContent_LabelColor,#6a7588);">APJ</span>
+            <div style="flex:1;height:18px;border-radius:3px;overflow:hidden;display:flex;">
+              <div style="width:30%;background:var(--sapPositiveColor,#196800);opacity:0.85;"></div>
+              <div style="width:20%;background:var(--sapCriticalColor,#e76500);opacity:0.85;"></div>
+              <div style="width:50%;background:var(--sapNegativeColor,#aa0808);opacity:0.85;"></div>
+            </div>
+          </div>
+        </div>
+        <div style="font-size:0.8125rem;"><span style="color:var(--sapContent_LabelColor,#6a7588);">Unit of Measure:</span> <span>EUR</span></div>
+      </ui5-panel>
+      <ui5-panel accessible-role="Region" style="width:100%;">
+        <ui5-toolbar slot="header"><ui5-title level="H6">Smart Stacked Bar Micro Chart With Display Values</ui5-title></ui5-toolbar>
+        <div style="display:flex;flex-direction:column;gap:0.5rem;padding:0.5rem 0;">
+          <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.8125rem;">
+            <span style="width:60px;color:var(--sapContent_LabelColor,#6a7588);">Q1</span>
+            <div style="flex:1;height:18px;border-radius:3px;overflow:hidden;display:flex;position:relative;">
+              <div style="width:45%;background:var(--sapSelectedColor,#0064d9);opacity:0.85;display:flex;align-items:center;justify-content:center;"><span style="font-size:0.625rem;color:#fff;">45%</span></div>
+              <div style="width:35%;background:var(--sapCriticalColor,#e76500);opacity:0.85;display:flex;align-items:center;justify-content:center;"><span style="font-size:0.625rem;color:#fff;">35%</span></div>
+              <div style="width:20%;background:var(--sapContent_LabelColor,#6a7588);opacity:0.85;display:flex;align-items:center;justify-content:center;"><span style="font-size:0.625rem;color:#fff;">20%</span></div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.8125rem;">
+            <span style="width:60px;color:var(--sapContent_LabelColor,#6a7588);">Q2</span>
+            <div style="flex:1;height:18px;border-radius:3px;overflow:hidden;display:flex;">
+              <div style="width:60%;background:var(--sapSelectedColor,#0064d9);opacity:0.85;display:flex;align-items:center;justify-content:center;"><span style="font-size:0.625rem;color:#fff;">60%</span></div>
+              <div style="width:25%;background:var(--sapCriticalColor,#e76500);opacity:0.85;display:flex;align-items:center;justify-content:center;"><span style="font-size:0.625rem;color:#fff;">25%</span></div>
+              <div style="width:15%;background:var(--sapContent_LabelColor,#6a7588);opacity:0.85;display:flex;align-items:center;justify-content:center;"><span style="font-size:0.625rem;color:#fff;">15%</span></div>
+            </div>
+          </div>
+        </div>
+        <div style="font-size:0.8125rem;"><span style="color:var(--sapContent_LabelColor,#6a7588);">Description:</span> <span>Revenue Series</span></div>
+      </ui5-panel>
+    </div>
+  </div>
+</body>
+</html>

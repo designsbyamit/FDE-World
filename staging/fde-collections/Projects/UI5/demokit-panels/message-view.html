@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Message View</title>
+  <script src="panel-init.js"></script>
+  <script type="module" src="../../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 600; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 300; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Light.woff2") format("woff2"); }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "72", sans-serif; font-size: 0.875rem; background: var(--sapBackgroundColor, #f5f6f7); padding: 2rem; color: var(--sapTextColor, #131e29); }
+    .panel-title { font-size: 1.5rem; font-weight: 700; color: #131e29; margin-bottom: 0.375rem; }
+    .panel-subtitle { font-size: 0.8125rem; color: var(--sapContent_LabelColor, #6a7588); margin-bottom: 2rem; }
+    .demo-section { background: #fff; border: 1px solid var(--sapList_BorderColor, #e5e5e5); border-radius: 8px; margin-bottom: 1.25rem; overflow: hidden; }
+    .demo-section-header { padding: 0.75rem 1rem; border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5); font-size: 0.8125rem; font-weight: 600; color: var(--sapContent_LabelColor, #6a7588); display: flex; align-items: center; justify-content: space-between; }
+    .demo-section-tag { font-family: monospace; font-size: 0.75rem; color: #0064d9; font-weight: 400; }
+    .demo-section-body { padding: 1.25rem 1rem; display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: flex-start; }
+    .demo-section-body.column { flex-direction: column; }
+    .demo-section-body.block { display: block; padding: 0; }
+  </style>
+</head>
+<body>
+  <div class="panel-title">Message View</div>
+  <div class="panel-subtitle">A grouped list of application messages (errors, warnings, info, success) shown inside a popover. Supports detail navigation per message. Equivalent to sap.m.MessageView — rendered using ui5-message-view inside ui5-popover.</div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">
+      Message View Inside Popover
+      <span class="demo-section-tag">ui5-message-view · ui5-popover</span>
+    </div>
+    <div class="demo-section-body">
+      <ui5-button id="mv-btn" design="Emphasized" aria-haspopup="Dialog">Messages</ui5-button>
+
+      <ui5-popover id="mv-popover" opener="mv-btn" header-text="Messages" placement="Bottom" style="width:400px;">
+        <ui5-message-view id="mv-demo">
+          <ui5-message-item
+            type="Negative"
+            title="Error: Connection timeout"
+            subtitle="System B2B"
+            description="The connection to system B2B timed out after 30 seconds. Please check the network configuration and retry the operation."
+            counter="2">
+          </ui5-message-item>
+          <ui5-message-item
+            type="Negative"
+            title="Error: Validation failed"
+            subtitle="Purchase Order Form"
+            description="Required field 'Delivery Date' is missing. Please fill in all mandatory fields before submitting.">
+          </ui5-message-item>
+          <ui5-message-item
+            type="Critical"
+            title="Warning: Low stock level"
+            subtitle="Warehouse Management"
+            description="Product 'Notebook Basic 15' has reached the reorder threshold. Current stock: 3 units."
+            counter="1">
+          </ui5-message-item>
+          <ui5-message-item
+            type="Critical"
+            title="Warning: Duplicate entry detected"
+            subtitle="Supplier Portal"
+            description="A supplier with a similar name already exists. Please review before saving.">
+          </ui5-message-item>
+          <ui5-message-item
+            type="Positive"
+            title="Success: Order submitted"
+            subtitle="Sales Order 4500123456"
+            description="Your sales order has been successfully submitted and is pending approval.">
+          </ui5-message-item>
+          <ui5-message-item
+            type="Information"
+            title="Info: Scheduled maintenance"
+            subtitle="System Notification"
+            description="The system will be unavailable on Saturday 04/27/2024 from 02:00 to 04:00 CET for scheduled maintenance.">
+          </ui5-message-item>
+        </ui5-message-view>
+      </ui5-popover>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('mv-btn').addEventListener('click', function() {
+      document.getElementById('mv-popover').open = true;
+    });
+  </script>
+</body>
+</html>

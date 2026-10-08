@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Line Micro Chart</title>
+  <script src="panel-init.js"></script>
+  <script type="module" src="../../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 600; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 300; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Light.woff2") format("woff2"); }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "72", sans-serif; font-size: 0.875rem; background: var(--sapBackgroundColor, #f5f6f7); padding: 2rem; color: var(--sapTextColor, #131e29); }
+    .panel-title { font-size: 1.5rem; font-weight: 700; color: #131e29; margin-bottom: 0.375rem; }
+    .panel-subtitle { font-size: 0.8125rem; color: var(--sapContent_LabelColor, #6a7588); margin-bottom: 2rem; }
+    .demo-section { background: #fff; border: 1px solid var(--sapList_BorderColor, #e5e5e5); border-radius: 8px; margin-bottom: 1.25rem; overflow: hidden; }
+    .demo-section-header { padding: 0.75rem 1rem; border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5); font-size: 0.8125rem; font-weight: 600; color: var(--sapContent_LabelColor, #6a7588); display: flex; align-items: center; justify-content: space-between; }
+    .demo-section-tag { font-family: monospace; font-size: 0.75rem; color: #0064d9; font-weight: 400; }
+    .demo-section-body { padding: 1.25rem 1rem; display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: flex-start; }
+    .demo-section-body.column { flex-direction: column; }
+    .demo-section-body.block { display: block; padding: 0; }
+  </style>
+</head>
+<body>
+  <div class="panel-title">Smart Line Micro Chart</div>
+  <div class="panel-subtitle">A compact line chart for showing a data series with an optional target threshold line. Equivalent to sap.ui.comp.smartmicrochart.SmartLineMicroChart — rendered as inline SVG with a value line and dashed target line.</div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">
+      Stock price value and target value
+      <span class="demo-section-tag">SVG line chart · StockPrices entity · target line</span>
+    </div>
+    <div class="demo-section-body block">
+      <ui5-panel accessible-role="Region" style="width:100%;">
+        <ui5-toolbar slot="header"><ui5-title level="H6">Stock price value and target value</ui5-title></ui5-toolbar>
+        <div style="display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;padding:0.5rem 0;">
+          <svg width="200" height="64" viewBox="0 0 200 64" style="flex-shrink:0;">
+            <line x1="0" y1="32" x2="200" y2="32" stroke="var(--sapCriticalColor,#e76500)" stroke-width="1" stroke-dasharray="5,3"/>
+            <polyline points="0,52 33,40 66,28 100,20 133,36 166,18 200,12" fill="none" stroke="var(--sapSelectedColor,#0064d9)" stroke-width="2" stroke-linejoin="round"/>
+            <circle cx="0"   cy="52" r="3" fill="var(--sapSelectedColor,#0064d9)"/>
+            <circle cx="33"  cy="40" r="3" fill="var(--sapSelectedColor,#0064d9)"/>
+            <circle cx="66"  cy="28" r="3" fill="var(--sapSelectedColor,#0064d9)"/>
+            <circle cx="100" cy="20" r="3" fill="var(--sapSelectedColor,#0064d9)"/>
+            <circle cx="133" cy="36" r="3" fill="var(--sapSelectedColor,#0064d9)"/>
+            <circle cx="166" cy="18" r="3" fill="var(--sapSelectedColor,#0064d9)"/>
+            <circle cx="200" cy="12" r="3" fill="var(--sapSelectedColor,#0064d9)"/>
+            <text x="0" y="62" font-size="9" fill="var(--sapContent_LabelColor,#6a7588)" font-family="72,sans-serif">Jan</text>
+            <text x="150" y="62" font-size="9" fill="var(--sapContent_LabelColor,#6a7588)" font-family="72,sans-serif">Jun</text>
+          </svg>
+          <div style="display:flex;flex-direction:column;gap:0.375rem;font-size:0.8125rem;">
+            <div style="display:flex;align-items:center;gap:0.375rem;"><span style="display:inline-block;width:20px;height:2px;background:var(--sapSelectedColor,#0064d9);"></span><span>Stock Price</span></div>
+            <div style="display:flex;align-items:center;gap:0.375rem;"><span style="display:inline-block;width:20px;height:1px;border-top:1px dashed var(--sapCriticalColor,#e76500);"></span><span>Target</span></div>
+            <div style="margin-top:0.25rem;"><span style="color:var(--sapContent_LabelColor,#6a7588);">Title:</span> <span>Stock Prices</span></div>
+          </div>
+        </div>
+      </ui5-panel>
+    </div>
+  </div>
+</body>
+</html>

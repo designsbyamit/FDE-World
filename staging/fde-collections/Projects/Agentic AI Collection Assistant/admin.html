@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Administration — Collection Assistant</title>
+  <link rel="icon" href="../../lib/assets/favicon.ico">
+
+  <script data-ui5-config type="application/json">
+    { "theme": "sap_horizon" }
+  </script>
+  <script type="module" src="../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <script src="../../lib/shared/shellbar.js"></script>
+
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 600; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 300; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Light.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 900; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Black.woff2") format("woff2"); }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    ui5-button { --sapButton_FontFamily: "72", sans-serif; }
+    ui5-button::part(text) { font-family: "72", sans-serif; font-weight: 400; }
+
+    html, body {
+      font-family: "72", sans-serif;
+      background: var(--sapBackgroundColor, #f5f6f7);
+      color: var(--sapTextColor, #131e29);
+      min-height: 100vh;
+    }
+
+    .page-header {
+      background: var(--sapBaseColor, #fff);
+      border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      padding: 1rem 2rem;
+    }
+    .page-title {
+      font-size: 1.5rem;
+      font-weight: 900;
+      font-family: "72", sans-serif;
+      color: var(--sapTextColor, #131e29);
+    }
+
+    .tab-bar {
+      background: var(--sapBaseColor, #fff);
+      border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      padding: 0 2rem;
+      display: flex;
+      gap: 0;
+    }
+    .tab-item {
+      font-family: "72", sans-serif;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--sapContent_LabelColor, #556b82);
+      padding: 0.75rem 1rem;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      white-space: nowrap;
+    }
+    .tab-item.active {
+      color: var(--sapLinkColor, #0070f2);
+      border-bottom-color: var(--sapLinkColor, #0070f2);
+    }
+
+    .page-content {
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      max-width: 820px;
+    }
+
+    .admin-card {
+      background: var(--sapBaseColor, #fff);
+      border: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      border-radius: 0.5rem;
+      overflow: hidden;
+    }
+    .admin-card-title {
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: var(--sapTextColor, #131e29);
+      padding: 1rem 1.25rem 0.75rem;
+      border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5);
+    }
+
+    .conn-table { width: 100%; border-collapse: collapse; }
+    .conn-table th {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--sapContent_LabelColor, #556b82);
+      text-align: left;
+      padding: 0.625rem 1.25rem;
+      border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5);
+    }
+    .conn-table td {
+      font-size: 0.875rem;
+      color: var(--sapTextColor, #131e29);
+      padding: 0.75rem 1.25rem;
+      border-bottom: 1px solid var(--sapBackgroundColor, #f0f0f0);
+      vertical-align: middle;
+    }
+    .conn-table tr:last-child td { border-bottom: none; }
+    .conn-status { color: var(--sapContent_LabelColor, #556b82); }
+
+    .manage-users-body {
+      padding: 1rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .manage-users-body p {
+      font-size: 0.875rem;
+      color: var(--sapTextColor, #131e29);
+      flex: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <app-shellbar title="Collection Assistant" hide-product-switch base-path="../../"></app-shellbar>
+
+  <ui5-popover id="navMenu" placement="Bottom" horizontal-align="Start" style="width:280px">
+    <ui5-list separators="None">
+      <ui5-li onclick="location.href='worklist.html'" style="cursor:pointer">Collection Worklist</ui5-li>
+      <ui5-li style="cursor:pointer; color:var(--sapLinkColor, #0070f2); font-weight:600">Administration</ui5-li>
+    </ui5-list>
+  </ui5-popover>
+
+  <div class="page-header">
+    <div class="page-title">Administration</div>
+  </div>
+
+  <div class="tab-bar">
+    <div class="tab-item active">System Configuration</div>
+    <div class="tab-item">Agent Configuration</div>
+    <div class="tab-item">Agent Playground</div>
+  </div>
+
+  <div class="page-content">
+
+    <div class="admin-card">
+      <div class="admin-card-title">Connections</div>
+      <table class="conn-table">
+        <thead>
+          <tr>
+            <th>Connection Type</th>
+            <th>Last Modified By</th>
+            <th>Last Modified On</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Microsoft Office365</td>
+            <td class="conn-status">--</td>
+            <td class="conn-status">--</td>
+            <td class="conn-status">Not Connected</td>
+            <td><ui5-button design="Default">Connect</ui5-button></td>
+          </tr>
+          <tr>
+            <td>SAP FSCM</td>
+            <td class="conn-status">--</td>
+            <td class="conn-status">--</td>
+            <td class="conn-status">Not Connected</td>
+            <td><ui5-button design="Default">Connect</ui5-button></td>
+          </tr>
+          <tr>
+            <td>Databricks</td>
+            <td class="conn-status">--</td>
+            <td class="conn-status">--</td>
+            <td class="conn-status">Not Connected</td>
+            <td><ui5-button design="Default">Connect</ui5-button></td>
+          </tr>
+          <tr>
+            <td>ServiceNow</td>
+            <td class="conn-status">--</td>
+            <td class="conn-status">--</td>
+            <td class="conn-status">Not Connected</td>
+            <td><ui5-button design="Default">Connect</ui5-button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="admin-card">
+      <div class="admin-card-title">Manage Users</div>
+      <div class="manage-users-body">
+        <p>Click on the button to access the SAP Cloud Identity Service to Add, Remove or Edit user permissions.</p>
+        <ui5-button design="Default">SAP Cloud IAS</ui5-button>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      setTimeout(function() {
+        var menuBtn = document.querySelector('app-shellbar ui5-button[icon="menu2"]');
+        if (menuBtn) {
+          menuBtn.addEventListener('click', function() {
+            var pop = document.getElementById('navMenu');
+            pop.opener = menuBtn;
+            pop.open = !pop.open;
+          });
+        }
+      }, 300);
+    });
+  </script>
+
+</body>
+</html>

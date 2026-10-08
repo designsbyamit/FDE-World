@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Agentic Experience Assessment Reference</title>
+  <style>
+    @page{size:A4;margin:14mm}*{box-sizing:border-box}body{font:10pt/1.35 Arial,sans-serif;color:#1d2d3e;margin:0}h1{font-size:22pt;margin:0 0 4mm;color:#0a4b9b}h2{font-size:13pt;margin:7mm 0 2mm;color:#1d2d3e;border-bottom:1px solid #b9c4d0;padding-bottom:1.5mm}.intro{color:#52677d;margin:0 0 5mm}.meta{border:1px solid #b9c4d0;padding:3mm 4mm;margin-bottom:5mm}.meta span{display:inline-block;min-width:48%;border-bottom:1px solid #8b9bb0;height:6mm;margin:1mm 0}.item{display:flex;gap:3mm;padding:1.8mm 0;border-bottom:1px solid #e2e7ec;break-inside:avoid}.box{width:4mm;height:4mm;border:1px solid #536b82;margin-top:1mm;flex:none}.item strong{display:block}.item small{display:block;color:#52677d;margin-top:.5mm}.must{color:#8d4a00;font-weight:bold;font-size:8pt}.footer{margin-top:5mm;color:#52677d;font-size:8pt}@media print{.no-print{display:none}}
+  </style>
+</head>
+<body>
+  <h1>Agentic Experience Assessment Reference</h1>
+  <p class="intro">Use after designing a flow and before usability testing or release. Record evidence for every checked item; resolve all must-have gaps or document an accepted exception.</p>
+  <div class="meta"><span>Prototype / flow:</span><span>Reviewer:</span><span>Review date:</span><span>Decision / follow-up owner:</span></div>
+
+  <h2>1. Intent, scope, and boundaries</h2>
+  <div class="item"><i class="box"></i><div><strong>The user can identify the agent’s goal, task, and expected outcome.</strong><small>Use plain language; do not make people infer intent.</small></div></div>
+  <div class="item"><i class="box"></i><div><strong>Every action is labelled read-only or write, with data and system scope.</strong><small>Set expectations before execution.</small></div></div>
+  <div class="item"><i class="box"></i><div><strong>Out-of-scope requests receive an honest refusal and nearest supported next step.</strong></div></div>
+  <div class="item"><i class="box"></i><div><strong>Permissions, policy constraints, and sensitive-data boundaries are enforced.</strong><small class="must">Must have</small></div></div>
+
+  <h2>2. Human control and consent</h2>
+  <div class="item"><i class="box"></i><div><strong>Consequential writes require non-bypassable approval with action, records, impact, Confirm, and Cancel.</strong><small class="must">Must have</small></div></div>
+  <div class="item"><i class="box"></i><div><strong>Low-stakes acknowledgements use lightweight inline confirmation.</strong></div></div>
+  <div class="item"><i class="box"></i><div><strong>Users can override recommendations; the flow honours and records their choice.</strong></div></div>
+  <div class="item"><i class="box"></i><div><strong>Long-running work supports pause, cancel, and resume from a clear checkpoint.</strong><small class="must">Must have</small></div></div>
+  <div class="item"><i class="box"></i><div><strong>Delegated work is visible as a subtask and can be cancelled without losing parent context.</strong></div></div>
+
+  <h2>3. Trust and transparency</h2>
+  <div class="item"><i class="box"></i><div><strong>Recommendations show a concise “Why this?” explanation and decision factors.</strong></div></div>
+  <div class="item"><i class="box"></i><div><strong>AI insights show confidence; low confidence changes the interaction with a caution.</strong></div></div>
+  <div class="item"><i class="box"></i><div><strong>Generated insights identify source data and last-updated time.</strong><small class="must">Must have</small></div></div>
+  <div class="item"><i class="box"></i><div><strong>Users can inspect what ran, what was read, and what was written.</strong><small class="must">Must have</small></div></div>
+
+  <h2>4. Execution, feedback, and recovery</h2>
+  <div class="item"><i class="box"></i><div><strong>Progress distinguishes waiting, running, completed, and paused states.</strong></div></div>
+  <div class="item"><i class="box"></i><div><strong>Timeouts explain the delay and offer cancel or safe background continuation.</strong></div></div>
+  <div class="item"><i class="box"></i><div><strong>Partial results preserve completed work, identify failure, and support retry from that step.</strong><small class="must">Must have</small></div></div>
+  <div class="item"><i class="box"></i><div><strong>Data-source failures identify the source and time, offer retry, and keep unaffected content available.</strong><small class="must">Must have</small></div></div>
+
+  <h2>5. Quality gate</h2>
+  <div class="item"><i class="box"></i><div><strong>Test success, refusal, approval, override, pause/resume, timeout, partial-result, and source-failure paths.</strong><small class="must">Must have</small></div></div>
+  <div class="item"><i class="box"></i><div><strong>Controls and status changes are keyboard accessible and understandable without colour alone.</strong><small class="must">Must have</small></div></div>
+  <div class="item"><i class="box"></i><div><strong>Copy is specific, calm, and does not overstate certainty, authority, or automation.</strong></div></div>
+  <div class="item"><i class="box"></i><div><strong>A named owner accepts open risks, policy exceptions, and follow-up actions.</strong><small class="must">Must have</small></div></div>
+  <div class="item"><i class="box"></i><div><strong>Save the completed assessment with the release decision for later review.</strong></div></div>
+  <h2>6. EU AI Act evidence beyond the prototype</h2>
+  <div class="item"><i class="box"></i><div><strong>Classify the intended use and risk profile with legal, risk, and product owners.</strong><small class="must">Must have before any compliance claim</small></div></div>
+  <div class="item"><i class="box"></i><div><strong>Provide evidence for data governance, quality, bias evaluation, and privacy controls.</strong></div></div>
+  <div class="item"><i class="box"></i><div><strong>Provide technical documentation, traceable logs, cybersecurity, robustness, and accuracy testing evidence.</strong></div></div>
+  <div class="item"><i class="box"></i><div><strong>Define post-market monitoring, incident handling, human-oversight procedures, and accountable owners.</strong></div></div>
+  <p class="footer">Derived from Joule Work Agent UX Patterns: Human-in-the-Loop, Trust & Transparency, and execution-recovery patterns.</p>
+</body>
+</html>

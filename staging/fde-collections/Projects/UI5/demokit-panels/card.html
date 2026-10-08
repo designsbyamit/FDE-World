@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <script src="panel-init.js"></script>
+  <script type="module" src="../../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    body { font-family: "72", sans-serif; font-size: 0.875rem; background: #f5f6f7; color: #131e29; margin: 0; padding: 2rem; }
+    .panel-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .panel-subtitle { font-size: 0.875rem; color: #6a7588; margin-bottom: 2rem; }
+    .demo-section { margin-bottom: 2rem; }
+    .demo-section-header { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #6a7588; margin-bottom: 1rem; padding-bottom: 0.375rem; border-bottom: 1px solid #e5e5e5; }
+    .demo-section-body { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 1rem; }
+    ui5-button { --sapButton_FontFamily: "72", sans-serif; }
+    ui5-button::part(text) { font-family: "72", sans-serif; font-weight: 400; }
+    ui5-card { width: 300px; }
+    ui5-card.wide { width: 460px; }
+  </style>
+</head>
+<body>
+  <div class="panel-title">Card</div>
+  <div class="panel-subtitle">A container component for grouping related content and actions.</div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">Basic Card</div>
+    <div class="demo-section-body">
+      <ui5-card>
+        <ui5-card-header slot="header" title-text="Sales Performance" subtitle-text="Q4 2024" status="3 of 10">
+          <ui5-icon name="sales-order" slot="avatar"></ui5-icon>
+        </ui5-card-header>
+        <div style="padding: 1rem; font-size: 0.875rem; color: #6a7588;">
+          <p style="margin: 0 0 0.5rem;">Total Revenue: <strong style="color:#131e29;">$1,240,000</strong></p>
+          <p style="margin: 0 0 0.5rem;">Orders Closed: <strong style="color:#131e29;">312</strong></p>
+          <p style="margin: 0;">Growth vs. Last Quarter: <strong style="color:#107e3e;">+14.2%</strong></p>
+        </div>
+      </ui5-card>
+
+      <ui5-card>
+        <ui5-card-header slot="header" title-text="Active Incidents" subtitle-text="Support Queue" status="12 Open">
+          <ui5-icon name="alert" slot="avatar"></ui5-icon>
+        </ui5-card-header>
+        <div style="padding: 1rem; font-size: 0.875rem; color: #6a7588;">
+          <p style="margin: 0 0 0.5rem;">Critical: <strong style="color:#bb0000;">2</strong></p>
+          <p style="margin: 0 0 0.5rem;">High: <strong style="color:#e9730c;">5</strong></p>
+          <p style="margin: 0;">Medium: <strong style="color:#131e29;">5</strong></p>
+        </div>
+      </ui5-card>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">Card with Action</div>
+    <div class="demo-section-body">
+      <ui5-card class="wide">
+        <ui5-card-header slot="header" title-text="Supplier Contract" subtitle-text="Valid until Dec 31, 2025" interactive>
+          <ui5-icon name="business-partner" slot="avatar"></ui5-icon>
+          <ui5-button slot="action" design="Transparent">View Details</ui5-button>
+        </ui5-card-header>
+        <div style="padding: 1rem; font-size: 0.875rem;">
+          <div style="display:flex; gap:2rem; flex-wrap:wrap;">
+            <div><div style="color:#6a7588; font-size:0.75rem;">Vendor</div><div style="font-weight:600;">Acme Supplies GmbH</div></div>
+            <div><div style="color:#6a7588; font-size:0.75rem;">Contract No.</div><div style="font-weight:600;">CTR-2024-0049</div></div>
+            <div><div style="color:#6a7588; font-size:0.75rem;">Value</div><div style="font-weight:600;">€450,000</div></div>
+            <div><div style="color:#6a7588; font-size:0.75rem;">Status</div><div style="font-weight:600; color:#107e3e;">Active</div></div>
+          </div>
+        </div>
+      </ui5-card>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">Card with List</div>
+    <div class="demo-section-body">
+      <ui5-card class="wide">
+        <ui5-card-header slot="header" title-text="Recent Tasks" subtitle-text="Assigned to me" status="4 items">
+          <ui5-icon name="task" slot="avatar"></ui5-icon>
+        </ui5-card-header>
+        <ui5-list separators="Inner">
+          <ui5-li icon="appointment" description="Due today">Review purchase order #4821</ui5-li>
+          <ui5-li icon="document" description="Due tomorrow">Approve supplier invoice</ui5-li>
+          <ui5-li icon="meeting-room" description="Due in 3 days">Prepare Q1 budget forecast</ui5-li>
+          <ui5-li icon="email" description="Overdue" type="Active">Respond to compliance query</ui5-li>
+        </ui5-list>
+      </ui5-card>
+    </div>
+  </div>
+</body>
+</html>

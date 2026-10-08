@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <script src="panel-init.js"></script>
+  <script type="module" src="../../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    body { font-family: "72", sans-serif; font-size: 0.875rem; background: #f5f6f7; color: #131e29; margin: 0; padding: 2rem; }
+    .panel-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .panel-subtitle { font-size: 0.875rem; color: #6a7588; margin-bottom: 2rem; }
+    .demo-section { margin-bottom: 2rem; }
+    .demo-section-header { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #6a7588; margin-bottom: 1rem; padding-bottom: 0.375rem; border-bottom: 1px solid #e5e5e5; }
+    .demo-section-body { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 1rem; }
+    ui5-button { --sapButton_FontFamily: "72", sans-serif; }
+    ui5-button::part(text) { font-family: "72", sans-serif; font-weight: 400; }
+    ui5-split-button { --sapButton_FontFamily: "72", sans-serif; }
+  </style>
+</head>
+<body>
+  <div class="panel-title">Split Button</div>
+  <div class="panel-subtitle">Combines a primary action button with a dropdown arrow for additional actions.</div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">Design Variants</div>
+    <div class="demo-section-body">
+      <ui5-split-button>Default</ui5-split-button>
+      <ui5-split-button design="Emphasized">Emphasized</ui5-split-button>
+      <ui5-split-button design="Positive">Positive</ui5-split-button>
+      <ui5-split-button design="Negative">Negative</ui5-split-button>
+      <ui5-split-button design="Attention">Attention</ui5-split-button>
+      <ui5-split-button design="Transparent">Transparent</ui5-split-button>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">With Icon</div>
+    <div class="demo-section-body">
+      <ui5-split-button icon="add" design="Emphasized">Create Order</ui5-split-button>
+      <ui5-split-button icon="save">Save</ui5-split-button>
+      <ui5-split-button icon="download">Export</ui5-split-button>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">Disabled</div>
+    <div class="demo-section-body">
+      <ui5-split-button disabled design="Emphasized">Disabled Primary</ui5-split-button>
+      <ui5-split-button disabled>Disabled Default</ui5-split-button>
+    </div>
+  </div>
+</body>
+</html>

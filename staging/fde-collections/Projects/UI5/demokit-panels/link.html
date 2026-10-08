@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <script src="panel-init.js"></script>
+  <script type="module" src="../../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 600; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 300; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Light.woff2") format("woff2"); }
+    body { font-family: "72", sans-serif; font-size: 0.875rem; background: #f5f6f7; color: #131e29; margin: 0; padding: 2rem; }
+    .panel-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .panel-subtitle { font-size: 0.875rem; color: #6a7588; margin-bottom: 2rem; }
+    .demo-section { margin-bottom: 2rem; }
+    .demo-section-header { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #6a7588; margin-bottom: 1rem; padding-bottom: 0.375rem; border-bottom: 1px solid #e5e5e5; }
+    .demo-section-body { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; }
+    .demo-section-body.column { flex-direction: column; align-items: flex-start; }
+    ui5-button { --sapButton_FontFamily: "72", sans-serif; }
+    ui5-button::part(text) { font-family: "72", sans-serif; font-weight: 400; }
+    .link { color: #0064d9; text-decoration: none; font-family: "72", sans-serif; font-size: 0.875rem; cursor: pointer; }
+    .link:hover { text-decoration: underline; }
+    .link.disabled { color: #89919a; pointer-events: none; }
+  </style>
+</head>
+<body>
+
+  <div class="panel-title">Link</div>
+  <div class="panel-subtitle">A hyperlink element for navigation or triggering actions. Supports disabled state, icons, and inline use.</div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">Basic Links</div>
+    <div class="demo-section-body column">
+      <a class="link" onclick="document.getElementById('link-dlg').style.display='flex'">Open message box</a>
+      <a class="link disabled">Disabled link</a>
+      <a class="link" href="http://www.sap.com" target="_blank">Open SAP Homepage</a>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">With Icons</div>
+    <div class="demo-section-body column">
+      <a class="link" onclick="document.getElementById('link-dlg').style.display='flex'" style="display:inline-flex;align-items:center;gap:0.25rem;">
+        Show more information
+        <ui5-icon name="inspect" style="font-size:0.875rem;"></ui5-icon>
+      </a>
+      <a class="link disabled" style="display:inline-flex;align-items:center;gap:0.25rem;">
+        <ui5-icon name="cart" style="font-size:0.875rem;"></ui5-icon>
+        Disabled with icon
+      </a>
+      <a class="link" href="http://www.sap.com" target="_blank" style="display:inline-flex;align-items:center;gap:0.25rem;">
+        <ui5-icon name="globe" style="font-size:0.875rem;"></ui5-icon>
+        Open SAP Homepage
+      </a>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">Inline in Text</div>
+    <div class="demo-section-body">
+      <span style="line-height:1.6;">
+        For more details, visit the <a class="link" href="http://www.sap.com" target="_blank">SAP Homepage</a>
+        or <a class="link" onclick="document.getElementById('link-dlg').style.display='flex'">open the message box</a>.
+        <a class="link disabled">This action is unavailable.</a>
+      </span>
+    </div>
+  </div>
+
+  <div id="link-dlg" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:999;align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:8px;padding:1.5rem;min-width:280px;box-shadow:0 8px 32px rgba(0,0,0,0.2);display:flex;flex-direction:column;gap:1rem;">
+      <div style="font-size:1rem;font-weight:700;">Message Box</div>
+      <div>You pressed a link!</div>
+      <div style="display:flex;justify-content:flex-end;">
+        <ui5-button design="Emphasized" onclick="document.getElementById('link-dlg').style.display='none'">OK</ui5-button>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

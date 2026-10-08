@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Navigation List</title>
+  <script src="panel-init.js"></script>
+  <script type="module" src="../../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 600; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 300; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Light.woff2") format("woff2"); }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "72", sans-serif; font-size: 0.875rem; background: var(--sapBackgroundColor, #f5f6f7); padding: 2rem; color: var(--sapTextColor, #131e29); }
+    .panel-title { font-size: 1.5rem; font-weight: 700; color: #131e29; margin-bottom: 0.375rem; }
+    .panel-subtitle { font-size: 0.8125rem; color: var(--sapContent_LabelColor, #6a7588); margin-bottom: 2rem; }
+    .demo-section { background: #fff; border: 1px solid var(--sapList_BorderColor, #e5e5e5); border-radius: 8px; margin-bottom: 1.25rem; overflow: hidden; }
+    .demo-section-header { padding: 0.75rem 1rem; border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5); font-size: 0.8125rem; font-weight: 600; color: var(--sapContent_LabelColor, #6a7588); display: flex; align-items: center; justify-content: space-between; }
+    .demo-section-tag { font-family: monospace; font-size: 0.75rem; color: #0064d9; font-weight: 400; }
+    .demo-section-body { padding: 1.25rem 1rem; display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: flex-start; }
+    .demo-section-body.column { flex-direction: column; }
+    .demo-section-body.block { display: block; padding: 0; }
+    .tnt-nav { width: 320px; border: 1px solid var(--sapList_BorderColor,#e5e5e5); border-radius: 8px; overflow: hidden; background: #fff; }
+    .tnt-nav.collapsed .tnt-nav-item-text, .tnt-nav.collapsed .tnt-nav-sub, .tnt-nav.collapsed .tnt-nav-arrow { display: none; }
+    .tnt-nav.collapsed .tnt-nav-root { justify-content: center; padding: 0.5rem; }
+    .tnt-nav.collapsed .tnt-nav-root-icon { margin: 0; }
+    .tnt-nav-root { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; cursor: pointer; font-size: 0.875rem; font-family: "72", sans-serif; color: var(--sapTextColor,#131e29); border-bottom: 1px solid var(--sapList_BorderColor,#e5e5e5); user-select: none; }
+    .tnt-nav-root:last-child { border-bottom: none; }
+    .tnt-nav-root:hover { background: var(--sapList_Hover_Background,#f5f6f7); }
+    .tnt-nav-root-icon { font-size: 1rem; flex-shrink: 0; }
+    .tnt-nav-item-text { flex: 1; }
+    .tnt-nav-arrow { font-size: 0.75rem; color: var(--sapContent_LabelColor,#6a7588); transition: transform 0.2s; }
+    .tnt-nav-root.open .tnt-nav-arrow { transform: rotate(90deg); }
+    .tnt-nav-sub { display: none; background: var(--sapBackgroundColor,#f5f6f7); border-top: 1px solid var(--sapList_BorderColor,#e5e5e5); }
+    .tnt-nav-root.open + .tnt-nav-sub { display: block; }
+    .tnt-nav-sub-item { display: flex; align-items: center; padding: 0.4rem 1rem 0.4rem 2.75rem; font-size: 0.875rem; font-family: "72", sans-serif; color: var(--sapTextColor,#131e29); cursor: pointer; border-left: 3px solid transparent; }
+    .tnt-nav-sub-item:hover { background: var(--sapList_Hover_Background,#f5f6f7); }
+    .tnt-nav-sub-item.selected { color: var(--sapSelectedColor,#0064d9); border-left-color: var(--sapSelectedColor,#0064d9); background: var(--sapList_SelectionBackgroundColor,#e8f0fe); font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="panel-title">Navigation List</div>
+  <div class="panel-subtitle">A vertical navigation component with collapsible groups and sub-items. Supports selected state, visibility toggling, and collapse/expand. Equivalent to sap.tnt.NavigationList.</div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">
+      Navigation List with Controls
+      <span class="demo-section-tag">Custom HTML — SAP Horizon styled</span>
+    </div>
+    <div class="demo-section-body column" style="gap:1rem;">
+      <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+        <ui5-button icon="menu2" id="nl-toggle-btn">Toggle Collapse/Expand</ui5-button>
+        <ui5-button icon="menu2" id="nl-subitem-btn">Show/Hide Sub Item 3</ui5-button>
+      </div>
+      <div class="tnt-nav" id="nl-nav">
+        <div class="tnt-nav-root open" id="nl-root-1" onclick="nlToggle('nl-root-1')">
+          <ui5-icon name="employee" class="tnt-nav-root-icon"></ui5-icon>
+          <span class="tnt-nav-item-text">Item 1</span>
+          <span class="tnt-nav-arrow">&#9654;</span>
+        </div>
+        <div class="tnt-nav-sub">
+          <div class="tnt-nav-sub-item" onclick="nlSelect(this)">Sub Item 1</div>
+          <div class="tnt-nav-sub-item" onclick="nlSelect(this)">Sub Item 2</div>
+          <div class="tnt-nav-sub-item selected" id="nl-subitem3" onclick="nlSelect(this)">Sub Item 3</div>
+          <div class="tnt-nav-sub-item" onclick="nlSelect(this)">Sub Item 4</div>
+        </div>
+        <div class="tnt-nav-root" id="nl-root-2" onclick="nlToggle('nl-root-2')">
+          <ui5-icon name="building" class="tnt-nav-root-icon"></ui5-icon>
+          <span class="tnt-nav-item-text">Item 2</span>
+          <span class="tnt-nav-arrow">&#9654;</span>
+        </div>
+        <div class="tnt-nav-sub">
+          <div class="tnt-nav-sub-item" onclick="nlSelect(this)">Sub Item 1</div>
+          <div class="tnt-nav-sub-item" onclick="nlSelect(this)">Sub Item 2</div>
+          <div class="tnt-nav-sub-item" onclick="nlSelect(this)">Sub Item 3</div>
+          <div class="tnt-nav-sub-item" onclick="nlSelect(this)">Sub Item 4</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">
+      Collapsed (Icon Only) Mode
+      <span class="demo-section-tag">collapsed class on nav root</span>
+    </div>
+    <div class="demo-section-body">
+      <div class="tnt-nav collapsed" style="width:56px;">
+        <div class="tnt-nav-root" title="Employee">
+          <ui5-icon name="employee" class="tnt-nav-root-icon"></ui5-icon>
+        </div>
+        <div class="tnt-nav-root" title="Building">
+          <ui5-icon name="building" class="tnt-nav-root-icon"></ui5-icon>
+        </div>
+        <div class="tnt-nav-root" title="Settings">
+          <ui5-icon name="settings" class="tnt-nav-root-icon"></ui5-icon>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function nlToggle(id) { document.getElementById(id).classList.toggle('open'); }
+    function nlSelect(el) {
+      document.querySelectorAll('.tnt-nav-sub-item').forEach(function(i) { i.classList.remove('selected'); });
+      el.classList.add('selected');
+    }
+    document.getElementById('nl-toggle-btn').addEventListener('click', function() {
+      document.getElementById('nl-nav').classList.toggle('collapsed');
+    });
+    var subitem3Visible = true;
+    document.getElementById('nl-subitem-btn').addEventListener('click', function() {
+      subitem3Visible = !subitem3Visible;
+      document.getElementById('nl-subitem3').style.display = subitem3Visible ? '' : 'none';
+    });
+  </script>
+</body>
+</html>

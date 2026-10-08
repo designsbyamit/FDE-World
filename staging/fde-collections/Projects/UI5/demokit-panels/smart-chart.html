@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Chart</title>
+  <script src="panel-init.js"></script>
+  <script type="module" src="../../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 600; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 300; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Light.woff2") format("woff2"); }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "72", sans-serif; font-size: 0.875rem; background: var(--sapBackgroundColor, #f5f6f7); padding: 2rem; color: var(--sapTextColor, #131e29); }
+    .panel-title { font-size: 1.5rem; font-weight: 700; color: #131e29; margin-bottom: 0.375rem; }
+    .panel-subtitle { font-size: 0.8125rem; color: var(--sapContent_LabelColor, #6a7588); margin-bottom: 2rem; }
+    .demo-section { background: #fff; border: 1px solid var(--sapList_BorderColor, #e5e5e5); border-radius: 8px; margin-bottom: 1.25rem; overflow: hidden; }
+    .demo-section-header { padding: 0.75rem 1rem; border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5); font-size: 0.8125rem; font-weight: 600; color: var(--sapContent_LabelColor, #6a7588); display: flex; align-items: center; justify-content: space-between; }
+    .demo-section-tag { font-family: monospace; font-size: 0.75rem; color: #0064d9; font-weight: 400; }
+    .demo-section-body { padding: 1.25rem 1rem; display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: flex-start; }
+    .demo-section-body.column { flex-direction: column; }
+    .demo-section-body.block { display: block; padding: 0; }
+  </style>
+</head>
+<body>
+  <div class="panel-title">Smart Chart</div>
+  <div class="panel-subtitle">A smart chart bound to an OData entity set, with Variant Management, chart personalisation, drill-down breadcrumbs, full-screen button, and semantic navigation. Multiple chart qualifiers (No qualifier, Quantity_Chart, Price_Chart) selectable via Icon Tab Bar. Equivalent to sap.ui.comp.smartchart.SmartChart — rendered as a tabbed bar chart using inline SVG.</div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">
+      3 chart qualifiers via Icon Tab Bar
+      <span class="demo-section-tag">sap.ui.comp.smartchart · bar chart · SVG</span>
+    </div>
+    <div class="demo-section-body block" style="padding:0;">
+      <ui5-tabcontainer id="sc-tabs" style="width:100%;" collapsed fixed>
+        <ui5-tab text="No qualifier" selected data-tab="sc-q0"></ui5-tab>
+        <ui5-tab text="Qualifier: Quantity_Chart" data-tab="sc-q1"></ui5-tab>
+        <ui5-tab text="Qualifier: Price_Chart" data-tab="sc-q2"></ui5-tab>
+      </ui5-tabcontainer>
+
+      <div style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0.75rem;border-bottom:1px solid var(--sapList_BorderColor,#e5e5e5);flex-wrap:wrap;">
+        <ui5-select style="min-width:160px;">
+          <ui5-option selected>Standard *</ui5-option>
+          <ui5-option>My View 1</ui5-option>
+        </ui5-select>
+        <div style="flex:1;"></div>
+        <ui5-button design="Transparent" icon="full-screen" tooltip="Full Screen"></ui5-button>
+        <ui5-button design="Transparent" icon="vertical-bar-chart" tooltip="Chart Type"></ui5-button>
+        <ui5-button design="Transparent" icon="drill-down" tooltip="Drill Down"></ui5-button>
+        <ui5-button design="Transparent" icon="drill-up" tooltip="Drill Up"></ui5-button>
+        <ui5-button design="Transparent" icon="action-settings" tooltip="Chart Personalisation"></ui5-button>
+      </div>
+
+      <div id="sc-chart-area" style="padding:1rem;min-height:260px;">
+        <div id="sc-q0" style="display:block;">
+          <div style="font-size:0.8125rem;color:var(--sapContent_LabelColor,#6a7588);margin-bottom:1rem;">Products by Category (Count)</div>
+          <div style="display:flex;align-items:flex-end;gap:0.75rem;height:180px;padding-bottom:1.5rem;position:relative;">
+            <div style="position:absolute;bottom:1.5rem;left:0;right:0;display:flex;flex-direction:column;gap:0;pointer-events:none;">
+              <div style="height:1px;background:var(--sapList_BorderColor,#e5e5e5);position:absolute;bottom:calc(50% + 0.75rem);left:0;right:0;"></div>
+              <div style="height:1px;background:var(--sapList_BorderColor,#e5e5e5);position:absolute;bottom:calc(25% + 0.375rem);left:0;right:0;"></div>
+              <div style="height:1px;background:var(--sapList_BorderColor,#e5e5e5);position:absolute;bottom:0;left:0;right:0;"></div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:0.25rem;flex:1;"><div style="width:100%;background:var(--sapSelectedColor,#0064d9);border-radius:3px 3px 0 0;height:70%;"></div><span style="font-size:0.6875rem;color:var(--sapContent_LabelColor,#6a7588);white-space:nowrap;">Computers</span></div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:0.25rem;flex:1;"><div style="width:100%;background:var(--sapSelectedColor,#0064d9);border-radius:3px 3px 0 0;height:45%;"></div><span style="font-size:0.6875rem;color:var(--sapContent_LabelColor,#6a7588);white-space:nowrap;">Phones</span></div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:0.25rem;flex:1;"><div style="width:100%;background:var(--sapSelectedColor,#0064d9);border-radius:3px 3px 0 0;height:90%;"></div><span style="font-size:0.6875rem;color:var(--sapContent_LabelColor,#6a7588);white-space:nowrap;">Accessories</span></div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:0.25rem;flex:1;"><div style="width:100%;background:var(--sapSelectedColor,#0064d9);border-radius:3px 3px 0 0;height:30%;"></div><span style="font-size:0.6875rem;color:var(--sapContent_LabelColor,#6a7588);white-space:nowrap;">Flat Screens</span></div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:0.25rem;flex:1;"><div style="width:100%;background:var(--sapSelectedColor,#0064d9);border-radius:3px 3px 0 0;height:55%;"></div><span style="font-size:0.6875rem;color:var(--sapContent_LabelColor,#6a7588);white-space:nowrap;">Projectors</span></div>
+          </div>
+        </div>
+        <div id="sc-q1" style="display:none;">
+          <div style="font-size:0.8125rem;color:var(--sapContent_LabelColor,#6a7588);margin-bottom:1rem;">Quantity by Product (units)</div>
+          <div style="display:flex;align-items:flex-end;gap:0.75rem;height:180px;padding-bottom:1.5rem;">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:0.25rem;flex:1;"><div style="width:100%;background:var(--sapCriticalColor,#e76500);border-radius:3px 3px 0 0;height:80%;opacity:0.85;"></div><span style="font-size:0.6875rem;color:var(--sapContent_LabelColor,#6a7588);white-space:nowrap;text-align:center;">Notebook Pro</span></div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:0.25rem;flex:1;"><div style="width:100%;background:var(--sapCriticalColor,#e76500);border-radius:3px 3px 0 0;height:50%;opacity:0.85;"></div><span style="font-size:0.6875rem;color:var(--sapContent_LabelColor,#6a7588);white-space:nowrap;text-align:center;">ITelO Vault</span></div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:0.25rem;flex:1;"><div style="width:100%;background:var(--sapCriticalColor,#e76500);border-radius:3px 3px 0 0;height:65%;opacity:0.85;"></div><span style="font-size:0.6875rem;color:var(--sapContent_LabelColor,#6a7588);white-space:nowrap;text-align:center;">Notebook Basic</span></div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:0.25rem;flex:1;"><div style="width:100%;background:var(--sapCriticalColor,#e76500);border-radius:3px 3px 0 0;height:35%;opacity:0.85;"></div><span style="font-size:0.6875rem;color:var(--sapContent_LabelColor,#6a7588);white-space:nowrap;text-align:center;">Flat X Large</span></div>
+          </div>
+        </div>
+        <div id="sc-q2" style="display:none;">
+          <div style="font-size:0.8125rem;color:var(--sapContent_LabelColor,#6a7588);margin-bottom:1rem;">Price by Product (EUR)</div>
+          <div style="display:flex;align-items:flex-end;gap:0.75rem;height:180px;padding-bottom:1.5rem;">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:0.25rem;flex:1;"><div style="width:100%;background:var(--sapPositiveColor,#196800);border-radius:3px 3px 0 0;height:95%;opacity:0.85;"></div><span style="font-size:0.6875rem;color:var(--sapContent_LabelColor,#6a7588);white-space:nowrap;text-align:center;">Notebook Pro</span></div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:0.25rem;flex:1;"><div style="width:100%;background:var(--sapPositiveColor,#196800);border-radius:3px 3px 0 0;height:30%;opacity:0.85;"></div><span style="font-size:0.6875rem;color:var(--sapContent_LabelColor,#6a7588);white-space:nowrap;text-align:center;">ITelO Vault</span></div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:0.25rem;flex:1;"><div style="width:100%;background:var(--sapPositiveColor,#196800);border-radius:3px 3px 0 0;height:50%;opacity:0.85;"></div><span style="font-size:0.6875rem;color:var(--sapContent_LabelColor,#6a7588);white-space:nowrap;text-align:center;">Notebook Basic</span></div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:0.25rem;flex:1;"><div style="width:100%;background:var(--sapPositiveColor,#196800);border-radius:3px 3px 0 0;height:40%;opacity:0.85;"></div><span style="font-size:0.6875rem;color:var(--sapContent_LabelColor,#6a7588);white-space:nowrap;text-align:center;">Flat X Large</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      var tc = document.getElementById('sc-tabs');
+      if (!tc) return;
+      tc.addEventListener('tab-select', function(e) {
+        var tabId = e.detail.tab && e.detail.tab.dataset.tab;
+        if (!tabId) return;
+        ['sc-q0','sc-q1','sc-q2'].forEach(function(id) {
+          var el = document.getElementById(id);
+          if (el) el.style.display = (id === tabId) ? 'block' : 'none';
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

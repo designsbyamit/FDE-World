@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Users</title>
+
+  <script data-ui5-config type="application/json">
+    { "theme": "sap_horizon" }
+  </script>
+  <script type="module" src="../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <script src="../../lib/shared/shellbar.js"></script>
+
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 600; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 300; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Light.woff2") format("woff2"); }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    ui5-button { --sapButton_FontFamily: "72", sans-serif; }
+    ui5-button::part(text) { font-family: "72", sans-serif; font-weight: 400; }
+
+    html, body {
+      font-family: "72", sans-serif;
+      background: var(--sapBackgroundColor, #f5f6f7);
+      color: var(--sapTextColor, #131e29);
+      min-height: 100vh;
+    }
+
+    .page-header {
+      padding: 0.75rem 2rem 1rem;
+      background: var(--sapBaseColor, #fff);
+      border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5);
+    }
+    .page-header ui5-breadcrumbs { display: block; margin-bottom: 0.4rem; }
+    .page-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--sapTextColor, #131e29);
+      margin-top: 0.25rem;
+    }
+
+    .page-content { padding: 1.5rem 2rem; }
+
+    .table-card {
+      background: var(--sapBaseColor, #fff);
+      border: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      border-radius: 0.375rem;
+      overflow: hidden;
+    }
+
+    .table-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 0.75rem;
+      border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      gap: 1rem;
+    }
+    .table-title { font-size: 1rem; font-weight: 700; color: var(--sapTextColor, #131e29); white-space: nowrap; }
+    .table-toolbar-right { display: flex; align-items: center; gap: 0.375rem; }
+    .toolbar-separator { width: 1px; height: 1.25rem; background: var(--sapList_BorderColor, #e5e5e5); margin: 0 0.125rem; }
+    .toolbar-search { width: 200px; }
+
+    .cell-link { color: var(--sapLinkColor, #0070f2); cursor: pointer; text-decoration: none; }
+    .cell-link:hover { text-decoration: underline; }
+
+    .status-badge {
+      display: inline-block;
+      padding: 0.125rem 0.5rem;
+      border-radius: 0.625rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .status-active { background: var(--sapSuccessBackground, #e8f5e9); color: var(--sapPositiveColor, #256f3a); }
+    .status-inactive { background: var(--sapErrorBackground, #fce4e4); color: var(--sapNegativeColor, #bb0000); }
+    .status-pending { background: var(--sapWarningBackground, #fff3e0); color: var(--sapWarningColor, #df6e0c); }
+
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.125rem;
+      padding: 0.875rem;
+      border-top: 1px solid var(--sapList_BorderColor, #e5e5e5);
+    }
+    .page-btn {
+      min-width: 26px; height: 26px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 0.5rem;
+      font-family: "72", sans-serif;
+      font-size: 0.875rem;
+      cursor: pointer;
+      border: none;
+      background: none;
+      color: var(--sapTextColor, #131e29);
+      padding: 0 0.35rem;
+      transition: background 0.15s;
+    }
+    .page-btn:hover { background: var(--sapList_HoverBackground, #f0f2f5); }
+    .page-btn.active { color: var(--sapLinkColor, #0070f2); font-weight: 600; text-decoration: underline; }
+    .page-btn.nav { color: var(--sapContent_LabelColor, #556b82); }
+    .page-btn svg { width: 12px; height: 12px; }
+  </style>
+</head>
+<body>
+
+  <!-- Shell Bar -->
+  <app-shellbar title="SAP Floorplans" show-search base-path="../../"></app-shellbar>
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <ui5-breadcrumbs>
+      <ui5-breadcrumbs-item href="#">SAP Floorplans</ui5-breadcrumbs-item>
+      <ui5-breadcrumbs-item>Users</ui5-breadcrumbs-item>
+    </ui5-breadcrumbs>
+    <div class="page-title">Users</div>
+  </div>
+
+  <!-- Page Content -->
+  <div class="page-content">
+    <div class="table-card">
+
+      <!-- Table Toolbar -->
+      <div class="table-toolbar">
+        <span class="table-title">Users (24)</span>
+        <div class="table-toolbar-right">
+          <ui5-input class="toolbar-search" placeholder="Search" show-clear-icon>
+            <ui5-icon slot="icon" name="search"></ui5-icon>
+          </ui5-input>
+          <ui5-button design="Transparent">Create</ui5-button>
+          <ui5-button design="Transparent">Delete</ui5-button>
+          <div class="toolbar-separator"></div>
+          <ui5-button design="Transparent" icon="copy" tooltip="Copy"></ui5-button>
+          <ui5-button design="Transparent" icon="action-settings" tooltip="Settings"></ui5-button>
+          <div class="toolbar-separator"></div>
+          <ui5-button design="Transparent" icon="download" tooltip="Export"></ui5-button>
+          <ui5-button design="Transparent" icon="full-screen" tooltip="Fullscreen"></ui5-button>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <ui5-table>
+        <ui5-table-selection-multi slot="features"></ui5-table-selection-multi>
+        <ui5-table-header-row slot="headerRow">
+          <ui5-table-header-cell width="110px" style="padding-inline-start: 1rem">User ID</ui5-table-header-cell>
+          <ui5-table-header-cell>Full Name</ui5-table-header-cell>
+          <ui5-table-header-cell>Email</ui5-table-header-cell>
+          <ui5-table-header-cell>Role</ui5-table-header-cell>
+          <ui5-table-header-cell>Department</ui5-table-header-cell>
+          <ui5-table-header-cell width="100px">Status</ui5-table-header-cell>
+          <ui5-table-header-cell width="110px">Last Login</ui5-table-header-cell>
+        </ui5-table-header-row>
+
+        <ui5-table-row interactive>
+          <ui5-table-cell style="padding-inline-start: 1rem"><a class="cell-link">USR-00142</a></ui5-table-cell>
+          <ui5-table-cell>Maria Santos</ui5-table-cell>
+          <ui5-table-cell>m.santos@corp.example</ui5-table-cell>
+          <ui5-table-cell>System Administrator</ui5-table-cell>
+          <ui5-table-cell>IT Operations</ui5-table-cell>
+          <ui5-table-cell><span class="status-badge status-active">Active</span></ui5-table-cell>
+          <ui5-table-cell>04/06/2026</ui5-table-cell>
+          <ui5-table-row-action-navigation slot="actions"></ui5-table-row-action-navigation>
+        </ui5-table-row>
+
+        <ui5-table-row interactive>
+          <ui5-table-cell style="padding-inline-start: 1rem"><a class="cell-link">USR-00138</a></ui5-table-cell>
+          <ui5-table-cell>James Holloway</ui5-table-cell>
+          <ui5-table-cell>j.holloway@corp.example</ui5-table-cell>
+          <ui5-table-cell>Finance Manager</ui5-table-cell>
+          <ui5-table-cell>Finance &amp; Controlling</ui5-table-cell>
+          <ui5-table-cell><span class="status-badge status-active">Active</span></ui5-table-cell>
+          <ui5-table-cell>04/07/2026</ui5-table-cell>
+          <ui5-table-row-action-navigation slot="actions"></ui5-table-row-action-navigation>
+        </ui5-table-row>
+
+        <ui5-table-row interactive>
+          <ui5-table-cell style="padding-inline-start: 1rem"><a class="cell-link">USR-00129</a></ui5-table-cell>
+          <ui5-table-cell>Priya Nair</ui5-table-cell>
+          <ui5-table-cell>p.nair@corp.example</ui5-table-cell>
+          <ui5-table-cell>Procurement Specialist</ui5-table-cell>
+          <ui5-table-cell>Procurement</ui5-table-cell>
+          <ui5-table-cell><span class="status-badge status-active">Active</span></ui5-table-cell>
+          <ui5-table-cell>04/05/2026</ui5-table-cell>
+          <ui5-table-row-action-navigation slot="actions"></ui5-table-row-action-navigation>
+        </ui5-table-row>
+
+        <ui5-table-row interactive>
+          <ui5-table-cell style="padding-inline-start: 1rem"><a class="cell-link">USR-00117</a></ui5-table-cell>
+          <ui5-table-cell>Luca Ferretti</ui5-table-cell>
+          <ui5-table-cell>l.ferretti@corp.example</ui5-table-cell>
+          <ui5-table-cell>Sales Representative</ui5-table-cell>
+          <ui5-table-cell>Sales</ui5-table-cell>
+          <ui5-table-cell><span class="status-badge status-pending">Pending</span></ui5-table-cell>
+          <ui5-table-cell>03/28/2026</ui5-table-cell>
+          <ui5-table-row-action-navigation slot="actions"></ui5-table-row-action-navigation>
+        </ui5-table-row>
+
+        <ui5-table-row interactive>
+          <ui5-table-cell style="padding-inline-start: 1rem"><a class="cell-link">USR-00113</a></ui5-table-cell>
+          <ui5-table-cell>Anna Bergström</ui5-table-cell>
+          <ui5-table-cell>a.bergstrom@corp.example</ui5-table-cell>
+          <ui5-table-cell>HR Business Partner</ui5-table-cell>
+          <ui5-table-cell>Human Resources</ui5-table-cell>
+          <ui5-table-cell><span class="status-badge status-active">Active</span></ui5-table-cell>
+          <ui5-table-cell>04/07/2026</ui5-table-cell>
+          <ui5-table-row-action-navigation slot="actions"></ui5-table-row-action-navigation>
+        </ui5-table-row>
+
+        <ui5-table-row interactive>
+          <ui5-table-cell style="padding-inline-start: 1rem"><a class="cell-link">USR-00108</a></ui5-table-cell>
+          <ui5-table-cell>David Okafor</ui5-table-cell>
+          <ui5-table-cell>d.okafor@corp.example</ui5-table-cell>
+          <ui5-table-cell>Supply Chain Analyst</ui5-table-cell>
+          <ui5-table-cell>Supply Chain</ui5-table-cell>
+          <ui5-table-cell><span class="status-badge status-active">Active</span></ui5-table-cell>
+          <ui5-table-cell>04/04/2026</ui5-table-cell>
+          <ui5-table-row-action-navigation slot="actions"></ui5-table-row-action-navigation>
+        </ui5-table-row>
+
+        <ui5-table-row interactive>
+          <ui5-table-cell style="padding-inline-start: 1rem"><a class="cell-link">USR-00104</a></ui5-table-cell>
+          <ui5-table-cell>Sophie Mercier</ui5-table-cell>
+          <ui5-table-cell>s.mercier@corp.example</ui5-table-cell>
+          <ui5-table-cell>Basis Administrator</ui5-table-cell>
+          <ui5-table-cell>IT Operations</ui5-table-cell>
+          <ui5-table-cell><span class="status-badge status-inactive">Inactive</span></ui5-table-cell>
+          <ui5-table-cell>02/11/2026</ui5-table-cell>
+          <ui5-table-row-action-navigation slot="actions"></ui5-table-row-action-navigation>
+        </ui5-table-row>
+
+        <ui5-table-row interactive>
+          <ui5-table-cell style="padding-inline-start: 1rem"><a class="cell-link">USR-00097</a></ui5-table-cell>
+          <ui5-table-cell>Ravi Shankar</ui5-table-cell>
+          <ui5-table-cell>r.shankar@corp.example</ui5-table-cell>
+          <ui5-table-cell>Controlling Manager</ui5-table-cell>
+          <ui5-table-cell>Finance &amp; Controlling</ui5-table-cell>
+          <ui5-table-cell><span class="status-badge status-active">Active</span></ui5-table-cell>
+          <ui5-table-cell>04/06/2026</ui5-table-cell>
+          <ui5-table-row-action-navigation slot="actions"></ui5-table-row-action-navigation>
+        </ui5-table-row>
+
+        <ui5-table-row interactive>
+          <ui5-table-cell style="padding-inline-start: 1rem"><a class="cell-link">USR-00091</a></ui5-table-cell>
+          <ui5-table-cell>Elena Voronova</ui5-table-cell>
+          <ui5-table-cell>e.voronova@corp.example</ui5-table-cell>
+          <ui5-table-cell>Plant Manager</ui5-table-cell>
+          <ui5-table-cell>Manufacturing</ui5-table-cell>
+          <ui5-table-cell><span class="status-badge status-active">Active</span></ui5-table-cell>
+          <ui5-table-cell>04/03/2026</ui5-table-cell>
+          <ui5-table-row-action-navigation slot="actions"></ui5-table-row-action-navigation>
+        </ui5-table-row>
+
+        <ui5-table-row interactive>
+          <ui5-table-cell style="padding-inline-start: 1rem"><a class="cell-link">USR-00085</a></ui5-table-cell>
+          <ui5-table-cell>Carlos Mendoza</ui5-table-cell>
+          <ui5-table-cell>c.mendoza@corp.example</ui5-table-cell>
+          <ui5-table-cell>Warehouse Supervisor</ui5-table-cell>
+          <ui5-table-cell>Logistics</ui5-table-cell>
+          <ui5-table-cell><span class="status-badge status-pending">Pending</span></ui5-table-cell>
+          <ui5-table-cell>03/31/2026</ui5-table-cell>
+          <ui5-table-row-action-navigation slot="actions"></ui5-table-row-action-navigation>
+        </ui5-table-row>
+
+        <ui5-table-row interactive>
+          <ui5-table-cell style="padding-inline-start: 1rem"><a class="cell-link">USR-00079</a></ui5-table-cell>
+          <ui5-table-cell>Yuki Tanaka</ui5-table-cell>
+          <ui5-table-cell>y.tanaka@corp.example</ui5-table-cell>
+          <ui5-table-cell>Quality Manager</ui5-table-cell>
+          <ui5-table-cell>Quality Assurance</ui5-table-cell>
+          <ui5-table-cell><span class="status-badge status-active">Active</span></ui5-table-cell>
+          <ui5-table-cell>04/07/2026</ui5-table-cell>
+          <ui5-table-row-action-navigation slot="actions"></ui5-table-row-action-navigation>
+        </ui5-table-row>
+
+        <ui5-table-row interactive>
+          <ui5-table-cell style="padding-inline-start: 1rem"><a class="cell-link">USR-00073</a></ui5-table-cell>
+          <ui5-table-cell>Fatima Al-Rashidi</ui5-table-cell>
+          <ui5-table-cell>f.alrashidi@corp.example</ui5-table-cell>
+          <ui5-table-cell>Treasury Analyst</ui5-table-cell>
+          <ui5-table-cell>Finance &amp; Controlling</ui5-table-cell>
+          <ui5-table-cell><span class="status-badge status-active">Active</span></ui5-table-cell>
+          <ui5-table-cell>04/02/2026</ui5-table-cell>
+          <ui5-table-row-action-navigation slot="actions"></ui5-table-row-action-navigation>
+        </ui5-table-row>
+
+        <ui5-table-row interactive>
+          <ui5-table-cell style="padding-inline-start: 1rem"><a class="cell-link">USR-00067</a></ui5-table-cell>
+          <ui5-table-cell>Thomas Brandt</ui5-table-cell>
+          <ui5-table-cell>t.brandt@corp.example</ui5-table-cell>
+          <ui5-table-cell>SAP Developer</ui5-table-cell>
+          <ui5-table-cell>IT Operations</ui5-table-cell>
+          <ui5-table-cell><span class="status-badge status-inactive">Inactive</span></ui5-table-cell>
+          <ui5-table-cell>01/15/2026</ui5-table-cell>
+          <ui5-table-row-action-navigation slot="actions"></ui5-table-row-action-navigation>
+        </ui5-table-row>
+
+        <ui5-table-row interactive>
+          <ui5-table-cell style="padding-inline-start: 1rem"><a class="cell-link">USR-00062</a></ui5-table-cell>
+          <ui5-table-cell>Aisha Kamara</ui5-table-cell>
+          <ui5-table-cell>a.kamara@corp.example</ui5-table-cell>
+          <ui5-table-cell>Logistics Coordinator</ui5-table-cell>
+          <ui5-table-cell>Logistics</ui5-table-cell>
+          <ui5-table-cell><span class="status-badge status-active">Active</span></ui5-table-cell>
+          <ui5-table-cell>04/06/2026</ui5-table-cell>
+          <ui5-table-row-action-navigation slot="actions"></ui5-table-row-action-navigation>
+        </ui5-table-row>
+
+        <ui5-table-row interactive>
+          <ui5-table-cell style="padding-inline-start: 1rem"><a class="cell-link">USR-00055</a></ui5-table-cell>
+          <ui5-table-cell>Peter Novak</ui5-table-cell>
+          <ui5-table-cell>p.novak@corp.example</ui5-table-cell>
+          <ui5-table-cell>Sales Manager</ui5-table-cell>
+          <ui5-table-cell>Sales</ui5-table-cell>
+          <ui5-table-cell><span class="status-badge status-active">Active</span></ui5-table-cell>
+          <ui5-table-cell>04/07/2026</ui5-table-cell>
+          <ui5-table-row-action-navigation slot="actions"></ui5-table-row-action-navigation>
+        </ui5-table-row>
+      </ui5-table>
+
+      <!-- Pagination -->
+      <div class="pagination">
+        <button class="page-btn nav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg></button>
+        <button class="page-btn active">1</button>
+        <button class="page-btn">2</button>
+        <button class="page-btn nav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></button>
+      </div>
+
+    </div>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FDE World</title>
+<style>
+  :root { --bg:#f6f7f9; --fg:#1d2d3e; --muted:#5b6b7b; --card:#fff; --line:#d9dde3; --accent:#0a6ed1; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#12171d; --fg:#e8edf2; --muted:#9aa8b6; --card:#1b232c; --line:#2c3844; --accent:#6cb4ff; }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg); font-family:"72", system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width:960px; margin:0 auto; padding:48px 16px 64px; }
+  h1 { margin:0 0 4px; font-size:2rem; }
+  .lede { margin:0 0 32px; color:var(--muted); }
+  .grid { display:grid; gap:16px; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:20px; transition:transform .15s, box-shadow .15s; }
+  .card:hover { transform:translateY(-3px); box-shadow:0 8px 24px rgba(0,0,0,.12); }
+  .card h2 { margin:0 0 6px; font-size:1.125rem; }
+  .status { display:inline-block; margin-bottom:10px; padding:2px 8px; border:1px solid var(--line); border-radius:999px; font-size:.75rem; color:var(--muted); }
+  .card p { margin:0 0 14px; color:var(--muted); font-size:.9375rem; line-height:1.45; }
+  .card ul { margin:0; padding:0; list-style:none; display:grid; gap:6px; }
+  a { color:var(--accent); text-decoration:none; }
+  a:hover { text-decoration:underline; }
+  #env { position:fixed; right:12px; bottom:12px; padding:8px 12px; border-radius:6px; background:#b45309; color:#fff; font:600 12px/1 system-ui, sans-serif; box-shadow:0 2px 8px rgba(0,0,0,.3); }
+  #env[hidden] { display:none; }
+</style>
+</head>
+<body>
+<main>
+  <h1>FDE World</h1>
+  <p class="lede">Forward-deployed engineering projects, prototypes and experiments.</p>
+  <div class="grid" id="projects">
+    <noscript>
+      <div class="card"><h2>FDE Collections</h2><ul><li><a href="fde-collections/Projects/Collections%20Agent%20Portal/">Collections Agent Portal</a></li></ul></div>
+    </noscript>
+  </div>
+</main>
+<div id="env" hidden>STAGING &mdash; not the live site</div>
+<script>
+  if (location.pathname.indexOf('/staging/') !== -1) {
+    document.getElementById('env').hidden = false;
+    document.title = '[Staging] ' + document.title;
+  }
+  fetch('projects.json')
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      var root = document.getElementById('projects');
+      root.textContent = '';
+      data.projects.forEach(function (p) {
+        var card = document.createElement('article');
+        card.className = 'card';
+        var h = document.createElement('h2'); h.textContent = p.name;
+        var s = document.createElement('span'); s.className = 'status'; s.textContent = p.status;
+        var d = document.createElement('p'); d.textContent = p.description;
+        var ul = document.createElement('ul');
+        (p.links || []).forEach(function (l) {
+          var li = document.createElement('li'), a = document.createElement('a');
+          a.href = l.href; a.textContent = l.label; li.appendChild(a); ul.appendChild(li);
+        });
+        [h, s, d, ul].forEach(function (n) { card.appendChild(n); });
+        root.appendChild(card);
+      });
+    })
+    .catch(function () {});
+</script>
+</body>
+</html>

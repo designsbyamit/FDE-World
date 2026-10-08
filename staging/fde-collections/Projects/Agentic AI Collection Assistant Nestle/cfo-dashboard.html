@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CFO Dashboard — Collections</title>
+  <link rel="icon" href="../../lib/assets/favicon.ico">
+
+  <script data-ui5-config type="application/json">
+    { "theme": "sap_horizon" }
+  </script>
+  <script type="module" src="../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <script src="../../lib/shared/shellbar.js"></script>
+
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 600; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 300; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Light.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 900; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Black.woff2") format("woff2"); }
+
+    ui5-button { --sapButton_FontFamily: "72", sans-serif; }
+    ui5-button::part(text) { font-family: "72", sans-serif; font-weight: 400; }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      font-family: "72", sans-serif;
+      background: var(--sapBackgroundColor, #f5f6f7);
+      color: var(--sapTextColor, #131e29);
+      min-height: 100vh;
+    }
+
+    /* ── Page header ── */
+    .page-header {
+      background: var(--sapBaseColor, #fff);
+      border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      padding: 0.75rem 2rem 1rem;
+      padding-top: calc(0.75rem + 6px);
+    }
+    .page-header-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .page-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--sapTextColor, #131e29);
+      margin-top: 0.2rem;
+    }
+    .page-subtitle {
+      font-size: 0.875rem;
+      color: var(--sapContent_LabelColor, #556b82);
+      margin-top: 0.25rem;
+    }
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding-top: 0.3rem;
+      flex-shrink: 0;
+    }
+    .period-label {
+      font-size: 0.8125rem;
+      color: var(--sapContent_LabelColor, #556b82);
+    }
+
+    /* ── Page content ── */
+    .page-content {
+      padding: 1.5rem 2rem 3rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    /* ── Section ── */
+    .section-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--sapTextColor, #131e29);
+      margin-bottom: 0.875rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .section-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      padding: 0.125rem 0.5rem;
+      border-radius: 1rem;
+      background: var(--sapList_SelectionBackgroundColor, #e8f0fb);
+      color: var(--sapButton_Emphasized_Background, #0064d9);
+    }
+
+    /* ── KPI grid ── */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+    }
+    .kpi-grid-3 {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .kpi-card {
+      background: var(--sapBaseColor, #fff);
+      border: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      border-radius: 0.5rem;
+      padding: 1.25rem 1.5rem 1.125rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      transition: box-shadow 0.15s ease, transform 0.15s ease;
+    }
+    .kpi-card:hover {
+      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+      transform: translateY(-2px);
+    }
+    .kpi-card.highlight {
+      border-color: var(--sapButton_Emphasized_Background, #0064d9);
+      background: var(--sapList_SelectionBackgroundColor, #e8f0fb);
+    }
+    .kpi-card.positive {
+      border-left: 3px solid var(--sapPositiveColor, #188918);
+    }
+    .kpi-card.negative {
+      border-left: 3px solid var(--sapNegativeColor, #aa0808);
+    }
+    .kpi-card.neutral {
+      border-left: 3px solid var(--sapNeutralColor, #6a6d70);
+    }
+    .kpi-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--sapContent_LabelColor, #556b82);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .kpi-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--sapTextColor, #131e29);
+      line-height: 1.1;
+    }
+    .kpi-value.positive { color: var(--sapPositiveColor, #188918); }
+    .kpi-value.negative { color: var(--sapNegativeColor, #aa0808); }
+    .kpi-delta {
+      font-size: 0.8125rem;
+      color: var(--sapContent_LabelColor, #556b82);
+      margin-top: 0.125rem;
+    }
+    .kpi-delta .up { color: var(--sapPositiveColor, #188918); font-weight: 600; }
+    .kpi-delta .down { color: var(--sapNegativeColor, #aa0808); font-weight: 600; }
+
+    /* ── ROI ledger card ── */
+    .ledger-card {
+      background: var(--sapBaseColor, #fff);
+      border: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      border-radius: 0.5rem;
+      overflow: hidden;
+    }
+    .ledger-row {
+      display: flex;
+      align-items: center;
+      padding: 0.875rem 1.5rem;
+      border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      gap: 1rem;
+    }
+    .ledger-row:last-child { border-bottom: none; }
+    .ledger-row.total {
+      background: var(--sapList_SelectionBackgroundColor, #e8f0fb);
+      font-weight: 700;
+    }
+    .ledger-row-label {
+      flex: 1;
+      font-size: 0.875rem;
+      color: var(--sapTextColor, #131e29);
+    }
+    .ledger-row-sub {
+      font-size: 0.75rem;
+      color: var(--sapContent_LabelColor, #556b82);
+      margin-top: 0.125rem;
+    }
+    .ledger-row-amount {
+      font-size: 1rem;
+      font-weight: 600;
+      text-align: right;
+      min-width: 110px;
+    }
+    .ledger-row-amount.cost { color: var(--sapNegativeColor, #aa0808); }
+    .ledger-row-amount.saving { color: var(--sapPositiveColor, #188918); }
+    .ledger-row-amount.net { color: var(--sapButton_Emphasized_Background, #0064d9); font-size: 1.25rem; font-weight: 700; }
+
+    /* ── Two-column layout ── */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    .three-col {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 1rem;
+    }
+
+    /* ── Chart card ── */
+    .chart-card {
+      background: var(--sapBaseColor, #fff);
+      border: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      border-radius: 0.5rem;
+      padding: 1.25rem 1.5rem;
+    }
+    .chart-card-title {
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: var(--sapTextColor, #131e29);
+      margin-bottom: 1rem;
+    }
+
+    /* ── Bar chart (CSS-only) ── */
+    .bar-chart {
+      display: flex;
+      flex-direction: column;
+      gap: 0.625rem;
+    }
+    .bar-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .bar-label {
+      font-size: 0.75rem;
+      color: var(--sapContent_LabelColor, #556b82);
+      width: 40px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+    .bar-track {
+      flex: 1;
+      height: 20px;
+      background: var(--sapBackgroundColor, #f5f6f7);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      background: var(--sapButton_Emphasized_Background, #0064d9);
+      transition: width 0.4s ease;
+    }
+    .bar-fill.secondary { background: var(--sapPositiveColor, #188918); }
+    .bar-fill.accent { background: var(--sapWarningColor, #e76500); }
+    .bar-value {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--sapTextColor, #131e29);
+      width: 52px;
+      flex-shrink: 0;
+    }
+
+    /* ── Donut chart (CSS-only) ── */
+    .donut-wrap {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+    .donut {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: conic-gradient(
+        var(--sapPositiveColor, #188918) 0% 87%,
+        var(--sapNegativeColor, #aa0808) 87% 100%
+      );
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      position: relative;
+    }
+    .donut::after {
+      content: "";
+      position: absolute;
+      width: 62px;
+      height: 62px;
+      background: var(--sapBaseColor, #fff);
+      border-radius: 50%;
+    }
+    .donut-center {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+    }
+    .donut-pct {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--sapTextColor, #131e29);
+    }
+    .donut-sub {
+      font-size: 0.625rem;
+      color: var(--sapContent_LabelColor, #556b82);
+    }
+    .donut-legend {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8125rem;
+    }
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .legend-dot.green { background: var(--sapPositiveColor, #188918); }
+    .legend-dot.red { background: var(--sapNegativeColor, #aa0808); }
+    .legend-dot.blue { background: var(--sapButton_Emphasized_Background, #0064d9); }
+    .legend-dot.orange { background: var(--sapWarningColor, #e76500); }
+    .legend-val { font-weight: 600; color: var(--sapTextColor, #131e29); }
+
+    /* ── Trend line (CSS sparkline) ── */
+    .sparkline-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .sparkline {
+      display: flex;
+      align-items: flex-end;
+      gap: 4px;
+      height: 60px;
+    }
+    .spark-bar {
+      flex: 1;
+      border-radius: 2px 2px 0 0;
+      background: var(--sapButton_Emphasized_Background, #0064d9);
+      opacity: 0.7;
+      transition: opacity 0.2s;
+    }
+    .spark-bar:last-child { opacity: 1; }
+    .spark-bar.highlight { background: var(--sapPositiveColor, #188918); opacity: 1; }
+    .spark-labels {
+      display: flex;
+      gap: 4px;
+    }
+    .spark-lbl {
+      flex: 1;
+      text-align: center;
+      font-size: 0.625rem;
+      color: var(--sapContent_LabelColor, #556b82);
+    }
+
+    /* ── Optimizer tips ── */
+    .tip-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .tip-card {
+      background: var(--sapBaseColor, #fff);
+      border: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      border-radius: 0.5rem;
+      padding: 1rem 1.25rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      transition: box-shadow 0.15s ease, transform 0.15s ease;
+    }
+    .tip-card:hover {
+      box-shadow: 0 4px 16px rgba(0,0,0,0.09);
+      transform: translateY(-1px);
+    }
+    .tip-icon-wrap {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .tip-icon-wrap.green { background: #e6f4e6; }
+    .tip-icon-wrap.orange { background: #fef3e2; }
+    .tip-icon-wrap.blue { background: var(--sapList_SelectionBackgroundColor, #e8f0fb); }
+    .tip-body { flex: 1; }
+    .tip-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--sapTextColor, #131e29);
+      margin-bottom: 0.25rem;
+    }
+    .tip-text {
+      font-size: 0.8125rem;
+      color: var(--sapContent_LabelColor, #556b82);
+      line-height: 1.5;
+    }
+    .tip-impact {
+      font-size: 0.75rem;
+      font-weight: 700;
+      margin-top: 0.375rem;
+    }
+    .tip-impact.positive { color: var(--sapPositiveColor, #188918); }
+    .tip-impact.warning { color: var(--sapWarningColor, #e76500); }
+
+    /* ── Divider ── */
+    .divider {
+      height: 1px;
+      background: var(--sapList_BorderColor, #e5e5e5);
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+
+<div id="shellbar-root" data-base-path="../../" data-app-title="Collection Assistant"></div>
+
+<div class="page-header">
+  <div class="page-header-top">
+    <div>
+      <div class="page-title">CFO Dashboard</div>
+      <div class="page-subtitle">Collections AI — financial performance and ROI overview</div>
+    </div>
+    <div class="header-controls">
+      <span class="period-label">Period:</span>
+      <ui5-select style="min-width:180px;">
+        <ui5-option>Last 30 days</ui5-option>
+        <ui5-option selected>Last 90 days</ui5-option>
+        <ui5-option>Last 6 months</ui5-option>
+        <ui5-option>Year to date</ui5-option>
+      </ui5-select>
+      <ui5-button design="Default" icon="download">Export</ui5-button>
+    </div>
+  </div>
+</div>
+
+<div class="page-content">
+
+  <!-- ═══════════════════════════════════════════════
+       SECTION 1 — NET-BENEFIT LEDGER
+  ════════════════════════════════════════════════ -->
+  <div>
+    <div class="section-title">
+      Net-Benefit Ledger
+      <span class="section-badge">Cost vs. Savings</span>
+    </div>
+
+    <div class="kpi-grid" style="margin-bottom:1rem;">
+      <div class="kpi-card positive">
+        <div class="kpi-label">Net ROI</div>
+        <div class="kpi-value positive">7.4×</div>
+        <div class="kpi-delta">For every $1 spent, $7.40 returned</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Total AI Cost</div>
+        <div class="kpi-value">$12,480</div>
+        <div class="kpi-delta">Token credits + license fees</div>
+      </div>
+      <div class="kpi-card positive">
+        <div class="kpi-label">Total Savings Generated</div>
+        <div class="kpi-value positive">$92,350</div>
+        <div class="kpi-delta"><span class="up">↑ 18%</span> vs. prior period</div>
+      </div>
+      <div class="kpi-card positive">
+        <div class="kpi-label">Net Benefit</div>
+        <div class="kpi-value positive">$79,870</div>
+        <div class="kpi-delta">Cumulative this period</div>
+      </div>
+    </div>
+
+    <div class="ledger-card">
+      <div class="ledger-row">
+        <div>
+          <div class="ledger-row-label" style="font-weight:600;">Costs</div>
+        </div>
+      </div>
+      <div class="ledger-row">
+        <div>
+          <div class="ledger-row-label">Token / API credits consumed</div>
+          <div class="ledger-row-sub">4.2M tokens @ $0.002 / 1K</div>
+        </div>
+        <div class="ledger-row-amount cost">− $8,400</div>
+      </div>
+      <div class="ledger-row">
+        <div>
+          <div class="ledger-row-label">Platform license fee (pro-rated)</div>
+          <div class="ledger-row-sub">90-day allocation</div>
+        </div>
+        <div class="ledger-row-amount cost">− $4,080</div>
+      </div>
+      <div class="ledger-row" style="background:var(--sapBackgroundColor,#f5f6f7);">
+        <div>
+          <div class="ledger-row-label" style="font-weight:600; color: var(--sapNegativeColor);">Total Cost</div>
+        </div>
+        <div class="ledger-row-amount cost" style="font-size:1.1rem; font-weight:700;">− $12,480</div>
+      </div>
+      <div class="ledger-row" style="margin-top:0.25rem;">
+        <div>
+          <div class="ledger-row-label" style="font-weight:600;">Savings</div>
+        </div>
+      </div>
+      <div class="ledger-row">
+        <div>
+          <div class="ledger-row-label">Human labor hours displaced</div>
+          <div class="ledger-row-sub">1,840 hrs × $38 fully burdened rate</div>
+        </div>
+        <div class="ledger-row-amount saving">+ $69,920</div>
+      </div>
+      <div class="ledger-row">
+        <div>
+          <div class="ledger-row-label">Faster collections — reduced DSO</div>
+          <div class="ledger-row-sub">DSO improved 6 days → $14.2K freed cash flow</div>
+        </div>
+        <div class="ledger-row-amount saving">+ $14,200</div>
+      </div>
+      <div class="ledger-row">
+        <div>
+          <div class="ledger-row-label">Error-driven rework avoided</div>
+          <div class="ledger-row-sub">Estimated manual error correction hours eliminated</div>
+        </div>
+        <div class="ledger-row-amount saving">+ $8,230</div>
+      </div>
+      <div class="ledger-row total">
+        <div>
+          <div class="ledger-row-label">Net Benefit This Period</div>
+        </div>
+        <div class="ledger-row-amount net">$79,870</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       SECTION 2 — EFFICIENCY HORIZON
+  ════════════════════════════════════════════════ -->
+  <div>
+    <div class="section-title">
+      Efficiency Horizon
+      <span class="section-badge">Automation vs. Human Effort</span>
+    </div>
+
+    <div class="kpi-grid" style="margin-bottom:1rem;">
+      <div class="kpi-card positive">
+        <div class="kpi-label">Agent Autonomy Rate</div>
+        <div class="kpi-value positive">87%</div>
+        <div class="kpi-delta"><span class="up">↑ 9pts</span> since go-live</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Human Interventions</div>
+        <div class="kpi-value">312</div>
+        <div class="kpi-delta"><span class="down">↓ 41%</span> vs. prior period</div>
+      </div>
+      <div class="kpi-card positive">
+        <div class="kpi-label">Avg. Resolution Time</div>
+        <div class="kpi-value">1.4 days</div>
+        <div class="kpi-delta">Was 6.2 days manually</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Cases Handled by AI</div>
+        <div class="kpi-value">2,381</div>
+        <div class="kpi-delta">Out of 2,737 total this period</div>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="chart-card">
+        <div class="chart-card-title">Agent autonomy rate — monthly trend</div>
+        <div class="sparkline-wrap">
+          <div class="sparkline">
+            <div class="spark-bar" style="height:40%"></div>
+            <div class="spark-bar" style="height:48%"></div>
+            <div class="spark-bar" style="height:55%"></div>
+            <div class="spark-bar" style="height:61%"></div>
+            <div class="spark-bar" style="height:68%"></div>
+            <div class="spark-bar" style="height:72%"></div>
+            <div class="spark-bar" style="height:76%"></div>
+            <div class="spark-bar" style="height:80%"></div>
+            <div class="spark-bar" style="height:83%"></div>
+            <div class="spark-bar highlight" style="height:87%"></div>
+          </div>
+          <div class="spark-labels">
+            <span class="spark-lbl">Oct</span>
+            <span class="spark-lbl">Nov</span>
+            <span class="spark-lbl">Dec</span>
+            <span class="spark-lbl">Jan</span>
+            <span class="spark-lbl">Feb</span>
+            <span class="spark-lbl">Mar</span>
+            <span class="spark-lbl">Apr</span>
+            <span class="spark-lbl">May</span>
+            <span class="spark-lbl">Jun</span>
+            <span class="spark-lbl">Jul</span>
+          </div>
+        </div>
+        <div style="margin-top:0.75rem; font-size:0.75rem; color:var(--sapContent_LabelColor);">
+          Autonomy improves as the model learns your collections patterns. Target: 92% by Q4.
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-card-title">Case outcomes — AI vs. human</div>
+        <div class="donut-wrap">
+          <div class="donut">
+            <div class="donut-center">
+              <div class="donut-pct">87%</div>
+              <div class="donut-sub">AI</div>
+            </div>
+          </div>
+          <div class="donut-legend">
+            <div class="legend-item">
+              <div class="legend-dot green"></div>
+              <span>AI resolved <span class="legend-val">2,381</span></span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-dot red"></div>
+              <span>Human required <span class="legend-val">356</span></span>
+            </div>
+          </div>
+        </div>
+        <div class="divider" style="margin:1rem 0;"></div>
+        <div class="bar-chart">
+          <div class="chart-card-title" style="margin-bottom:0.5rem;">Top blockers requiring human input</div>
+          <div class="bar-row">
+            <div class="bar-label">Dispute</div>
+            <div class="bar-track"><div class="bar-fill" style="width:72%"></div></div>
+            <div class="bar-value">142 cases</div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label">Legal</div>
+            <div class="bar-track"><div class="bar-fill accent" style="width:42%"></div></div>
+            <div class="bar-value">83 cases</div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label">Partial</div>
+            <div class="bar-track"><div class="bar-fill" style="width:33%"></div></div>
+            <div class="bar-value">65 cases</div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label">Other</div>
+            <div class="bar-track"><div class="bar-fill secondary" style="width:18%"></div></div>
+            <div class="bar-value">34 cases</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:1rem;">
+      <div class="chart-card">
+        <div class="chart-card-title">Human labor hours — monthly trend (AI displacement)</div>
+        <div class="bar-chart">
+          <div class="bar-row">
+            <div class="bar-label">Oct</div>
+            <div class="bar-track" style="height:28px;"><div class="bar-fill secondary" style="width:18%"></div></div>
+            <div class="bar-value" style="color:var(--sapContent_LabelColor);">AI: 18%</div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label">Jan</div>
+            <div class="bar-track" style="height:28px;"><div class="bar-fill secondary" style="width:48%"></div></div>
+            <div class="bar-value" style="color:var(--sapContent_LabelColor);">AI: 48%</div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label">Apr</div>
+            <div class="bar-track" style="height:28px;"><div class="bar-fill secondary" style="width:73%"></div></div>
+            <div class="bar-value" style="color:var(--sapContent_LabelColor);">AI: 73%</div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label">Jul</div>
+            <div class="bar-track" style="height:28px;"><div class="bar-fill secondary" style="width:87%"></div></div>
+            <div class="bar-value" style="color:var(--sapPositiveColor);">AI: 87%</div>
+          </div>
+        </div>
+        <div style="margin-top:0.75rem; font-size:0.75rem; color:var(--sapContent_LabelColor);">
+          Blue bar = share of work handled by AI. Human-only effort (remaining) represents your remaining optimization headroom.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       SECTION 3 — FINANCIAL OPTIMIZER
+  ════════════════════════════════════════════════ -->
+  <div>
+    <div class="section-title">
+      Financial Optimizer
+      <span class="section-badge">3 Insights</span>
+    </div>
+
+    <div class="tip-list">
+      <div class="tip-card">
+        <div class="tip-icon-wrap green">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z" fill="var(--sapPositiveColor, #188918)"/>
+          </svg>
+        </div>
+        <div class="tip-body">
+          <div class="tip-title">Increase token budget for Tier-1 overdue accounts</div>
+          <div class="tip-text">
+            Your highest-value overdue accounts (&gt;$50K) have a 94% AI resolution rate but consume only 12% of your token budget. Allocating an additional 15% of monthly token credits to this segment would resolve an estimated 28 more cases per month — currently being manually escalated due to model timeout limits.
+          </div>
+          <div class="tip-impact positive">Estimated additional saving: +$8,200/month</div>
+        </div>
+      </div>
+
+      <div class="tip-card">
+        <div class="tip-icon-wrap orange">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z" fill="var(--sapWarningColor, #e76500)"/>
+          </svg>
+        </div>
+        <div class="tip-body">
+          <div class="tip-title">Dispute escalations are your largest cost sink</div>
+          <div class="tip-text">
+            142 dispute cases required human intervention this period — representing 40% of all escalations but 61% of your total human labor cost. These cases average 4.8 hrs of manual work each. Enabling structured dispute intake (guided form at first contact) could reduce the unresolved dispute rate by an estimated 35%.
+          </div>
+          <div class="tip-impact warning">Potential recovery: +$12,600/quarter</div>
+        </div>
+      </div>
+
+      <div class="tip-card">
+        <div class="tip-icon-wrap blue">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14l-5-5 1.41-1.41L12 14.17l7.59-7.59L21 8l-9 9z" fill="var(--sapButton_Emphasized_Background, #0064d9)"/>
+          </svg>
+        </div>
+        <div class="tip-body">
+          <div class="tip-title">Q4 planning: model ROI projects to 9.1× at current growth</div>
+          <div class="tip-text">
+            Based on the past 9 months of trend data, autonomy rate is growing at ~1.2 pts/month. If this trajectory holds, your Q4 ROI multiple is projected at 9.1× — meaning the platform will generate approximately $114K in net savings per quarter at current case volume. No additional investment required.
+          </div>
+          <div class="tip-impact positive">Q4 projected net benefit: ~$114,000</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

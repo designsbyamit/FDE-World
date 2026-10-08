@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart List</title>
+  <script src="panel-init.js"></script>
+  <script type="module" src="../../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 600; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 300; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Light.woff2") format("woff2"); }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "72", sans-serif; font-size: 0.875rem; background: var(--sapBackgroundColor, #f5f6f7); padding: 2rem; color: var(--sapTextColor, #131e29); }
+    .panel-title { font-size: 1.5rem; font-weight: 700; color: #131e29; margin-bottom: 0.375rem; }
+    .panel-subtitle { font-size: 0.8125rem; color: var(--sapContent_LabelColor, #6a7588); margin-bottom: 2rem; }
+    .demo-section { background: #fff; border: 1px solid var(--sapList_BorderColor, #e5e5e5); border-radius: 8px; margin-bottom: 1.25rem; overflow: hidden; }
+    .demo-section-header { padding: 0.75rem 1rem; border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5); font-size: 0.8125rem; font-weight: 600; color: var(--sapContent_LabelColor, #6a7588); display: flex; align-items: center; justify-content: space-between; }
+    .demo-section-tag { font-family: monospace; font-size: 0.75rem; color: #0064d9; font-weight: 400; }
+    .demo-section-body { padding: 1.25rem 1rem; display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: flex-start; }
+    .demo-section-body.column { flex-direction: column; }
+    .demo-section-body.block { display: block; padding: 0; }
+  </style>
+</head>
+<body>
+  <div class="panel-title">Smart List</div>
+  <div class="panel-subtitle">A list bound to an OData entity set that auto-generates list items from metadata. Shows row count, a full-screen button, and auto-binding. Equivalent to sap.ui.comp.smartlist.SmartList — rendered as a ui5-list with standard list items.</div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">
+      Customers List — auto-bound entity set
+      <span class="demo-section-tag">sap.ui.comp.smartlist · StandardListItem · showRowCount</span>
+    </div>
+    <div class="demo-section-body block" style="padding:0;">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:0.5rem 0.875rem;border-bottom:1px solid var(--sapList_BorderColor,#e5e5e5);">
+        <span style="font-size:1rem;font-weight:700;">Customers List (6)</span>
+        <ui5-button design="Transparent" icon="full-screen" tooltip="Full Screen"></ui5-button>
+      </div>
+      <ui5-list>
+        <ui5-li description="2024" additional-text="10000.00" additional-text-state="Positive">C001 · Company Alpha</ui5-li>
+        <ui5-li description="2024" additional-text="8500.50" additional-text-state="Positive">C002 · Beta GmbH</ui5-li>
+        <ui5-li description="2023" additional-text="3200.00" additional-text-state="None">C003 · Gamma Ltd.</ui5-li>
+        <ui5-li description="2024" additional-text="15750.75" additional-text-state="Positive">C004 · Delta Corp.</ui5-li>
+        <ui5-li description="2023" additional-text="980.00" additional-text-state="Critical">C005 · Epsilon AG</ui5-li>
+        <ui5-li description="2024" additional-text="22100.00" additional-text-state="Positive">C006 · Zeta Industries</ui5-li>
+      </ui5-list>
+    </div>
+  </div>
+</body>
+</html>

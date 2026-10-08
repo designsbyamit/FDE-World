@@ -1,0 +1,14 @@
+{
+  "projects": [
+    {
+      "slug": "fde-collections",
+      "name": "FDE Collections",
+      "status": "Active",
+      "description": "Collections agent portal, Fiori prototypes, design briefs and the UI5 starter kit.",
+      "links": [
+        { "label": "Collections Agent Portal", "href": "fde-collections/Projects/Collections%20Agent%20Portal/" },
+        { "label": "Project home", "href": "fde-collections/" }
+      ]
+    }
+  ]
+}

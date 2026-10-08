@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chart Container</title>
+  <script src="panel-init.js"></script>
+  <script type="module" src="../../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 600; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 300; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Light.woff2") format("woff2"); }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "72", sans-serif; font-size: 0.875rem; background: var(--sapBackgroundColor, #f5f6f7); padding: 2rem; color: var(--sapTextColor, #131e29); }
+    .panel-title { font-size: 1.5rem; font-weight: 700; color: #131e29; margin-bottom: 0.375rem; }
+    .panel-subtitle { font-size: 0.8125rem; color: var(--sapContent_LabelColor, #6a7588); margin-bottom: 2rem; }
+    .demo-section { background: #fff; border: 1px solid var(--sapList_BorderColor, #e5e5e5); border-radius: 8px; margin-bottom: 1.25rem; overflow: hidden; }
+    .demo-section-header { padding: 0.75rem 1rem; border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5); font-size: 0.8125rem; font-weight: 600; color: var(--sapContent_LabelColor, #6a7588); display: flex; align-items: center; justify-content: space-between; }
+    .demo-section-tag { font-family: monospace; font-size: 0.75rem; color: #0064d9; font-weight: 400; }
+    .demo-section-body { padding: 1.25rem 1rem; display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: flex-start; }
+    .demo-section-body.column { flex-direction: column; }
+    .demo-section-body.block { display: block; padding: 0; }
+  </style>
+</head>
+<body>
+  <div class="panel-title">Chart Container</div>
+  <div class="panel-subtitle">A toolbar-equipped container for charts with fullscreen, view switching, and personalization controls. No Web Components equivalent — rendered using custom HTML + inline SVG chart. Equivalent to sap.suite.ui.commons.ChartContainer + sap.viz.ui5.controls.VizFrame.</div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">
+      Revenue — Line Chart with Container Toolbar
+      <span class="demo-section-tag">Custom HTML · SVG chart · sap.suite.ui.commons.ChartContainer</span>
+    </div>
+    <div class="demo-section-body block" style="padding:0;">
+      <div style="border:1px solid var(--sapList_BorderColor,#e5e5e5); border-radius:8px; overflow:hidden; background:#fff;">
+
+        <div style="display:flex; align-items:center; gap:0.5rem; padding:0.5rem 0.75rem; border-bottom:1px solid var(--sapList_BorderColor,#e5e5e5); background:var(--sapBackgroundColor,#f5f6f7);">
+          <span style="flex:1; font-size:1rem; font-weight:700; color:var(--sapTextColor,#131e29);">Revenue</span>
+          <ui5-button design="Transparent" icon="line-chart" tooltip="Line Chart" pressed></ui5-button>
+          <ui5-button design="Transparent" icon="bar-chart" tooltip="Bar Chart"></ui5-button>
+          <div style="width:1px;height:1.25rem;background:var(--sapList_BorderColor,#e5e5e5);"></div>
+          <ui5-button design="Transparent" icon="full-screen" tooltip="Full Screen"></ui5-button>
+        </div>
+
+        <div style="padding:1rem 1.25rem 0.75rem;">
+          <svg viewBox="0 0 560 280" width="100%" style="overflow:visible;" aria-label="Revenue line chart">
+            <line x1="50" y1="20" x2="50" y2="240" stroke="#e5e5e5" stroke-width="1"/>
+            <line x1="50" y1="20" x2="540" y2="20" stroke="#e5e5e5" stroke-width="1" stroke-dasharray="4,3"/>
+            <line x1="50" y1="75" x2="540" y2="75" stroke="#e5e5e5" stroke-width="1" stroke-dasharray="4,3"/>
+            <line x1="50" y1="130" x2="540" y2="130" stroke="#e5e5e5" stroke-width="1" stroke-dasharray="4,3"/>
+            <line x1="50" y1="185" x2="540" y2="185" stroke="#e5e5e5" stroke-width="1" stroke-dasharray="4,3"/>
+            <line x1="50" y1="240" x2="540" y2="240" stroke="#e5e5e5" stroke-width="1"/>
+            <text x="44" y="24" text-anchor="end" font-size="11" fill="#6a7588">500K</text>
+            <text x="44" y="79" text-anchor="end" font-size="11" fill="#6a7588">400K</text>
+            <text x="44" y="134" text-anchor="end" font-size="11" fill="#6a7588">300K</text>
+            <text x="44" y="189" text-anchor="end" font-size="11" fill="#6a7588">200K</text>
+            <text x="44" y="244" text-anchor="end" font-size="11" fill="#6a7588">100K</text>
+            <text x="90"  y="258" text-anchor="middle" font-size="11" fill="#6a7588">Jan</text>
+            <text x="170" y="258" text-anchor="middle" font-size="11" fill="#6a7588">Feb</text>
+            <text x="250" y="258" text-anchor="middle" font-size="11" fill="#6a7588">Mar</text>
+            <text x="330" y="258" text-anchor="middle" font-size="11" fill="#6a7588">Apr</text>
+            <text x="410" y="258" text-anchor="middle" font-size="11" fill="#6a7588">May</text>
+            <text x="490" y="258" text-anchor="middle" font-size="11" fill="#6a7588">Jun</text>
+            <polygon points="90,185 170,155 250,100 330,120 410,65 490,85 490,240 90,240" fill="#0064d9" opacity="0.08"/>
+            <polyline points="90,185 170,155 250,100 330,120 410,65 490,85" fill="none" stroke="#0064d9" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+            <circle cx="90"  cy="185" r="4" fill="#fff" stroke="#0064d9" stroke-width="2.5"/>
+            <circle cx="170" cy="155" r="4" fill="#fff" stroke="#0064d9" stroke-width="2.5"/>
+            <circle cx="250" cy="100" r="4" fill="#fff" stroke="#0064d9" stroke-width="2.5"/>
+            <circle cx="330" cy="120" r="4" fill="#fff" stroke="#0064d9" stroke-width="2.5"/>
+            <circle cx="410" cy="65"  r="4" fill="#fff" stroke="#0064d9" stroke-width="2.5"/>
+            <circle cx="490" cy="85"  r="4" fill="#fff" stroke="#0064d9" stroke-width="2.5"/>
+            <text x="90"  y="178" text-anchor="middle" font-size="11" fill="#0064d9" font-weight="600">220K</text>
+            <text x="170" y="148" text-anchor="middle" font-size="11" fill="#0064d9" font-weight="600">265K</text>
+            <text x="250" y="93"  text-anchor="middle" font-size="11" fill="#0064d9" font-weight="600">355K</text>
+            <text x="330" y="113" text-anchor="middle" font-size="11" fill="#0064d9" font-weight="600">320K</text>
+            <text x="410" y="58"  text-anchor="middle" font-size="11" fill="#0064d9" font-weight="600">420K</text>
+            <text x="490" y="78"  text-anchor="middle" font-size="11" fill="#0064d9" font-weight="600">390K</text>
+          </svg>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:0.5rem; padding:0 1.25rem 0.75rem; font-size:0.75rem; color:var(--sapContent_LabelColor,#6a7588);">
+          <span style="display:inline-block;width:20px;height:3px;background:#0064d9;border-radius:2px;"></span>
+          Revenue (EUR)
+        </div>
+
+      </div>
+    </div>
+  </div>
+</body>
+</html>

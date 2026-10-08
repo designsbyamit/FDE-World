@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <script src="panel-init.js"></script>
+  <script type="module" src="../../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 600; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 300; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Light.woff2") format("woff2"); }
+    body { font-family: "72", sans-serif; font-size: 0.875rem; background: #f5f6f7; color: #131e29; margin: 0; padding: 2rem; }
+    .panel-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .panel-subtitle { font-size: 0.875rem; color: #6a7588; margin-bottom: 2rem; }
+    .demo-section { margin-bottom: 2rem; }
+    .demo-section-header { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #6a7588; margin-bottom: 1rem; padding-bottom: 0.375rem; border-bottom: 1px solid #e5e5e5; }
+    .demo-section-body { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 0.75rem; }
+    ui5-button { --sapButton_FontFamily: "72", sans-serif; }
+    ui5-button::part(text) { font-family: "72", sans-serif; font-weight: 400; }
+
+    .tc-wrap { border: 1px solid #e5e5e5; border-radius: 6px; overflow: hidden; background: #fff; }
+    .tc-strip { display: flex; align-items: stretch; background: #f5f6f7; border-bottom: 1px solid #e5e5e5; padding: 0 0.5rem; gap: 0.25rem; }
+    .tc-tab { display: flex; align-items: center; gap: 0.5rem; padding: 0.625rem 0.875rem; cursor: pointer; border-bottom: 2px solid transparent; font-size: 0.875rem; }
+    .tc-tab.active { border-bottom-color: #0064d9; font-weight: 600; }
+    .tc-tab-close { color: #6a7588; font-size: 0.75rem; cursor: pointer; padding: 0 0.1rem; }
+    .tc-add { margin-left: auto; display: flex; align-items: center; padding: 0 0.375rem; }
+    .tc-content { padding: 1.25rem; display: none; grid-template-columns: 120px 1fr; gap: 0.5rem 0.75rem; align-items: center; }
+    .tc-content.active { display: grid; }
+  </style>
+</head>
+<body>
+
+  <div class="panel-title">Tab Container</div>
+  <div class="panel-subtitle">A tabbed editor for multiple items — tabs can be added, closed, and switched between. Each tab shows editable form content.</div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">Multi-Tab Employee Editor</div>
+    <div class="demo-section-body" style="width:100%;">
+      <div class="tc-wrap" style="width:100%;">
+        <div class="tc-strip" id="tc-strip">
+          <div class="tc-tab active" id="tc-tab-0" onclick="tcSelect(0)">
+            <span>John Miller</span>
+            <span class="tc-tab-close" onclick="tcClose(event,0)">&#10005;</span>
+          </div>
+          <div class="tc-tab" id="tc-tab-1" onclick="tcSelect(1)">
+            <span>Jane Smith</span>
+            <span class="tc-tab-close" onclick="tcClose(event,1)">&#10005;</span>
+          </div>
+          <div class="tc-tab" id="tc-tab-2" onclick="tcSelect(2)">
+            <span style="color:#e87a00;font-weight:600;">&#9679;</span>
+            <span>Bob Brown</span>
+            <span class="tc-tab-close" onclick="tcClose(event,2)">&#10005;</span>
+          </div>
+          <div class="tc-add" id="tc-add-wrap">
+            <ui5-button design="Transparent" icon="add" tooltip="Add new tab" onclick="tcAddNew()"></ui5-button>
+          </div>
+        </div>
+        <div class="tc-content active" id="tc-content-0">
+          <ui5-label>First Name:</ui5-label><ui5-input value="John"></ui5-input>
+          <ui5-label>Last Name:</ui5-label><ui5-input value="Miller"></ui5-input>
+          <ui5-label>Salary:</ui5-label><ui5-input value="62,000" suffix="EUR"></ui5-input>
+        </div>
+        <div class="tc-content" id="tc-content-1">
+          <ui5-label>First Name:</ui5-label><ui5-input value="Jane"></ui5-input>
+          <ui5-label>Last Name:</ui5-label><ui5-input value="Smith"></ui5-input>
+          <ui5-label>Salary:</ui5-label><ui5-input value="58,500" suffix="EUR"></ui5-input>
+        </div>
+        <div class="tc-content" id="tc-content-2">
+          <ui5-label>First Name:</ui5-label><ui5-input value="Bob"></ui5-input>
+          <ui5-label>Last Name:</ui5-label><ui5-input value="Brown"></ui5-input>
+          <ui5-label>Salary:</ui5-label><ui5-input value="71,200" suffix="EUR"></ui5-input>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    var tcActive = 0;
+    var tcClosed = [];
+    var tcNextId = 3;
+
+    function tcSelect(idx) {
+      if (tcClosed.includes(idx)) return;
+      tcActive = idx;
+      for (var i = 0; i < tcNextId; i++) {
+        var tab = document.getElementById('tc-tab-' + i);
+        var content = document.getElementById('tc-content-' + i);
+        if (tab) tab.classList.toggle('active', i === idx);
+        if (content) content.classList.toggle('active', i === idx);
+      }
+    }
+
+    function tcClose(e, idx) {
+      e.stopPropagation();
+      tcClosed.push(idx);
+      var tab = document.getElementById('tc-tab-' + idx);
+      var content = document.getElementById('tc-content-' + idx);
+      if (tab) tab.style.display = 'none';
+      if (content) { content.classList.remove('active'); content.style.display = 'none'; }
+      if (tcActive === idx) {
+        for (var i = 0; i < tcNextId; i++) {
+          if (!tcClosed.includes(i)) { tcSelect(i); break; }
+        }
+      }
+    }
+
+    function tcAddNew() {
+      var strip = document.getElementById('tc-strip');
+      var addWrap = document.getElementById('tc-add-wrap');
+      var idx = tcNextId++;
+      var tab = document.createElement('div');
+      tab.id = 'tc-tab-' + idx;
+      tab.className = 'tc-tab';
+      tab.innerHTML = '<span>New Employee</span><span class="tc-tab-close" onclick="tcClose(event,' + idx + ')">&#10005;</span>';
+      tab.onclick = function() { tcSelect(idx); };
+      strip.insertBefore(tab, addWrap);
+      var c = document.createElement('div');
+      c.id = 'tc-content-' + idx;
+      c.className = 'tc-content';
+      c.innerHTML = '<ui5-label>First Name:</ui5-label><ui5-input></ui5-input><ui5-label>Last Name:</ui5-label><ui5-input></ui5-input><ui5-label>Salary:</ui5-label><ui5-input suffix="EUR"></ui5-input>';
+      document.querySelector('.tc-wrap').appendChild(c);
+      tcSelect(idx);
+    }
+  </script>
+
+</body>
+</html>

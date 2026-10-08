@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Supervisor Dashboard v3 — Collection Assistant</title>
+  <link rel="icon" href="../../lib/assets/favicon.ico">
+
+  <script data-ui5-config type="application/json">{ "theme": "sap_horizon" }</script>
+  <script type="module" src="../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <script src="../../lib/shared/shellbar.js"></script>
+
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 600; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 300; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Light.woff2") format("woff2"); }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { font-family: "72", sans-serif; background: var(--sapBackgroundColor, #f5f6f7); color: var(--sapTextColor, #131e29); min-height: 100vh; }
+
+    /* ── Chart palette tokens ── */
+    .viz-root {
+      --series-agent:  #2a78d6;
+      --series-legacy: #008300;
+      --surface-chart: #ffffff;
+      --grid:          #e1e0d9;
+      --axis:          #c3c2b7;
+      --ink-primary:   #131e29;
+      --ink-secondary: #556b82;
+      --ink-muted:     #8a98a4;
+    }
+
+    /* ── Page layout ── */
+    .page-header {
+      padding: 1rem 2rem 1.125rem;
+      background: var(--sapBaseColor, #fff);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      position: sticky; top: 44px; z-index: 50;
+    }
+    .page-header-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+    .page-title { font-size: 1.5rem; font-weight: 700; }
+    .page-subtitle { font-size: 0.8125rem; color: var(--sapContent_LabelColor); margin-top: 0.2rem; }
+    .page-content { padding: 1.75rem 2rem 3rem; max-width: 1400px; }
+
+    /* ── Section label ── */
+    .section-label {
+      font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+      color: var(--sapContent_LabelColor); margin-bottom: 0.75rem; padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--sapList_BorderColor);
+    }
+
+    /* ── KPI tiles ── */
+    .kpi-strip { display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
+    .kpi-tile {
+      background: #fff; border: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      border-radius: 0.75rem; padding: 1.125rem 1.375rem;
+      flex: 1; min-width: 160px;
+    }
+    .kpi-tile-eyebrow { font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--sapContent_LabelColor); margin-bottom: 0.375rem; }
+    .kpi-tile-value { font-size: 2rem; font-weight: 700; line-height: 1.1; color: var(--sapTextColor); }
+    .kpi-tile-value.positive { color: #107e3e; }
+    .kpi-tile-value.brand { color: var(--sapBrandColor, #0070f2); }
+    .kpi-tile-sub { font-size: 0.75rem; color: var(--sapContent_LabelColor); margin-top: 0.25rem; }
+    .kpi-tile-delta {
+      display: inline-flex; align-items: center; gap: 0.2rem;
+      font-size: 0.75rem; font-weight: 600; margin-top: 0.375rem;
+    }
+    .kpi-tile-delta.up { color: #107e3e; }
+    .kpi-tile-delta.down { color: var(--sapNegativeColor, #bb0000); }
+
+    /* ── Chart card ── */
+    .chart-card {
+      background: #fff; border: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      border-radius: 0.75rem; padding: 1.25rem 1.5rem; margin-bottom: 2rem;
+    }
+    .chart-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 1.25rem; flex-wrap: wrap; }
+    .chart-title { font-size: 1rem; font-weight: 600; }
+    .chart-subtitle { font-size: 0.8125rem; color: var(--sapContent_LabelColor); margin-top: 0.2rem; }
+
+    /* Toggle between Revenue / Count */
+    .toggle-group { display: flex; border: 1px solid var(--sapList_BorderColor, #e5e5e5); border-radius: 0.375rem; overflow: hidden; }
+    .toggle-btn {
+      padding: 0.35rem 0.875rem; font-size: 0.8125rem; font-family: "72", sans-serif;
+      cursor: pointer; border: none; background: none; color: var(--sapContent_LabelColor);
+      white-space: nowrap; transition: background 0.15s, color 0.15s;
+    }
+    .toggle-btn.active { background: var(--sapBrandColor, #0070f2); color: #fff; font-weight: 600; }
+    .toggle-btn:not(.active):hover { background: var(--sapList_HoverBackground, #f0f2f5); }
+
+    /* ── Chart legend ── */
+    .chart-legend { display: flex; align-items: center; gap: 1.25rem; flex-wrap: wrap; margin-bottom: 1rem; }
+    .legend-item { display: flex; align-items: center; gap: 0.4rem; font-size: 0.8125rem; color: var(--sapTextColor); }
+    .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+    /* ── SVG chart ── */
+    .chart-svg-wrap { position: relative; width: 100%; }
+    .chart-svg-wrap svg { display: block; width: 100%; overflow: visible; }
+
+    /* Tooltip */
+    .chart-tooltip {
+      position: fixed; pointer-events: none; z-index: 200;
+      background: #fff; border: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      border-radius: 0.375rem; padding: 0.5rem 0.75rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+      font-size: 0.8125rem; white-space: nowrap; display: none;
+    }
+    .tt-month { font-weight: 700; margin-bottom: 0.3rem; }
+    .tt-row { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.2rem; }
+    .tt-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .tt-label { color: var(--sapContent_LabelColor); }
+    .tt-val { font-weight: 600; margin-left: auto; padding-left: 1rem; }
+
+    /* Crosshair */
+    .crosshair { display: none; position: absolute; top: 0; bottom: 0; width: 1px; background: #c3c2b7; pointer-events: none; }
+
+    /* ── Recommendation snapshot card ── */
+    .rec-snapshot {
+      background: #fff; border: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      border-radius: 0.75rem; padding: 1.125rem 1.5rem;
+      display: flex; align-items: center; gap: 2rem; margin-bottom: 2rem; flex-wrap: wrap;
+    }
+    .rec-donut-wrap { position: relative; flex-shrink: 0; }
+    .rec-donut-center {
+      position: absolute; inset: 0; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; pointer-events: none;
+    }
+    .rec-donut-total { font-size: 1.375rem; font-weight: 700; line-height: 1; color: var(--sapTextColor); }
+    .rec-donut-label { font-size: 0.625rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--sapContent_LabelColor); margin-top: 0.1rem; }
+    .rec-stats { display: flex; gap: 2rem; flex-wrap: wrap; flex: 1; }
+    .rec-stat { display: flex; flex-direction: column; gap: 0.2rem; }
+    .rec-stat-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 0.35rem; vertical-align: middle; }
+    .rec-stat-label { font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--sapContent_LabelColor); }
+    .rec-stat-value { font-size: 1.5rem; font-weight: 700; line-height: 1.1; }
+    .rec-stat-value.accepted  { color: #2a78d6; }
+    .rec-stat-value.discarded { color: var(--sapNegativeColor, #bb0000); }
+    .rec-stat-value.deferred  { color: #6b21a8; }
+    .rec-stat-sub { font-size: 0.75rem; color: var(--sapContent_LabelColor); }
+    .rec-divider { width: 1px; height: 56px; background: var(--sapList_BorderColor, #e5e5e5); flex-shrink: 0; align-self: center; }
+
+    /* ── Bottom grid: strategies + adoption ── */
+    .bottom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 2rem; }
+    @media (max-width: 900px) { .bottom-grid { grid-template-columns: 1fr; } }
+
+    /* ── Strategy card ── */
+    .strategy-row {
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 0.75rem 0; border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5);
+    }
+    .strategy-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .strategy-rank { font-size: 0.75rem; font-weight: 700; color: var(--sapContent_LabelColor); width: 18px; flex-shrink: 0; text-align: right; }
+    .strategy-info { flex: 1; min-width: 0; }
+    .strategy-name { font-size: 0.875rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .strategy-detail { font-size: 0.75rem; color: var(--sapContent_LabelColor); margin-top: 0.125rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .strategy-bar-wrap { width: 90px; flex-shrink: 0; }
+    .strategy-bar-track { height: 6px; background: var(--sapList_BorderColor, #e5e5e5); border-radius: 3px; overflow: hidden; }
+    .strategy-bar-fill { height: 100%; border-radius: 3px; background: var(--sapBrandColor, #0070f2); }
+    .strategy-pct { font-size: 0.8125rem; font-weight: 700; color: var(--sapTextColor); text-align: right; width: 34px; flex-shrink: 0; }
+
+    /* ── Adoption table ── */
+    .adoption-row {
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 0.625rem 0; border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5);
+    }
+    .adoption-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .adoption-row.header { padding-bottom: 0.5rem; border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5); }
+    .adoption-team { flex: 1; font-size: 0.875rem; font-weight: 600; }
+    .adoption-team.label { font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--sapContent_LabelColor); }
+    .adoption-stat { width: 54px; text-align: right; font-size: 0.8125rem; font-weight: 600; flex-shrink: 0; }
+    .adoption-stat.label { font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--sapContent_LabelColor); }
+    .adoption-bar-wrap { width: 80px; flex-shrink: 0; }
+    .adoption-bar-track { height: 6px; background: var(--sapList_BorderColor, #e5e5e5); border-radius: 3px; overflow: hidden; }
+    .adoption-chip {
+      display: inline-flex; align-items: center; padding: 0.125rem 0.5rem;
+      border-radius: 20px; font-size: 0.6875rem; font-weight: 700; white-space: nowrap;
+    }
+    .chip-high   { background: #e4f5ec; color: #107e3e; }
+    .chip-medium { background: #fef5e0; color: #7a4a0f; }
+    .chip-low    { background: #fde8e8; color: #9e0000; }
+  </style>
+</head>
+<body>
+
+  <app-shellbar title="Collection Assistant" avatar-initials="JL" hide-product-switch base-path="../../" style="position:sticky;top:0;z-index:100;"></app-shellbar>
+
+  <div class="page-header">
+    <div class="page-header-row">
+      <div>
+        <div class="page-title">Supervisor Dashboard</div>
+        <div class="page-subtitle">Sep 1, 2026 &nbsp;·&nbsp; Fiscal Year to Date</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:0.625rem">
+        <div class="toggle-group" id="dateRangePicker">
+          <button class="toggle-btn active" onclick="setRange(this,'week')">This Week</button>
+          <button class="toggle-btn" onclick="setRange(this,'month')">This Month</button>
+          <button class="toggle-btn" onclick="setRange(this,'quarter')">This Quarter</button>
+          <button class="toggle-btn" onclick="setRange(this,'ytd')">YTD</button>
+        </div>
+        <ui5-button design="Default" icon="download" style="height:32px">Export</ui5-button>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-content">
+
+    <!-- ── KPI Summary ── -->
+    <div class="section-label">Performance Summary</div>
+    <div class="kpi-strip">
+      <div class="kpi-tile">
+        <div class="kpi-tile-eyebrow">Collection Rate</div>
+        <div class="kpi-tile-value positive" id="kpiCollectionRate">82%</div>
+        <div class="kpi-tile-delta up" id="kpiCollectionRateDelta">Up 9% vs. prior period</div>
+        <div class="kpi-tile-sub">Of overdue balance recovered this period</div>
+      </div>
+      <div class="kpi-tile">
+        <div class="kpi-tile-eyebrow">Avg. Days to Collect</div>
+        <div class="kpi-tile-value" id="kpiDaysValue">24 <span style="font-size:1rem;font-weight:400;color:var(--sapContent_LabelColor)">days</span></div>
+        <div class="kpi-tile-delta up" id="kpiDaysDelta">Down 8 days vs. prior period</div>
+        <div class="kpi-tile-sub">Avg. time from due date to payment received</div>
+      </div>
+      <div class="kpi-tile">
+        <div class="kpi-tile-eyebrow">Recommendation Adoption</div>
+        <div class="kpi-tile-value brand" id="kpiAdoption">68%</div>
+        <div class="kpi-tile-delta up" id="kpiAdoptionDelta">Up 4% vs. prior period</div>
+        <div class="kpi-tile-sub">Of agent actions followed by collectors</div>
+      </div>
+      <div class="kpi-tile">
+        <div class="kpi-tile-eyebrow">Total Recovered</div>
+        <div class="kpi-tile-value" id="kpiTotalRecovered">£148.2M</div>
+        <div class="kpi-tile-delta up" id="kpiTotalRecoveredDelta">Up £22.4M vs. prior period</div>
+        <div class="kpi-tile-sub">Total overdue balance recovered this period</div>
+      </div>
+      <div class="kpi-tile">
+        <div class="kpi-tile-eyebrow">NBA-Attributed Recovery</div>
+        <div class="kpi-tile-value positive" id="kpiAIAttributed">34%</div>
+        <div class="kpi-tile-delta up" id="kpiAIAttributedDelta">Up 12% vs. prior period</div>
+        <div class="kpi-tile-sub">Of total collected credited to NBA recommendations</div>
+      </div>
+    </div>
+
+    <!-- ── Agent Recommendation Snapshot ── -->
+    <div class="section-label">Agent Recommendation Snapshot</div>
+    <div class="rec-snapshot">
+      <!-- Donut -->
+      <div class="rec-donut-wrap">
+        <svg id="recDonut" width="96" height="96" viewBox="0 0 96 96"></svg>
+        <div class="rec-donut-center">
+          <div class="rec-donut-total">500</div>
+          <div class="rec-donut-label">Total</div>
+        </div>
+      </div>
+
+      <div class="rec-divider"></div>
+
+      <!-- Stats -->
+      <div class="rec-stats">
+        <div class="rec-stat">
+          <div class="rec-stat-label"><span class="rec-stat-dot" style="background:#2a78d6"></span>Accepted</div>
+          <div class="rec-stat-value accepted" id="snapAccepted">300 <span style="font-size:1rem;font-weight:600;color:#2a78d6">60%</span></div>
+          <div class="rec-stat-sub" id="snapAcceptedSub">of 500 recommendations</div>
+        </div>
+        <div class="rec-divider"></div>
+        <div class="rec-stat">
+          <div class="rec-stat-label"><span class="rec-stat-dot" style="background:#bb0000"></span>Discarded</div>
+          <div class="rec-stat-value discarded" id="snapDiscarded">100 <span style="font-size:1rem;font-weight:600;color:#bb0000">20%</span></div>
+          <div class="rec-stat-sub" id="snapDiscardedSub">of 500 recommendations</div>
+        </div>
+        <div class="rec-divider"></div>
+        <div class="rec-stat">
+          <div class="rec-stat-label"><span class="rec-stat-dot" style="background:#6b21a8"></span>Deferred</div>
+          <div class="rec-stat-value deferred" id="snapDeferred">100 <span style="font-size:1rem;font-weight:600;color:#6b21a8">20%</span></div>
+          <div class="rec-stat-sub" id="snapDeferredSub">of 500 recommendations</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Performance Graph ── -->
+    <div class="section-label">NBA-Attributed vs. Unattributed Recovery</div>
+    <div class="chart-card viz-root">
+      <div class="chart-header">
+        <div>
+          <div class="chart-title">Recovery Performance Over Time</div>
+          <div class="chart-subtitle">Collections attributed to NBA recommendations vs. unattributed</div>
+        </div>
+        <div class="toggle-group" id="metricToggle">
+          <button class="toggle-btn active" onclick="setMetric('revenue', this)">Amount Collected</button>
+          <button class="toggle-btn" onclick="setMetric('count', this)">Invoice Count</button>
+        </div>
+      </div>
+
+      <div class="chart-legend">
+        <div class="legend-item"><div class="legend-dot" style="background:var(--series-agent)"></div>NBA-Attributed Recovery</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--series-legacy)"></div>Unattributed Recovery</div>
+      </div>
+
+      <div class="chart-svg-wrap" id="chartWrap">
+        <div class="crosshair" id="crosshair"></div>
+        <svg id="chartSvg" viewBox="0 0 880 280" preserveAspectRatio="none"></svg>
+      </div>
+    </div>
+
+    <!-- Tooltip -->
+    <div class="chart-tooltip" id="chartTooltip">
+      <div class="tt-month" id="ttMonth"></div>
+      <div class="tt-row"><div class="tt-dot" style="background:#2a78d6"></div><span class="tt-label">NBA-Attributed</span><span class="tt-val" id="ttAgent"></span></div>
+      <div class="tt-row"><div class="tt-dot" style="background:#008300"></div><span class="tt-label">Unattributed</span><span class="tt-val" id="ttLegacy"></span></div>
+    </div>
+
+    <!-- ── Bottom grid ── -->
+    <div class="bottom-grid">
+
+      <!-- Top Performing Strategies -->
+      <div class="chart-card" style="margin-bottom:0">
+        <div class="chart-header" style="margin-bottom:0.75rem">
+          <div>
+            <div class="chart-title">Top Performing AI Strategies</div>
+            <div class="chart-subtitle">By payment conversion success rate</div>
+          </div>
+        </div>
+        <div class="strategy-row" style="padding-top:0;border-bottom:1px solid var(--sapList_BorderColor,#e5e5e5);padding-bottom:0.5rem;margin-bottom:0">
+          <div class="strategy-rank"></div>
+          <div class="strategy-info"><span style="font-size:0.6875rem;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:var(--sapContent_LabelColor)">Strategy</span></div>
+          <div class="strategy-bar-wrap"></div>
+          <div class="strategy-pct" style="font-size:0.6875rem;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:var(--sapContent_LabelColor)">Rate</div>
+        </div>
+        <div id="strategiesList"></div>
+      </div>
+
+      <!-- Team Adoption Health -->
+      <div class="chart-card" style="margin-bottom:0">
+        <div class="chart-header" style="margin-bottom:0.75rem">
+          <div>
+            <div class="chart-title">Team Adoption</div>
+            <div class="chart-subtitle">Recommendation follow-through by collector pod</div>
+          </div>
+        </div>
+        <!-- Header row -->
+        <div class="adoption-row header">
+          <div class="adoption-team label">Team / Pod</div>
+          <div class="adoption-bar-wrap"></div>
+          <div class="adoption-stat label">Rate</div>
+        </div>
+        <div id="adoptionList"></div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <script>
+    /* ─── Data ─── */
+    // Anchor values per label. Expanded to many sub-points with noise in buildData().
+    // Stacked: agent = recommendation followed, legacy = no rec / ignored.
+    var RANGE_ANCHORS = {
+      week: {
+        labels: ['Mon','Tue','Wed','Thu','Fri'],
+        revenue: { agent: [1.72,1.85,1.78,1.91,1.82], legacy: [0.18,0.20,0.19,0.21,0.18] },
+        count:   { agent: [128,138,132,144,136],        legacy: [14,15,14,16,14] }
+      },
+      month: {
+        labels: ['W1','W2','W3','W4'],
+        revenue: { agent: [7.1,7.6,8.0,8.6],  legacy: [1.0,0.8,0.7,0.6] },
+        count:   { agent: [530,568,596,636],    legacy: [74,60,52,44] }
+      },
+      quarter: {
+        labels: ['Jul','Aug','Sep'],
+        revenue: { agent: [7.8,8.2,8.6], legacy: [1.4,1.0,0.6] },
+        count:   { agent: [580,610,636],  legacy: [104,74,44] }
+      },
+      ytd: {
+        labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep'],
+        revenue: {
+          agent:  [1.0, 2.2, 4.5, 5.8, 6.8, 7.4, 7.8, 8.2, 8.6],
+          legacy: [3.0, 4.2, 4.3, 3.8, 3.0, 2.2, 1.4, 1.0, 0.6]
+        },
+        count: {
+          agent:  [74,  164, 334, 430, 504, 550, 580, 610, 636],
+          legacy: [222, 312, 320, 282, 222, 164, 104,  74,  44]
+        }
+      }
+    };
+
+    // Seeded pseudo-random — same chart every render
+    function seededRand(seed) {
+      var s = seed;
+      return function() {
+        s = (s * 1664525 + 1013904223) & 0xffffffff;
+        return (s >>> 0) / 0xffffffff;
+      };
+    }
+
+    // Expand anchors into sub-points with noise, giving a stock-chart feel
+    function expand(anchors, stepsPerSegment, noiseAmp, randFn) {
+      var out = [];
+      for (var i = 0; i < anchors.length - 1; i++) {
+        var a = anchors[i], b = anchors[i + 1];
+        for (var s = 0; s < stepsPerSegment; s++) {
+          var t = s / stepsPerSegment;
+          var base = a + (b - a) * t;
+          var noise = (randFn() - 0.5) * 2 * noiseAmp * base;
+          out.push(Math.max(0, base + noise));
+        }
+      }
+      out.push(anchors[anchors.length - 1]);
+      return out;
+    }
+
+    function expandLabels(labels, steps) {
+      var out = [];
+      for (var i = 0; i < labels.length - 1; i++) {
+        for (var s = 0; s < steps; s++) out.push(s === 0 ? labels[i] : '');
+      }
+      out.push(labels[labels.length - 1]);
+      return out;
+    }
+
+    var RANGE_CONFIG = {
+      week:    { steps: 6,  noise: 0.05 },
+      month:   { steps: 7,  noise: 0.07 },
+      quarter: { steps: 10, noise: 0.09 },
+      ytd:     { steps: 8,  noise: 0.10 }
+    };
+
+    function buildData(range, metric) {
+      var a = RANGE_ANCHORS[range];
+      var cfg = RANGE_CONFIG[range];
+      var seed1 = range.charCodeAt(0) * 31 + metric.charCodeAt(0) * 17;
+      var seed2 = range.charCodeAt(0) * 53 + metric.charCodeAt(0) * 7;
+      return {
+        labels: expandLabels(a.labels, cfg.steps),
+        agent:  expand(a[metric].agent,  cfg.steps, cfg.noise, seededRand(seed1)),
+        legacy: expand(a[metric].legacy, cfg.steps, cfg.noise, seededRand(seed2))
+      };
+    }
+
+    var KPI_DATA = {
+      week: {
+        collectionRate: '82%', collectionRateDelta: 'Up 9% vs. prior period',
+        days: '24', daysDelta: 'Down 8 days vs. prior period',
+        adoption: '68%', adoptionDelta: 'Up 4% vs. prior period',
+        totalRecovered: '£148.2M', totalRecoveredDelta: 'Up £22.4M vs. prior period',
+        attributedPct: 34, attributedAmt: '£50.3M', legacyAmt: '£97.9M',
+        aiAttributed: '34%', aiAttributedDelta: 'Up 12% vs. prior period',
+        snap: { total: 487, accepted: 312, discarded: 94, deferred: 81 }
+      },
+      month: {
+        collectionRate: '79%', collectionRateDelta: 'Up 7% vs. prior period',
+        days: '27', daysDelta: 'Down 6 days vs. prior period',
+        adoption: '64%', adoptionDelta: 'Up 6% vs. prior period',
+        totalRecovered: '£612M', totalRecoveredDelta: 'Up £84M vs. prior period',
+        attributedPct: 28, attributedAmt: '£171M', legacyAmt: '£441M',
+        aiAttributed: '28%', aiAttributedDelta: 'Up 10% vs. prior period',
+        snap: { total: 2143, accepted: 1189, discarded: 541, deferred: 413 }
+      },
+      quarter: {
+        collectionRate: '74%', collectionRateDelta: 'Up 14% vs. prior quarter',
+        days: '31', daysDelta: 'Down 11 days vs. prior quarter',
+        adoption: '58%', adoptionDelta: 'Up 18% vs. prior quarter',
+        totalRecovered: '£1.84B', totalRecoveredDelta: 'Up £320M vs. prior quarter',
+        attributedPct: 21, attributedAmt: '£387M', legacyAmt: '£1.45B',
+        aiAttributed: '21%', aiAttributedDelta: 'Up 16% vs. prior quarter',
+        snap: { total: 6381, accepted: 2917, discarded: 1943, deferred: 1521 }
+      },
+      ytd: {
+        collectionRate: '71%', collectionRateDelta: 'Up 18% since Jan',
+        days: '34', daysDelta: 'Down 14 days since Jan',
+        adoption: '52%', adoptionDelta: 'Up 44% since Jan',
+        totalRecovered: '£7.2B', totalRecoveredDelta: 'Up £1.1B vs. prior year',
+        attributedPct: 16, attributedAmt: '£1.15B', legacyAmt: '£6.05B',
+        aiAttributed: '16%', aiAttributedDelta: 'Up 16% since Jan (was 0%)',
+        snap: { total: 24617, accepted: 8862, discarded: 8731, deferred: 7024 }
+      }
+    };
+
+    function renderKPIs(range) {
+      var d = KPI_DATA[range];
+      document.getElementById('kpiCollectionRate').textContent = d.collectionRate;
+      document.getElementById('kpiCollectionRateDelta').textContent = d.collectionRateDelta;
+      document.getElementById('kpiDaysValue').innerHTML = d.days + ' <span style="font-size:1rem;font-weight:400;color:var(--sapContent_LabelColor)">days</span>';
+      document.getElementById('kpiDaysDelta').textContent = d.daysDelta;
+      document.getElementById('kpiAdoption').textContent = d.adoption;
+      document.getElementById('kpiAdoptionDelta').textContent = d.adoptionDelta;
+      document.getElementById('kpiTotalRecovered').textContent = d.totalRecovered;
+      document.getElementById('kpiTotalRecoveredDelta').textContent = d.totalRecoveredDelta;
+      document.getElementById('kpiAIAttributed').textContent = d.aiAttributed;
+      document.getElementById('kpiAIAttributedDelta').textContent = d.aiAttributedDelta;
+      renderDonut(d.snap);
+    }
+
+
+
+    var STRATEGIES = [
+      { name: 'Early morning email (pre-9 AM)',  detail: 'Email · Timing trigger',          pct: 84 },
+      { name: 'Pre-due-date proactive outreach', detail: 'Multi-channel · Urgency: Low',    pct: 79 },
+      { name: 'Direct phone call',               detail: 'Phone · Urgency: High',           pct: 73 },
+      { name: 'Firm written deadline',           detail: 'Email · Urgency: High',           pct: 68 },
+      { name: 'Same-day invoice resolution',     detail: 'Email · Dispute trigger',         pct: 64 },
+      { name: 'Manager-level escalation',        detail: 'Phone · Escalation trigger',      pct: 57 },
+    ];
+
+    var TEAMS = [
+      { name: 'Pod Alpha', region: 'UK North',   recs: 142, adopted: 104, rate: 73 },
+      { name: 'Pod Beta',  region: 'UK South',   recs: 131, adopted:  92, rate: 70 },
+      { name: 'Pod Gamma', region: 'Nordics',    recs:  98, adopted:  63, rate: 64 },
+      { name: 'Pod Delta', region: 'Benelux',    recs: 115, adopted:  68, rate: 59 },
+      { name: 'Pod Epsilon',region: 'DACH',      recs: 109, adopted:  59, rate: 54 },
+      { name: 'Pod Zeta',  region: 'Iberia',     recs:  87, adopted:  41, rate: 47 },
+    ];
+
+    /* ─── Chart ─── */
+    var currentMetric = 'revenue';
+    var currentRange = 'week';
+    var PAD = { top: 20, right: 24, bottom: 36, left: 52 };
+    var W = 880, H = 280;
+    var plotW = W - PAD.left - PAD.right;
+    var plotH = H - PAD.top - PAD.bottom;
+    var AGENT_COLOR  = '#2a78d6';
+    var LEGACY_COLOR = '#008300';
+
+    function yScale(val, maxVal) {
+      return PAD.top + plotH - (val / maxVal) * plotH;
+    }
+    function xPos(i, n) {
+      return PAD.left + (i / (n - 1)) * plotW;
+    }
+    function pts(vals, maxVal, n) {
+      return vals.map(function(v, i) {
+        return xPos(i, n).toFixed(1) + ',' + yScale(v, maxVal).toFixed(1);
+      });
+    }
+
+    function renderChart(metric) {
+      var svg = document.getElementById('chartSvg');
+      var d = buildData(currentRange, metric);
+      var labels = d.labels;
+      var n = labels.length;
+
+      // stacked totals
+      var totals = d.agent.map(function(a, i) { return a + d.legacy[i]; });
+      var maxVal = Math.max.apply(null, totals) * 1.18;
+
+      var fmt = metric === 'revenue'
+        ? function(v) { return '£' + v.toFixed(1) + 'M'; }
+        : function(v) { return Math.round(v).toLocaleString(); };
+
+      var tickCount = 5;
+      var tickStep = maxVal / tickCount;
+      var html = '';
+
+      // Gridlines + Y labels
+      for (var t = 0; t <= tickCount; t++) {
+        var val = tickStep * t;
+        var y = yScale(val, maxVal).toFixed(1);
+        html += '<line x1="' + PAD.left + '" y1="' + y + '" x2="' + (W - PAD.right) + '" y2="' + y + '" stroke="#e1e0d9" stroke-width="1"/>';
+        var label = metric === 'revenue' ? '£' + val.toFixed(1) + 'M' : Math.round(val).toLocaleString();
+        html += '<text x="' + (PAD.left - 6) + '" y="' + (parseFloat(y) + 4) + '" text-anchor="end" font-size="11" font-family="72,sans-serif" fill="#8a98a4">' + label + '</text>';
+      }
+
+      // X labels — only render non-empty ones
+      labels.forEach(function(m, i) {
+        if (!m) return;
+        html += '<text x="' + xPos(i, n).toFixed(1) + '" y="' + (H - 6) + '" text-anchor="middle" font-size="11" font-family="72,sans-serif" fill="#8a98a4">' + m + '</text>';
+      });
+
+      // Baseline
+      var baseY = yScale(0, maxVal).toFixed(1);
+      html += '<line x1="' + PAD.left + '" y1="' + baseY + '" x2="' + (W - PAD.right) + '" y2="' + baseY + '" stroke="#c3c2b7" stroke-width="1"/>';
+
+      // ── Stacked areas ──
+      // bottom band (legacy/ignored): from 0 up to legacy[i]
+      // top band (agent/followed): from legacy[i] up to total[i]
+
+      var legacyTopPts = pts(d.legacy, maxVal, n);
+      var totalTopPts  = pts(totals, maxVal, n);
+      var agentTopPts  = d.agent.map(function(a, i) {
+        return xPos(i, n).toFixed(1) + ',' + yScale(totals[i], maxVal).toFixed(1);
+      });
+
+      // Legacy area (green, bottom)
+      var legacyArea = 'M ' + xPos(0, n).toFixed(1) + ',' + baseY
+        + ' ' + legacyTopPts.map(function(p, i) { return (i === 0 ? 'L' : 'L') + p; }).join(' ')
+        + ' L' + xPos(n-1, n).toFixed(1) + ',' + baseY + ' Z';
+      html += '<path d="' + legacyArea + '" fill="' + LEGACY_COLOR + '" fill-opacity="0.13"/>';
+
+      // Agent area (blue, stacked on top of legacy)
+      var agentArea = legacyTopPts.map(function(p, i) { return (i === 0 ? 'M' : 'L') + p; }).join(' ')
+        + ' ' + agentTopPts.slice().reverse().map(function(p, i) { return (i === 0 ? 'L' : 'L') + p; }).join(' ') + ' Z';
+      html += '<path d="' + agentArea + '" fill="' + AGENT_COLOR + '" fill-opacity="0.15"/>';
+
+      // Top line (total)
+      html += '<path d="' + totalTopPts.map(function(p, i) { return (i===0?'M':'L')+p; }).join(' ') + '" stroke="#c3c2b7" stroke-width="1" fill="none" stroke-dasharray="3,3"/>';
+
+      // Boundary line between bands (legacy top = agent bottom)
+      html += '<path d="' + legacyTopPts.map(function(p, i) { return (i===0?'M':'L')+p; }).join(' ') + '" stroke="' + LEGACY_COLOR + '" stroke-width="2" fill="none" stroke-linejoin="round"/>';
+
+      // Agent top line
+      html += '<path d="' + agentTopPts.map(function(p, i) { return (i===0?'M':'L')+p; }).join(' ') + '" stroke="' + AGENT_COLOR + '" stroke-width="2.5" fill="none" stroke-linejoin="round"/>';
+
+      // Hit areas — only at labelled positions
+      labels.forEach(function(m, i) {
+        if (!m) return;
+        var x = xPos(i, n);
+        html += '<rect x="' + (x - 28).toFixed(1) + '" y="' + PAD.top + '" width="56" height="' + plotH + '" fill="transparent" class="chart-hit"'
+          + ' data-month="' + m + '" data-agent="' + fmt(d.agent[i]) + '" data-legacy="' + fmt(d.legacy[i]) + '" data-total="' + fmt(totals[i]) + '" data-x="' + x.toFixed(1) + '"/>';
+      });
+
+      svg.innerHTML = html;
+
+      // Wire hover
+      svg.querySelectorAll('.chart-hit').forEach(function(el) {
+        el.addEventListener('mousemove', function(e) {
+          var tt = document.getElementById('chartTooltip');
+          document.getElementById('ttMonth').textContent = el.dataset.month;
+          document.getElementById('ttAgent').textContent = el.dataset.agent;
+          document.getElementById('ttLegacy').textContent = el.dataset.legacy;
+          tt.style.display = 'block';
+          tt.style.left = (e.clientX + 14) + 'px';
+          tt.style.top  = (e.clientY - 10) + 'px';
+          var wrap = document.getElementById('chartWrap');
+          var rect = wrap.getBoundingClientRect();
+          var svgRect = svg.getBoundingClientRect();
+          var scaleX = svgRect.width / W;
+          var cx = parseFloat(el.dataset.x) * scaleX;
+          var ch = document.getElementById('crosshair');
+          ch.style.display = 'block';
+          ch.style.left = (cx + svgRect.left - rect.left) + 'px';
+          ch.style.top = (svgRect.top - rect.top + PAD.top * svgRect.height / H) + 'px';
+          ch.style.height = (plotH * svgRect.height / H) + 'px';
+        });
+        el.addEventListener('mouseleave', function() {
+          document.getElementById('chartTooltip').style.display = 'none';
+          document.getElementById('crosshair').style.display = 'none';
+        });
+      });
+    }
+
+    function setMetric(metric, btn) {
+      currentMetric = metric;
+      document.querySelectorAll('#metricToggle .toggle-btn').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      renderChart(metric);
+    }
+
+    function setRange(btn, range) {
+      currentRange = range;
+      document.querySelectorAll('#dateRangePicker .toggle-btn').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      renderChart(currentMetric);
+      renderKPIs(range);
+    }
+
+    /* ─── Strategies ─── */
+    function renderStrategies() {
+      var container = document.getElementById('strategiesList');
+      container.innerHTML = STRATEGIES.map(function(s, i) {
+        return '<div class="strategy-row">'
+          + '<div class="strategy-rank">' + (i + 1) + '</div>'
+          + '<div class="strategy-info">'
+          + '<div class="strategy-name">' + s.name + '</div>'
+          + '<div class="strategy-detail">' + s.detail + '</div>'
+          + '</div>'
+          + '<div class="strategy-bar-wrap">'
+          + '<div class="strategy-bar-track"><div class="strategy-bar-fill" style="width:' + s.pct + '%"></div></div>'
+          + '</div>'
+          + '<div class="strategy-pct">' + s.pct + '%</div>'
+          + '</div>';
+      }).join('');
+    }
+
+    /* ─── Team adoption ─── */
+    function renderAdoption() {
+      var container = document.getElementById('adoptionList');
+      container.innerHTML = TEAMS.map(function(t) {
+        return '<div class="adoption-row">'
+          + '<div class="adoption-team"><div style="font-weight:600">' + t.name + '</div><div style="font-size:0.75rem;color:var(--sapContent_LabelColor);font-weight:400">' + t.region + '</div></div>'
+          + '<div class="adoption-bar-wrap"><div class="adoption-bar-track"><div class="strategy-bar-fill" style="width:' + t.rate + '%"></div></div></div>'
+          + '<div class="adoption-stat">' + t.rate + '%</div>'
+          + '</div>';
+      }).join('');
+    }
+
+    /* ─── Donut ─── */
+    function renderDonut(snap) {
+      if (!snap) snap = KPI_DATA['week'].snap;
+      var total = snap.total;
+      var acceptedPct = Math.round(snap.accepted / total * 100);
+      var discardedPct = Math.round(snap.discarded / total * 100);
+      var deferredPct = 100 - acceptedPct - discardedPct;
+      var svg = document.getElementById('recDonut');
+      var cx = 48, cy = 48, r = 38, stroke = 10;
+      var segments = [
+        { pct: snap.accepted / total, color: '#2a78d6' },
+        { pct: snap.discarded / total, color: '#bb0000' },
+        { pct: snap.deferred / total, color: '#6b21a8' }
+      ];
+      var gap = 0.012;
+      var startAngle = -Math.PI / 2;
+      var html = '';
+      segments.forEach(function(seg) {
+        var sweep = seg.pct * 2 * Math.PI - gap;
+        var endAngle = startAngle + sweep;
+        var x1 = cx + r * Math.cos(startAngle);
+        var y1 = cy + r * Math.sin(startAngle);
+        var x2 = cx + r * Math.cos(endAngle);
+        var y2 = cy + r * Math.sin(endAngle);
+        var largeArc = sweep > Math.PI ? 1 : 0;
+        html += '<path d="M ' + x1.toFixed(2) + ' ' + y1.toFixed(2)
+          + ' A ' + r + ' ' + r + ' 0 ' + largeArc + ' 1 ' + x2.toFixed(2) + ' ' + y2.toFixed(2) + '"'
+          + ' stroke="' + seg.color + '" stroke-width="' + stroke + '" fill="none" stroke-linecap="round"/>';
+        startAngle = endAngle + gap;
+      });
+      svg.innerHTML = html;
+      document.querySelector('.rec-donut-total').textContent = total >= 1000 ? (total / 1000).toFixed(1) + 'k' : total;
+      document.getElementById('snapAccepted').innerHTML = snap.accepted.toLocaleString() + ' <span style="font-size:1rem;font-weight:600;color:#2a78d6">' + acceptedPct + '%</span>';
+      document.getElementById('snapAcceptedSub').textContent = 'of ' + total.toLocaleString() + ' recommendations';
+      document.getElementById('snapDiscarded').innerHTML = snap.discarded.toLocaleString() + ' <span style="font-size:1rem;font-weight:600;color:#bb0000">' + discardedPct + '%</span>';
+      document.getElementById('snapDiscardedSub').textContent = 'of ' + total.toLocaleString() + ' recommendations';
+      document.getElementById('snapDeferred').innerHTML = snap.deferred.toLocaleString() + ' <span style="font-size:1rem;font-weight:600;color:#6b21a8">' + deferredPct + '%</span>';
+      document.getElementById('snapDeferredSub').textContent = 'of ' + total.toLocaleString() + ' recommendations';
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      renderKPIs('week');
+      renderChart('revenue');
+      renderStrategies();
+      renderAdoption();
+    });
+  </script>
+
+</body>
+</html>

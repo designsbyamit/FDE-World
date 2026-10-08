@@ -1,0 +1,1730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Institut Bergonié — Collection Assistant</title>
+  <link rel="icon" href="../../lib/assets/favicon.ico">
+
+  <script data-ui5-config type="application/json">
+    { "theme": "sap_horizon" }
+  </script>
+  <script type="module" src="../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <script src="../../lib/shared/shellbar.js"></script>
+
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 600; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 300; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Light.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 900; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Black.woff2") format("woff2"); }
+
+    ui5-button { --sapButton_FontFamily: "72", sans-serif; }
+    ui5-button::part(text) { font-family: "72", sans-serif; font-weight: 400; }
+
+    html, body {
+      margin: 0;
+      height: 100%;
+      font-family: "72", sans-serif;
+      background: var(--sapBackgroundColor);
+      color: var(--sapTextColor);
+    }
+
+    .app { display: flex; flex-direction: column; height: 100vh; }
+
+    /* ── Sub-header ── */
+    .sub-header {
+      background: var(--sapGroup_ContentBackground);
+      border-bottom: 1px solid var(--sapGroup_ContentBorderColor);
+      padding: 0.75rem 2rem 0.875rem;
+    }
+    .sub-header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 0.5rem;
+    }
+    .sub-header-meta {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      flex-wrap: wrap;
+      font-size: 0.875rem;
+      color: var(--sapTextColor);
+    }
+    .sub-header-meta-item {
+      display: flex;
+      align-items: center;
+      padding-right: 1rem;
+      margin-right: 1rem;
+      border-right: 1px solid var(--sapGroup_ContentBorderColor);
+    }
+    .sub-header-meta-item:last-child {
+      border-right: none;
+      padding-right: 0;
+      margin-right: 0;
+    }
+    .sub-header-meta-item .label { color: var(--sapContent_LabelColor); margin-right: 0.3rem; }
+    .sub-header-meta-item .value { font-weight: 700; }
+    .sub-header-meta-item a { color: var(--sapLinkColor, #0070f2); font-weight: 700; text-decoration: none; }
+    .sub-header-meta-item a:hover { text-decoration: underline; }
+    .sub-header-actions {
+      display: flex;
+      gap: 0.5rem;
+      padding-top: 0.4rem;
+      flex-shrink: 0;
+    }
+
+    /* ── Two-column body ── */
+    .body {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .col-main {
+      flex: 1;
+      min-width: 0;
+      overflow-y: auto;
+      padding: 1.5rem 2rem 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2.25rem;
+    }
+
+    .col-side {
+      width: 450px;
+      flex-shrink: 0;
+      border-left: 1px solid var(--sapGroup_ContentBorderColor);
+      background: var(--sapGroup_ContentBackground);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    #side-panel-history,
+    #side-panel-agent {
+      flex: 1;
+      overflow-y: auto;
+      padding-top: 14px;
+    }
+
+    /* ── AI loader ── */
+    .ai-body.loading {
+      min-height: 160px;
+      padding: 0;
+      position: relative;
+    }
+    .ai-loader {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .ai-loader-dot {
+      border-radius: 50%;
+      background: var(--sapInformativeColor, #0070f2);
+      animation: ai-dot-pulse 1.2s ease-in-out infinite;
+    }
+    .ai-loader-dot:nth-child(1) { width: 10px; height: 10px; animation-delay: 0s; }
+    .ai-loader-dot:nth-child(2) { width: 14px; height: 14px; animation-delay: 0.2s; }
+    .ai-loader-dot:nth-child(3) { width: 18px; height: 18px; animation-delay: 0.4s; }
+    @keyframes ai-dot-pulse {
+      0%, 60%, 100% { opacity: 0.3; transform: scale(0.85); }
+      30% { opacity: 1; transform: scale(1); }
+    }
+    .ai-body-content {
+      opacity: 0;
+      transition: opacity 0.6s ease;
+    }
+    .ai-body-content.visible { opacity: 1; }
+
+    /* ── AI Summary panel body ──*/
+    ui5-card-header::part(title) { font-size: 1rem; }
+    .ai-body {
+      padding: 0.75rem 1rem 1rem;
+    }
+    .ai-summary-text {
+      line-height: 1.6;
+      margin: 0 0 1rem 0;
+      font-size: 0.875rem;
+    }
+    .action-box p, .action-box ul, .action-box li {
+      font-size: 0.875rem;
+    }
+    .action-box {
+      background: var(--sapInformationBackground);
+      border-radius: var(--sapButton_BorderCornerRadius);
+      padding: 0.875rem 1rem;
+      margin-bottom: 0.75rem;
+    }
+    .action-box:last-child { margin-bottom: 0; }
+    .action-box p { margin: 0 0 0.4rem; }
+    .action-box ul {
+      margin: 0.2rem 0 0.6rem 1.25rem;
+      padding: 0;
+      line-height: 1.7;
+    }
+    .action-box-footer {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+    .no-action-card {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--sapList_SelectionBackgroundColor);
+      border-radius: 0.5rem;
+      padding: 0 1rem;
+      height: 48px;
+      font-size: 0.875rem;
+      color: var(--sapTextColor);
+      margin-top: 0.5rem;
+    }
+    .no-action-card svg { flex-shrink: 0; }
+
+    /* ── Tab panels ── */
+
+    /* ── Notes slide-in panel ── */
+    #notesPanel {
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 560px;
+      background: var(--sapGroup_ContentBackground);
+      box-shadow: var(--sapContent_Shadow2);
+      display: flex;
+      flex-direction: column;
+      transform: translateX(100%);
+      transition: transform 0.5s ease;
+      z-index: 99;
+      border-left: 1px solid var(--sapGroup_ContentBorderColor);
+      border-top: 1px solid var(--sapGroup_ContentBorderColor);
+      border-radius: 12px 0 0 0;
+      visibility: hidden;
+    }
+    #notesPanel.open { transform: translateX(0); visibility: visible; }
+    #notesPanel .email-panel-body { padding-bottom: 18px; }
+    #callScriptPanel.open { transform: translateX(0); visibility: visible; }
+    #callScriptPanel {
+      position: fixed; top: 0; right: 0; bottom: 0; width: 560px;
+      background: var(--sapGroup_ContentBackground);
+      box-shadow: var(--sapContent_Shadow2);
+      display: flex; flex-direction: column;
+      transform: translateX(100%); transition: transform 0.5s ease;
+      z-index: 99;
+      border-left: 1px solid var(--sapGroup_ContentBorderColor);
+      border-top: 1px solid var(--sapGroup_ContentBorderColor);
+      border-radius: 12px 0 0 0;
+      visibility: hidden;
+    }
+
+    /* ── Email slide-in panel ── */
+    #emailPanel {
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 560px;
+      background: var(--sapGroup_ContentBackground);
+      box-shadow: var(--sapContent_Shadow2);
+      display: flex;
+      flex-direction: column;
+      transform: translateX(100%);
+      transition: transform 0.5s ease;
+      z-index: 99;
+      border-left: 1px solid var(--sapGroup_ContentBorderColor);
+      border-top: 1px solid var(--sapGroup_ContentBorderColor);
+      border-radius: 12px 0 0 0;
+      visibility: hidden;
+    }
+    #emailPanel.open { transform: translateX(0); visibility: visible; }
+    .email-panel-header {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--sapGroup_ContentBorderColor);
+      font-size: 1rem;
+      font-weight: 600;
+      font-family: "72", sans-serif;
+      color: var(--sapTextColor);
+      flex-shrink: 0;
+    }
+    .email-panel-body {
+      flex: 1;
+      min-height: 0;
+      padding: 1.25rem 1.5rem 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.875rem;
+      overflow: hidden;
+    }
+    .email-msg-wrap {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      padding-bottom: 10px;
+      gap: 0;
+    }
+    .email-msg-wrap ui5-textarea {
+      flex: 1;
+      min-height: 0;
+      --sapField_BorderCornerRadius: 0 0 0.25rem 0.25rem;
+    }
+    .email-att-section {
+      padding: 0 1.5rem 0.75rem;
+      flex-shrink: 0;
+    }
+    .email-form-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .email-form-label {
+      font-size: 0.875rem;
+      font-family: "72", sans-serif;
+      color: var(--sapContent_LabelColor);
+      width: 55px;
+      flex-shrink: 0;
+    }
+    .email-form-label .req { color: var(--sapNegativeColor); }
+    .email-divider { border: none; border-top: 1px solid var(--sapGroup_ContentBorderColor); margin: 0.25rem 0; }
+    .email-msg-label {
+      font-size: 0.875rem;
+      font-family: "72", sans-serif;
+      color: var(--sapContent_LabelColor);
+      margin-bottom: 6px;
+    }
+    .email-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 0.2rem;
+      padding: 2px;
+      background: var(--sapInformationBackground, #e8f4ff);
+      border: none;
+      border-radius: var(--sapField_BorderCornerRadius) var(--sapField_BorderCornerRadius) 0 0;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .email-toolbar-spacer { flex: 1; }
+    .email-tb-sep { width: 1px; height: 1.25rem; background: var(--sapContent_LabelColor); margin: 0 0.1rem; align-self: center; opacity: 0.5; }
+    .email-panel-body ui5-input,
+    .email-panel-body ui5-select,
+    .email-panel-body ui5-textarea { --sapFontFamily: "72", sans-serif; }
+    .email-att-label { font-size: 0.875rem; font-family: "72", sans-serif; color: var(--sapContent_LabelColor); }
+    .email-att-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+    .email-att-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.3rem 0; border-bottom: 1px solid var(--sapList_BorderColor);
+      font-size: 0.875rem; font-family: "72", sans-serif;
+    }
+    .email-att-item:last-child { border-bottom: none; }
+    .email-att-name { display: flex; align-items: center; gap: 0.4rem; color: var(--sapLinkColor); }
+    .email-panel-footer {
+      padding: 0.875rem 1.5rem;
+      border-top: 1px solid var(--sapGroup_ContentBorderColor);
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.5rem;
+      flex-shrink: 0;
+    }
+    .account-card {
+      background: var(--sapTile_Background);
+      box-shadow: var(--sapContent_Shadow0);
+      border-radius: var(--sapTile_BorderCornerRadius);
+    }
+    .account-card > ui5-tabcontainer {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: var(--sapTile_BorderCornerRadius) var(--sapTile_BorderCornerRadius) 0 0;
+      overflow: hidden;
+    }
+    .account-card > ui5-tabcontainer::part(content) { display: none; }
+    .col-side > ui5-tabcontainer::part(content) { display: none; }
+    .tab-panel-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.625rem 1rem;
+      border-bottom: 1px solid var(--sapGroup_ContentBorderColor);
+    }
+    .tab-panel-title { font-size: 1rem; font-weight: 600; color: var(--sapTextColor); }
+    .tab-panel-wrap { overflow-x: auto; padding-bottom: 8px; }
+    .tab-panel-wrap ui5-table { width: 100%; }
+    ui5-table-cell.nav-cell { text-align: center; }
+    .col-main > ui5-card, .col-main > * { max-width: 100%; }
+
+    /* ── KPI tiles grid ── */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      padding: 1rem;
+    }
+    .kpi-tile {
+      background: var(--sapGroup_ContentBackground);
+      border: 1px solid var(--sapGroup_ContentBorderColor);
+      border-radius: var(--sapTile_BorderCornerRadius, 1rem);
+      padding: 1rem 1.25rem 1.25rem;
+    }
+    .kpi-value {
+      font-size: 2rem;
+      font-weight: 300;
+      color: var(--sapTextColor);
+      line-height: 1.2;
+      margin-bottom: 0.375rem;
+    }
+    .kpi-value.neg { color: var(--sapNegativeColor); }
+    .kpi-scale {
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: var(--sapContent_LabelColor);
+      margin-left: 0.25rem;
+    }
+    .kpi-value.neg .kpi-scale { color: var(--sapNegativeColor); }
+    .history-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      padding-left: calc(1rem + 3px);
+      border-left: 1px solid #EAECEE;
+      margin-left: calc(1.25rem + 4px);
+      padding-top: 12px;
+    }
+    .history-item {
+      display: flex;
+      gap: 0;
+      padding: 0 0.75rem 1.25rem 0;
+      position: relative;
+      opacity: 1;
+      transform: translateY(0);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .history-item.entering {
+      opacity: 0;
+      transform: translateY(-12px);
+    }
+    .history-item:last-child { border-bottom: none; }
+    .history-dot-col {
+      flex-shrink: 0;
+      width: 0;
+      position: relative;
+    }
+    .history-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #758CA4;
+      box-shadow: 0 0 0 4px #EAECEE, 0 0 0 5px #ffffff;
+      position: absolute;
+      top: 0.2rem;
+      left: calc(-1.25rem - 3px);
+    }
+    .history-body { flex: 1; min-width: 0; padding-bottom: 0; }
+    .history-body { flex: 1; min-width: 0; padding-bottom: 1rem; }
+    .history-time {
+      font-size: 0.8125rem;
+      color: var(--sapContent_LabelColor);
+      font-weight: 400;
+      margin-bottom: 0.35rem;
+    }
+    .history-text {
+      font-size: 0.875rem;
+      color: var(--sapTextColor);
+      line-height: 1.5;
+      margin-bottom: 0.4rem;
+    }
+    .history-body ui5-link {
+      font-weight: 600;
+      text-decoration: underline;
+    }
+    .history-subtitle {
+      font-size: 0.8125rem;
+      color: var(--sapContent_LabelColor);
+      margin-bottom: 0.35rem;
+    }
+    .kpi-label { font-size: 0.875rem; color: var(--sapContent_LabelColor); }
+
+    @keyframes star-burst {
+      0%   { opacity: 1; transform: translate(0, 0) scale(1); }
+      100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(0.4); }
+    }
+    .burst-star {
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+      animation: star-burst 0.6s ease-out forwards;
+    }
+    .feedback-pill, .discard-pill {
+      font-family: "72", sans-serif;
+      font-size: 0.875rem;
+      color: var(--sapLinkColor);
+      background: var(--sapBaseColor, #fff);
+      border: 1px solid var(--sapLinkColor);
+      border-radius: 0.5rem;
+      padding: 0 0.875rem;
+      height: 26px;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+    .feedback-pill:hover, .discard-pill:hover { background: var(--sapList_SelectionBackgroundColor); }
+    .feedback-pill.selected, .discard-pill.selected {
+      background: var(--sapLinkColor);
+      color: var(--sapButton_Emphasized_TextColor, #fff);
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <app-shellbar title="Collection Assistant" logo-height="22px" hide-product-switch base-path="../../"></app-shellbar>
+
+  <ui5-popover id="navMenu" placement="Bottom" horizontal-align="Start" style="width:280px">
+    <ui5-list separators="None">
+      <ui5-li onclick="location.href='worklist.html'" style="font-size:14px; cursor:pointer">Collection Worklist</ui5-li>
+      <ui5-li onclick="location.href='admin.html'" style="font-size:14px; cursor:pointer">Administration</ui5-li>
+    </ui5-list>
+  </ui5-popover>
+
+  <!-- Sub-header -->
+  <div class="sub-header">
+    <div class="sub-header-top">
+      <div>
+        <div style="display:flex; align-items:center; gap:0.375rem; margin-bottom:0.375rem; font-size:14px; font-family:'72',sans-serif;">
+          <a href="worklist.html" style="color:var(--sapLinkColor, #0070f2); text-decoration:none;">Collection Worklist</a>
+          <span style="color:var(--sapContent_LabelColor, #8c9fac);">/</span>
+          <span id="breadcrumb-name" style="color:var(--sapContent_LabelColor, #556b82);">Institut Bergonié</span>
+        </div>
+        <h1 id="page-title" style="font-size:1.5rem; font-weight:900; font-family:'72',sans-serif; color:var(--sapTextColor, #131e29); margin:0">Institut Bergonié</h1>
+      </div>
+      <div class="sub-header-actions">
+        <ui5-button design="Transparent" icon="thumb-up" tooltip="Helpful" id="thumbUpBtn"></ui5-button>
+        <ui5-button design="Transparent" icon="thumb-down" tooltip="Not helpful" id="thumbDownBtn"></ui5-button>
+        <div style="width:1px; height:1.5rem; background:var(--sapGroup_ContentBorderColor); margin:0 0.125rem; flex-shrink:0; align-self:center;"></div>
+        <ui5-button id="overflowBtn" design="Default" icon="overflow"></ui5-button>
+        <ui5-menu id="overflowMenu" horizontal-align="End" placement="Bottom">
+          <ui5-menu-item text="Email Customer"></ui5-menu-item>
+          <ui5-menu-item text="Generate Call Script"></ui5-menu-item>
+          <ui5-menu-item text="Add Notes"></ui5-menu-item>
+        </ui5-menu>
+        <ui5-button design="Default" onclick="location.href='worklist.html'">Close</ui5-button>
+      </div>
+    </div>
+    <div class="sub-header-meta">
+      <div class="sub-header-meta-item">
+        <span class="label">Customer Contact:</span>
+        <a href="#" id="meta-contact" onclick="openEmailPanel(true); return false;" style="font-weight:400; text-decoration:underline; font-family:'72',sans-serif">Pierre Moreau</a>
+      </div>
+      <div class="sub-header-meta-item">
+        <span class="label">Amount in EUR:</span>
+        <span class="value" id="meta-amount">93,727.92</span>
+      </div>
+      <div class="sub-header-meta-item">
+        <span class="label">Priority:</span>
+        <span id="meta-priority" style="background:var(--sapErrorBackground, #fce4e4); color:var(--sapNegativeColor, #bb0000); padding:0.2rem 0.6rem; border-radius:8px; font-size:0.8125rem; margin-left:0.25rem">High</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Two-column body -->
+  <div class="body">
+
+    <!-- Main column -->
+    <div class="col-main">
+
+      <!-- AI Generated Summary -->
+      <div style="background:var(--sapTile_Background); box-shadow:var(--sapContent_Shadow0); border-radius:var(--sapTile_BorderCornerRadius);">
+        <div style="display:flex; align-items:center; gap:0.5rem; padding:0.75rem 1rem; font-size:16px; font-weight:600; color:var(--sapTextColor);">
+          <svg width="18" height="18" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.77386 5.51772C5.00416 4.82742 5.99565 4.82746 6.22601 5.51772C7.03711 7.8988 8.09862 8.9593 10.4819 9.76967C11.1728 10.0098 11.1728 11.0005 10.4819 11.2306C8.09867 12.041 7.0371 13.1015 6.22601 15.4826C5.99555 16.1726 5.00425 16.1726 4.77386 15.4826C3.96275 13.1015 2.90125 12.041 0.517998 11.2306C-0.172689 10.9904 -0.172643 9.99991 0.517998 9.76967C2.90124 8.9593 3.96275 7.89878 4.77386 5.51772ZM12.6049 0.284318C12.735 -0.0948015 13.2648 -0.0947441 13.395 0.284318C13.835 1.58216 14.4153 2.16146 15.7153 2.60072C16.095 2.7306 16.0951 3.26972 15.7153 3.39955C14.4153 3.83882 13.835 4.41812 13.395 5.71596C13.2647 6.09477 12.7351 6.09482 12.6049 5.71596C12.1649 4.41812 11.5846 3.83882 10.2846 3.39955C9.90511 3.2696 9.90515 2.73073 10.2846 2.60072C11.5846 2.16146 12.1649 1.58216 12.6049 0.284318Z" fill="#0070f2"/></svg>
+          Insights and Recommendations
+        </div>
+        <div style="height:1px; background:var(--sapGroup_ContentBorderColor); margin:0;"></div>
+        <div class="ai-body loading">
+          <div id="ai-loader" class="ai-loader">
+            <div class="ai-loader-dot"></div>
+            <div class="ai-loader-dot"></div>
+            <div class="ai-loader-dot"></div>
+          </div>
+          <div id="ai-content" class="ai-body-content">
+          <p class="ai-summary-text">
+            Invoice 6044865005 (EUR 9,595.60) is 113 days overdue (due <span id="ai-due-date"></span>) and the account has EUR <span id="ai-overdue-amount">59,201.24</span>
+            in total overdue balances across five invoices. This extreme arrears position (part of total outstanding EUR
+            <span id="ai-overdue-amount-2">87,988.04</span>) creates immediate service suspension and legal escalation risk if not resolved within 48–72 hours.
+          </p>
+
+          <div id="action-cards">
+          <div id="internal-followup-card" class="action-box">
+            <p><strong>Action for you to take — Internal follow up</strong></p>
+            <ul>
+              <li>Initiate an internal follow-up escalation due to missed commitments and an aging balance indicating high risk.</li>
+              <li>Coordinate internally to prevent further delinquency and align on next steps.</li>
+              <li>Address the customer's request for clarification on payment terms.</li>
+            </ul>
+            <p><strong>Record your notes once you have followed up internally</strong></p>
+            <div class="action-box-footer">
+              <ui5-button id="confirmFollowupBtn" design="Default" icon="accept">Confirm that you have followed up internally</ui5-button>
+              <ui5-button id="discardFollowupBtn" design="Transparent">Discard suggestion</ui5-button>
+            </div>
+          </div>
+
+          <div id="approve-servicenow-card" class="action-box">
+            <p><strong>Agent wants your approval to create a ServiceNow ticket</strong></p>
+            <p>Once you approve, the agent will create a ServiceNow ticket with the customer service team for someone to reach out to the customer.</p>
+            <div class="action-box-footer">
+              <ui5-button id="approveServiceNowBtn" design="Default" icon="accept">Approve</ui5-button>
+              <ui5-button id="discardServiceNowBtn" design="Transparent">Discard suggestion</ui5-button>
+            </div>
+          </div>
+          </div>
+
+          <div id="email-action-card" style="display:none">
+          <div class="action-box">
+            <p><strong>Action for you to take - Email the Customer</strong></p>
+            <ul>
+              <li>Email the account owner today to demand payment of Invoice #6044865005 (EUR 9,595.60, due Aug 5, 2025)</li>
+              <li>Request an explanation for the unfulfilled EUR 45,000 promise from Nov 29.</li>
+              <li>If no firm commitment is secured, escalate promptly, including legal action or service suspension.</li>
+            </ul>
+            <div class="action-box-footer">
+              <ui5-button id="sendEmailBtn" design="Default" icon="accept">Send Email</ui5-button>
+              <ui5-button id="discardEmailBtn" design="Transparent">Discard suggestion</ui5-button>
+            </div>
+          </div>
+          </div>
+
+          <div id="call-action-card" style="display:none">
+          <div class="action-box">
+            <p><strong>Action for you to take - Call Customer</strong></p>
+            <ul>
+              <li>Email the account owner today to demand payment of Invoice #6044865005 (EUR 9,595.60, due Aug 5, 2025)</li>
+              <li>Request an explanation for the unfulfilled EUR 45,000 promise from Nov 29.</li>
+              <li>A phone call is recommended, as past patterns show faster response and payment than email.</li>
+            </ul>
+            <p><strong>Record your conversation once the call has been made</strong></p>
+            <div class="action-box-footer">
+              <ui5-button id="confirmCallBtn" design="Default" icon="accept">Confirm that you called the customer</ui5-button>
+              <ui5-button id="callScriptFromCardBtn" design="Transparent">Generate Call Script</ui5-button>
+              <ui5-button id="discardCallBtn" design="Transparent">Discard suggestion</ui5-button>
+            </div>
+          </div>
+          </div>
+
+          <div id="no-action-card" style="display:none">
+            <div class="no-action-card">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="10" fill="#2e7d32"/><path d="M5.5 10.5L8.5 13.5L14.5 7.5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              No action necessary at this time.
+            </div>
+          </div>
+        </div><!-- /ai-content -->
+        </div><!-- /ai-body -->
+      </div><!-- /ai-card -->
+
+      <!-- Account data -->
+      <div class="account-card">
+        <ui5-tabcontainer fixed id="accountTabs">
+          <ui5-tab text="Account Overview" selected id="tab-overview"></ui5-tab>
+          <ui5-tab text="Open Items" id="tab-open"></ui5-tab>
+          <ui5-tab text="Payments / Reimbursements" id="tab-payments"></ui5-tab>
+          <ui5-tab text="Disputes" id="tab-disputes"></ui5-tab>
+        </ui5-tabcontainer>
+
+        <!-- Account Overview panel -->
+        <div id="panel-overview" class="kpi-grid">
+          <div class="kpi-tile">
+            <div class="kpi-value">1</div>
+            <div class="kpi-label">Number of Overdue Invoices</div>
+          </div>
+          <div class="kpi-tile">
+            <div class="kpi-value">9</div>
+            <div class="kpi-label">Number of Invoices Due in 7 Days</div>
+          </div>
+          <div class="kpi-tile">
+            <div class="kpi-value">3</div>
+            <div class="kpi-label">Number of Dispute Cases</div>
+          </div>
+          <div class="kpi-tile">
+            <div class="kpi-value neg" id="kpi-overdue-amount">93,727.92 <span class="kpi-scale">EUR</span></div>
+            <div class="kpi-label">Total Value of Overdue Invoices</div>
+          </div>
+          <div class="kpi-tile">
+            <div class="kpi-value">59,429.00 <span class="kpi-scale">EUR</span></div>
+            <div class="kpi-label">Total Value of Invoices Due in 7 days</div>
+          </div>
+          <div class="kpi-tile">
+            <div class="kpi-value">8,927.71 <span class="kpi-scale">EUR</span></div>
+            <div class="kpi-label">Total Value of Dispute Cases</div>
+          </div>
+        </div>
+
+        <!-- Open Items panel -->
+        <div id="panel-open" class="tab-panel" style="display:none">
+          <div class="tab-panel-wrap">
+            <div class="tab-panel-toolbar"><span class="tab-panel-title">Line Items (9)</span><ui5-button design="Transparent" icon="action-settings"></ui5-button></div>
+            <ui5-table>
+              <ui5-table-header-row slot="headerRow">
+                <ui5-table-header-cell width="110px" style="padding-inline-start:1rem">Division</ui5-table-header-cell>
+                <ui5-table-header-cell width="100px">Customer Number</ui5-table-header-cell>
+                <ui5-table-header-cell width="105px">Document Type</ui5-table-header-cell>
+                <ui5-table-header-cell>Reference Number</ui5-table-header-cell>
+                <ui5-table-header-cell width="155px">Payment Date With Cash Discount</ui5-table-header-cell>
+                <ui5-table-header-cell width="105px">Net Due Date</ui5-table-header-cell>
+                <ui5-table-header-cell width="130px" horizontal-align="End">Amount</ui5-table-header-cell>
+                <ui5-table-header-cell width="70px" horizontal-align="End">Arrears</ui5-table-header-cell>
+                <ui5-table-header-cell width="44px"></ui5-table-header-cell>
+              </ui5-table-header-row>
+              <ui5-table-row interactive><ui5-table-cell style="padding-inline-start:1rem">Pharma</ui5-table-cell><ui5-table-cell>9839281</ui5-table-cell><ui5-table-cell>RV</ui5-table-cell><ui5-table-cell>90F1382741</ui5-table-cell><ui5-table-cell data-rel="-7">01/08/2025</ui5-table-cell><ui5-table-cell><span style="color:#bb0000" data-rel="-2">10/15/2025</span></ui5-table-cell><ui5-table-cell horizontal-align="End">19,503.26 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">26</ui5-table-cell><ui5-table-cell class="nav-cell"><ui5-icon name="slim-arrow-right" style="color:var(--sapContent_NonInteractiveIconColor)"></ui5-icon></ui5-table-cell></ui5-table-row>
+              <ui5-table-row interactive><ui5-table-cell style="padding-inline-start:1rem">Consumer</ui5-table-cell><ui5-table-cell>9282524</ui5-table-cell><ui5-table-cell>AB</ui5-table-cell><ui5-table-cell>90F1394052</ui5-table-cell><ui5-table-cell data-rel="-10">01/15/2025</ui5-table-cell><ui5-table-cell><span style="color:#bb0000" data-rel="-5">11/03/2025</span></ui5-table-cell><ui5-table-cell horizontal-align="End">33,620.26 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">18</ui5-table-cell><ui5-table-cell class="nav-cell"><ui5-icon name="slim-arrow-right" style="color:var(--sapContent_NonInteractiveIconColor)"></ui5-icon></ui5-table-cell></ui5-table-row>
+              <ui5-table-row interactive><ui5-table-cell style="padding-inline-start:1rem">Radiology</ui5-table-cell><ui5-table-cell>3949403</ui5-table-cell><ui5-table-cell>RV</ui5-table-cell><ui5-table-cell>91A2047813</ui5-table-cell><ui5-table-cell data-rel="-15">02/03/2025</ui5-table-cell><ui5-table-cell><span style="color:#bb0000" data-rel="-10">11/28/2025</span></ui5-table-cell><ui5-table-cell horizontal-align="End">23,747.36 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">12</ui5-table-cell><ui5-table-cell class="nav-cell"><ui5-icon name="slim-arrow-right" style="color:var(--sapContent_NonInteractiveIconColor)"></ui5-icon></ui5-table-cell></ui5-table-row>
+              <ui5-table-row interactive><ui5-table-cell style="padding-inline-start:1rem">Crop</ui5-table-cell><ui5-table-cell>2765232</ui5-table-cell><ui5-table-cell>AB</ui5-table-cell><ui5-table-cell>91A2063590</ui5-table-cell><ui5-table-cell data-rel="-19">02/17/2025</ui5-table-cell><ui5-table-cell><span style="color:#bb0000" data-rel="-14">12/10/2025</span></ui5-table-cell><ui5-table-cell horizontal-align="End">51,451.56 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">31</ui5-table-cell><ui5-table-cell class="nav-cell"><ui5-icon name="slim-arrow-right" style="color:var(--sapContent_NonInteractiveIconColor)"></ui5-icon></ui5-table-cell></ui5-table-row>
+              <ui5-table-row interactive><ui5-table-cell style="padding-inline-start:1rem">Pharma</ui5-table-cell><ui5-table-cell>9283734</ui5-table-cell><ui5-table-cell>RV</ui5-table-cell><ui5-table-cell>92B3158407</ui5-table-cell><ui5-table-cell data-rel="+9">03/05/2025</ui5-table-cell><ui5-table-cell data-rel="+14">01/14/2026</ui5-table-cell><ui5-table-cell horizontal-align="End">13,881.69 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">5</ui5-table-cell><ui5-table-cell class="nav-cell"><ui5-icon name="slim-arrow-right" style="color:var(--sapContent_NonInteractiveIconColor)"></ui5-icon></ui5-table-cell></ui5-table-row>
+              <ui5-table-row interactive><ui5-table-cell style="padding-inline-start:1rem">Crop</ui5-table-cell><ui5-table-cell>2938367</ui5-table-cell><ui5-table-cell>RV</ui5-table-cell><ui5-table-cell>92B3174265</ui5-table-cell><ui5-table-cell data-rel="+11">03/19/2025</ui5-table-cell><ui5-table-cell data-rel="+16">01/18/2026</ui5-table-cell><ui5-table-cell horizontal-align="End">42,687.37 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">8</ui5-table-cell><ui5-table-cell class="nav-cell"><ui5-icon name="slim-arrow-right" style="color:var(--sapContent_NonInteractiveIconColor)"></ui5-icon></ui5-table-cell></ui5-table-row>
+              <ui5-table-row interactive><ui5-table-cell style="padding-inline-start:1rem">Consumer</ui5-table-cell><ui5-table-cell>5948372</ui5-table-cell><ui5-table-cell>AB</ui5-table-cell><ui5-table-cell>93D4209831</ui5-table-cell><ui5-table-cell data-rel="+13">04/02/2025</ui5-table-cell><ui5-table-cell data-rel="+18">02/21/2026</ui5-table-cell><ui5-table-cell horizontal-align="End">59,429.34 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">3</ui5-table-cell><ui5-table-cell class="nav-cell"><ui5-icon name="slim-arrow-right" style="color:var(--sapContent_NonInteractiveIconColor)"></ui5-icon></ui5-table-cell></ui5-table-row>
+              <ui5-table-row interactive><ui5-table-cell style="padding-inline-start:1rem">Pharma</ui5-table-cell><ui5-table-cell>4928722</ui5-table-cell><ui5-table-cell>RV</ui5-table-cell><ui5-table-cell>93D4221047</ui5-table-cell><ui5-table-cell data-rel="+15">04/14/2025</ui5-table-cell><ui5-table-cell data-rel="+20">02/28/2026</ui5-table-cell><ui5-table-cell horizontal-align="End">26,917.35 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">7</ui5-table-cell><ui5-table-cell class="nav-cell"><ui5-icon name="slim-arrow-right" style="color:var(--sapContent_NonInteractiveIconColor)"></ui5-icon></ui5-table-cell></ui5-table-row>
+              <ui5-table-row interactive><ui5-table-cell style="padding-inline-start:1rem">Consumer</ui5-table-cell><ui5-table-cell>3830924</ui5-table-cell><ui5-table-cell>AB</ui5-table-cell><ui5-table-cell>94E5367092</ui5-table-cell><ui5-table-cell data-rel="+16">05/08/2025</ui5-table-cell><ui5-table-cell data-rel="+21">03/09/2026</ui5-table-cell><ui5-table-cell horizontal-align="End">10,291.61 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">2</ui5-table-cell><ui5-table-cell class="nav-cell"><ui5-icon name="slim-arrow-right" style="color:var(--sapContent_NonInteractiveIconColor)"></ui5-icon></ui5-table-cell></ui5-table-row>
+            </ui5-table>
+          </div>
+        </div>
+
+        <!-- Payments / Reimbursements panel -->
+        <div id="panel-payments" class="tab-panel" style="display:none">
+          <div class="tab-panel-wrap">
+            <div class="tab-panel-toolbar"><span class="tab-panel-title">Line Items (23)</span><ui5-button design="Transparent" icon="action-settings"></ui5-button></div>
+            <ui5-table>
+              <ui5-table-header-row slot="headerRow">
+                <ui5-table-header-cell width="110px" style="padding-inline-start:1rem">Division</ui5-table-header-cell>
+                <ui5-table-header-cell width="100px">Customer Number</ui5-table-header-cell>
+                <ui5-table-header-cell width="105px">Document Type</ui5-table-header-cell>
+                <ui5-table-header-cell>Document Number</ui5-table-header-cell>
+                <ui5-table-header-cell width="115px">Payment Date</ui5-table-header-cell>
+                <ui5-table-header-cell width="130px" horizontal-align="End">Amount</ui5-table-header-cell>
+                <ui5-table-header-cell width="120px" horizontal-align="End">Cash Discount</ui5-table-header-cell>
+                <ui5-table-header-cell width="70px" horizontal-align="End">Arrears</ui5-table-header-cell>
+                <ui5-table-header-cell width="44px"></ui5-table-header-cell>
+              </ui5-table-header-row>
+              <ui5-table-row interactive><ui5-table-cell style="padding-inline-start:1rem">Radiology</ui5-table-cell><ui5-table-cell>9839281</ui5-table-cell><ui5-table-cell>ZP</ui5-table-cell><ui5-table-cell>5100847362</ui5-table-cell><ui5-table-cell data-rel="-60">03/12/2025</ui5-table-cell><ui5-table-cell horizontal-align="End">19,503.26 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">390.07 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">0</ui5-table-cell><ui5-table-cell class="nav-cell"><ui5-icon name="slim-arrow-right" style="color:var(--sapContent_NonInteractiveIconColor)"></ui5-icon></ui5-table-cell></ui5-table-row>
+              <ui5-table-row interactive><ui5-table-cell style="padding-inline-start:1rem">Crop</ui5-table-cell><ui5-table-cell>9282524</ui5-table-cell><ui5-table-cell>AB</ui5-table-cell><ui5-table-cell>5100853901</ui5-table-cell><ui5-table-cell data-rel="-52">03/18/2025</ui5-table-cell><ui5-table-cell horizontal-align="End">33,620.26 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">672.41 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">0</ui5-table-cell><ui5-table-cell class="nav-cell"><ui5-icon name="slim-arrow-right" style="color:var(--sapContent_NonInteractiveIconColor)"></ui5-icon></ui5-table-cell></ui5-table-row>
+              <ui5-table-row interactive><ui5-table-cell style="padding-inline-start:1rem">Crop</ui5-table-cell><ui5-table-cell>3949403</ui5-table-cell><ui5-table-cell>RV</ui5-table-cell><ui5-table-cell>5100861247</ui5-table-cell><ui5-table-cell data-rel="-45">04/02/2025</ui5-table-cell><ui5-table-cell horizontal-align="End">23,747.36 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">474.95 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">0</ui5-table-cell><ui5-table-cell class="nav-cell"><ui5-icon name="slim-arrow-right" style="color:var(--sapContent_NonInteractiveIconColor)"></ui5-icon></ui5-table-cell></ui5-table-row>
+              <ui5-table-row interactive><ui5-table-cell style="padding-inline-start:1rem">Pharma</ui5-table-cell><ui5-table-cell>2765232</ui5-table-cell><ui5-table-cell>ZP</ui5-table-cell><ui5-table-cell>5100874583</ui5-table-cell><ui5-table-cell data-rel="-38">04/11/2025</ui5-table-cell><ui5-table-cell horizontal-align="End">51,451.56 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">1,029.03 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">0</ui5-table-cell><ui5-table-cell class="nav-cell"><ui5-icon name="slim-arrow-right" style="color:var(--sapContent_NonInteractiveIconColor)"></ui5-icon></ui5-table-cell></ui5-table-row>
+              <ui5-table-row interactive><ui5-table-cell style="padding-inline-start:1rem">Pharma</ui5-table-cell><ui5-table-cell>9283734</ui5-table-cell><ui5-table-cell>AB</ui5-table-cell><ui5-table-cell>5100882016</ui5-table-cell><ui5-table-cell data-rel="-31">04/25/2025</ui5-table-cell><ui5-table-cell horizontal-align="End">13,881.69 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">277.63 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">0</ui5-table-cell><ui5-table-cell class="nav-cell"><ui5-icon name="slim-arrow-right" style="color:var(--sapContent_NonInteractiveIconColor)"></ui5-icon></ui5-table-cell></ui5-table-row>
+              <ui5-table-row interactive><ui5-table-cell style="padding-inline-start:1rem">Consumer</ui5-table-cell><ui5-table-cell>2938367</ui5-table-cell><ui5-table-cell>RV</ui5-table-cell><ui5-table-cell>5100896754</ui5-table-cell><ui5-table-cell data-rel="-24">05/07/2025</ui5-table-cell><ui5-table-cell horizontal-align="End">42,687.37 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">853.75 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">0</ui5-table-cell><ui5-table-cell class="nav-cell"><ui5-icon name="slim-arrow-right" style="color:var(--sapContent_NonInteractiveIconColor)"></ui5-icon></ui5-table-cell></ui5-table-row>
+              <ui5-table-row interactive><ui5-table-cell style="padding-inline-start:1rem">Radiology</ui5-table-cell><ui5-table-cell>5948372</ui5-table-cell><ui5-table-cell>ZP</ui5-table-cell><ui5-table-cell>5100903128</ui5-table-cell><ui5-table-cell data-rel="-18">05/20/2025</ui5-table-cell><ui5-table-cell horizontal-align="End">59,429.34 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">0.00 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">0</ui5-table-cell><ui5-table-cell class="nav-cell"><ui5-icon name="slim-arrow-right" style="color:var(--sapContent_NonInteractiveIconColor)"></ui5-icon></ui5-table-cell></ui5-table-row>
+              <ui5-table-row interactive><ui5-table-cell style="padding-inline-start:1rem">Pharma</ui5-table-cell><ui5-table-cell>4928722</ui5-table-cell><ui5-table-cell>AB</ui5-table-cell><ui5-table-cell>5100917465</ui5-table-cell><ui5-table-cell data-rel="-12">06/03/2025</ui5-table-cell><ui5-table-cell horizontal-align="End">26,917.35 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">538.35 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">0</ui5-table-cell><ui5-table-cell class="nav-cell"><ui5-icon name="slim-arrow-right" style="color:var(--sapContent_NonInteractiveIconColor)"></ui5-icon></ui5-table-cell></ui5-table-row>
+              <ui5-table-row interactive><ui5-table-cell style="padding-inline-start:1rem">Consumer</ui5-table-cell><ui5-table-cell>3830924</ui5-table-cell><ui5-table-cell>RV</ui5-table-cell><ui5-table-cell>5100924803</ui5-table-cell><ui5-table-cell data-rel="-7">06/17/2025</ui5-table-cell><ui5-table-cell horizontal-align="End">10,291.61 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">205.83 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">0</ui5-table-cell><ui5-table-cell class="nav-cell"><ui5-icon name="slim-arrow-right" style="color:var(--sapContent_NonInteractiveIconColor)"></ui5-icon></ui5-table-cell></ui5-table-row>
+            </ui5-table>
+          </div>
+        </div>
+
+        <!-- Disputes panel -->
+        <div id="panel-disputes" class="tab-panel" style="display:none">
+          <div class="tab-panel-wrap">
+            <div class="tab-panel-toolbar"><span class="tab-panel-title">Line Items (15)</span><ui5-button design="Transparent" icon="action-settings"></ui5-button></div>
+            <ui5-table>
+              <ui5-table-header-row slot="headerRow">
+                <ui5-table-header-cell width="100px" style="padding-inline-start:1rem">Billing Document</ui5-table-header-cell>
+                <ui5-table-header-cell width="170px">Reference Document Number</ui5-table-header-cell>
+                <ui5-table-header-cell width="100px">Document Date</ui5-table-header-cell>
+                <ui5-table-header-cell width="100px">Due Date</ui5-table-header-cell>
+                <ui5-table-header-cell width="130px" horizontal-align="End">Amount</ui5-table-header-cell>
+                <ui5-table-header-cell width="130px" horizontal-align="End">Amount in Euro</ui5-table-header-cell>
+                <ui5-table-header-cell>Dispute Reason Code</ui5-table-header-cell>
+                <ui5-table-header-cell width="70px" horizontal-align="End">Arrears</ui5-table-header-cell>
+                <ui5-table-header-cell width="44px"></ui5-table-header-cell>
+              </ui5-table-header-row>
+              <ui5-table-row interactive><ui5-table-cell style="padding-inline-start:1rem">9400183742</ui5-table-cell><ui5-table-cell>90F1382741</ui5-table-cell><ui5-table-cell data-rel="-90">01/08/2025</ui5-table-cell><ui5-table-cell data-rel="-60">02/07/2025</ui5-table-cell><ui5-table-cell horizontal-align="End">19,503.26 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">19,503.26 EUR</ui5-table-cell><ui5-table-cell>Pricing Error</ui5-table-cell><ui5-table-cell horizontal-align="End">62</ui5-table-cell><ui5-table-cell class="nav-cell"><ui5-icon name="slim-arrow-right" style="color:var(--sapContent_NonInteractiveIconColor)"></ui5-icon></ui5-table-cell></ui5-table-row>
+              <ui5-table-row interactive><ui5-table-cell style="padding-inline-start:1rem">9400196381</ui5-table-cell><ui5-table-cell>91A2047813</ui5-table-cell><ui5-table-cell data-rel="-78">02/03/2025</ui5-table-cell><ui5-table-cell data-rel="-48">03/05/2025</ui5-table-cell><ui5-table-cell horizontal-align="End">33,620.26 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">33,620.26 EUR</ui5-table-cell><ui5-table-cell>Goods Not Delivered</ui5-table-cell><ui5-table-cell horizontal-align="End">36</ui5-table-cell><ui5-table-cell class="nav-cell"><ui5-icon name="slim-arrow-right" style="color:var(--sapContent_NonInteractiveIconColor)"></ui5-icon></ui5-table-cell></ui5-table-row>
+              <ui5-table-row interactive><ui5-table-cell style="padding-inline-start:1rem">9400204057</ui5-table-cell><ui5-table-cell>91A2063590</ui5-table-cell><ui5-table-cell data-rel="-68">02/17/2025</ui5-table-cell><ui5-table-cell data-rel="-38">03/19/2025</ui5-table-cell><ui5-table-cell horizontal-align="End">23,747.36 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">23,747.36 EUR</ui5-table-cell><ui5-table-cell>Quantity Discrepancy</ui5-table-cell><ui5-table-cell horizontal-align="End">22</ui5-table-cell><ui5-table-cell class="nav-cell"><ui5-icon name="slim-arrow-right" style="color:var(--sapContent_NonInteractiveIconColor)"></ui5-icon></ui5-table-cell></ui5-table-row>
+              <ui5-table-row interactive><ui5-table-cell style="padding-inline-start:1rem">9400217694</ui5-table-cell><ui5-table-cell>92B3158407</ui5-table-cell><ui5-table-cell data-rel="-58">03/05/2025</ui5-table-cell><ui5-table-cell data-rel="-28">04/04/2025</ui5-table-cell><ui5-table-cell horizontal-align="End">51,451.56 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">51,451.56 EUR</ui5-table-cell><ui5-table-cell>Contract Terms Dispute</ui5-table-cell><ui5-table-cell horizontal-align="End">6</ui5-table-cell><ui5-table-cell class="nav-cell"><ui5-icon name="slim-arrow-right" style="color:var(--sapContent_NonInteractiveIconColor)"></ui5-icon></ui5-table-cell></ui5-table-row>
+              <ui5-table-row interactive><ui5-table-cell style="padding-inline-start:1rem">9400229815</ui5-table-cell><ui5-table-cell>92B3174265</ui5-table-cell><ui5-table-cell data-rel="-48">03/19/2025</ui5-table-cell><ui5-table-cell data-rel="-18">04/18/2025</ui5-table-cell><ui5-table-cell horizontal-align="End">13,881.69 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">13,881.69 EUR</ui5-table-cell><ui5-table-cell>Duplicate Invoice</ui5-table-cell><ui5-table-cell horizontal-align="End">-7</ui5-table-cell><ui5-table-cell class="nav-cell"><ui5-icon name="slim-arrow-right" style="color:var(--sapContent_NonInteractiveIconColor)"></ui5-icon></ui5-table-cell></ui5-table-row>
+              <ui5-table-row interactive><ui5-table-cell style="padding-inline-start:1rem">9400241376</ui5-table-cell><ui5-table-cell>93D4209831</ui5-table-cell><ui5-table-cell data-rel="-40">04/02/2025</ui5-table-cell><ui5-table-cell data-rel="-10">05/02/2025</ui5-table-cell><ui5-table-cell horizontal-align="End">42,687.37 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">42,687.37 EUR</ui5-table-cell><ui5-table-cell>Pricing Error</ui5-table-cell><ui5-table-cell horizontal-align="End">-2</ui5-table-cell><ui5-table-cell class="nav-cell"><ui5-icon name="slim-arrow-right" style="color:var(--sapContent_NonInteractiveIconColor)"></ui5-icon></ui5-table-cell></ui5-table-row>
+              <ui5-table-row interactive><ui5-table-cell style="padding-inline-start:1rem">9400258903</ui5-table-cell><ui5-table-cell>93D4221047</ui5-table-cell><ui5-table-cell data-rel="-35">04/14/2025</ui5-table-cell><ui5-table-cell data-rel="-5">05/14/2025</ui5-table-cell><ui5-table-cell horizontal-align="End">59,429.34 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">59,429.34 EUR</ui5-table-cell><ui5-table-cell>Short Shipment</ui5-table-cell><ui5-table-cell horizontal-align="End">-3</ui5-table-cell><ui5-table-cell class="nav-cell"><ui5-icon name="slim-arrow-right" style="color:var(--sapContent_NonInteractiveIconColor)"></ui5-icon></ui5-table-cell></ui5-table-row>
+              <ui5-table-row interactive><ui5-table-cell style="padding-inline-start:1rem">9400267541</ui5-table-cell><ui5-table-cell>94E5367092</ui5-table-cell><ui5-table-cell data-rel="-28">05/08/2025</ui5-table-cell><ui5-table-cell data-rel="+2">06/07/2025</ui5-table-cell><ui5-table-cell horizontal-align="End">26,917.35 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">26,917.35 EUR</ui5-table-cell><ui5-table-cell>Quality Defect</ui5-table-cell><ui5-table-cell horizontal-align="End">-5</ui5-table-cell><ui5-table-cell class="nav-cell"><ui5-icon name="slim-arrow-right" style="color:var(--sapContent_NonInteractiveIconColor)"></ui5-icon></ui5-table-cell></ui5-table-row>
+              <ui5-table-row interactive><ui5-table-cell style="padding-inline-start:1rem">9400279182</ui5-table-cell><ui5-table-cell>94E5381604</ui5-table-cell><ui5-table-cell data-rel="-20">05/22/2025</ui5-table-cell><ui5-table-cell data-rel="+10">06/21/2025</ui5-table-cell><ui5-table-cell horizontal-align="End">10,291.61 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">10,291.61 EUR</ui5-table-cell><ui5-table-cell>Wrong Product Delivered</ui5-table-cell><ui5-table-cell horizontal-align="End">-9</ui5-table-cell><ui5-table-cell class="nav-cell"><ui5-icon name="slim-arrow-right" style="color:var(--sapContent_NonInteractiveIconColor)"></ui5-icon></ui5-table-cell></ui5-table-row>
+            </ui5-table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Side column -->
+    <div class="col-side">
+      <ui5-tabcontainer fixed id="sideTabs">
+        <ui5-tab text="Account History" selected></ui5-tab>
+        <ui5-tab text="Agent Runs"></ui5-tab>
+      </ui5-tabcontainer>
+
+      <div id="side-panel-history">
+        <ul class="history-list">
+          <li class="history-item">
+            <div class="history-dot-col"><div class="history-dot"></div><div class="history-line"></div></div>
+            <div class="history-body">
+              <div class="history-time" data-hours-ago="3">Feb 28, 2026, 3:25:35 PM</div>
+              <div class="history-text">Email sent to <span class="customer-name"></span> after human edit requesting settlement by <span class="settlement-date"></span> and offering documents or a payment plan. FSCM recording was skipped during execution.</div>
+              <div class="history-subtitle">Outbound Email · <span class="contact-email"></span></div>
+              <ui5-link>View Email</ui5-link>
+            </div>
+          </li>
+          <li class="history-item">
+            <div class="history-dot-col"><div class="history-dot"></div><div class="history-line"></div></div>
+            <div class="history-body">
+              <div class="history-time" data-hours-ago="363">Feb 25, 2026, 9:44:28 AM</div>
+              <div class="history-text">Email sent to <span class="customer-name"></span> after human edit requesting the remaining <span class="meta-amount-ref"></span> EUR, acknowledging a partial payment, and offering supporting documents; account analysis found 0 invoices, 1 dispute, and 0 communications.</div>
+              <div class="history-subtitle">Outbound Email · <span class="contact-email"></span></div>
+              <ui5-link>View Email</ui5-link>
+            </div>
+          </li>
+          <li class="history-item">
+            <div class="history-dot-col"><div class="history-dot"></div><div class="history-line"></div></div>
+            <div class="history-body">
+              <div class="history-time" data-hours-ago="250">Feb 21, 2026, 2:20:15 PM</div>
+              <div class="history-text"><span class="contact-name"></span> responded with a commitment to make payment for the remaining amount in two weeks.</div>
+              <div class="history-subtitle">Inbound Email · <span class="contact-email"></span></div>
+              <ui5-link>View Email</ui5-link>
+            </div>
+          </li>
+          <li class="history-item">
+            <div class="history-dot-col"><div class="history-dot"></div><div class="history-line"></div></div>
+            <div class="history-body">
+              <div class="history-time" data-hours-ago="350">Feb 20, 2026, 2:27:02 PM</div>
+              <div class="history-text">Requested payment of the remaining <span class="meta-amount-ref"></span> EUR on an open underpayment dispute, acknowledging a partial payment and offering supporting documents.</div>
+              <div class="history-subtitle">Outbound Email · <span class="contact-email"></span></div>
+              <ui5-link>View Email</ui5-link>
+            </div>
+          </li>
+          <li class="history-item">
+            <div class="history-dot-col"><div class="history-dot"></div><div class="history-line"></div></div>
+            <div class="history-body">
+              <div class="history-time" data-hours-ago="480">Feb 18, 2026, 11:12:44 AM</div>
+              <div class="history-text"><span class="contact-name"></span> acknowledged receipt of the invoice and requested additional time to process payment.</div>
+              <div class="history-subtitle">Inbound Email · <span class="contact-email"></span></div>
+              <ui5-link>View Email</ui5-link>
+            </div>
+          </li>
+          <li class="history-item">
+            <div class="history-dot-col"><div class="history-dot"></div><div class="history-line"></div></div>
+            <div class="history-body">
+              <div class="history-time" data-hours-ago="530">Feb 17, 2026, 4:05:18 PM</div>
+              <div class="history-text">Initial payment reminder sent for overdue balance of <span class="meta-amount-ref"></span> EUR with a request to confirm payment timeline.</div>
+              <div class="history-subtitle">Outbound Email · <span class="contact-email"></span></div>
+              <ui5-link>View Email</ui5-link>
+            </div>
+          </li>
+          <li class="history-item">
+            <div class="history-dot-col"><div class="history-dot"></div><div class="history-line"></div></div>
+            <div class="history-body">
+              <div class="history-time" data-hours-ago="590">Feb 15, 2026, 9:30:07 AM</div>
+              <div class="history-text"><span class="contact-name"></span> contacted support to query the invoice amount and requested a breakdown of charges.</div>
+              <div class="history-subtitle">Inbound Email · <span class="contact-email"></span></div>
+              <ui5-link>View Email</ui5-link>
+            </div>
+          </li>
+          <li class="history-item">
+            <div class="history-dot-col"><div class="history-dot"></div><div class="history-line"></div></div>
+            <div class="history-body">
+              <div class="history-time" data-hours-ago="640">Feb 13, 2026, 2:47:52 PM</div>
+              <div class="history-text">Account flagged for follow-up after invoice due date passed without payment or acknowledgement.</div>
+              <div class="history-subtitle">Outbound Email · <span class="contact-email"></span></div>
+              <ui5-link>View Email</ui5-link>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <div id="side-panel-agent" style="display:none">
+        <ul class="history-list">
+          <li class="history-item">
+            <div class="history-dot-col"><div class="history-dot"></div><div class="history-line"></div></div>
+            <div class="history-body">
+              <div class="history-time" data-hours-ago="3">Feb 28, 2026, 3:25:35 PM</div>
+              <div class="history-text">Agent ran successfully. An overdue reminder email was sent to the customer to confirm settlement; account activity was reviewed, and no system errors were detected, but the communication should be reviewed.</div>
+              <div class="history-subtitle">Email Sent</div>
+              <ui5-link>View Details</ui5-link>
+            </div>
+          </li>
+          <li class="history-item">
+            <div class="history-dot-col"><div class="history-dot"></div><div class="history-line"></div></div>
+            <div class="history-body">
+              <div class="history-time" data-hours-ago="506">Feb 25, 2026, 9:44:28 AM</div>
+              <div class="history-text">Agent ran successfully. The customer responded with a commitment to make payment for the remaining amount within two weeks.</div>
+              <div class="history-subtitle">Email Received</div>
+              <ui5-link>View Details</ui5-link>
+            </div>
+          </li>
+          <li class="history-item">
+            <div class="history-dot-col"><div class="history-dot" style="background:var(--sapNegativeColor, #bb0000); box-shadow:0 0 0 4px #EAECEE, 0 0 0 5px #ffffff;"></div><div class="history-line"></div></div>
+            <div class="history-body">
+              <div class="history-time" data-hours-ago="530">Apr 5, 2026, 3:54:16 AM</div>
+              <div class="history-text">Agent run failed. The process repeated 25 times without finishing, so it was stopped; you can raise the limit if needed.</div>
+              <div class="history-subtitle">Failed</div>
+              <ui5-link>View Details</ui5-link>
+            </div>
+          </li>
+          <li class="history-item">
+            <div class="history-dot-col"><div class="history-dot"></div><div class="history-line"></div></div>
+            <div class="history-body">
+              <div class="history-time" data-hours-ago="650">Feb 20, 2026, 2:27:02 PM</div>
+              <div class="history-text">Agent ran successfully. No outbound communication was sent due to a cooldown period after recent contact.</div>
+              <div class="history-subtitle">No Action</div>
+              <ui5-link>View Details</ui5-link>
+            </div>
+          </li>
+          <li class="history-item">
+            <div class="history-dot-col"><div class="history-dot"></div><div class="history-line"></div></div>
+            <div class="history-body">
+              <div class="history-time" data-hours-ago="780">Mar 25, 2026, 6:16:42 PM</div>
+              <div class="history-text">Agent ran successfully. This was the customer's first run. An email draft was created for an overdue reminder and to request payment.</div>
+              <div class="history-subtitle">Email Sent</div>
+              <ui5-link>View Details</ui5-link>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+  <script>
+    const CUSTOMERS = {
+      'Meridian Oncology Partners':       { amount: '93,727.92',   priority: 'High',   priorityBg: 'var(--sapErrorBackground, #fce4e4)', priorityColor: 'var(--sapNegativeColor, #bb0000)', contact: 'James Whitfield',     email: 'j.whitfield@meridianoncology.com',   noAction: true  },
+      'Hartwell Medical Center':          { amount: '19,503.26',   priority: 'High',   priorityBg: 'var(--sapErrorBackground, #fce4e4)', priorityColor: 'var(--sapNegativeColor, #bb0000)', contact: 'Sandra Okafor',       email: 's.okafor@hartwellmedical.com',        noAction: true  },
+      'Clairmont Diagnostic Clinic':       { amount: '104,842.81',  priority: 'High',   priorityBg: 'var(--sapErrorBackground, #fce4e4)', priorityColor: 'var(--sapNegativeColor, #bb0000)', contact: 'David Nguyen',        email: 'd.nguyen@clairmontdiagnostic.com',    noAction: false, emailAction: true  },
+      'Bridgeview Health System':         { amount: '21,950.41',   priority: 'High',   priorityBg: 'var(--sapErrorBackground, #fce4e4)', priorityColor: 'var(--sapNegativeColor, #bb0000)', contact: 'Rachel Tompkins',     email: 'r.tompkins@bridgeviewhealth.com',     noAction: true  },
+      'Eastgate University Hospital':     { amount: '51,451.56',   priority: 'High',   priorityBg: 'var(--sapErrorBackground, #fce4e4)', priorityColor: 'var(--sapNegativeColor, #bb0000)', contact: 'Michael Brennan',     email: 'm.brennan@eastgateuniversityhospital.edu', noAction: false, callAction: true   },
+      'Valmont Surgical Associates':      { amount: '86.17',       priority: 'High',   priorityBg: 'var(--sapErrorBackground, #fce4e4)', priorityColor: 'var(--sapNegativeColor, #bb0000)', contact: 'Laura Stenberg',      email: 'l.stenberg@valmontsurgical.com',      noAction: true  },
+      "Pinecrest Women's Health Center":  { amount: '264.97',      priority: 'High',   priorityBg: 'var(--sapErrorBackground, #fce4e4)', priorityColor: 'var(--sapNegativeColor, #bb0000)', contact: 'Angela Ferreira',     email: 'a.ferreira@pinecrestwomens.com',      noAction: false },
+      'Azurion Regional Hospital':        { amount: '185,359.51',  priority: 'High',   priorityBg: 'var(--sapErrorBackground, #fce4e4)', priorityColor: 'var(--sapNegativeColor, #bb0000)', contact: 'Thomas Adeyemi',      email: 't.adeyemi@azurionregional.org',       noAction: true  },
+      'Lakewood Integrated Health Group': { amount: '26,917.35',   priority: 'Medium', priorityBg: 'var(--sapWarningBackground, #fff3e0)', priorityColor: 'var(--sapWarningColor, #df6e0c)', contact: 'Christine Halvorsen', email: 'c.halvorsen@lakewoodihg.com',         noAction: true  },
+      'Solaris Private Hospital Group':   { amount: '9,512.74',    priority: 'Medium', priorityBg: 'var(--sapWarningBackground, #fff3e0)', priorityColor: 'var(--sapWarningColor, #df6e0c)', contact: 'Nathan Patel',        email: 'n.patel@solarisprivatehospital.com',  noAction: true  },
+      'Redwood Comprehensive Care Center':{ amount: '8,792.78',    priority: 'Medium', priorityBg: 'var(--sapWarningBackground, #fff3e0)', priorityColor: 'var(--sapWarningColor, #df6e0c)', contact: 'Olivia Marchetti',    email: 'o.marchetti@redwoodccc.org',          noAction: true  },
+      'Vantage Diagnostics Ltd':          { amount: '49,531.44',   priority: 'Medium', priorityBg: 'var(--sapWarningBackground, #fff3e0)', priorityColor: 'var(--sapWarningColor, #df6e0c)', contact: 'Samuel Eriksson',     email: 's.eriksson@vantagediagnostics.com',   noAction: true  },
+      'Northfield Hematology Clinic':     { amount: '206.97',      priority: 'Medium', priorityBg: 'var(--sapWarningBackground, #fff3e0)', priorityColor: 'var(--sapWarningColor, #df6e0c)', contact: 'Priya Chandrasekaran',email: 'p.chandrasekaran@northfieldhematology.com', noAction: true  },
+      'Crestline Academic Health Network':{ amount: '31,748.78',   priority: 'Low',    priorityBg: 'var(--sapNeutralBackground, #e0e0e0)', priorityColor: 'var(--sapNeutralColor, #444)',    contact: 'Benjamin Kowalski',   email: 'b.kowalski@crestlineahn.edu',         noAction: true  },
+      'Thornbury OB-GYN Associates':      { amount: '395.03',      priority: 'Low',    priorityBg: 'var(--sapNeutralBackground, #e0e0e0)', priorityColor: 'var(--sapNeutralColor, #444)',    contact: 'Helen Johansson',     email: 'h.johansson@thornburyobgyn.com',      noAction: true  },
+    };
+
+    const name = new URLSearchParams(window.location.search).get('customer');
+    if (name) {
+      document.getElementById('breadcrumb-name').textContent = name;
+      document.getElementById('page-title').textContent = name;
+      document.title = name + ' — Collection Assistant';
+
+      const c = CUSTOMERS[name];
+      if (c) {
+        document.getElementById('meta-amount').textContent = c.amount;
+        document.getElementById('meta-contact').textContent = c.contact;
+        const pri = document.getElementById('meta-priority');
+        pri.textContent = c.priority;
+        pri.style.background = c.priorityBg;
+        pri.style.color = c.priorityColor;
+        document.getElementById('kpi-overdue-amount').innerHTML = c.amount + ' <span class="kpi-scale">EUR</span>';
+        document.getElementById('ai-overdue-amount').textContent = c.amount;
+        const totalOutstanding = (parseFloat(c.amount.replace(/,/g, '')) * 1.3).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        document.getElementById('ai-overdue-amount-2').textContent = totalOutstanding;
+        document.querySelectorAll('.contact-email').forEach(function(el) { el.textContent = c.email; });
+        document.querySelectorAll('.customer-name').forEach(function(el) { el.textContent = name; });
+        document.querySelectorAll('.contact-name').forEach(function(el) { el.textContent = c.contact; });
+        document.querySelectorAll('.meta-amount-ref').forEach(function(el) { el.textContent = c.amount; });
+        document.getElementById('action-cards').style.display      = (!c.noAction && !c.emailAction && !c.callAction) ? '' : 'none';
+        document.getElementById('email-action-card').style.display  = c.emailAction ? '' : 'none';
+        document.getElementById('call-action-card').style.display   = c.callAction  ? '' : 'none';
+        document.getElementById('no-action-card').style.display     = c.noAction    ? '' : 'none';
+      }
+    }
+
+    var _accountTabs = document.getElementById('accountTabs');
+    if (_accountTabs) _accountTabs.addEventListener('tab-select', function(e) {
+      const panels = ['panel-overview', 'panel-open', 'panel-payments', 'panel-disputes'];
+      panels.forEach(id => document.getElementById(id).style.display = 'none');
+      const idx = Array.from(this.querySelectorAll('ui5-tab')).indexOf(e.detail.tab);
+      const show = panels[idx];
+      if (show) document.getElementById(show).style.display = idx === 0 ? 'grid' : 'block';
+    });
+
+    var _sideTabs = document.getElementById('sideTabs');
+    if (_sideTabs) _sideTabs.addEventListener('tab-select', function(e) {
+      const idx = Array.from(this.querySelectorAll('ui5-tab')).indexOf(e.detail.tab);
+      document.getElementById('side-panel-history').style.display = idx === 0 ? '' : 'none';
+      document.getElementById('side-panel-agent').style.display   = idx === 1 ? '' : 'none';
+    });
+
+    var _overflowBtn = document.getElementById('overflowBtn');
+    if (_overflowBtn) _overflowBtn.addEventListener('click', function() {
+      var menu = document.getElementById('overflowMenu');
+      menu.opener = this;
+      menu.open = !menu.open;
+    });
+    document.getElementById('overflowMenu').addEventListener('item-click', function(e) {
+      var text = e.detail && e.detail.item && e.detail.item.text;
+      if (text === 'Email Customer') openEmailPanel(true);
+      if (text === 'Generate Call Script') openCallScriptPanel();
+      if (text === 'Add Notes') openAddNotesPanel();
+    });
+
+    // Force tab text to 14px semibold via shadow DOM injection
+    (function applyTabFont() {
+      function injectTabStyles() {
+        document.querySelectorAll('ui5-tabcontainer').forEach(function(tc) {
+          if (!tc.shadowRoot) return;
+          if (!tc._tabStyleEl) {
+            var s = document.createElement('style');
+            s.id = 'tab-font-override';
+            tc.shadowRoot.appendChild(s);
+            tc._tabStyleEl = s;
+          }
+          tc._tabStyleEl.textContent = [
+            '.ui5-tab-strip-item-text,',
+            '.ui5-tab-strip-item .ui5-tab-strip-item-text,',
+            'div[class*="tab"][class*="text"],',
+            'span[class*="tab"][class*="text"] {',
+            '  font-size: 14px !important;',
+            '  font-weight: 600 !important;',
+            '  font-family: "72", sans-serif !important;',
+            '}'
+          ].join(' ');
+        });
+      }
+      injectTabStyles();
+      setTimeout(injectTabStyles, 100);
+      setTimeout(injectTabStyles, 500);
+      setTimeout(injectTabStyles, 1500);
+      window.addEventListener('load', function() { injectTabStyles(); setTimeout(injectTabStyles, 500); });
+    })();
+    (function applySemibold() {
+      const sel = '.sub-header-actions ui5-button, .action-box-footer ui5-button';
+      function injectOne(btn) {
+        if (!btn.shadowRoot || btn._semiboldInjected) return;
+        const s = document.createElement('style');
+        s.textContent = 'bdi, .ui5-button-text { font-family: "72", sans-serif !important; font-weight: 400 !important; }';
+        btn.shadowRoot.prepend(s);
+        btn._semiboldInjected = true;
+      }
+      function inject() {
+        document.querySelectorAll(sel).forEach(injectOne);
+      }
+      inject();
+      setTimeout(inject, 300);
+      setTimeout(inject, 800);
+      setTimeout(inject, 2000);
+      const obs = new MutationObserver(function() { inject(); });
+      obs.observe(document.body, { childList: true, subtree: true });
+      window.addEventListener('load', function() { inject(); setTimeout(inject, 500); });
+    })();
+    (function () {
+      function relDate(offsetDays) {
+        const d = new Date();
+        d.setDate(d.getDate() + offsetDays);
+        return (d.getMonth() + 1).toString().padStart(2, '0') + '/' +
+               d.getDate().toString().padStart(2, '0') + '/' +
+               d.getFullYear();
+      }
+      function relDateISO(offsetDays) {
+        const d = new Date();
+        d.setDate(d.getDate() + offsetDays);
+        return d.getFullYear() + '-' +
+               (d.getMonth() + 1).toString().padStart(2, '0') + '-' +
+               d.getDate().toString().padStart(2, '0');
+      }
+      function relDateTime(hoursAgo) {
+        const d = new Date(Date.now() - hoursAgo * 3600000);
+        const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        let h = d.getHours(), ampm = h >= 12 ? 'PM' : 'AM';
+        h = h % 12 || 12;
+        const min = d.getMinutes().toString().padStart(2, '0');
+        const sec = d.getSeconds().toString().padStart(2, '0');
+        return months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear() + ', ' +
+               h + ':' + min + ':' + sec + ' ' + ampm;
+      }
+      document.getElementById('ai-due-date').textContent = relDateISO(-113);
+      document.querySelectorAll('.settlement-date').forEach(function(el) { el.textContent = relDate(14); });
+      document.querySelectorAll('[data-rel]').forEach(function (el) {
+        el.textContent = relDate(parseInt(el.getAttribute('data-rel'), 10));
+      });
+      document.querySelectorAll('[data-hours-ago]').forEach(function (el) {
+        el.textContent = relDateTime(parseInt(el.getAttribute('data-hours-ago'), 10));
+      });
+    })();
+
+    // AI loader → content transition
+    setTimeout(function() {
+      var loader  = document.getElementById('ai-loader');
+      var content = document.getElementById('ai-content');
+      var body    = document.querySelector('.ai-body');
+      if (!loader || !content || !body) return;
+      loader.style.display = 'none';
+      body.classList.remove('loading');
+      content.classList.add('visible');
+    }, 1500);
+
+    // Email panel
+    var _emailContact = '', _emailAmount = '', _emailCustomer = '', _emailBlank = false;
+
+    function buildEmailBody(tone) {
+      var contact = _emailContact || 'Sir/Madam';
+      var amount  = _emailAmount;
+      var cust    = _emailCustomer;
+      var invoices = '  • 7033821540: EUR 18,219.40 (due 2026-02-10)\n  • 7033821539: EUR 36,438.80 (due 2026-02-10)\n  • 7033784215: EUR 13,664.55 (due 2025-09-01)';
+      var sig = 'Thank you,\nJordan Lee\nCollection Specialist\nBestRun';
+      if (tone === 'Formal') {
+        return 'Dear ' + contact + ',\n\n' +
+          'I am writing to formally bring to your attention an outstanding balance of EUR ' + amount + ' for ' + cust + ', which remains unpaid across multiple invoices. The outstanding invoices are:\n\n' + invoices + '\n\n' +
+          'We kindly request that you confirm the payment status or provide a structured payment timeline at your earliest convenience. Should you require any additional documentation or clarification, please do not hesitate to contact us.\n\n' +
+          sig;
+      } else if (tone === 'Urgent') {
+        return 'Dear ' + contact + ',\n\n' +
+          'This is an urgent notice regarding an overdue balance of EUR ' + amount + ' for ' + cust + '. The following invoices are outstanding and require immediate attention:\n\n' + invoices + '\n\n' +
+          'Failure to respond or arrange payment within 48 hours may result in escalation, including suspension of services and referral to our legal team. Please confirm payment or contact us immediately to avoid further action.\n\n' +
+          sig;
+      } else {
+        return 'Hello, ' + contact + ',\n\n' +
+          'We are following up on an outstanding balance of EUR ' + amount + ' for ' + cust + ', currently unpaid across multiple invoices. The outstanding invoices are:\n\n' + invoices + '\n\n' +
+          'Please confirm the payment status or provide a payment timeline for these invoices, or let me know if you need any clarification or documentation to process payment.\n\n' +
+          sig;
+      }
+    }
+    function openEmailPanel(blank) {
+      _emailBlank = !!blank;
+      const customerName = new URLSearchParams(window.location.search).get('customer') || 'Clairmont Diagnostic Clinic';
+      const c = CUSTOMERS[customerName] || {};
+      _emailContact  = c.contact || 'Sir/Madam';
+      _emailAmount   = c.amount  || '';
+      _emailCustomer = customerName;
+      document.getElementById('emailPanelCustomer').textContent = customerName;
+      document.getElementById('emailToInput').setAttribute('value', c.email || _emailContact);
+      document.getElementById('emailSubject').setAttribute('value', '');
+      document.getElementById('emailBody').value = '';
+      // Attachments: hide in blank mode
+      document.getElementById('emailAttSection').style.display = blank ? 'none' : '';
+      var sb = document.querySelector('app-shellbar ui5-shellbar') || document.querySelector('ui5-shellbar');
+      var topOffset = sb ? sb.getBoundingClientRect().bottom : 44;
+      document.getElementById('emailPanel').style.top = (topOffset + 1) + 'px';
+      document.getElementById('emailPanel').classList.add('open');
+
+      if (blank) {
+        // Open immediately with empty fields, no loader
+        document.getElementById('emailBody').style.visibility = '';
+        document.getElementById('emailBodyLoader').style.display = 'none';
+        document.getElementById('emailSendBtn').removeAttribute('disabled');
+        // Reset tone
+        var toneSelect = document.getElementById('toneSelect');
+        if (toneSelect) { Array.from(toneSelect.querySelectorAll('ui5-option')).forEach(function(o) { o.selected = o.textContent.trim() === 'Neutral'; }); }
+      } else {
+        // AI-generated: show loader then populate
+        document.getElementById('emailBody').style.visibility = 'hidden';
+        document.getElementById('emailBodyLoader').style.display = 'flex';
+        document.getElementById('emailSendBtn').setAttribute('disabled', '');
+        var toneSelect = document.getElementById('toneSelect');
+        if (toneSelect) { Array.from(toneSelect.querySelectorAll('ui5-option')).forEach(function(o) { o.selected = o.textContent.trim() === 'Neutral'; }); }
+        setTimeout(function() {
+          document.getElementById('emailBodyLoader').style.display = 'none';
+          document.getElementById('emailBody').style.visibility = '';
+          document.getElementById('emailSubject').setAttribute('value', 'Outstanding balance of EUR ' + _emailAmount);
+          document.getElementById('emailBody').value = buildEmailBody('Neutral');
+          document.getElementById('emailSendBtn').removeAttribute('disabled');
+        }, 1500);
+      }
+    }
+
+    var _emailResizeObserver = null;
+    function resizeEmailBody() {}
+    function startEmailResizeObserver() {}
+    function closeEmailPanel() {
+      document.getElementById('emailPanel').classList.remove('open');
+    }
+    function closeNotesPanel() {
+      document.getElementById('notesPanel').classList.remove('open');
+    }
+    function openCallScriptPanel() {
+      const customerName = document.getElementById('page-title').textContent;
+      const c = CUSTOMERS[customerName] || {};
+      const contact = c.contact || 'the customer';
+      const amount  = c.amount  || '';
+      var firstName = contact.split(' ')[0] || contact;
+      var invoices = '  • 7033821540: EUR 18,219.40 (due 2026-02-10)\n  • 7033821539: EUR 36,438.80 (due 2026-02-10)\n  • 7033784215: EUR 13,664.55 (due 2025-09-01)';
+      const script =
+        'Hi, may I speak with ' + contact + ' please?\n\n' +
+        '[Wait for response]\n\n' +
+        'Good [morning/afternoon], ' + firstName + '. My name is Jordan Lee, I\'m calling from BestRun regarding an outstanding balance of EUR ' + amount + ' on the ' + customerName + ' account.\n\n' +
+        'The balance remains unpaid across the following invoices:\n\n' +
+        invoices + '\n\n' +
+        'I\'d like to understand the current status of these and work with you on a resolution. Could you provide an update on where things stand?\n\n' +
+        '[Listen — note any disputes, approvals pending, or cash flow issues]\n\n' +
+        'Thank you for that context. To bring this to a close, I\'d like to propose the following options:\n\n' +
+        '  1. Full settlement of EUR ' + amount + ' by a date that works for your team\n' +
+        '  2. A structured payment plan — for example, two instalments over 30 days\n' +
+        '  3. If any of these invoices are subject to a dispute, we can isolate those and process the undisputed portion separately\n\n' +
+        'Which of those would you like to proceed with?\n\n' +
+        '[Agree on a specific date or next step — write it down]\n\n' +
+        'Understood. I\'ll send a written summary of what we\'ve agreed to ' + (c.email || 'the email address we have on file') + ' immediately after this call. Please confirm that address is still current.\n\n' +
+        '[Wait for confirmation]\n\n' +
+        'Thank you, ' + firstName + '. I appreciate your time. You\'ll receive that confirmation shortly.';
+      var ta = document.getElementById('callScriptBody');
+      ta.value = '';
+      ta.style.visibility = 'hidden';
+      var loader = document.getElementById('callScriptLoader');
+      loader.style.display = 'flex';
+      var sb = document.querySelector('app-shellbar ui5-shellbar') || document.querySelector('ui5-shellbar');
+      var topOffset = sb ? sb.getBoundingClientRect().bottom : 44;
+      var panel = document.getElementById('callScriptPanel');
+      panel.style.top = (topOffset + 1) + 'px';
+      panel.classList.add('open');
+      setTimeout(function() {
+        ta.value = script;
+        setTimeout(function() { ta.value = script; }, 100);
+        loader.style.display = 'none';
+        ta.style.visibility = '';
+      }, 1500);
+    }
+    function closeCallScriptPanel() {
+      document.getElementById('callScriptPanel').classList.remove('open');
+    }
+    function openAddNotesPanel() {
+      var sb = document.querySelector('app-shellbar ui5-shellbar') || document.querySelector('ui5-shellbar');
+      var topOffset = sb ? sb.getBoundingClientRect().bottom : 44;
+      var panel = document.getElementById('notesPanel');
+      panel.style.top = (topOffset + 1) + 'px';
+      var header = panel.querySelector('.email-panel-header');
+      header.innerHTML = 'Add Notes';
+      document.getElementById('notesTextarea').value = '';
+      panel._saveMode = 'addnotes';
+      panel.classList.add('open');
+    }
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') { closeEmailPanel(); closeNotesPanel(); closeCallScriptPanel(); }
+    });
+    document.addEventListener('DOMContentLoaded', function() {
+      // Thumb button border on click, reset on mouseout
+      ['thumbUpBtn', 'thumbDownBtn'].forEach(function(id) {
+        var btn = document.getElementById(id);
+        btn.addEventListener('click', function() { this.setAttribute('design', 'Default'); });
+        btn.addEventListener('mouseleave', function() {
+          this.setAttribute('design', 'Transparent');
+          this.blur();
+        });
+      });
+
+      // Thumbs up burst stars
+      document.getElementById('thumbUpBtn').addEventListener('click', function() {
+        showToast('Thank you for your feedback!');
+        var rect = this.getBoundingClientRect();
+        var cx = rect.left + rect.width / 2;
+        var cy = rect.top + rect.height / 2;
+        var angles = [0, 40, 80, 130, 180, 220, 260, 310];
+        angles.forEach(function(angle) {
+          var dist = 28 + Math.random() * 18;
+          var rad = angle * Math.PI / 180;
+          var tx = Math.cos(rad) * dist;
+          var ty = Math.sin(rad) * dist;
+          var star = document.createElement('span');
+          star.className = 'burst-star';
+          star.textContent = '★';
+          star.style.cssText = 'left:' + cx + 'px; top:' + cy + 'px; font-size:' + (12 + Math.random() * 8) + 'px; color:var(--sapCriticalColor, #e9730c); --tx:' + tx + 'px; --ty:' + ty + 'px;';
+          document.body.appendChild(star);
+          setTimeout(function() { star.remove(); }, 650);
+        });
+      });
+
+      // Thumbs down dialog
+      document.getElementById('thumbDownBtn').addEventListener('click', function() {
+        document.querySelectorAll('.feedback-pill').forEach(function(p) { p.classList.remove('selected'); });
+        document.getElementById('otherInputWrap').style.display = 'none';
+        document.getElementById('otherInput').setAttribute('value', '');
+        document.getElementById('thumbsDownOkBtn').setAttribute('disabled', '');
+        document.getElementById('thumbsDownDialog').open = true;
+      });
+      document.querySelectorAll('.feedback-pill').forEach(function(pill) {
+        pill.addEventListener('click', function() {
+          this.classList.toggle('selected');
+          if (this.id === 'otherPill') {
+            var wrap = document.getElementById('otherInputWrap');
+            wrap.style.display = this.classList.contains('selected') ? '' : 'none';
+            if (this.classList.contains('selected')) document.getElementById('otherInput').focus();
+          }
+          updateOkBtn();
+        });
+      });
+      function updateOkBtn() {
+        var selectedPills = document.querySelectorAll('.feedback-pill.selected');
+        var otherSelected = document.getElementById('otherPill').classList.contains('selected');
+        var otherText = (document.getElementById('otherInput').value || '').trim();
+        var nonOtherSelected = Array.from(selectedPills).some(function(p) { return p.id !== 'otherPill'; });
+        var valid = nonOtherSelected || (otherSelected && otherText.length > 0);
+        var okBtn = document.getElementById('thumbsDownOkBtn');
+        valid ? okBtn.removeAttribute('disabled') : okBtn.setAttribute('disabled', '');
+      }
+      document.getElementById('otherInput').addEventListener('input', updateOkBtn);
+
+      // Discard suggestion dialog
+      var _discardCallback = null;
+      function openDiscardDialog(callback) {
+        _discardCallback = callback;
+        document.querySelectorAll('.discard-pill').forEach(function(p) { p.classList.remove('selected'); });
+        document.getElementById('discardOtherInputWrap').style.display = 'none';
+        document.getElementById('discardOtherInput').setAttribute('value', '');
+        document.getElementById('discardDialogOkBtn').setAttribute('disabled', '');
+        document.getElementById('discardDialog').open = true;
+      }
+      function updateDiscardOkBtn() {
+        var selectedPills = document.querySelectorAll('.discard-pill.selected');
+        var otherSelected = document.getElementById('discardOtherPill').classList.contains('selected');
+        var otherText = (document.getElementById('discardOtherInput').value || '').trim();
+        var nonOtherSelected = Array.from(selectedPills).some(function(p) { return p.id !== 'discardOtherPill'; });
+        var valid = nonOtherSelected || (otherSelected && otherText.length > 0);
+        var okBtn = document.getElementById('discardDialogOkBtn');
+        valid ? okBtn.removeAttribute('disabled') : okBtn.setAttribute('disabled', '');
+      }
+      document.querySelectorAll('.discard-pill').forEach(function(pill) {
+        pill.addEventListener('click', function() {
+          this.classList.toggle('selected');
+          if (this.id === 'discardOtherPill') {
+            var wrap = document.getElementById('discardOtherInputWrap');
+            wrap.style.display = this.classList.contains('selected') ? '' : 'none';
+            if (this.classList.contains('selected')) document.getElementById('discardOtherInput').focus();
+          }
+          updateDiscardOkBtn();
+        });
+      });
+      document.getElementById('discardOtherInput').addEventListener('input', updateDiscardOkBtn);
+      document.getElementById('discardDialogOkBtn').addEventListener('click', function() {
+        document.getElementById('discardDialog').open = false;
+        if (_discardCallback) { _discardCallback(); _discardCallback = null; }
+        showToast('Thank you for your feedback. We will use it to improve our AI recommendations.');
+      });
+      document.getElementById('discardDialogCancelBtn').addEventListener('click', function() {
+        document.getElementById('discardDialog').open = false;
+        _discardCallback = null;
+      });
+      document.getElementById('thumbsDownOkBtn').addEventListener('click', function() {
+        document.getElementById('thumbsDownDialog').open = false;
+        document.getElementById('thumbDownBtn').setAttribute('design', 'Transparent');
+        document.getElementById('thumbDownBtn').blur();
+        showToast('Thank you for your feedback. We will use it to improve our AI recommendations.');
+      });
+      document.getElementById('thumbsDownCancelBtn').addEventListener('click', function() {
+        document.getElementById('thumbsDownDialog').open = false;
+        document.getElementById('thumbDownBtn').setAttribute('design', 'Transparent');
+        document.getElementById('thumbDownBtn').blur();
+      });
+      // Wire hamburger menu
+      setTimeout(function() {
+        var menuBtn = document.querySelector('app-shellbar ui5-button[icon="menu2"]');
+        if (menuBtn) {
+          menuBtn.addEventListener('click', function() {
+            var pop = document.getElementById('navMenu');
+            pop.opener = menuBtn;
+            pop.open = !pop.open;
+          });
+        }
+      }, 300);
+      document.getElementById('callScriptCloseBtn').addEventListener('click', closeCallScriptPanel);
+      document.getElementById('emailCancelBtn').addEventListener('click', closeEmailPanel);
+      document.getElementById('emailSendBtn').addEventListener('click', function() {
+        var panel = document.getElementById('emailPanel');
+        // 1. Brief pause then slide out
+        setTimeout(function() {
+          panel.classList.remove('open');
+          // 2. After panel slides out, show toast and swap action card
+          setTimeout(function() {
+            // Swap email action card → no action card
+            document.getElementById('email-action-card').style.display = 'none';
+            document.getElementById('no-action-card').style.display = '';
+            // Add outbound email entry to account history
+            var now = new Date();
+            var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+            var h = now.getHours(), ampm = h >= 12 ? 'PM' : 'AM';
+            h = h % 12 || 12;
+            var min = now.getMinutes().toString().padStart(2,'0');
+            var sec = now.getSeconds().toString().padStart(2,'0');
+            var ts = months[now.getMonth()] + ' ' + now.getDate() + ', ' + now.getFullYear() + ', ' + h + ':' + min + ':' + sec + ' ' + ampm;
+            var newItem = document.createElement('li');
+            newItem.className = 'history-item';
+            newItem.innerHTML = '<div class="history-dot-col"><div class="history-dot"></div></div>' +
+              '<div class="history-body">' +
+              '<div class="history-time">' + ts + '</div>' +
+              '<div class="history-text">Email sent to ' + (_emailCustomer || 'customer') + (_emailBlank ? '.' : ' regarding outstanding balance of EUR ' + (_emailAmount || '') + '.') + '</div>' +
+              '<div class="history-subtitle">Outbound Email</div>' +
+              '<ui5-link>View Email</ui5-link>' +
+              '</div>';
+            var historyList = document.querySelector('#side-panel-history .history-list');
+            newItem.classList.add('entering');
+            historyList.insertBefore(newItem, historyList.firstChild);
+            requestAnimationFrame(function() {
+              requestAnimationFrame(function() {
+                newItem.classList.remove('entering');
+              });
+            });
+            // Show toast
+            var toast = document.getElementById('sendToast');
+            toast.textContent = 'Email sent to ' + (_emailCustomer || 'customer') + ' successfully.';
+            toast.style.opacity = '1';
+            toast.style.transform = 'translateX(-50%) translateY(0)';
+            setTimeout(function() {
+              toast.style.opacity = '0';
+              toast.style.transform = 'translateX(-50%) translateY(20px)';
+            }, 3000);
+          }, 600);
+        }, 900);
+      });
+      startEmailResizeObserver();
+
+      // Discard suggestion handler
+      document.getElementById('discardEmailBtn').addEventListener('click', function() {
+        openDiscardDialog(function() {
+          document.getElementById('email-action-card').style.display = 'none';
+          document.getElementById('no-action-card').style.display = '';
+          addHistoryEntry('AI suggestion to email ' + (new URLSearchParams(window.location.search).get('customer') || 'the customer') + ' was discarded.', 'jordan.lee@bestrun.com');
+        });
+      });
+      setTimeout(function() {
+        var btn = document.getElementById('sendEmailBtn');
+        if (btn) btn.addEventListener('click', function() { openEmailPanel(false); });
+        document.getElementById('ccToggleBtn').addEventListener('click', function() {
+          var ccRow = document.getElementById('emailCcRow');
+          ccRow.style.display = ccRow.style.display === 'none' ? 'flex' : 'none';
+        });
+        document.getElementById('emailAddAttBtn').addEventListener('click', function() {
+          document.getElementById('emailFileInput').click();
+        });
+        document.getElementById('toneSelect').addEventListener('change', function(e) {
+          var tone = e.detail && e.detail.selectedOption ? e.detail.selectedOption.textContent.trim() : 'Neutral';
+          document.getElementById('emailBody').value = buildEmailBody(tone);
+        });
+        // Make ui5-textarea fill its container
+        var ta = document.getElementById('emailBody');
+        if (ta && ta.shadowRoot) {
+          var s = document.createElement('style');
+          s.textContent = ':host { height: 100%; } .ui5-textarea-root, textarea { height: 100% !important; box-sizing: border-box; }';
+          ta.shadowRoot.appendChild(s);
+        }
+      }, 500);
+
+      // ── Notes panel (Call Customer flow) ──
+      function openNotesPanel() {
+        var sb = document.querySelector('app-shellbar ui5-shellbar') || document.querySelector('ui5-shellbar');
+        var topOffset = sb ? sb.getBoundingClientRect().bottom : 44;
+        var panel = document.getElementById('notesPanel');
+        panel.style.top = (topOffset + 1) + 'px';
+        document.getElementById('notesPanelCustomer').textContent = document.getElementById('page-title').textContent;
+        document.getElementById('notesTextarea').value = '';
+        panel.classList.add('open');
+      }
+      function showToast(msg) {
+        var toast = document.getElementById('sendToast');
+        toast.textContent = msg;
+        toast.style.opacity = '1';
+        toast.style.transform = 'translateX(-50%) translateY(0)';
+        setTimeout(function() {
+          toast.style.opacity = '0';
+          toast.style.transform = 'translateX(-50%) translateY(20px)';
+        }, 3000);
+      }
+      function addHistoryEntry(text, subtitle) {
+        var now = new Date();
+        var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        var h = now.getHours(), ampm = h >= 12 ? 'PM' : 'AM';
+        h = h % 12 || 12;
+        var min = now.getMinutes().toString().padStart(2,'0');
+        var sec = now.getSeconds().toString().padStart(2,'0');
+        var ts = months[now.getMonth()] + ' ' + now.getDate() + ', ' + now.getFullYear() + ', ' + h + ':' + min + ':' + sec + ' ' + ampm;
+        var newItem = document.createElement('li');
+        newItem.className = 'history-item entering';
+        newItem.innerHTML = '<div class="history-dot-col"><div class="history-dot"></div></div>' +
+          '<div class="history-body">' +
+          '<div class="history-time">' + ts + '</div>' +
+          '<div class="history-text">' + text + '</div>' +
+          '<div class="history-subtitle">' + subtitle + '</div>' +
+          '</div>';
+        var historyList = document.querySelector('#side-panel-history .history-list');
+        historyList.insertBefore(newItem, historyList.firstChild);
+        requestAnimationFrame(function() { requestAnimationFrame(function() { newItem.classList.remove('entering'); }); });
+      }
+
+      document.getElementById('confirmCallBtn').addEventListener('click', openNotesPanel);
+      document.getElementById('callScriptFromCardBtn').addEventListener('click', openCallScriptPanel);
+      document.getElementById('notesCancelBtn').addEventListener('click', closeNotesPanel);
+      document.getElementById('notesSaveBtn').addEventListener('click', function() {
+        var panel = document.getElementById('notesPanel');
+        var mode = panel._saveMode;
+        closeNotesPanel();
+        setTimeout(function() {
+          if (mode === 'followup') {
+            document.getElementById('internal-followup-card').style.display = 'none';
+            _followupDone = true;
+            addHistoryEntry('Internal follow-up notes saved for ' + document.getElementById('page-title').textContent + '.', 'Internal Follow-up');
+            showToast('Your notes have been saved.');
+            checkPinecrestComplete();
+          } else if (mode === 'addnotes') {
+            addHistoryEntry('Notes added for ' + document.getElementById('page-title').textContent + '.', 'Notes · jordan.lee@bestrun.com');
+            showToast('Your notes have been saved.');
+          } else {
+            document.getElementById('call-action-card').style.display = 'none';
+            document.getElementById('no-action-card').style.display = '';
+            addHistoryEntry('Call with ' + document.getElementById('page-title').textContent + ' documented.', 'Outbound Call');
+            showToast('Your notes have been saved.');
+          }
+        }, 500);
+      });
+      document.getElementById('discardCallBtn').addEventListener('click', function() {
+        openDiscardDialog(function() {
+          document.getElementById('call-action-card').style.display = 'none';
+          document.getElementById('no-action-card').style.display = '';
+          addHistoryEntry('AI suggestion to call the customer was discarded.', 'jordan.lee@bestrun.com');
+        });
+      });
+
+      // ── Pinecrest: two-card logic ──
+      var _followupDone = false;
+      var _serviceNowDone = false;
+
+      function checkPinecrestComplete() {
+        if (_followupDone && _serviceNowDone) {
+          document.getElementById('action-cards').style.display = 'none';
+          document.getElementById('no-action-card').style.display = '';
+        }
+      }
+
+      // Notes panel for internal follow-up (reuse same panel, different header)
+      function openFollowupNotesPanel() {
+        var sb = document.querySelector('app-shellbar ui5-shellbar') || document.querySelector('ui5-shellbar');
+        var topOffset = sb ? sb.getBoundingClientRect().bottom : 44;
+        var panel = document.getElementById('notesPanel');
+        panel.style.top = (topOffset + 1) + 'px';
+        document.getElementById('notesPanelCustomer').textContent = '';
+        panel.querySelector('.email-panel-header').textContent = 'Document your Internal Follow-up';
+        document.getElementById('notesTextarea').value = '';
+        panel._saveMode = 'followup';
+        panel.classList.add('open');
+      }
+
+      setTimeout(function() {
+        var confirmFollowup = document.getElementById('confirmFollowupBtn');
+        var discardFollowup = document.getElementById('discardFollowupBtn');
+        var approveBtn = document.getElementById('approveServiceNowBtn');
+        var discardSN = document.getElementById('discardServiceNowBtn');
+        if (!confirmFollowup) return;
+
+        confirmFollowup.addEventListener('click', openFollowupNotesPanel);
+
+        approveBtn.addEventListener('click', function() {
+          document.getElementById('approve-servicenow-card').style.display = 'none';
+          _serviceNowDone = true;
+          addHistoryEntry('ServiceNow ticket creation approved. Agent will proceed.', 'Agent Action');
+          showToast('Action approved. Agent will proceed.');
+          checkPinecrestComplete();
+        });
+
+        discardFollowup.addEventListener('click', function() {
+          openDiscardDialog(function() {
+            document.getElementById('internal-followup-card').style.display = 'none';
+            _followupDone = true;
+            addHistoryEntry('AI suggestion to follow up internally was discarded.', 'jordan.lee@bestrun.com');
+            document.getElementById('approve-servicenow-card').style.display = 'none';
+            _serviceNowDone = true;
+            addHistoryEntry('ServiceNow ticket creation approved by agent.', 'Agent Action');
+            checkPinecrestComplete();
+          });
+        });
+
+        discardSN.addEventListener('click', function() {
+          openDiscardDialog(function() {
+            document.getElementById('approve-servicenow-card').style.display = 'none';
+            _serviceNowDone = true;
+            addHistoryEntry('AI suggestion to create a ServiceNow ticket was discarded.', 'jordan.lee@bestrun.com');
+            checkPinecrestComplete();
+          });
+        });
+      }, 300);
+
+      // end Pinecrest logic
+
+      // Make notes textarea fill its container
+      setTimeout(function() {
+        var nta = document.getElementById('notesTextarea');
+        if (nta && nta.shadowRoot) {
+          var s = document.createElement('style');
+          s.textContent = ':host { height: 100%; } .ui5-textarea-root, textarea { height: 100% !important; box-sizing: border-box; font-size: 14px !important; }';
+          nta.shadowRoot.appendChild(s);
+        }
+        var csa = document.getElementById('callScriptBody');
+        if (csa && csa.shadowRoot) {
+          var s2 = document.createElement('style');
+          s2.textContent = ':host { height: 100%; } .ui5-textarea-root, textarea { height: 100% !important; box-sizing: border-box; font-size: 14px !important; font-family: "72", sans-serif !important; }';
+          csa.shadowRoot.appendChild(s2);
+        }
+      }, 500);
+    });
+  </script>
+
+  <!-- Email slide-in panel -->
+  <div id="emailPanel">
+    <div class="email-panel-header">Email <span id="emailPanelCustomer"></span></div>
+    <div class="email-panel-body">
+      <div style="display:flex; flex-direction:column; gap:0.25rem;">
+        <span class="email-form-label">From: <span class="req">*</span></span>
+        <ui5-input value="jordan.lee@bestrun.com" readonly style="width:100%"></ui5-input>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:0.25rem;">
+        <span class="email-form-label">To: <span class="req">*</span></span>
+        <div style="display:flex; align-items:center; gap:0.5rem;">
+          <ui5-input id="emailToInput" style="flex:1"></ui5-input>
+          <ui5-button design="Transparent" size="Small" id="ccToggleBtn">CC</ui5-button>
+        </div>
+      </div>
+      <div id="emailCcRow" style="display:none; flex-direction:column; gap:0.25rem;">
+        <span class="email-form-label">CC:</span>
+        <div style="display:flex; align-items:center; gap:0.5rem;">
+          <ui5-input id="emailCcInput" style="flex:1"></ui5-input>
+          <div style="width:var(--_ui5_button_compact_height, 2rem); flex-shrink:0; visibility:hidden;"></div>
+        </div>
+      </div>
+      <div style="display:flex; gap:0.75rem; align-items:flex-end;">
+        <div style="flex:1; display:flex; flex-direction:column; gap:0.25rem;">
+          <div class="email-form-label">Subject:</div>
+          <ui5-input id="emailSubject" style="width:100%"></ui5-input>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:0.25rem; width:140px; flex-shrink:0;">
+          <div class="email-form-label">Tone:</div>
+          <ui5-select id="toneSelect" style="width:100%">
+            <ui5-option selected>Neutral</ui5-option>
+            <ui5-option>Formal</ui5-option>
+            <ui5-option>Urgent</ui5-option>
+          </ui5-select>
+        </div>
+      </div>
+      <div class="email-msg-wrap">
+        <div class="email-msg-label">Message:</div>
+        <div class="email-toolbar">
+          <ui5-button design="Transparent" icon="bold-text" tooltip="Bold" style="margin-left:3px"></ui5-button>
+          <ui5-button design="Transparent" icon="italic-text" tooltip="Italic"></ui5-button>
+          <ui5-button design="Transparent" icon="underline-text" tooltip="Underline"></ui5-button>
+          <ui5-button design="Transparent" icon="strikethrough" tooltip="Strikethrough"></ui5-button>
+          <div class="email-tb-sep"></div>
+          <ui5-button design="Transparent" icon="text-align-justified" tooltip="Align"></ui5-button>
+          <div class="email-tb-sep"></div>
+          <div class="email-toolbar-spacer"></div>
+          <ui5-select style="width:140px; margin-right:3px">
+            <ui5-option selected>Paragraph</ui5-option>
+            <ui5-option>Heading 1</ui5-option>
+            <ui5-option>Heading 2</ui5-option>
+          </ui5-select>
+          <ui5-select style="width:160px; margin-right:3px">
+            <ui5-option selected>Arial</ui5-option>
+            <ui5-option>Times New Roman</ui5-option>
+            <ui5-option>Courier</ui5-option>
+          </ui5-select>
+        </div>
+        <div style="position:relative; flex:1; min-height:0;">
+          <ui5-textarea id="emailBody" style="width:100%; height:100%"></ui5-textarea>
+          <div id="emailBodyLoader" style="display:none; position:absolute; inset:0; background:#fff; border:1px solid var(--sapField_BorderColor); border-radius:var(--sapField_BorderCornerRadius,0.25rem); align-items:center; justify-content:center; gap:10px;">
+            <div class="ai-loader-dot"></div>
+            <div class="ai-loader-dot"></div>
+            <div class="ai-loader-dot"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="email-att-section ui5-content-density-compact" id="emailAttSection">
+      <div class="email-att-header">
+        <span class="email-att-label">Attachments:</span>
+        <input type="file" id="emailFileInput" style="display:none" multiple>
+        <ui5-button design="Default" icon="add" id="emailAddAttBtn">Add</ui5-button>
+      </div>
+      <div class="email-att-item" id="att1">
+        <span class="email-att-name"><ui5-icon name="attachment"></ui5-icon> <ui5-link onclick="window.open('','_blank')">Account Overview.xlsx</ui5-link></span>
+        <ui5-button design="Transparent" icon="decline" onclick="document.getElementById('att1').remove()"></ui5-button>
+      </div>
+      <div class="email-att-item" id="att2">
+        <span class="email-att-name"><ui5-icon name="attachment"></ui5-icon> <ui5-link onclick="window.open('','_blank')">Overdue invoices.xlsx</ui5-link></span>
+        <ui5-button design="Transparent" icon="decline" onclick="document.getElementById('att2').remove()"></ui5-button>
+      </div>
+    </div>
+    <div class="email-panel-footer">
+      <ui5-button design="Emphasized" icon="paper-plane" id="emailSendBtn">Send</ui5-button>
+      <ui5-button design="Transparent" id="emailCancelBtn">Cancel</ui5-button>
+    </div>
+  </div>
+  <!-- Toast -->
+  <div id="notesPanel">
+    <div class="email-panel-header">Document your Call with <span id="notesPanelCustomer"></span></div>
+    <div class="email-panel-body">
+      <span class="email-form-label">Notes:</span>
+      <ui5-textarea id="notesTextarea" placeholder="Add your notes here." style="flex:1; width:100%"></ui5-textarea>
+    </div>
+    <div class="email-panel-footer">
+      <ui5-button design="Emphasized" icon="accept" id="notesSaveBtn">Save</ui5-button>
+      <ui5-button design="Transparent" id="notesCancelBtn">Cancel</ui5-button>
+    </div>
+  </div>
+
+  <!-- Call Script slide-in panel -->
+  <div id="callScriptPanel">
+    <div class="email-panel-header">Call Script</div>
+    <div class="email-panel-body">
+      <div style="position:relative; flex:1; min-height:0; display:flex; flex-direction:column;">
+        <ui5-textarea id="callScriptBody" style="flex:1; width:100%; font-family:'72',sans-serif; font-size:14px;"></ui5-textarea>
+        <div id="callScriptLoader" style="display:none; position:absolute; inset:0; background:#fff; border:1px solid var(--sapField_BorderColor); border-radius:var(--sapField_BorderCornerRadius,0.25rem); align-items:center; justify-content:center; gap:10px;">
+          <div class="ai-loader-dot"></div>
+          <div class="ai-loader-dot"></div>
+          <div class="ai-loader-dot"></div>
+        </div>
+      </div>
+    </div>
+    <div class="email-panel-footer">
+      <ui5-button design="Transparent" id="callScriptCloseBtn">Close</ui5-button>
+    </div>
+  </div>
+
+  <!-- Discard Suggestion Dialog -->
+  <ui5-dialog id="discardDialog" header-text="What didn't work?" style="max-width:560px">
+    <div style="display:flex; flex-wrap:wrap; gap:0.625rem; box-sizing:border-box;">
+      <button class="discard-pill" data-label="Action taken already">Action taken already</button>
+      <button class="discard-pill" data-label="Timing is not right">Timing is not right</button>
+      <button class="discard-pill" data-label="Customer relationship sensitivity">Customer relationship sensitivity</button>
+      <button class="discard-pill" data-label="Other communication is currently taking place">Other communication is currently taking place</button>
+      <button class="discard-pill" data-label="Recommendation is not relevant">Recommendation is not relevant</button>
+      <button class="discard-pill" id="discardOtherPill" data-label="Other">Other</button>
+    </div>
+    <div id="discardOtherInputWrap" style="display:none; padding-top:0.75rem;">
+      <ui5-input id="discardOtherInput" placeholder="Tell us more..." style="width:100%"></ui5-input>
+    </div>
+    <div slot="footer" style="display:flex; justify-content:flex-end; align-items:center; gap:0.5rem; padding:0.5rem; width:100%; box-sizing:border-box;">
+      <ui5-button design="Emphasized" id="discardDialogOkBtn" disabled>OK</ui5-button>
+      <ui5-button design="Transparent" id="discardDialogCancelBtn">Cancel</ui5-button>
+    </div>
+  </ui5-dialog>
+
+  <!-- Thumbs Down Feedback Dialog -->
+  <ui5-dialog id="thumbsDownDialog" header-text="What didn't work?" style="max-width:520px">
+    <div style="display:flex; flex-wrap:wrap; gap:0.625rem; box-sizing:border-box;">
+      <button class="feedback-pill" data-label="Priority rating is too high">Priority rating is too high</button>
+      <button class="feedback-pill" data-label="Priority rating is too low">Priority rating is too low</button>
+      <button class="feedback-pill" data-label="Insights does not account all factors">Insights does not account all factors</button>
+      <button class="feedback-pill" data-label="Recommendation is not relevant">Recommendation is not relevant</button>
+      <button class="feedback-pill" data-label="Insights is ambiguous">Insights is ambiguous</button>
+      <button class="feedback-pill" id="otherPill" data-label="Other">Other</button>
+    </div>
+    <div id="otherInputWrap" style="display:none; padding-top:0.75rem;">
+      <ui5-input id="otherInput" placeholder="Tell us more..." style="width:100%"></ui5-input>
+    </div>
+    <div slot="footer" style="display:flex; justify-content:flex-end; align-items:center; gap:0.5rem; padding:0.5rem; width:100%; box-sizing:border-box;">
+      <ui5-button design="Emphasized" id="thumbsDownOkBtn">OK</ui5-button>
+      <ui5-button design="Transparent" id="thumbsDownCancelBtn">Cancel</ui5-button>
+    </div>
+  </ui5-dialog>
+
+  <div id="sendToast" style="
+    position:fixed; bottom:2rem; left:50%; transform:translateX(-50%) translateY(20px);
+    background:#223548; color:#fff; font-family:'72',sans-serif; font-size:14px;
+    padding:0.75rem 1.5rem; border-radius:8px; text-align:center;
+    opacity:0; transition:opacity 0.3s ease, transform 0.3s ease;
+    pointer-events:none; z-index:200; white-space:nowrap;">
+    Email sent successfully.
+  </div>
+
+</body>
+</html>

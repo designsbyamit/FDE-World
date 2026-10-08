@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Slide Tile</title>
+  <script src="panel-init.js"></script>
+  <script type="module" src="../../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 600; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 300; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Light.woff2") format("woff2"); }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "72", sans-serif; font-size: 0.875rem; background: var(--sapBackgroundColor, #f5f6f7); padding: 2rem; color: var(--sapTextColor, #131e29); }
+    .panel-title { font-size: 1.5rem; font-weight: 700; color: #131e29; margin-bottom: 0.375rem; }
+    .panel-subtitle { font-size: 0.8125rem; color: var(--sapContent_LabelColor, #6a7588); margin-bottom: 2rem; }
+    .demo-section { background: #fff; border: 1px solid var(--sapList_BorderColor, #e5e5e5); border-radius: 8px; margin-bottom: 1.25rem; overflow: hidden; }
+    .demo-section-header { padding: 0.75rem 1rem; border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5); font-size: 0.8125rem; font-weight: 600; color: var(--sapContent_LabelColor, #6a7588); display: flex; align-items: center; justify-content: space-between; }
+    .demo-section-tag { font-family: monospace; font-size: 0.75rem; color: #0064d9; font-weight: 400; }
+    .demo-section-body { padding: 1.25rem 1rem; display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: flex-start; }
+    .demo-section-body.column { flex-direction: column; }
+    .demo-section-body.block { display: block; padding: 0; }
+  </style>
+</head>
+<body>
+  <div class="panel-title">Slide Tile</div>
+  <div class="panel-subtitle">A tile that cycles through multiple Generic Tiles with a configurable display time and transition. Supports a Failed state on individual tiles. Equivalent to sap.m.SlideTile — rendered using a CSS auto-advancing carousel.</div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">
+      Default speed (display 5 s, transition 500 ms)
+      <span class="demo-section-tag">sap.m.SlideTile · auto-advance · 2 tiles</span>
+    </div>
+    <div class="demo-section-body block">
+      <div class="slide-tile" id="st1" style="width:340px;height:170px;border-radius:8px;overflow:hidden;position:relative;cursor:pointer;flex-shrink:0;">
+        <div class="st-slide active" style="position:absolute;inset:0;background:linear-gradient(135deg,#1a3a5c,#2d6a9f);display:flex;flex-direction:column;justify-content:flex-end;padding:1rem;transition:opacity 0.5s;">
+          <div style="font-size:0.6875rem;color:rgba(255,255,255,0.7);margin-bottom:0.375rem;">Today, SAP News</div>
+          <div style="font-size:0.9375rem;font-weight:600;color:#fff;line-height:1.4;">SAP Unveils Powerful New Player Comparison Tool Exclusively on NFL.com</div>
+          <div style="font-size:0.75rem;color:rgba(255,255,255,0.6);margin-top:0.375rem;">August 21, 2016</div>
+        </div>
+        <div class="st-slide" style="position:absolute;inset:0;opacity:0;background:linear-gradient(135deg,#1a4a2c,#2d7a4f);display:flex;flex-direction:column;justify-content:flex-end;padding:1rem;transition:opacity 0.5s;">
+          <div style="font-size:0.6875rem;color:rgba(255,255,255,0.7);margin-bottom:0.375rem;">Today, SAP News</div>
+          <div style="font-size:0.9375rem;font-weight:600;color:#fff;line-height:1.4;">Wind Map: Monitoring Real-Time and Forecasted Wind Conditions across the Globe</div>
+          <div style="font-size:0.75rem;color:rgba(255,255,255,0.6);margin-top:0.375rem;">August 21, 2016</div>
+        </div>
+        <div style="position:absolute;bottom:0.5rem;right:0.75rem;display:flex;gap:0.3rem;">
+          <div class="st-dot active" style="width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.9);transition:background 0.3s;"></div>
+          <div class="st-dot" style="width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.4);transition:background 0.3s;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">
+      Fast speed (display 2.5 s, transition 250 ms) · tile 2 in Failed state
+      <span class="demo-section-tag">displayTime=2500 · transitionTime=250 · Failed state</span>
+    </div>
+    <div class="demo-section-body block">
+      <div class="slide-tile" id="st2" style="width:340px;height:170px;border-radius:8px;overflow:hidden;position:relative;cursor:pointer;flex-shrink:0;">
+        <div class="st-slide active" style="position:absolute;inset:0;background:linear-gradient(135deg,#1a4a2c,#2d7a4f);display:flex;flex-direction:column;justify-content:flex-end;padding:1rem;transition:opacity 0.25s;">
+          <div style="font-size:0.6875rem;color:rgba(255,255,255,0.7);margin-bottom:0.375rem;">Today, SAP News</div>
+          <div style="font-size:0.9375rem;font-weight:600;color:#fff;line-height:1.4;">Wind Map: Monitoring Real-Time and Forecasted Wind Conditions across the Globe</div>
+          <div style="font-size:0.75rem;color:rgba(255,255,255,0.6);margin-top:0.375rem;">August 21, 2016</div>
+        </div>
+        <div class="st-slide st-failed" style="position:absolute;inset:0;opacity:0;background:#f5f5f5;border:1px solid var(--sapNegativeColor,#aa0808);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.5rem;transition:opacity 0.25s;">
+          <ui5-icon name="message-error" style="width:32px;height:32px;color:var(--sapNegativeColor,#aa0808);"></ui5-icon>
+          <div style="font-size:0.8125rem;font-weight:600;color:var(--sapNegativeColor,#aa0808);">Failed to load</div>
+          <div style="font-size:0.75rem;color:var(--sapContent_LabelColor,#6a7588);">August 21, 2016</div>
+        </div>
+        <div style="position:absolute;bottom:0.5rem;right:0.75rem;display:flex;gap:0.3rem;">
+          <div class="st-dot active" style="width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.9);transition:background 0.3s;"></div>
+          <div class="st-dot" style="width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.4);transition:background 0.3s;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      function initSlideTile(id, displayMs, transMs) {
+        var wrap = document.getElementById(id);
+        if (!wrap) return;
+        var slides = wrap.querySelectorAll('.st-slide');
+        var dots = wrap.querySelectorAll('.st-dot');
+        var idx = 0;
+        setInterval(function() {
+          slides[idx].style.opacity = '0';
+          dots[idx].style.background = 'rgba(255,255,255,0.4)';
+          dots[idx].classList.remove('active');
+          idx = (idx + 1) % slides.length;
+          slides[idx].style.opacity = '1';
+          dots[idx].style.background = 'rgba(255,255,255,0.9)';
+          dots[idx].classList.add('active');
+        }, displayMs);
+      }
+      initSlideTile('st1', 5000, 500);
+      initSlideTile('st2', 2500, 250);
+    })();
+  </script>
+</body>
+</html>

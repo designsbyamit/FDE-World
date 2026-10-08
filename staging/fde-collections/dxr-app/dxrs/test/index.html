@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>TEST</title>
+<style>
+  @font-face{font-family:"72";font-weight:400;src:url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2")}
+  @font-face{font-family:"72";font-weight:700;src:url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2")}
+  @font-face{font-family:"72";font-weight:600;src:url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2")}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"72","72full",-apple-system,sans-serif;background:#f5f6f7;color:#1d2d3e;}
+  .header{background:#fff;border-bottom:1px solid #e5e5e5;padding:1.25rem 2rem 1.5rem;position:sticky;top:0;z-index:10;}
+  .layout{display:grid;grid-template-columns:300px 1fr;max-width:1280px;margin:0 auto;padding:2rem;gap:0;align-items:start;}
+  .nav{position:sticky;top:calc(var(--hh,120px) + 2rem);background:#fff;border:1px solid #e5e5e5;border-radius:0.5rem;padding:1rem 0;margin-right:2rem;}
+  .nav-label{font-size:0.6875rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#556b82;padding:0 1rem 0.5rem;}
+  .nav a{display:block;padding:0.4375rem 1rem;font-size:0.8125rem;color:#1d2d3e;text-decoration:none;}
+  .nav a:hover{background:#f0f4f8;color:#0064d9;}
+  p{font-size:0.875rem;line-height:1.6;margin-bottom:0.75rem;}
+  p:last-child{margin-bottom:0;}
+  ul,ol{padding-left:1.25rem;margin-bottom:0.75rem;}
+  li{font-size:0.875rem;line-height:1.6;margin-bottom:0.25rem;}
+  strong{font-weight:700;}
+</style>
+</head>
+<body>
+<div class="header" id="hdr">
+  <div style="font-size:0.8125rem;color:#0064d9;margin-bottom:0.375rem;"><a href="../" style="color:#0064d9;text-decoration:none;">← FDE Design Excellence Reviews</a></div>
+  <div style="font-size:1.5rem;font-weight:700;margin-bottom:0.375rem;">TEST</div>
+  <div style="font-size:0.875rem;color:#556b82;display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+    <span>Product: TEST</span><span>·</span>
+    <span>Created by J. Doe · 2026-06-04T16:21:53.208089+00:00</span><span>·</span>
+    <span>Last edited by J. Doe · 2026-06-04T16:21:53.208089+00:00</span><span>·</span>
+    <span style="display:inline-block;font-size:0.75rem;font-weight:600;padding:0.2rem 0.625rem;border-radius:0.75rem;background:#e8edf2;color:#4a6785">Draft</span>
+  </div>
+</div>
+<div class="layout">
+  <nav class="nav">
+    <div class="nav-label">Contents</div>
+    <a href="#sintro">Introduction</a><a href="#sstrengths">Strengths</a><a href="#sareas_of_improvement">Areas of Improvement</a><a href="#srecommendations">Recommendations</a>
+  </nav>
+  <div>
+        <div style="background:#fff;border:1px solid #e5e5e5;border-radius:0.5rem;overflow:hidden;margin-bottom:1.5rem;" id="sintro">
+          <div style="padding:1rem 1.25rem;border-bottom:1px solid #e5e5e5;background:#f7f8f9;">
+            <div style="font-size:0.9375rem;font-weight:700;">Introduction</div>
+          </div>
+          <div style="padding:1.25rem;"><p>SAP Customer Loyalty Management (CLM) is a cloud-based, multi-brand, multi-market loyalty platform built on UI5, intended to consolidate fragmented loyalty point solutions and experiential loyalty programs onto a single SAP enterprise platform — positioned to capture customers migrating from CRM 7 ahead of its 2027 end-of-life. The product reached general availability in October 2025 and releases on a two-week cadence, but is still in early implementation: provisioned partners and a small set of pilot customers exist, with no live production deployments yet. This DXR examined the live product across three sessions, focusing on the promotion specialist persona and the end-to-end promotion authoring flow (strategy, merchandise, offer, eligibility, budgeting, marketing details), the marketing program area, and the overview/workspace experience. The product shows clear instincts at the interaction layer — progressive disclosure, contextual prompts, an estimated promotion cost panel, and a thoughtfully decomposed wizard — but the foundation has not been stress-tested. Recurring weaknesses in language, status communication, data integrity safeguards, and onboarding indicate a UX maturity that is functionally promising yet structurally fragile, with meaningful adoption risk if shipped to enterprise users without remediation.</p></div>
+        </div>
+        <div style="background:#fff;border:1px solid #e5e5e5;border-radius:0.5rem;overflow:hidden;margin-bottom:1.5rem;" id="sstrengths">
+          <div style="padding:1rem 1.25rem;border-bottom:1px solid #e5e5e5;background:#f7f8f9;">
+            <div style="font-size:0.9375rem;font-weight:700;">Strengths</div>
+          </div>
+          <div style="padding:1.25rem;"><ul style="padding-left:1.25rem;margin-bottom:0.75rem;"><li>The promotion authoring flow uses progressive disclosure to adapt subsequent steps to the chosen strategy (category, tactic, issuance type, offer type), reducing irrelevant fields for each promotion variant.</li><li>Inline contextual guidance is provided throughout strategy selection to help users understand each option as they configure a promotion.</li><li>The estimated promotion cost panel on the offer step gives specialists immediate, in-context feedback that builds confidence as they configure discounts.</li><li>Multi-language support for promotion name and description is built into the authoring flow, addressing a real need for global, multi-market customers.</li><li>The duplicate-promotion action on the promotion detail page directly supports a common real-world workflow where users clone an existing promotion and adjust only a few fields.</li><li>The overview page offers shortcut navigation cards to the main areas (programs, promotions, journeys, marketing calendar), giving users a consistent entry point into the system.</li></ul></div>
+        </div>
+        <div style="background:#fff;border:1px solid #e5e5e5;border-radius:0.5rem;overflow:hidden;margin-bottom:1.5rem;" id="sareas_of_improvement">
+          <div style="padding:1rem 1.25rem;border-bottom:1px solid #e5e5e5;background:#f7f8f9;">
+            <div style="font-size:0.9375rem;font-weight:700;">Areas of Improvement</div>
+          </div>
+          <div style="padding:1.25rem;"><ul style="padding-left:1.25rem;margin-bottom:0.75rem;"><li><strong>Unclear and inconsistent language across the UI</strong>: Truncated button labels ("Starts on / Launch / Specific"), browser-translated warning dialogs mixed with English UI, ambiguous concepts like "program overlap" with values (no overlap / partial / full) whose meaning and desirability are not self-evident, and a mandatory "reason for launch" field with no explanation all create cognitive friction. Users cannot reliably interpret what they are selecting or why.</li><li><strong>Weak safeguards around data integrity and destructive actions</strong>: There is no autosave during the multi-step promotion creation, navigating away loses all input (mitigated only by a warning), the budget field is informational only but not labeled as such, the offer issuance limit silently enforces a hard stop, and no validation exists for conflicting or overlapping promotions on the same products or audiences. For a system that controls real discounts and marketing spend, these gaps create material business risk.</li><li><strong>Status, state, and process communication is underdeveloped</strong>: Draft promotions lack a visible status tag (only launched ones do), the confirmation dialog at draft creation implies completion when the promotion is not yet live, the planned approval workflow is absent so users can launch directly from draft, and informational counts (e.g., "0 of 10" offer slots, "1" guideline badge in red) are not explained. Users cannot easily tell what state an artifact is in, what will happen next, or what action is expected of them.</li><li><strong>Lack of onboarding, guidance, and at-a-glance insight</strong>: There is no in-product onboarding (WalkMe is planned but not yet implemented), tooltips that previously existed have been removed, the overview page surfaces static "What's New" content and zeroed-out KPI cards with no personalization or AI-driven summaries, and the marketing calendar shows only program names with no campaign status, promotion counts, or pending tasks. Users are left to figure the system out on their own.</li><li><strong>Inconsistent and fragile interaction patterns within the wizard and selection dialogs</strong>: The strategy step behaves like a vertical decision-tree wizard that invites exploration but penalizes it (changing an early step kicks the user back to the start), include/exclude product collections are independent rather than relationally constrained, exclusion uses the full catalog rather than the included set, default tabs in selection dialogs are not optimized for the most common scenarios, and the layout does not scale predictably as steps or list sizes grow.</li></ul></div>
+        </div>
+        <div style="background:#fff;border:1px solid #e5e5e5;border-radius:0.5rem;overflow:hidden;margin-bottom:1.5rem;" id="srecommendations">
+          <div style="padding:1rem 1.25rem;border-bottom:1px solid #e5e5e5;background:#f7f8f9;">
+            <div style="font-size:0.9375rem;font-weight:700;">Recommendations</div>
+          </div>
+          <div style="padding:1.25rem;"><ul style="padding-left:1.25rem;margin-bottom:0.75rem;"><li>Conduct an exhaustive UI language and content audit before launch: clarify program overlap terminology, fix truncated labels, ensure all UI strings render in a single language, explain badge counts and status indicators, and either remove or justify the mandatory launch-reason field. Pair this with a tooltip layer so the experience is usable without WalkMe.</li><li>Harden the data integrity layer: implement autosave for the promotion wizard, add validation for conflicting promotions and overlapping product/audience scopes, clarify in-context whether the budget enforces a stop or is informational only, and surface warnings before users can launch promotions that exceed defined limits.</li><li>Rework state and process communication: add an explicit draft-state tag, replace the post-creation confirmation modal with a pre-submission summary step that allows edits, prioritize implementing the approval workflow and task center so launches are gated appropriately, and make the primary call-to-action on the detail page reflect the next meaningful step (e.g., Launch).</li><li>Invest in onboarding and at-a-glance intelligence: ship the planned WalkMe guidance with a clear scope, redesign the overview and marketing calendar to expose campaign status, counts, pending tasks, and recent changes, and pilot AI-assisted insights and recommendations (e.g., performance summaries, conflict detection, suggested optimizations) to reduce the cognitive load on specialists.</li><li>Conduct user research with promotion and merchandising specialists and benchmark against the systems customers are migrating from: validate the wizard's decision-tree pattern, the include/exclude model, default tab choices, and information density on the calendar, ensuring the new experience meets or exceeds parity with current tools before asking customers to switch.</li><li>Engage SAP's design intent review process early and often for upcoming work (marketing program management, communication topics, merchandising) so foundational data-model and UX decisions are pressure-tested at the prototype stage rather than surfacing as UX debt post-launch.</li></ul></div>
+        </div></div>
+</div>
+<script>
+  var hdr=document.getElementById('hdr');
+  function setHh(){document.documentElement.style.setProperty('--hh',hdr.offsetHeight+'px');}
+  setHh(); window.addEventListener('scroll',setHh);
+</script>
+</body>
+</html>

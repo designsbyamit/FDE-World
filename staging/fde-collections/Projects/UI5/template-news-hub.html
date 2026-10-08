@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>News Hub</title>
+
+  <script data-ui5-config type="application/json">{ "theme": "sap_horizon" }</script>
+  <script type="module" src="../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <script src="../../lib/shared/shellbar.js"></script>
+
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 600; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 300; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Light.woff2") format("woff2"); }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    ui5-button { --sapButton_FontFamily: "72", sans-serif; }
+    ui5-button::part(text) { font-family: "72", sans-serif; font-weight: 400; }
+
+    html, body {
+      font-family: "72", sans-serif;
+      background: var(--sapBackgroundColor, #f5f6f7);
+      color: var(--sapTextColor, #131e29);
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    app-shellbar { position: sticky; top: 0; z-index: 100; }
+
+    /* ── App shell ── */
+    .shell {
+      display: flex;
+      height: calc(100vh - 44px);
+    }
+
+    /* ── Side navigation (collapsed = icon rail) ── */
+    .sn-nav {
+      width: 240px;
+      flex-shrink: 0;
+      background: var(--sapBaseColor, #fff);
+      border-right: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      display: flex;
+      flex-direction: column;
+      transition: width 0.2s;
+      overflow: hidden;
+    }
+    .sn-nav.collapsed { width: 52px; }
+    .sn-scroll { flex: 1; overflow-y: auto; }
+    .sn-fixed { border-top: 1px solid var(--sapList_BorderColor, #e5e5e5); }
+    .sn-group {
+      padding: 0.875rem 1rem 0.25rem;
+      font-size: 0.6875rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--sapContent_LabelColor, #556b82);
+      white-space: nowrap;
+      overflow: hidden;
+    }
+    .sn-nav.collapsed .sn-group { display: none; }
+    .sn-item {
+      display: flex;
+      align-items: center;
+      gap: 0.625rem;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      font-size: 0.875rem;
+      color: var(--sapTextColor, #131e29);
+      border-left: 3px solid transparent;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+    .sn-item:hover { background: var(--sapList_Hover_Background, #f5f6f7); }
+    .sn-item.active {
+      color: var(--sapSelectedColor, #0064d9);
+      border-left-color: var(--sapSelectedColor, #0064d9);
+      background: var(--sapList_SelectionBackgroundColor, #e8f0fe);
+      font-weight: 600;
+    }
+    .sn-nav.collapsed .sn-item { justify-content: center; padding: 0.5rem; border-left-color: transparent; }
+    .sn-nav.collapsed .sn-item.active { border-left-color: transparent; border-bottom: 2px solid var(--sapSelectedColor, #0064d9); }
+    .sn-nav.collapsed .sn-text { display: none; }
+
+    /* ── Side panel: My Lists ── */
+    .side-panel {
+      width: 300px;
+      flex-shrink: 0;
+      background: var(--sapBaseColor, #fff);
+      border-right: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .side-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1rem 0.75rem;
+      flex-shrink: 0;
+    }
+    .side-panel-title {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: var(--sapTextColor, #131e29);
+    }
+    .side-panel-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0 0.5rem 1rem;
+    }
+    .side-section-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--sapContent_LabelColor, #556b82);
+      padding: 0.75rem 0.5rem 0.375rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .side-list-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.5rem 0.5rem;
+      border-radius: 0.375rem;
+      cursor: pointer;
+      transition: background 0.1s;
+    }
+    .side-list-item:hover { background: var(--sapList_Hover_Background, #f0f2f5); }
+    .side-list-item-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 0.375rem;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .side-list-item-icon.teal   { background: var(--sapChart_OrderedColor_5, #006b5b); }
+    .side-list-item-icon.purple { background: var(--sapChart_OrderedColor_7, #6b2fa0); }
+    .side-list-item-icon.navy   { background: var(--sapChart_OrderedColor_1, #003c84); }
+    .side-list-item-icon.olive  { background: var(--sapChart_OrderedColor_9, #4a5e1a); }
+    .side-list-item-icon.indigo { background: var(--sapChart_OrderedColor_2, #2846a0); }
+    .side-list-item-body { flex: 1; min-width: 0; }
+    .side-list-item-name {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--sapTextColor, #131e29);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .side-list-item-sub {
+      font-size: 0.75rem;
+      color: var(--sapContent_LabelColor, #556b82);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* ── Main content ── */
+    .main {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem 2rem 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    /* ── Hero banner ── */
+    .hero {
+      border-radius: 0.75rem;
+      overflow: hidden;
+      display: flex;
+      min-height: 200px;
+      background: var(--sapBaseColor, #fff);
+      border: 1px solid var(--sapList_BorderColor, #e5e5e5);
+    }
+    .hero-text {
+      padding: 2rem 2.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 1.25rem;
+      flex: 1;
+    }
+    .hero-heading {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--sapTextColor, #131e29);
+      line-height: 1.3;
+    }
+    .hero-image {
+      width: 340px;
+      flex-shrink: 0;
+      background: var(--sapNeutralBackground, #eaecee);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--sapContent_LabelColor, #556b82);
+      font-size: 0.8125rem;
+    }
+
+    /* ── Section header ── */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+    .section-title {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: var(--sapTextColor, #131e29);
+    }
+
+    /* ── News cards grid ── */
+    .news-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+    .news-card {
+      background: var(--sapBaseColor, #fff);
+      border: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      border-radius: 0.5rem;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      cursor: pointer;
+      transition: box-shadow 0.15s;
+    }
+    .news-card:hover { box-shadow: var(--sapContent_Shadow1, 0 4px 16px rgba(0,0,0,0.12)); }
+    .news-card-image {
+      height: 160px;
+      background: var(--sapNeutralBackground, #eaecee);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--sapContent_LabelColor, #556b82);
+      font-size: 0.8125rem;
+      flex-shrink: 0;
+    }
+    .news-card-body {
+      padding: 0.875rem 1rem 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      flex: 1;
+    }
+    .news-card-site {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--sapLinkColor, #0064d9);
+    }
+    .news-card-title {
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: var(--sapTextColor, #131e29);
+      line-height: 1.4;
+    }
+    .news-card-byline {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: auto;
+      padding-top: 0.375rem;
+    }
+    .news-card-author {
+      font-size: 0.8125rem;
+      color: var(--sapContent_LabelColor, #556b82);
+    }
+    .news-card-author span { display: block; }
+    .news-card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 1rem 0.75rem;
+    }
+    .news-card-views {
+      font-size: 0.8125rem;
+      color: var(--sapContent_LabelColor, #556b82);
+    }
+
+    /* ── Following section ── */
+    .following-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+    }
+    .following-card {
+      background: var(--sapBaseColor, #fff);
+      border: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      border-radius: 0.5rem;
+      overflow: hidden;
+      cursor: pointer;
+      transition: box-shadow 0.15s;
+    }
+    .following-card:hover { box-shadow: var(--sapContent_Shadow1, 0 4px 16px rgba(0,0,0,0.12)); }
+    .following-card-image {
+      height: 80px;
+      background: var(--sapNeutralBackground, #eaecee);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--sapContent_LabelColor, #556b82);
+      font-size: 0.75rem;
+    }
+    .following-card-body { padding: 0.625rem 0.875rem 0.75rem; }
+    .following-card-name {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--sapTextColor, #131e29);
+    }
+    .following-card-sub {
+      font-size: 0.75rem;
+      color: var(--sapContent_LabelColor, #556b82);
+      margin-top: 0.125rem;
+    }
+  </style>
+</head>
+<body>
+
+  <app-shellbar title="Work Zone" show-search base-path="../../"></app-shellbar>
+
+  <div class="shell">
+
+    <!-- Side navigation — starts collapsed (icon rail). Click items to select; toggle button to expand. -->
+    <nav class="sn-nav collapsed" id="snNav">
+      <div class="sn-scroll">
+        <div class="sn-item active" onclick="snSelect(this)">
+          <ui5-icon name="home" style="font-size:1rem;flex-shrink:0;"></ui5-icon>
+          <span class="sn-text">Home</span>
+        </div>
+        <div class="sn-item" onclick="snSelect(this)">
+          <ui5-icon name="globe" style="font-size:1rem;flex-shrink:0;"></ui5-icon>
+          <span class="sn-text">Sites</span>
+        </div>
+        <div class="sn-item" onclick="snSelect(this)">
+          <ui5-icon name="newspaper" style="font-size:1rem;flex-shrink:0;"></ui5-icon>
+          <span class="sn-text">News</span>
+        </div>
+        <div class="sn-item" onclick="snSelect(this)">
+          <ui5-icon name="list" style="font-size:1rem;flex-shrink:0;"></ui5-icon>
+          <span class="sn-text">Lists</span>
+        </div>
+      </div>
+      <div class="sn-fixed">
+        <div class="sn-item" onclick="snSelect(this)">
+          <ui5-icon name="add" style="font-size:1rem;flex-shrink:0;"></ui5-icon>
+          <span class="sn-text">Create</span>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Side panel: My Lists -->
+    <aside class="side-panel">
+      <div class="side-panel-header">
+        <span class="side-panel-title">My Lists</span>
+        <ui5-button design="Transparent" icon="decline" tooltip="Close"></ui5-button>
+      </div>
+      <div class="side-panel-body">
+
+        <div class="side-section-label">Recent</div>
+
+        <div class="side-list-item">
+          <div class="side-list-item-icon teal">
+            <ui5-icon name="paper-plane" style="color:#fff;font-size:1rem;"></ui5-icon>
+          </div>
+          <div class="side-list-item-body">
+            <div class="side-list-item-name">Job Postings</div>
+            <div class="side-list-item-sub">Autism Inclusion Network at SAP</div>
+          </div>
+        </div>
+
+        <div class="side-list-item">
+          <div class="side-list-item-icon purple">
+            <ui5-icon name="sys-find" style="color:#fff;font-size:1rem;"></ui5-icon>
+          </div>
+          <div class="side-list-item-body">
+            <div class="side-list-item-name">User Studies</div>
+            <div class="side-list-item-sub">User Research Library</div>
+          </div>
+        </div>
+
+        <div class="side-list-item">
+          <div class="side-list-item-icon navy">
+            <ui5-icon name="product" style="color:#fff;font-size:1rem;"></ui5-icon>
+          </div>
+          <div class="side-list-item-body">
+            <div class="side-list-item-name">Product Areas</div>
+            <div class="side-list-item-sub">SAP Design System</div>
+          </div>
+        </div>
+
+        <div class="side-list-item">
+          <div class="side-list-item-icon olive">
+            <ui5-icon name="inventory" style="color:#fff;font-size:1rem;"></ui5-icon>
+          </div>
+          <div class="side-list-item-body">
+            <div class="side-list-item-name">SAP Design System Inventory</div>
+            <div class="side-list-item-sub">SAP Design System</div>
+          </div>
+        </div>
+
+        <div class="side-section-label">Favorite</div>
+
+        <div class="side-list-item">
+          <div class="side-list-item-icon indigo">
+            <ui5-icon name="paper-plane" style="color:#fff;font-size:1rem;"></ui5-icon>
+          </div>
+          <div class="side-list-item-body">
+            <div class="side-list-item-name">2. DXR Report Readiness Tracker</div>
+            <div class="side-list-item-sub">KHALYAVINSKA, IRYNA</div>
+          </div>
+        </div>
+
+      </div>
+    </aside>
+
+    <!-- Main content -->
+    <main class="main">
+
+      <!-- Hero banner -->
+      <div class="hero">
+        <div class="hero-text">
+          <div><ui5-tag design="Information">Preview</ui5-tag></div>
+          <div class="hero-heading">Create, share, and track<br>your pages from one<br>single place</div>
+          <div>
+            <ui5-button design="Emphasized" icon="arrow-right" icon-end>Go to pages</ui5-button>
+          </div>
+        </div>
+        <div class="hero-image">Image placeholder</div>
+      </div>
+
+      <!-- News from sites -->
+      <div>
+        <div class="section-header">
+          <span class="section-title">News from sites</span>
+          <ui5-button design="Transparent">See all</ui5-button>
+        </div>
+        <div class="news-grid">
+
+          <div class="news-card">
+            <div class="news-card-image">Image placeholder</div>
+            <div class="news-card-body">
+              <div class="news-card-site">SAP Learning</div>
+              <div class="news-card-title">Pluralsight integrated into SML</div>
+              <div class="news-card-byline">
+                <ui5-avatar initials="KN" color-scheme="Accent2" size="XS"></ui5-avatar>
+                <div class="news-card-author">
+                  <span>Kotz, Natalia</span>
+                  <span>on 4/17/2026</span>
+                </div>
+              </div>
+            </div>
+            <div class="news-card-footer">
+              <span class="news-card-views">431 views</span>
+              <ui5-button design="Transparent" icon="bookmark" tooltip="Save"></ui5-button>
+            </div>
+          </div>
+
+          <div class="news-card">
+            <div class="news-card-image">Image placeholder</div>
+            <div class="news-card-body">
+              <div class="news-card-site">Design</div>
+              <div class="news-card-title">#Kudos Aideen Byrne, Ailane Kuhn, Emilia Dietrich, Marina...</div>
+              <div class="news-card-byline">
+                <ui5-avatar initials="RC" color-scheme="Accent5" size="XS"></ui5-avatar>
+                <div class="news-card-author">
+                  <span>Ronnewinkel, Christine</span>
+                  <span>on 3/31/2026</span>
+                </div>
+              </div>
+            </div>
+            <div class="news-card-footer">
+              <span class="news-card-views">44 views</span>
+              <ui5-button design="Transparent" icon="bookmark" tooltip="Save"></ui5-button>
+            </div>
+          </div>
+
+          <div class="news-card">
+            <div class="news-card-image">Image placeholder</div>
+            <div class="news-card-body">
+              <div class="news-card-site">KR CA Official</div>
+              <div class="news-card-title">Introducing the Autonomous Enterprise</div>
+              <div class="news-card-byline">
+                <ui5-avatar initials="KC" color-scheme="Accent1" size="XS"></ui5-avatar>
+                <div class="news-card-author">
+                  <span>KLEIN, Christian</span>
+                  <span>yesterday</span>
+                </div>
+              </div>
+            </div>
+            <div class="news-card-footer">
+              <span class="news-card-views">44 views</span>
+              <ui5-button design="Transparent" icon="bookmark" tooltip="Save"></ui5-button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Following -->
+      <div>
+        <div class="section-header">
+          <span class="section-title">Following</span>
+          <ui5-button design="Transparent">See all</ui5-button>
+        </div>
+        <div class="following-grid">
+
+          <div class="following-card">
+            <div class="following-card-image">Image placeholder</div>
+            <div class="following-card-body">
+              <div class="following-card-name">SAP Design System</div>
+              <div class="following-card-sub">Team site</div>
+            </div>
+          </div>
+
+          <div class="following-card">
+            <div class="following-card-image">Image placeholder</div>
+            <div class="following-card-body">
+              <div class="following-card-name">SAP Learning</div>
+              <div class="following-card-sub">Communication site</div>
+            </div>
+          </div>
+
+          <div class="following-card">
+            <div class="following-card-image">Image placeholder</div>
+            <div class="following-card-body">
+              <div class="following-card-name">KR CA Official</div>
+              <div class="following-card-sub">Communication site</div>
+            </div>
+          </div>
+
+          <div class="following-card">
+            <div class="following-card-image">Image placeholder</div>
+            <div class="following-card-body">
+              <div class="following-card-name">User Research Library</div>
+              <div class="following-card-sub">Team site</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <script>
+    function snSelect(el) {
+      document.getElementById('snNav').querySelectorAll('.sn-item').forEach(function(i) { i.classList.remove('active'); });
+      el.classList.add('active');
+    }
+  </script>
+
+</body>
+</html>

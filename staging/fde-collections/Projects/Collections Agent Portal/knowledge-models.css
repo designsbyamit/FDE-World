@@ -1,0 +1,24 @@
+.explain-pair{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:2rem 0}
+.explain-pair article{padding:1.25rem;background:#fff;border-top:3px solid var(--blue)}
+.explain-pair p{margin:.55rem 0 0;color:var(--muted);line-height:1.55}
+.ontology-diagram{margin:2rem 0;border:1px solid var(--line);background:#fff;padding:1.5rem}
+.ontology-diagram>header{display:flex;align-items:center;justify-content:center;gap:.7rem;padding:0 0 1.4rem;color:var(--muted);font-size:.78rem;text-transform:uppercase;letter-spacing:.06em}
+.ontology-diagram>header i,.ontology-lane>i,.classification-example>i{color:var(--blue);font-style:normal}
+.ontology-lane{display:grid;grid-template-columns:150px repeat(7,minmax(80px,1fr));align-items:stretch;gap:.55rem;padding:1rem 0;border-top:1px solid var(--line)}
+.ontology-lane>b{align-self:center;color:var(--blue);font-size:.78rem;text-transform:uppercase;letter-spacing:.06em}
+.ontology-lane>i{display:grid;place-items:center}
+.ontology-lane .node{padding:1rem;background:var(--pale);border:1px solid #cbdff5;min-width:0}
+.ontology-lane .node strong,.ontology-lane .node small{display:block}
+.ontology-lane .node small{margin-top:.45rem;color:var(--muted);font-size:.73rem;line-height:1.35}
+.ontology-lane .cluster{background:#edf9f5;border-color:#bce5d7}.ontology-lane .alert{background:#fff2f2;border-color:#f3caca}.ontology-lane .intelligence{background:#f4efff;border-color:#d9cef5}
+.ontology-rules{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);margin:1.5rem 0}
+.ontology-rules article{background:#fff;padding:1.15rem}.ontology-rules b{font-size:.88rem}.ontology-rules p{color:var(--muted);font-size:.8rem;line-height:1.45;margin:.45rem 0 0}
+.entity-detail{display:grid;grid-template-columns:1fr 1fr;gap:.3rem 1.5rem}.entity-detail p{margin:.3rem 0}
+.taxonomy-tree{margin:2rem 0}.taxonomy-root{width:max-content;margin:0 auto 2rem;padding:.8rem 2.5rem;background:var(--navy);color:#fff;font-size:1.2rem;font-weight:700;border-radius:.35rem;position:relative}.taxonomy-root:after{content:"";position:absolute;left:50%;top:100%;height:2rem;border-left:1px solid var(--blue)}
+.taxonomy-branches{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem;position:relative;align-items:start}.taxonomy-branches:before{display:none}
+.taxonomy-branches details{background:#fff;border:1px solid var(--line);position:relative;min-width:0}.taxonomy-branches details:before{display:none}
+.taxonomy-branches summary{list-style:none;cursor:pointer;padding:1rem;display:flex;gap:.65rem;align-items:flex-start}.taxonomy-branches summary::-webkit-details-marker{display:none}.taxonomy-branches summary>b{display:grid;place-items:center;min-width:30px;height:30px;border-radius:50%;background:var(--pale);color:var(--blue);font-size:.72rem}.taxonomy-branches summary span,.taxonomy-branches summary small{display:block}.taxonomy-branches summary span{font-weight:700;font-size:.85rem}.taxonomy-branches summary small{font-weight:400;color:var(--muted);font-size:.7rem;line-height:1.3;margin-top:.25rem}.taxonomy-branches details>div{padding:0 1rem 1rem;border-top:1px solid var(--line)}.taxonomy-branches details>div strong{display:block;margin-top:.8rem;font-size:.77rem}.taxonomy-branches details>div p{color:var(--muted);font-size:.72rem;line-height:1.4;margin:.25rem 0}.taxonomy-branches details[open]{box-shadow:0 10px 28px #071b3112;border-color:#b8d5f6}
+.facet-strip{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;padding:1.2rem;background:var(--pale);margin:1.5rem 0}.facet-strip b{margin-right:.5rem}.facet-strip span{padding:.42rem .7rem;background:#fff;border:1px solid #cbdff5;border-radius:2rem;font-size:.76rem}
+.classification-example{display:flex;align-items:center;gap:.45rem;overflow:auto;padding:1.2rem;background:#fff;border:1px solid var(--line)}.classification-example b,.classification-example span{white-space:nowrap}.classification-example b{margin-right:.5rem}.classification-example span{padding:.55rem .7rem;background:var(--paper);font-size:.76rem}
+@media(max-width:1050px){.ontology-lane{grid-template-columns:130px repeat(7,minmax(110px,1fr));overflow:auto}.ontology-rules{grid-template-columns:1fr 1fr}.taxonomy-branches{grid-template-columns:repeat(2,1fr)}.taxonomy-branches:before,.taxonomy-branches details:before,.taxonomy-root:after{display:none}}
+@media(max-width:680px){.explain-pair,.ontology-rules,.entity-detail,.taxonomy-branches{grid-template-columns:1fr}.ontology-diagram{padding:1rem}.ontology-diagram>header{align-items:flex-start;flex-direction:column}.ontology-lane{display:flex;flex-direction:column;overflow:visible}.ontology-lane>i{transform:rotate(90deg)}.taxonomy-root{width:100%;text-align:center}.classification-example{align-items:stretch;flex-direction:column}.classification-example>i{align-self:center;transform:rotate(90deg)}}

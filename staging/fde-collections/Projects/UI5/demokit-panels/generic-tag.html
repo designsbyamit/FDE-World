@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Generic Tag</title>
+  <script src="panel-init.js"></script>
+  <script type="module" src="../../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 600; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 300; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Light.woff2") format("woff2"); }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "72", sans-serif; font-size: 0.875rem; background: var(--sapBackgroundColor, #f5f6f7); padding: 2rem; color: var(--sapTextColor, #131e29); }
+    .panel-title { font-size: 1.5rem; font-weight: 700; color: #131e29; margin-bottom: 0.375rem; }
+    .panel-subtitle { font-size: 0.8125rem; color: var(--sapContent_LabelColor, #6a7588); margin-bottom: 2rem; }
+    .demo-section { background: #fff; border: 1px solid var(--sapList_BorderColor, #e5e5e5); border-radius: 8px; margin-bottom: 1.25rem; overflow: hidden; }
+    .demo-section-header { padding: 0.75rem 1rem; border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5); font-size: 0.8125rem; font-weight: 600; color: var(--sapContent_LabelColor, #6a7588); display: flex; align-items: center; justify-content: space-between; }
+    .demo-section-tag { font-family: monospace; font-size: 0.75rem; color: #0064d9; font-weight: 400; }
+    .demo-section-body { padding: 1.25rem 1rem; display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: flex-start; }
+    .demo-section-body.column { flex-direction: column; }
+    .demo-section-body.block { display: block; padding: 0; }
+  </style>
+</head>
+<body>
+  <div class="panel-title">Generic Tag</div>
+  <div class="panel-subtitle">Displays KPI values or situational status indicators with a label and optional value. Equivalent to sap.m.GenericTag — rendered using ui5-tag with styled values.</div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">
+      KPI — StatusIconHidden with ObjectNumber
+      <span class="demo-section-tag">ui5-tag + value</span>
+    </div>
+    <div class="demo-section-body" style="gap:0.625rem; flex-wrap:wrap;">
+      <div style="display:inline-flex; flex-direction:column; align-items:flex-start; border:1px solid #f5c6cb; border-radius:6px; padding:0.375rem 0.625rem; background:#fff4f4; gap:0.1rem; cursor:pointer;">
+        <span style="font-size:0.6875rem; color:#bb0000; font-weight:600; font-family:'72',sans-serif;">Project Cost</span>
+        <span style="font-size:1rem; font-weight:700; color:#bb0000; font-family:'72',sans-serif;">3.5M <span style="font-size:0.75rem; font-weight:400;">EUR</span></span>
+      </div>
+      <div style="display:inline-flex; flex-direction:column; align-items:flex-start; border:1px solid #ffd77a; border-radius:6px; padding:0.375rem 0.625rem; background:#fff8e6; gap:0.1rem; cursor:pointer;">
+        <span style="font-size:0.6875rem; color:#e76500; font-weight:600; font-family:'72',sans-serif;">Project Cost</span>
+        <span style="font-size:1rem; font-weight:700; color:#e76500; font-family:'72',sans-serif;">2.4M <span style="font-size:0.75rem; font-weight:400;">EUR</span></span>
+      </div>
+      <div style="display:inline-flex; flex-direction:column; align-items:flex-start; border:1px solid #abe2ab; border-radius:6px; padding:0.375rem 0.625rem; background:#f1faf1; gap:0.1rem; cursor:pointer;">
+        <span style="font-size:0.6875rem; color:#196800; font-weight:600; font-family:'72',sans-serif;">Project Cost</span>
+        <span style="font-size:1rem; font-weight:700; color:#196800; font-family:'72',sans-serif;">1.6M <span style="font-size:0.75rem; font-weight:400;">EUR</span></span>
+      </div>
+      <div style="display:inline-flex; flex-direction:column; align-items:flex-start; border:1px solid #f5c6cb; border-radius:6px; padding:0.375rem 0.625rem; background:#fff4f4; gap:0.1rem; cursor:pointer;">
+        <span style="font-size:0.6875rem; color:#bb0000; font-weight:600; font-family:'72',sans-serif;">PC</span>
+        <span style="font-size:1rem; font-weight:700; color:#bb0000; font-family:'72',sans-serif;">35 <span style="font-size:0.75rem; font-weight:400;">%</span></span>
+      </div>
+      <div style="display:inline-flex; flex-direction:column; align-items:flex-start; border:1px solid #ffd77a; border-radius:6px; padding:0.375rem 0.625rem; background:#fff8e6; gap:0.1rem; cursor:pointer;">
+        <span style="font-size:0.6875rem; color:#e76500; font-weight:600; font-family:'72',sans-serif;">PC</span>
+        <span style="font-size:1rem; font-weight:700; color:#e76500; font-family:'72',sans-serif;">71 <span style="font-size:0.75rem; font-weight:400;">%</span></span>
+      </div>
+      <div style="display:inline-flex; flex-direction:column; align-items:flex-start; border:1px solid #abe2ab; border-radius:6px; padding:0.375rem 0.625rem; background:#f1faf1; gap:0.1rem; cursor:pointer;">
+        <span style="font-size:0.6875rem; color:#196800; font-weight:600; font-family:'72',sans-serif;">PC</span>
+        <span style="font-size:1rem; font-weight:700; color:#196800; font-family:'72',sans-serif;">96 <span style="font-size:0.75rem; font-weight:400;">%</span></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">
+      KPI — Error Handling (no value)
+      <span class="demo-section-tag">ui5-tag design="Negative"</span>
+    </div>
+    <div class="demo-section-body">
+      <div style="display:inline-flex; flex-direction:column; align-items:flex-start; border:1px solid #f5c6cb; border-radius:6px; padding:0.375rem 0.625rem; background:#fff4f4; gap:0.1rem;">
+        <span style="font-size:0.6875rem; color:#bb0000; font-weight:600; font-family:'72',sans-serif;">Project Cost</span>
+        <span style="font-size:0.8125rem; color:#bb0000; font-family:'72',sans-serif;">&#9888; Error loading value</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">
+      Situation Tags (with status icon)
+      <span class="demo-section-tag">ui5-tag design="Critical"</span>
+    </div>
+    <div class="demo-section-body">
+      <ui5-tag design="Critical" icon="warning">Shortage Expected</ui5-tag>
+      <ui5-tag design="Critical" icon="warning">Material Shortage</ui5-tag>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">
+      ui5-tag — All Designs
+      <span class="demo-section-tag">ui5-tag design="…"</span>
+    </div>
+    <div class="demo-section-body">
+      <ui5-tag>Default</ui5-tag>
+      <ui5-tag design="Positive">Positive</ui5-tag>
+      <ui5-tag design="Negative">Negative</ui5-tag>
+      <ui5-tag design="Critical">Critical</ui5-tag>
+      <ui5-tag design="Information">Information</ui5-tag>
+      <ui5-tag design="Set1">Set 1</ui5-tag>
+      <ui5-tag design="Set2">Set 2</ui5-tag>
+      <ui5-tag design="Set3">Set 3</ui5-tag>
+    </div>
+  </div>
+</body>
+</html>

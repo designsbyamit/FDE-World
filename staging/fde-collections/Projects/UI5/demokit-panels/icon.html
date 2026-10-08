@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <script src="panel-init.js"></script>
+  <script type="module" src="../../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    body { font-family: "72", sans-serif; font-size: 0.875rem; background: #f5f6f7; color: #131e29; margin: 0; padding: 2rem; }
+    .panel-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .panel-subtitle { font-size: 0.875rem; color: #6a7588; margin-bottom: 2rem; }
+    .demo-section { margin-bottom: 2rem; }
+    .demo-section-header { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #6a7588; margin-bottom: 1rem; padding-bottom: 0.375rem; border-bottom: 1px solid #e5e5e5; }
+    .demo-section-body { display: flex; flex-wrap: wrap; align-items: center; gap: 1.25rem; }
+    .icon-cell { display: flex; flex-direction: column; align-items: center; gap: 0.25rem; font-size: 0.75rem; color: #6a7588; width: 60px; text-align: center; }
+    .icon-cell ui5-icon { font-size: 1.5rem; color: #0064d9; }
+    .icon-cell.lg ui5-icon { font-size: 2.5rem; }
+    .icon-cell.sm ui5-icon { font-size: 1rem; }
+    .icon-cell.colored-green ui5-icon { color: #107e3e; }
+    .icon-cell.colored-red ui5-icon { color: #bb0000; }
+    .icon-cell.colored-orange ui5-icon { color: #e9730c; }
+  </style>
+</head>
+<body>
+  <div class="panel-title">Icon</div>
+  <div class="panel-subtitle">Renders SAP icons using the ui5-icon component.</div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">Common Icons</div>
+    <div class="demo-section-body">
+      <div class="icon-cell"><ui5-icon name="home"></ui5-icon>home</div>
+      <div class="icon-cell"><ui5-icon name="settings"></ui5-icon>settings</div>
+      <div class="icon-cell"><ui5-icon name="search"></ui5-icon>search</div>
+      <div class="icon-cell"><ui5-icon name="filter"></ui5-icon>filter</div>
+      <div class="icon-cell"><ui5-icon name="add"></ui5-icon>add</div>
+      <div class="icon-cell"><ui5-icon name="delete"></ui5-icon>delete</div>
+      <div class="icon-cell"><ui5-icon name="edit"></ui5-icon>edit</div>
+      <div class="icon-cell"><ui5-icon name="save"></ui5-icon>save</div>
+      <div class="icon-cell"><ui5-icon name="download"></ui5-icon>download</div>
+      <div class="icon-cell"><ui5-icon name="upload"></ui5-icon>upload</div>
+      <div class="icon-cell"><ui5-icon name="email"></ui5-icon>email</div>
+      <div class="icon-cell"><ui5-icon name="phone"></ui5-icon>phone</div>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">Sizes</div>
+    <div class="demo-section-body">
+      <div class="icon-cell sm"><ui5-icon name="sales-order"></ui5-icon>small</div>
+      <div class="icon-cell"><ui5-icon name="sales-order"></ui5-icon>default</div>
+      <div class="icon-cell lg"><ui5-icon name="sales-order"></ui5-icon>large</div>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">Colors</div>
+    <div class="demo-section-body">
+      <div class="icon-cell" style="width:80px;"><ui5-icon name="status-completed" style="font-size:1.5rem; color:#107e3e;"></ui5-icon>Positive</div>
+      <div class="icon-cell" style="width:80px;"><ui5-icon name="status-critical" style="font-size:1.5rem; color:#e9730c;"></ui5-icon>Critical</div>
+      <div class="icon-cell" style="width:80px;"><ui5-icon name="status-negative" style="font-size:1.5rem; color:#bb0000;"></ui5-icon>Negative</div>
+      <div class="icon-cell" style="width:80px;"><ui5-icon name="information" style="font-size:1.5rem; color:#0064d9;"></ui5-icon>Information</div>
+      <div class="icon-cell" style="width:80px;"><ui5-icon name="question-mark" style="font-size:1.5rem; color:#6a7588;"></ui5-icon>Neutral</div>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">Interactive (Accessible)</div>
+    <div class="demo-section-body">
+      <ui5-icon name="favorite" interactive title="Mark as favorite" style="font-size:1.5rem; color:#0064d9; cursor:pointer;"></ui5-icon>
+      <ui5-icon name="share" interactive title="Share" style="font-size:1.5rem; color:#0064d9; cursor:pointer;"></ui5-icon>
+      <ui5-icon name="print" interactive title="Print" style="font-size:1.5rem; color:#0064d9; cursor:pointer;"></ui5-icon>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" href="../../lib/assets/favicon.ico">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vendor Change Requests — Vendor Management</title>
+
+  <script data-ui5-config type="application/json">{ "theme": "sap_horizon" }</script>
+  <script type="module" src="../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <script src="../../lib/shared/shellbar.js"></script>
+
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 600; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 300; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Light.woff2") format("woff2"); }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    ui5-button { --sapButton_FontFamily: "72", sans-serif; }
+    ui5-button::part(text) { font-family: "72", sans-serif; font-weight: 400; }
+
+    html, body {
+      font-family: "72", sans-serif;
+      background: var(--sapBackgroundColor, #f5f6f7);
+      color: var(--sapTextColor, #1d2d3e);
+      min-height: 100vh;
+    }
+
+    app-shellbar { position: sticky; top: 0; z-index: 100; }
+
+    .page-header {
+      padding: 0.75rem 2rem 1rem;
+      background: var(--sapBaseColor, #fff);
+      padding-top: calc(0.75rem + 6px);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+    .page-title {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: var(--sapTextColor, #131e29);
+      margin-top: 0.25rem;
+    }
+
+    .page-content { padding: 1.5rem 2rem 2rem; }
+
+    .table-card {
+      background: var(--sapBaseColor, #fff);
+      border: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      border-radius: 0.375rem;
+      overflow: hidden;
+    }
+
+    .table-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.625rem 0.75rem;
+      border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5);
+    }
+    .table-title { font-size: 1rem; font-weight: 700; color: var(--sapTextColor, #1d2d3e); }
+    .table-toolbar-right { display: flex; align-items: center; gap: 0.25rem; }
+    .toolbar-separator { width: 1px; height: 1.25rem; background: var(--sapList_BorderColor, #e5e5e5); margin: 0 0.375rem; }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .kpi-tile {
+      background: var(--sapGroup_ContentBackground, #fff);
+      border: 1px solid var(--sapGroup_ContentBorderColor, #e5e5e5);
+      border-radius: var(--sapTile_BorderCornerRadius, 1rem);
+      padding: 1rem 1.25rem 1.25rem;
+    }
+    .kpi-value {
+      font-size: 2rem;
+      font-weight: 300;
+      color: var(--sapTextColor, #131e29);
+      line-height: 1.2;
+      margin-bottom: 0.375rem;
+    }
+    .kpi-scale {
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: var(--sapContent_LabelColor, #556b82);
+      margin-left: 0.25rem;
+    }
+    .kpi-label { font-size: 0.875rem; color: var(--sapContent_LabelColor, #556b82); }
+
+    .cell-link {
+      color: var(--sapLinkColor, #0070f2);
+      cursor: pointer;
+      text-decoration: none;
+      font-weight: 400;
+    }
+    .cell-link:hover { text-decoration: underline; }
+
+    /* AI Agent Status */
+    .status-in-progress { color: var(--sapTextColor, #1d2d3e); }
+    .status-review {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      color: var(--sapTextColor, #1d2d3e);
+    }
+    .status-review-icon {
+      width: 1rem; height: 1rem;
+      border-radius: 50%;
+      background: var(--sapInformativeColor, #0070f2);
+      color: var(--sapButton_Emphasized_TextColor, #fff);
+      font-size: 0.6875rem;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .status-review-icon-warning {
+      background: var(--sapWarningColor, #e9730c);
+    }
+
+    /* Pagination */
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.25rem;
+      padding: 0.875rem 1rem;
+      border-top: 1px solid var(--sapList_BorderColor, #e5e5e5);
+    }
+    .page-btn {
+      min-width: 2rem; height: 2rem;
+      display: inline-flex; align-items: center; justify-content: center;
+      border-radius: 0.25rem;
+      border: none;
+      background: none;
+      font-family: "72", sans-serif;
+      font-size: 0.875rem;
+      color: var(--sapTextColor, #1d2d3e);
+      cursor: pointer;
+      padding: 0 0.375rem;
+    }
+    .page-btn:hover { background: var(--sapList_Hover_Background, #f5f6f7); }
+    .page-btn.active {
+      color: var(--sapLinkColor, #0070f2);
+      border-bottom: 2px solid var(--sapLinkColor, #0070f2);
+      font-weight: 700;
+      border-radius: 0;
+    }
+    .page-btn-nav {
+      color: var(--sapLinkColor, #0070f2);
+      font-size: 1rem;
+    }
+
+    /* Skeleton loader */
+    @keyframes sap-pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.4; }
+    }
+    .skeleton-table { width: 100%; border-collapse: collapse; }
+    .skeleton-table td { padding: 0.75rem 0.5rem; border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5); vertical-align: middle; }
+    .skeleton-table td:first-child { padding-inline-start: 1rem; }
+    .skel-bar {
+      background: #e0e4e9;
+      border-radius: 0.25rem;
+      height: 14px;
+      display: block;
+      animation: sap-pulse 0.8s ease-in-out 1.5;
+    }
+  </style>
+</head>
+<body>
+
+  <app-shellbar title="Vendor Management Assistant" base-path="../../" avatar-initials="LW" hide-menu hide-product-switch></app-shellbar>
+
+  <div class="page-header">
+    <div class="page-title">Vendor Change Requests</div>
+  </div>
+
+  <div class="page-content">
+
+    <!-- Agent Performance KPI tiles -->
+    <div class="kpi-grid">
+      <div class="kpi-tile">
+        <div class="kpi-value">94</div>
+        <div class="kpi-label">Changes Processed (last 90 days)</div>
+      </div>
+      <div class="kpi-tile">
+        <div class="kpi-value">89</div>
+        <div class="kpi-label">Agent Recommended Approval</div>
+      </div>
+      <div class="kpi-tile">
+        <div class="kpi-value">97<span class="kpi-scale">%</span></div>
+        <div class="kpi-label">Confirmed by Human Approver</div>
+      </div>
+    </div>
+
+    <div class="table-card">
+
+      <div class="table-toolbar">
+        <span class="table-title">Line Items (17)</span>
+        <div class="table-toolbar-right">
+          <ui5-button design="Transparent" icon="action-settings" tooltip="Settings"></ui5-button>
+          <ui5-button design="Transparent" icon="full-screen" tooltip="Full Screen"></ui5-button>
+        </div>
+      </div>
+
+      <!-- Skeleton overlay -->
+      <div id="skeletonOverlay">
+        <table class="skeleton-table" aria-hidden="true">
+          <tbody>
+            <tr><td><span class="skel-bar" style="width:70px"></span></td><td><span class="skel-bar" style="width:180px"></span></td><td><span class="skel-bar" style="width:100px"></span></td><td><span class="skel-bar" style="width:90px"></span></td></tr>
+            <tr><td><span class="skel-bar" style="width:60px"></span></td><td><span class="skel-bar" style="width:160px"></span></td><td><span class="skel-bar" style="width:100px"></span></td><td><span class="skel-bar" style="width:110px"></span></td></tr>
+            <tr><td><span class="skel-bar" style="width:70px"></span></td><td><span class="skel-bar" style="width:140px"></span></td><td><span class="skel-bar" style="width:100px"></span></td><td><span class="skel-bar" style="width:90px"></span></td></tr>
+            <tr><td><span class="skel-bar" style="width:55px"></span></td><td><span class="skel-bar" style="width:175px"></span></td><td><span class="skel-bar" style="width:100px"></span></td><td><span class="skel-bar" style="width:80px"></span></td></tr>
+            <tr><td><span class="skel-bar" style="width:70px"></span></td><td><span class="skel-bar" style="width:155px"></span></td><td><span class="skel-bar" style="width:100px"></span></td><td><span class="skel-bar" style="width:110px"></span></td></tr>
+            <tr><td><span class="skel-bar" style="width:65px"></span></td><td><span class="skel-bar" style="width:130px"></span></td><td><span class="skel-bar" style="width:100px"></span></td><td><span class="skel-bar" style="width:90px"></span></td></tr>
+            <tr><td><span class="skel-bar" style="width:60px"></span></td><td><span class="skel-bar" style="width:165px"></span></td><td><span class="skel-bar" style="width:100px"></span></td><td><span class="skel-bar" style="width:80px"></span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <ui5-table id="realTable" style="display:none">
+        <ui5-table-header-row slot="headerRow">
+          <ui5-table-header-cell width="140px" style="padding-inline-start:1rem">Supplier Number</ui5-table-header-cell>
+          <ui5-table-header-cell>Supplier Name</ui5-table-header-cell>
+          <ui5-table-header-cell width="200px">Update Submitted Date</ui5-table-header-cell>
+          <ui5-table-header-cell width="240px">Field Risk Classification</ui5-table-header-cell>
+          <ui5-table-header-cell width="220px">AI Agent Status</ui5-table-header-cell>
+          <ui5-table-header-cell width="28px"></ui5-table-header-cell>
+        </ui5-table-header-row>
+
+        <ui5-table-row interactive onclick="location.href='rep-request-detail.html?vendor=Blue+Horizon+Tech+Inc'">
+          <ui5-table-cell style="padding-inline-start:1rem">89068</ui5-table-cell>
+          <ui5-table-cell><a class="cell-link">Blue Horizon Tech Inc</a></ui5-table-cell>
+          <ui5-table-cell>12/05/2025</ui5-table-cell>
+          <ui5-table-cell>2 Medium</ui5-table-cell>
+          <ui5-table-cell><span class="status-in-progress">In Progress</span></ui5-table-cell>
+          <ui5-table-cell style="color:#6b7280; font-size:18px; text-align:center;">›</ui5-table-cell>
+        </ui5-table-row>
+
+        <ui5-table-row interactive onclick="location.href='rep-request-detail.html?vendor=Global+Solutions+Group+Ltd'">
+          <ui5-table-cell style="padding-inline-start:1rem">12607</ui5-table-cell>
+          <ui5-table-cell><a class="cell-link">Global Solutions Group Ltd</a></ui5-table-cell>
+          <ui5-table-cell>12/05/2025</ui5-table-cell>
+          <ui5-table-cell>1 Medium</ui5-table-cell>
+          <ui5-table-cell><span class="status-in-progress">In Progress</span></ui5-table-cell>
+          <ui5-table-cell style="color:#6b7280; font-size:18px; text-align:center;">›</ui5-table-cell>
+        </ui5-table-row>
+
+        <ui5-table-row interactive onclick="location.href='rep-request-detail.html?vendor=Meridian+Supply+Co.'">
+          <ui5-table-cell style="padding-inline-start:1rem">12614</ui5-table-cell>
+          <ui5-table-cell><a class="cell-link">Meridian Supply Co.</a></ui5-table-cell>
+          <ui5-table-cell>12/11/2025</ui5-table-cell>
+          <ui5-table-cell>2 High, 3 Medium</ui5-table-cell>
+          <ui5-table-cell><span class="status-review"><span class="status-review-icon">!</span>Review and Approve</span></ui5-table-cell>
+          <ui5-table-cell style="color:#6b7280; font-size:18px; text-align:center;">›</ui5-table-cell>
+        </ui5-table-row>
+
+        <ui5-table-row interactive onclick="location.href='rep-request-detail.html?vendor=Pinnacle+Health+Systems'">
+          <ui5-table-cell style="padding-inline-start:1rem">12607</ui5-table-cell>
+          <ui5-table-cell><a class="cell-link">Pinnacle Health Systems</a></ui5-table-cell>
+          <ui5-table-cell>12/05/2025</ui5-table-cell>
+          <ui5-table-cell>3 Medium</ui5-table-cell>
+          <ui5-table-cell><span class="status-in-progress">In Progress</span></ui5-table-cell>
+          <ui5-table-cell style="color:#6b7280; font-size:18px; text-align:center;">›</ui5-table-cell>
+        </ui5-table-row>
+
+        <ui5-table-row interactive onclick="location.href='rep-request-detail.html?vendor=Quantum+Dynamics+LLC'">
+          <ui5-table-cell style="padding-inline-start:1rem">121437</ui5-table-cell>
+          <ui5-table-cell><a class="cell-link">Quantum Dynamics LLC</a></ui5-table-cell>
+          <ui5-table-cell>12/06/2025</ui5-table-cell>
+          <ui5-table-cell>1 High</ui5-table-cell>
+          <ui5-table-cell><span class="status-review"><span class="status-review-icon">!</span>Review and Approve</span></ui5-table-cell>
+          <ui5-table-cell style="color:#6b7280; font-size:18px; text-align:center;">›</ui5-table-cell>
+        </ui5-table-row>
+
+        <ui5-table-row interactive onclick="location.href='rep-request-detail.html?vendor=TerraNova+Enterprises'">
+          <ui5-table-cell style="padding-inline-start:1rem">170758</ui5-table-cell>
+          <ui5-table-cell><a class="cell-link">TerraNova Enterprises</a></ui5-table-cell>
+          <ui5-table-cell>12/04/2025</ui5-table-cell>
+          <ui5-table-cell>2 Medium</ui5-table-cell>
+          <ui5-table-cell><span class="status-in-progress">In Progress</span></ui5-table-cell>
+          <ui5-table-cell style="color:#6b7280; font-size:18px; text-align:center;">›</ui5-table-cell>
+        </ui5-table-row>
+
+        <ui5-table-row interactive onclick="location.href='rep-request-detail.html?vendor=Atlas+Consulting+Partners'">
+          <ui5-table-cell style="padding-inline-start:1rem">19136</ui5-table-cell>
+          <ui5-table-cell><a class="cell-link">Atlas Consulting Partners</a></ui5-table-cell>
+          <ui5-table-cell>12/08/2025</ui5-table-cell>
+          <ui5-table-cell>1 High, 2 Medium</ui5-table-cell>
+          <ui5-table-cell><span class="status-review"><span class="status-review-icon status-review-icon-warning">!</span>Review and Correct</span></ui5-table-cell>
+          <ui5-table-cell style="color:#6b7280; font-size:18px; text-align:center;">›</ui5-table-cell>
+        </ui5-table-row>
+
+        <ui5-table-row interactive onclick="location.href='rep-request-detail.html?vendor=Synergy+Marketing+Corp'">
+          <ui5-table-cell style="padding-inline-start:1rem">19464</ui5-table-cell>
+          <ui5-table-cell><a class="cell-link">Synergy Marketing Corp</a></ui5-table-cell>
+          <ui5-table-cell>12/03/2025</ui5-table-cell>
+          <ui5-table-cell>1 Medium</ui5-table-cell>
+          <ui5-table-cell><span class="status-in-progress">In Progress</span></ui5-table-cell>
+          <ui5-table-cell style="color:#6b7280; font-size:18px; text-align:center;">›</ui5-table-cell>
+        </ui5-table-row>
+
+        <ui5-table-row interactive onclick="location.href='rep-request-detail.html?vendor=Vertex+Financial+Services'">
+          <ui5-table-cell style="padding-inline-start:1rem">121437</ui5-table-cell>
+          <ui5-table-cell><a class="cell-link">Vertex Financial Services</a></ui5-table-cell>
+          <ui5-table-cell>12/09/2025</ui5-table-cell>
+          <ui5-table-cell>1 High, 1 Medium</ui5-table-cell>
+          <ui5-table-cell><span class="status-in-progress">In Progress</span></ui5-table-cell>
+          <ui5-table-cell style="color:#6b7280; font-size:18px; text-align:center;">›</ui5-table-cell>
+        </ui5-table-row>
+
+        <ui5-table-row interactive onclick="location.href='rep-request-detail.html?vendor=Apex+Logistics+Solutions'">
+          <ui5-table-cell style="padding-inline-start:1rem">103104</ui5-table-cell>
+          <ui5-table-cell><a class="cell-link">Apex Logistics Solutions</a></ui5-table-cell>
+          <ui5-table-cell>12/10/2025</ui5-table-cell>
+          <ui5-table-cell>2 Medium</ui5-table-cell>
+          <ui5-table-cell><span class="status-in-progress">In Progress</span></ui5-table-cell>
+          <ui5-table-cell style="color:#6b7280; font-size:18px; text-align:center;">›</ui5-table-cell>
+        </ui5-table-row>
+
+        <ui5-table-row interactive onclick="location.href='rep-request-detail.html?vendor=Stellar+Research+Group'">
+          <ui5-table-cell style="padding-inline-start:1rem">19136</ui5-table-cell>
+          <ui5-table-cell><a class="cell-link">Stellar Research Group</a></ui5-table-cell>
+          <ui5-table-cell>12/07/2025</ui5-table-cell>
+          <ui5-table-cell>1 Medium</ui5-table-cell>
+          <ui5-table-cell><span class="status-in-progress">In Progress</span></ui5-table-cell>
+          <ui5-table-cell style="color:#6b7280; font-size:18px; text-align:center;">›</ui5-table-cell>
+        </ui5-table-row>
+
+        <ui5-table-row interactive onclick="location.href='rep-request-detail.html?vendor=Elemental+Design+Co'">
+          <ui5-table-cell style="padding-inline-start:1rem">12658</ui5-table-cell>
+          <ui5-table-cell><a class="cell-link">Elemental Design Co</a></ui5-table-cell>
+          <ui5-table-cell>12/10/2025</ui5-table-cell>
+          <ui5-table-cell>2 Medium</ui5-table-cell>
+          <ui5-table-cell><span class="status-in-progress">In Progress</span></ui5-table-cell>
+          <ui5-table-cell style="color:#6b7280; font-size:18px; text-align:center;">›</ui5-table-cell>
+        </ui5-table-row>
+
+        <ui5-table-row interactive onclick="location.href='rep-request-detail.html?vendor=Summit+Engineering+Services'">
+          <ui5-table-cell style="padding-inline-start:1rem">121883</ui5-table-cell>
+          <ui5-table-cell><a class="cell-link">Summit Engineering Services</a></ui5-table-cell>
+          <ui5-table-cell>12/09/2025</ui5-table-cell>
+          <ui5-table-cell>1 High, 2 Medium</ui5-table-cell>
+          <ui5-table-cell><span class="status-in-progress">In Progress</span></ui5-table-cell>
+          <ui5-table-cell style="color:#6b7280; font-size:18px; text-align:center;">›</ui5-table-cell>
+        </ui5-table-row>
+
+        <ui5-table-row interactive onclick="location.href='rep-request-detail.html?vendor=Radiant+Energy+Solutions'">
+          <ui5-table-cell style="padding-inline-start:1rem">12608</ui5-table-cell>
+          <ui5-table-cell><a class="cell-link">Radiant Energy Solutions</a></ui5-table-cell>
+          <ui5-table-cell>12/11/2025</ui5-table-cell>
+          <ui5-table-cell>1 Medium</ui5-table-cell>
+          <ui5-table-cell><span class="status-in-progress">In Progress</span></ui5-table-cell>
+          <ui5-table-cell style="color:#6b7280; font-size:18px; text-align:center;">›</ui5-table-cell>
+        </ui5-table-row>
+
+        <ui5-table-row interactive onclick="location.href='rep-request-detail.html?vendor=Crescent+Moon+Technologies'">
+          <ui5-table-cell style="padding-inline-start:1rem">171307</ui5-table-cell>
+          <ui5-table-cell><a class="cell-link">Crescent Moon Technologies</a></ui5-table-cell>
+          <ui5-table-cell>12/11/2025</ui5-table-cell>
+          <ui5-table-cell>3 Medium</ui5-table-cell>
+          <ui5-table-cell><span class="status-in-progress">In Progress</span></ui5-table-cell>
+          <ui5-table-cell style="color:#6b7280; font-size:18px; text-align:center;">›</ui5-table-cell>
+        </ui5-table-row>
+
+        <ui5-table-row interactive onclick="location.href='rep-request-detail.html?vendor=Innovatech+Ventures'">
+          <ui5-table-cell style="padding-inline-start:1rem">3217</ui5-table-cell>
+          <ui5-table-cell><a class="cell-link">Innovatech Ventures</a></ui5-table-cell>
+          <ui5-table-cell>12/11/2025</ui5-table-cell>
+          <ui5-table-cell>1 Medium</ui5-table-cell>
+          <ui5-table-cell><span class="status-in-progress">In Progress</span></ui5-table-cell>
+          <ui5-table-cell style="color:#6b7280; font-size:18px; text-align:center;">›</ui5-table-cell>
+        </ui5-table-row>
+
+        <ui5-table-row interactive onclick="location.href='rep-request-detail.html?vendor=Nexus+Communications+LLC'">
+          <ui5-table-cell style="padding-inline-start:1rem">93667</ui5-table-cell>
+          <ui5-table-cell><a class="cell-link">Nexus Communications LLC</a></ui5-table-cell>
+          <ui5-table-cell>12/10/2025</ui5-table-cell>
+          <ui5-table-cell>1 High, 1 Medium</ui5-table-cell>
+          <ui5-table-cell><span class="status-in-progress">In Progress</span></ui5-table-cell>
+          <ui5-table-cell style="color:#6b7280; font-size:18px; text-align:center;">›</ui5-table-cell>
+        </ui5-table-row>
+
+      </ui5-table>
+
+      <!-- Pagination -->
+      <div class="pagination" id="pagination" style="display:none">
+        <button class="page-btn page-btn-nav">&#8249;</button>
+        <button class="page-btn">1</button>
+        <button class="page-btn active">2</button>
+        <button class="page-btn">3</button>
+        <button class="page-btn">4</button>
+        <button class="page-btn">5</button>
+        <button class="page-btn">6</button>
+        <button class="page-btn">7</button>
+        <button class="page-btn">8</button>
+        <button class="page-btn">9</button>
+        <button class="page-btn">10</button>
+        <button class="page-btn page-btn-nav">&#8250;</button>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    window.addEventListener('pageshow', function() {
+      var skeleton = document.getElementById('skeletonOverlay');
+      var realTable = document.getElementById('realTable');
+      var pagination = document.getElementById('pagination');
+      skeleton.style.display = '';
+      realTable.style.display = 'none';
+      pagination.style.display = 'none';
+      skeleton.querySelectorAll('.skel-bar').forEach(function(el) {
+        el.style.animation = 'none';
+        el.offsetHeight;
+        el.style.animation = '';
+      });
+      setTimeout(function() {
+        skeleton.style.display = 'none';
+        realTable.style.display = '';
+        pagination.style.display = '';
+      }, 1400);
+    });
+  </script>
+
+</body>
+</html>

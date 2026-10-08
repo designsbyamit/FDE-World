@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Geomap</title>
+  <script src="panel-init.js"></script>
+  <script type="module" src="../../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 600; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 300; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Light.woff2") format("woff2"); }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "72", sans-serif; font-size: 0.875rem; background: var(--sapBackgroundColor, #f5f6f7); padding: 2rem; color: var(--sapTextColor, #131e29); }
+    .panel-title { font-size: 1.5rem; font-weight: 700; color: #131e29; margin-bottom: 0.375rem; }
+    .panel-subtitle { font-size: 0.8125rem; color: var(--sapContent_LabelColor, #6a7588); margin-bottom: 2rem; }
+    .demo-section { background: #fff; border: 1px solid var(--sapList_BorderColor, #e5e5e5); border-radius: 8px; margin-bottom: 1.25rem; overflow: hidden; }
+    .demo-section-header { padding: 0.75rem 1rem; border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5); font-size: 0.8125rem; font-weight: 600; color: var(--sapContent_LabelColor, #6a7588); display: flex; align-items: center; justify-content: space-between; }
+    .demo-section-tag { font-family: monospace; font-size: 0.75rem; color: #0064d9; font-weight: 400; }
+    .demo-section-body { padding: 1.25rem 1rem; display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: flex-start; }
+    .demo-section-body.column { flex-direction: column; }
+    .demo-section-body.block { display: block; padding: 0; }
+  </style>
+</head>
+<body>
+  <div class="panel-title">Geomap</div>
+  <div class="panel-subtitle">An interactive map with spots, routes, and popups. No Web Components equivalent — rendered using Leaflet.js with OpenStreetMap tiles, matching the OSM tile source used by sap.ui.geomap.</div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">
+      Interactive Map with Spots &amp; Popups
+      <span class="demo-section-tag">Leaflet.js · OpenStreetMap — sap.ui.geomap pattern</span>
+    </div>
+    <div class="demo-section-body block" style="padding:0;">
+      <div style="border:1px solid var(--sapList_BorderColor,#e5e5e5); border-radius:8px; overflow:hidden;">
+
+        <div style="display:flex; align-items:center; gap:0.5rem; padding:0.5rem 0.75rem; border-bottom:1px solid var(--sapList_BorderColor,#e5e5e5); background:var(--sapBackgroundColor,#f5f6f7);">
+          <span style="font-size:1rem; font-weight:700; flex:1; color:var(--sapTextColor,#131e29);">World Offices</span>
+          <ui5-button design="Transparent" icon="zoom-in" tooltip="Zoom In" onclick="geomapZoom(1)"></ui5-button>
+          <ui5-button design="Transparent" icon="zoom-out" tooltip="Zoom Out" onclick="geomapZoom(-1)"></ui5-button>
+          <ui5-button design="Transparent" icon="locate-me" tooltip="Reset View" onclick="geomapReset()"></ui5-button>
+        </div>
+
+        <div id="geomap-container" style="height:420px; width:100%;"></div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    var geomapInstance = null;
+    var geomapSpots = [
+      { lat: 48.7758, lng: 9.1829,   label: 'Walldorf HQ',   desc: 'SAP SE Headquarters' },
+      { lat: 37.3861, lng: -122.0839, label: 'Palo Alto',     desc: 'SAP Labs Silicon Valley' },
+      { lat: 52.5200, lng: 13.4050,   label: 'Berlin',        desc: 'SAP Berlin Office' },
+      { lat: 35.6762, lng: 139.6503,  label: 'Tokyo',         desc: 'SAP Japan Office' },
+      { lat: -23.5505, lng: -46.6333, label: 'São Paulo',     desc: 'SAP Brasil Office' },
+      { lat: 28.6139, lng: 77.2090,   label: 'New Delhi',     desc: 'SAP India Office' },
+      { lat: 51.5074, lng: -0.1278,   label: 'London',        desc: 'SAP UK Office' },
+      { lat: -33.8688, lng: 151.2093, label: 'Sydney',        desc: 'SAP Australia Office' },
+    ];
+    function geomapInit() {
+      if (geomapInstance) { setTimeout(function(){ geomapInstance.invalidateSize(); }, 50); return; }
+      if (typeof L === 'undefined') { setTimeout(geomapInit, 200); return; }
+      var el = document.getElementById('geomap-container');
+      if (!el || el.offsetHeight === 0) { setTimeout(geomapInit, 100); return; }
+      geomapInstance = L.map('geomap-container').setView([20, 10], 2);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors', maxZoom: 18
+      }).addTo(geomapInstance);
+      var icon = L.divIcon({ className: '', html: '<div style="width:12px;height:12px;background:#0064d9;border:2px solid #fff;border-radius:50%;box-shadow:0 1px 4px rgba(0,0,0,0.4);"></div>', iconSize:[12,12], iconAnchor:[6,6] });
+      geomapSpots.forEach(function(s) {
+        L.marker([s.lat, s.lng], {icon: icon}).addTo(geomapInstance)
+          .bindPopup('<strong>' + s.label + '</strong><br>' + s.desc);
+      });
+    }
+    function geomapZoom(delta) { if (geomapInstance) geomapInstance.setZoom(geomapInstance.getZoom() + delta); }
+    function geomapReset() { if (geomapInstance) geomapInstance.setView([20, 10], 2); }
+    document.addEventListener('DOMContentLoaded', geomapInit);
+  </script>
+</body>
+</html>

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Object Page SubSection</title>
+  <script src="panel-init.js"></script>
+  <script type="module" src="../../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 600; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 300; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Light.woff2") format("woff2"); }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "72", sans-serif; font-size: 0.875rem; background: var(--sapBackgroundColor, #f5f6f7); padding: 2rem; color: var(--sapTextColor, #131e29); }
+    .panel-title { font-size: 1.5rem; font-weight: 700; color: #131e29; margin-bottom: 0.375rem; }
+    .panel-subtitle { font-size: 0.8125rem; color: var(--sapContent_LabelColor, #6a7588); margin-bottom: 2rem; }
+    .demo-section { background: #fff; border: 1px solid var(--sapList_BorderColor, #e5e5e5); border-radius: 8px; margin-bottom: 1.25rem; overflow: hidden; }
+    .demo-section-header { padding: 0.75rem 1rem; border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5); font-size: 0.8125rem; font-weight: 600; color: var(--sapContent_LabelColor, #6a7588); display: flex; align-items: center; justify-content: space-between; }
+    .demo-section-tag { font-family: monospace; font-size: 0.75rem; color: #0064d9; font-weight: 400; }
+    .demo-section-body { padding: 1.25rem 1rem; display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: flex-start; }
+    .demo-section-body.column { flex-direction: column; }
+    .demo-section-body.block { display: block; padding: 0; }
+  </style>
+</head>
+<body>
+  <div class="panel-title">Object Page SubSection</div>
+  <div class="panel-subtitle">An Object Page with sub-sections that can be individually expanded or collapsed. The first sub-section is always expanded; others default to collapsed but can be toggled. Equivalent to sap.uxap.ObjectPageSubSection with Expanded/Collapsed mode — rendered with ui5-dynamic-page.</div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">
+      Sub-sections with Expand/Collapse
+      <span class="demo-section-tag">ui5-dynamic-page · collapsible sub-sections</span>
+    </div>
+    <div class="demo-section-body block" style="padding:0;">
+      <div style="height:520px; border:1px solid var(--sapList_BorderColor,#e5e5e5); border-radius:8px; overflow:hidden;">
+        <ui5-dynamic-page id="opss-page">
+
+          <ui5-dynamic-page-title slot="titleArea">
+            <ui5-title slot="heading" level="H3">Expand/Collapse sample</ui5-title>
+            <ui5-button slot="actionsBar" design="Emphasized">Edit</ui5-button>
+            <ui5-button slot="actionsBar" design="Transparent">Share</ui5-button>
+            <ui5-button slot="navigationBar" design="Transparent" icon="nav-back" tooltip="Back"></ui5-button>
+          </ui5-dynamic-page-title>
+
+          <div slot="content" style="padding:1.5rem 1rem;">
+
+            <div style="font-size:1rem;font-weight:700;color:var(--sapTextColor,#131e29);margin-bottom:1rem;padding-bottom:0.5rem;border-bottom:2px solid var(--sapList_BorderColor,#e5e5e5);">All examples</div>
+
+            <div style="margin-bottom:1.25rem;" id="opss-sub1">
+              <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.75rem;">
+                <div style="font-size:0.875rem;font-weight:700;color:var(--sapTextColor,#131e29);">No Expand/Collapse</div>
+                <ui5-tag design="Set3" color-scheme="2" style="font-size:0.7rem;">Always Expanded</ui5-tag>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+                <div style="background:var(--sapList_SelectionBackgroundColor,#e8f0fe);border:1px solid var(--sapSelectedColor,#0064d9);border-radius:6px;padding:0.875rem;">
+                  <div style="font-size:0.75rem;font-weight:700;color:var(--sapSelectedColor,#0064d9);margin-bottom:0.4rem;text-transform:uppercase;letter-spacing:0.06em;">Block Blue T1</div>
+                  <div style="font-size:0.8125rem;color:var(--sapContent_LabelColor,#6a7588);">MultiViewBlock instance 21</div>
+                </div>
+                <div style="background:var(--sapList_SelectionBackgroundColor,#e8f0fe);border:1px solid var(--sapSelectedColor,#0064d9);border-radius:6px;padding:0.875rem;">
+                  <div style="font-size:0.75rem;font-weight:700;color:var(--sapSelectedColor,#0064d9);margin-bottom:0.4rem;text-transform:uppercase;letter-spacing:0.06em;">Block Blue T2</div>
+                  <div style="font-size:0.8125rem;color:var(--sapContent_LabelColor,#6a7588);">MultiViewBlock instance 22</div>
+                </div>
+              </div>
+            </div>
+
+            <div style="margin-bottom:1.25rem;" id="opss-sub2">
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:0.5rem 0.75rem;background:var(--sapBackgroundColor,#f5f6f7);border:1px solid var(--sapList_BorderColor,#e5e5e5);border-radius:6px;cursor:pointer;" onclick="opssToggle('opss-sub2-body','opss-sub2-icon')">
+                <div style="display:flex;align-items:center;gap:0.5rem;">
+                  <span style="font-size:0.875rem;font-weight:700;color:var(--sapTextColor,#131e29);">Collapsed by default</span>
+                  <ui5-tag design="Set3" color-scheme="5" style="font-size:0.7rem;">Collapsed</ui5-tag>
+                </div>
+                <ui5-icon id="opss-sub2-icon" name="slim-arrow-right" style="color:var(--sapContent_LabelColor,#6a7588);"></ui5-icon>
+              </div>
+              <div id="opss-sub2-body" style="display:none;padding:0.75rem 0 0;">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:0.75rem;">
+                  <div style="background:#fef7ec;border:1px solid var(--sapCriticalColor,#e76500);border-radius:6px;padding:0.875rem;">
+                    <div style="font-size:0.75rem;font-weight:700;color:var(--sapCriticalColor,#e76500);margin-bottom:0.4rem;text-transform:uppercase;letter-spacing:0.06em;">Block Orange T1</div>
+                    <div style="font-size:0.8125rem;color:var(--sapContent_LabelColor,#6a7588);">MultiViewBlock instance 11</div>
+                  </div>
+                  <div style="background:#fef7ec;border:1px solid var(--sapCriticalColor,#e76500);border-radius:6px;padding:0.875rem;">
+                    <div style="font-size:0.75rem;font-weight:700;color:var(--sapCriticalColor,#e76500);margin-bottom:0.4rem;text-transform:uppercase;letter-spacing:0.06em;">Block Orange T2</div>
+                    <div style="font-size:0.8125rem;color:var(--sapContent_LabelColor,#6a7588);">MultiViewBlock instance 12</div>
+                  </div>
+                </div>
+                <div style="border-top:1px dashed var(--sapList_BorderColor,#e5e5e5);padding-top:0.75rem;">
+                  <div style="font-size:0.75rem;color:var(--sapContent_LabelColor,#6a7588);margin-bottom:0.5rem;font-style:italic;">More blocks (moreBlocks slot)</div>
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+                    <div style="background:#fef7ec;border:1px dashed var(--sapCriticalColor,#e76500);border-radius:6px;padding:0.875rem;">
+                      <div style="font-size:0.75rem;font-weight:700;color:var(--sapCriticalColor,#e76500);margin-bottom:0.4rem;text-transform:uppercase;letter-spacing:0.06em;">Block Orange T3</div>
+                      <div style="font-size:0.8125rem;color:var(--sapContent_LabelColor,#6a7588);">MultiViewBlock instance 13</div>
+                    </div>
+                    <div style="background:#fef7ec;border:1px dashed var(--sapCriticalColor,#e76500);border-radius:6px;padding:0.875rem;">
+                      <div style="font-size:0.75rem;font-weight:700;color:var(--sapCriticalColor,#e76500);margin-bottom:0.4rem;text-transform:uppercase;letter-spacing:0.06em;">Block Orange T4</div>
+                      <div style="font-size:0.8125rem;color:var(--sapContent_LabelColor,#6a7588);">MultiViewBlock instance 14</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div id="opss-sub3">
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:0.5rem 0.75rem;background:var(--sapBackgroundColor,#f5f6f7);border:1px solid var(--sapList_BorderColor,#e5e5e5);border-radius:6px;cursor:pointer;" onclick="opssToggle('opss-sub3-body','opss-sub3-icon')">
+                <div style="display:flex;align-items:center;gap:0.5rem;">
+                  <span style="font-size:0.875rem;font-weight:700;color:var(--sapTextColor,#131e29);">Expanded by default</span>
+                  <ui5-tag design="Set3" color-scheme="7" style="font-size:0.7rem;">Expanded</ui5-tag>
+                </div>
+                <ui5-icon id="opss-sub3-icon" name="slim-arrow-down" style="color:var(--sapContent_LabelColor,#6a7588);"></ui5-icon>
+              </div>
+              <div id="opss-sub3-body" style="padding:0.75rem 0 0;">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:0.75rem;">
+                  <div style="background:#eefaee;border:1px solid var(--sapPositiveColor,#196800);border-radius:6px;padding:0.875rem;">
+                    <div style="font-size:0.75rem;font-weight:700;color:var(--sapPositiveColor,#196800);margin-bottom:0.4rem;text-transform:uppercase;letter-spacing:0.06em;">Block Green T1</div>
+                    <div style="font-size:0.8125rem;color:var(--sapContent_LabelColor,#6a7588);">MultiViewBlock instance 31</div>
+                  </div>
+                  <div style="background:#eefaee;border:1px solid var(--sapPositiveColor,#196800);border-radius:6px;padding:0.875rem;">
+                    <div style="font-size:0.75rem;font-weight:700;color:var(--sapPositiveColor,#196800);margin-bottom:0.4rem;text-transform:uppercase;letter-spacing:0.06em;">Block Green T2</div>
+                    <div style="font-size:0.8125rem;color:var(--sapContent_LabelColor,#6a7588);">MultiViewBlock instance 32</div>
+                  </div>
+                </div>
+                <div style="border-top:1px dashed var(--sapList_BorderColor,#e5e5e5);padding-top:0.75rem;">
+                  <div style="font-size:0.75rem;color:var(--sapContent_LabelColor,#6a7588);margin-bottom:0.5rem;font-style:italic;">More blocks (moreBlocks slot)</div>
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+                    <div style="background:#eefaee;border:1px dashed var(--sapPositiveColor,#196800);border-radius:6px;padding:0.875rem;">
+                      <div style="font-size:0.75rem;font-weight:700;color:var(--sapPositiveColor,#196800);margin-bottom:0.4rem;text-transform:uppercase;letter-spacing:0.06em;">Block Green T3</div>
+                      <div style="font-size:0.8125rem;color:var(--sapContent_LabelColor,#6a7588);">MultiViewBlock instance 33</div>
+                    </div>
+                    <div style="background:#eefaee;border:1px dashed var(--sapPositiveColor,#196800);border-radius:6px;padding:0.875rem;">
+                      <div style="font-size:0.75rem;font-weight:700;color:var(--sapPositiveColor,#196800);margin-bottom:0.4rem;text-transform:uppercase;letter-spacing:0.06em;">Block Green T4</div>
+                      <div style="font-size:0.8125rem;color:var(--sapContent_LabelColor,#6a7588);">MultiViewBlock instance 34</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </ui5-dynamic-page>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function opssToggle(bodyId, iconId) {
+      var body = document.getElementById(bodyId);
+      var icon = document.getElementById(iconId);
+      var isHidden = body.style.display === 'none';
+      body.style.display = isHidden ? '' : 'none';
+      icon.setAttribute('name', isHidden ? 'slim-arrow-down' : 'slim-arrow-right');
+    }
+  </script>
+</body>
+</html>
