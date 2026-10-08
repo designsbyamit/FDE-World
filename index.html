@@ -1,538 +1,69 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SAP Fiori Prototyping with Claude Code — Getting Started</title>
-  <script src="lib/ui5-bundle/ui5-bundle.js"></script>
-  <style>
-    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
-    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
-    @font-face { font-family: "72"; font-weight: 600; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2"); }
-    @font-face { font-family: "72"; font-weight: 300; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Light.woff2") format("woff2"); }
-
-    body {
-      font-family: "72", sans-serif;
-      background: var(--sapBackgroundColor, #f5f6f7);
-      color: var(--sapTextColor, #131e29);
-      margin: 0;
-      padding: 0;
-    }
-
-    .page-header {
-      background: linear-gradient(135deg, var(--sapButton_Emphasized_Background, #0057d2), var(--sapHighlightColor, #0064d9), #1a3a6e);
-      color: #fff;
-      padding: 3rem 4rem 2.5rem;
-    }
-
-    .page-header h1 {
-      font-size: var(--sapFontHeader1Size, 2rem);
-      font-weight: 700;
-      margin: 0 0 0.5rem;
-      color: #fff;
-    }
-
-    .page-header p {
-      font-size: var(--sapFontLargeSize, 1rem);
-      margin: 0;
-      opacity: 0.85;
-    }
-
-    .content {
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 2.5rem 2rem 4rem;
-    }
-
-    .section {
-      background: var(--sapTile_Background, #fff);
-      border: 1px solid var(--sapList_BorderColor, #e5e5e5);
-      border-radius: var(--sapTile_BorderCornerRadius, 1rem);
-      padding: 2rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .section h2 {
-      font-size: var(--sapFontHeader3Size, 1.25rem);
-      font-weight: 700;
-      margin: 0 0 1rem;
-      color: var(--sapTextColor, #131e29);
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .section h2 .step-badge {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 1.75rem;
-      height: 1.75rem;
-      background: var(--sapButton_Emphasized_Background, #0057d2);
-      color: #fff;
-      border-radius: 50%;
-      font-size: 0.8125rem;
-      font-weight: 700;
-      flex-shrink: 0;
-    }
-
-    .section h3 {
-      font-size: 0.9375rem;
-      font-weight: 600;
-      margin: 1.5rem 0 0.5rem;
-      color: var(--sapTextColor, #131e29);
-    }
-
-    .section h3:first-of-type {
-      margin-top: 0.25rem;
-    }
-
-    .section p, .section li {
-      font-size: 0.875rem;
-      line-height: 1.65;
-      color: var(--sapTextColor, #131e29);
-    }
-
-    .section ul, .section ol {
-      margin: 0.5rem 0;
-      padding-left: 1.5rem;
-    }
-
-    .section li {
-      margin-bottom: 0.4rem;
-    }
-
-    .file-tree {
-      background: var(--sapList_Background, #fafafa);
-      border: 1px solid var(--sapList_BorderColor, #e5e5e5);
-      border-radius: var(--sapField_BorderCornerRadius, 0.25rem);
-      padding: 1rem 1.25rem;
-      font-family: "Menlo", "Monaco", "Courier New", monospace;
-      font-size: 0.8125rem;
-      line-height: 1.8;
-      color: var(--sapTextColor, #131e29);
-      overflow-x: auto;
-    }
-
-    .file-tree .comment {
-      color: var(--sapContent_LabelColor, #556b82);
-    }
-
-    code {
-      font-family: "Menlo", "Monaco", "Courier New", monospace;
-      font-size: 0.8125rem;
-      background: var(--sapList_SelectionBackgroundColor, #e8f2fe);
-      color: var(--sapButton_Emphasized_Background, #0057d2);
-      padding: 0.1em 0.35em;
-      border-radius: 3px;
-    }
-
-    .code-block {
-      background: var(--sapList_Background, #fafafa);
-      border: 1px solid var(--sapList_BorderColor, #e5e5e5);
-      border-radius: var(--sapField_BorderCornerRadius, 0.25rem);
-      padding: 0.875rem 1.25rem;
-      font-family: "Menlo", "Monaco", "Courier New", monospace;
-      font-size: 0.8125rem;
-      line-height: 1.7;
-      color: var(--sapTextColor, #131e29);
-      overflow-x: auto;
-      margin: 0.75rem 0;
-    }
-
-    .option-block {
-      border-left: 3px solid var(--sapNeutralBorderColor, #c2c2c2);
-      padding-left: 1rem;
-      margin-bottom: 1.25rem;
-    }
-
-    .option-block strong {
-      display: block;
-      font-size: 0.875rem;
-      margin-bottom: 0.35rem;
-    }
-
-    .tip {
-      background: var(--sapInformationBackground, #e8f2fe);
-      border-left: 3px solid var(--sapInformationColor, #0057d2);
-      border-radius: 0 var(--sapField_BorderCornerRadius, 0.25rem) var(--sapField_BorderCornerRadius, 0.25rem) 0;
-      padding: 0.75rem 1rem;
-      font-size: 0.875rem;
-      margin: 1rem 0;
-    }
-
-    .tip strong {
-      display: block;
-      margin-bottom: 0.25rem;
-    }
-
-    .prereq {
-      background: var(--sapNeutralBackground, #f5f6f7);
-      border: 1px solid var(--sapList_BorderColor, #e5e5e5);
-      border-radius: var(--sapTile_BorderCornerRadius, 1rem);
-      padding: 1rem 1.25rem;
-      font-size: 0.875rem;
-      margin: 1rem 0;
-    }
-    .prereq strong {
-      display: block;
-      font-size: 0.8125rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--sapContent_LabelColor, #556b82);
-      margin-bottom: 0.625rem;
-    }
-    .prereq ul {
-      margin: 0;
-      padding-left: 1.25rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.375rem;
-    }
-
-    .warn {
-      background: var(--sapWarningBackground, #fef6e6);
-      border-left: 3px solid var(--sapWarningColor, #df6e0c);
-      border-radius: 0 var(--sapField_BorderCornerRadius, 0.25rem) var(--sapField_BorderCornerRadius, 0.25rem) 0;
-      padding: 0.75rem 1rem;
-      font-size: 0.875rem;
-      margin: 1rem 0;
-    }
-
-    .warn strong {
-      display: block;
-      margin-bottom: 0.25rem;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.875rem;
-      margin: 0.75rem 0;
-    }
-
-    th {
-      text-align: left;
-      font-weight: 600;
-      font-size: 0.8125rem;
-      color: var(--sapContent_LabelColor, #556b82);
-      border-bottom: 2px solid var(--sapList_BorderColor, #e5e5e5);
-      padding: 0.5rem 0.75rem 0.5rem 0;
-    }
-
-    td {
-      padding: 0.6rem 0.75rem 0.6rem 0;
-      border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5);
-      vertical-align: top;
-    }
-
-    tr:last-child td {
-      border-bottom: none;
-    }
-
-    td:first-child code {
-      white-space: nowrap;
-    }
-
-    .section-nav {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .nav-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-      background: var(--sapTile_Background, #fff);
-      border: 1px solid var(--sapList_BorderColor, #e5e5e5);
-      border-radius: 2rem;
-      padding: 0.35rem 0.85rem;
-      font-size: 0.8125rem;
-      font-family: "72", sans-serif;
-      color: var(--sapButton_Emphasized_Background, #0057d2);
-      cursor: pointer;
-      text-decoration: none;
-      transition: box-shadow 0.15s, transform 0.15s;
-    }
-
-    .nav-chip:hover {
-      box-shadow: var(--sapContent_Shadow1, 0 2px 8px rgba(0,0,0,0.12));
-      transform: translateY(-2px);
-    }
-
-    .divider {
-      border: none;
-      border-top: 1px solid var(--sapList_BorderColor, #e5e5e5);
-      margin: 1.25rem 0;
-    }
-
-    .md-callout {
-      background: var(--sapList_Background, #fafafa);
-      border: 1px solid var(--sapList_BorderColor, #e5e5e5);
-      border-radius: var(--sapField_BorderCornerRadius, 0.25rem);
-      padding: 1rem 1.25rem;
-      margin: 1rem 0;
-      font-size: 0.875rem;
-    }
-
-    .md-callout .md-file {
-      font-family: "Menlo", "Monaco", "Courier New", monospace;
-      font-size: 0.8125rem;
-      font-weight: 600;
-      color: var(--sapButton_Emphasized_Background, #0057d2);
-      margin-bottom: 0.4rem;
-    }
-
-    .md-callout p {
-      margin: 0.3rem 0 0;
-    }
-
-    .file-pill {
-      display: inline-block;
-      font-family: "Menlo", "Monaco", "Courier New", monospace;
-      font-size: 0.8125rem;
-      font-weight: 500;
-      color: var(--sapButton_Emphasized_Background, #0057d2);
-      background: var(--sapList_SelectionBackgroundColor, #e8f2fe);
-      border-radius: var(--sapButton_BorderCornerRadius, 0.5rem);
-      padding: 0.25rem 0.75rem;
-      margin: 0.25rem 0 0.75rem;
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FDE World</title>
+<style>
+  :root { --bg:#f6f7f9; --fg:#1d2d3e; --muted:#5b6b7b; --card:#fff; --line:#d9dde3; --accent:#0a6ed1; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#12171d; --fg:#e8edf2; --muted:#9aa8b6; --card:#1b232c; --line:#2c3844; --accent:#6cb4ff; }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg); font-family:"72", system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width:960px; margin:0 auto; padding:48px 16px 64px; }
+  h1 { margin:0 0 4px; font-size:2rem; }
+  .lede { margin:0 0 32px; color:var(--muted); }
+  .grid { display:grid; gap:16px; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:20px; transition:transform .15s, box-shadow .15s; }
+  .card:hover { transform:translateY(-3px); box-shadow:0 8px 24px rgba(0,0,0,.12); }
+  .card h2 { margin:0 0 6px; font-size:1.125rem; }
+  .status { display:inline-block; margin-bottom:10px; padding:2px 8px; border:1px solid var(--line); border-radius:999px; font-size:.75rem; color:var(--muted); }
+  .card p { margin:0 0 14px; color:var(--muted); font-size:.9375rem; line-height:1.45; }
+  .card ul { margin:0; padding:0; list-style:none; display:grid; gap:6px; }
+  a { color:var(--accent); text-decoration:none; }
+  a:hover { text-decoration:underline; }
+  #env { position:fixed; right:12px; bottom:12px; padding:8px 12px; border-radius:6px; background:#b45309; color:#fff; font:600 12px/1 system-ui, sans-serif; box-shadow:0 2px 8px rgba(0,0,0,.3); }
+  #env[hidden] { display:none; }
+</style>
 </head>
 <body>
-
-  <div class="page-header">
-    <h1>SAP Fiori Prototyping with Claude Code</h1>
-    <p>Step-by-step guide to create Fiori prototypes using UI5 Web Components and Claude Code.</p>
+<main>
+  <h1>FDE World</h1>
+  <p class="lede">Forward-deployed engineering projects, prototypes and experiments.</p>
+  <div class="grid" id="projects">
+    <noscript>
+      <div class="card"><h2>FDE Collections</h2><ul><li><a href="fde-collections/Projects/Collections%20Agent%20Portal/">Collections Agent Portal</a></li></ul></div>
+    </noscript>
   </div>
-
-  <div class="content">
-
-    <nav class="section-nav">
-      <a class="nav-chip" href="#why"><ui5-icon name="hint"></ui5-icon> Why use this starter kit</a>
-      <a class="nav-chip" href="#download"><ui5-icon name="download"></ui5-icon> 0. Download</a>
-      <a class="nav-chip" href="#step1"><ui5-icon name="folder"></ui5-icon> 1. Set up the folder</a>
-      <a class="nav-chip" href="#step2"><ui5-icon name="ai"></ui5-icon> 2. How Claude works</a>
-      <a class="nav-chip" href="#step3"><ui5-icon name="add"></ui5-icon> 3. Your first project</a>
-      <a class="nav-chip" href="#step4"><ui5-icon name="play"></ui5-icon> 4. Run locally</a>
-      <a class="nav-chip" href="#step5"><ui5-icon name="globe"></ui5-icon> 5. Publish to GitHub Pages</a>
-      <a class="nav-chip" href="#reference"><ui5-icon name="list"></ui5-icon> Rules</a>
-    </nav>
-
-    <!-- Why -->
-    <div class="section" id="why">
-      <h2><ui5-icon name="hint" style="color:var(--sapButton_Emphasized_Background,#0057d2)"></ui5-icon> Why Use This Starter Kit</h2>
-
-      <p>Building a Fiori prototype from scratch with Claude Code means training Claude on Fiori patterns — how to use every UI5 component correctly, structure a shellbar, build tables, order buttons — before you've written a single screen. Most of that setup is invisible.</p>
-
-      <p>This folder is that setup, done once and done right. The moment you open it in Claude Code, everything is already wired: the UI5 Web Components bundle is local and offline-capable, the CLAUDE.md files encode every SAP Fiori rule Claude needs to follow, and the component conventions are documented in a form Claude reads automatically before building anything. You describe a screen — Claude builds it to spec.</p>
-
-      <p>Every prototype you create inside this folder is a real UI5 Web Components application. Not a simulation, not a mockup approximation — the same component library that ships in production SAP Fiori apps. Buttons, tables, dialogs, and inputs behave exactly as they would in a real product.</p>
-
-      <p>Compare that to Figma: you can design something that looks right, but a stakeholder clicking through it will hit dead ends, static states, and missing interactions. A prototype built here responds to real input, navigates on real conditions, and shows real data logic. It is a working product, just without the backend.</p>
-
-      <div class="tip">
-        <strong>These are real UI5 Web Components applications — not simulations of them.</strong>
-        Every prototype is built with SAP UI5 Web Components — the exact same component library that ships in production SAP Fiori applications. Buttons, tables, dialogs, and inputs all behave exactly as they would in a real Fiori app.
-      </div>
-
-      <hr class="divider">
-
-      <ul>
-        <li><strong>Every interaction is authentic</strong> — hover states, focus rings, and scroll behavior come from the real UI5 components.</li>
-        <li><strong>Data stays current</strong> — dates and statuses are set dynamically, so demos never look stale.</li>
-        <li><strong>UI elements respond to each other</strong> — no need to duplicate Figma screens for every variation.</li>
-        <li><strong>Navigation is context-aware</strong> — where a user lands next can depend on role, record state, or a decision they just made.</li>
-        <li><strong>Easy to share</strong> — publish to GitHub Pages and share a URL.</li>
-      </ul>
-    </div>
-
-    <!-- Download -->
-    <div class="section" id="download" style="border: 2px solid var(--sapButton_Emphasized_Background, #0057d2); background: linear-gradient(135deg, var(--sapList_SelectionBackgroundColor, #e8f2fe) 0%, var(--sapTile_Background, #fff) 60%);">
-      <h2><span class="step-badge">0</span> Get the Starter Files</h2>
-      <p>This guide assumes Claude Code is already installed. If not, follow the setup instructions at <a href="https://ai-docs.portal.hyperspace.tools.sap/llm-proxy/recipes/claude/" target="_blank">ai-docs.portal.hyperspace.tools.sap</a> before continuing.</p>
-      <p style="margin-top:0.5rem;">Download the starter files from GitHub. They include a pre-bundled UI5 Web Components library, a component showcase, and a sample project.</p>
-      <div style="margin: 1.5rem 0 0.5rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
-        <a href="https://github.tools.sap/I753220/Claude-Code/archive/refs/heads/starter.zip"
-           style="display:inline-flex; align-items:center; gap:0.5rem; background:var(--sapButton_Emphasized_Background,#0057d2); color:#fff; font-family:'72',sans-serif; font-size:0.9375rem; font-weight:600; padding:0.75rem 1.5rem; border-radius:var(--sapButton_BorderCornerRadius,0.5rem); text-decoration:none; box-shadow: var(--sapContent_Shadow1, 0 2px 8px rgba(0,0,0,0.15)); transition: box-shadow 0.15s, transform 0.15s;"
-           onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 4px 16px rgba(0,87,210,0.35)'"
-           onmouseout="this.style.transform='';this.style.boxShadow='var(--sapContent_Shadow1, 0 2px 8px rgba(0,0,0,0.15))'">
-          <ui5-icon name="download" style="color:#fff"></ui5-icon>
-          Download the Starter Files (.zip)
-        </a>
-      </div>
-    </div>
-
-    <!-- Step 1 -->
-    <div class="section" id="step1">
-      <h2><span class="step-badge">1</span> Set Up the Folder</h2>
-      <p><strong>Copy the contents of this folder into your existing Claude Code folder, or replace its contents entirely.</strong> This gives you the full Fiori prototyping setup — all your projects will live in one place, share the same <code>lib/</code> infrastructure, and follow the same conventions automatically.</p>
-
-      <p>Here is what is inside:</p>
-
-      <div class="file-tree">
-Claude Code/<br>
-├── README.html &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">← this file</span><br>
-├── CLAUDE.md &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">← standing rules Claude follows on every session</span><br>
-├── lib/ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">← shared infrastructure — do not edit</span><br>
-│ &nbsp;&nbsp;├── ui5-bundle/ui5-bundle.js &nbsp; <span class="comment">← SAP UI5 Web Components (bundled, offline-capable)</span><br>
-│ &nbsp;&nbsp;├── shared/shellbar.js &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">← shared shellbar custom element</span><br>
-│ &nbsp;&nbsp;├── component-conventions.md &nbsp;<span class="comment">← rules for how to use each UI5 component</span><br>
-│ &nbsp;&nbsp;└── assets/ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">← shared icons and favicons</span><br>
-└── Projects/ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">← all your projects live here</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;├── UI5/ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">← UI5 component showcase and floorplan templates</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;├── Sample Project/ <span class="comment">← sample project to learn from or clone</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;└── Your Project/ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">← your new project</span>
-      </div>
-
-      <p style="margin-top:1rem;"><strong>Do not modify anything in <code>lib/</code>.</strong> It is shared infrastructure used by every project. All your work goes inside <code>Projects/</code>.</p>
-
-      <div class="tip">
-        <strong>How to open this in Claude Code</strong>
-        In the Claude Code desktop app or CLI, open or <code>cd</code> into the <code>Claude Code/</code> folder as your working directory. Claude will automatically pick up the <code>CLAUDE.md</code> at the root and apply its rules to every session in this folder.
-      </div>
-    </div>
-
-    <!-- Step 2 -->
-    <div class="section" id="step2">
-      <h2><span class="step-badge">2</span> Understand How Claude Works With This Folder</h2>
-
-      <p>Claude Code reads <code>CLAUDE.md</code> files automatically every time you start a session. These files are the instructions Claude follows — you do not need to repeat yourself each time. There are three files to know about:</p>
-
-      <div class="prereq">
-        <h3 style="margin-top:0;">The Master Rulebook</h3>
-        <div class="file-pill">CLAUDE.md &nbsp;(root level)</div>
-        <p>Tells Claude to always use UI5 Web Components, follow SAP design tokens, use relative paths, structure buttons correctly, and many other standards. <strong>Claude applies these rules to every project without being asked.</strong> Do not edit this file casually — it governs everything.</p>
-      </div>
-
-      <div class="prereq">
-        <h3 style="margin-top:0;">The Component Conventions</h3>
-        <div class="file-pill">lib/component-conventions.md</div>
-        <p>For each UI5 component (table, button, shellbar, dialog, etc.) this file documents the exact HTML structure to use, known rendering quirks, and required CSS fixes. Claude reads this before building any new page and applies the conventions automatically.</p>
-      </div>
-
-      <div class="prereq">
-        <h3 style="margin-top:0;">Your Project Memory</h3>
-        <div class="file-pill">Projects/&lt;Your Project&gt;/CLAUDE.md</div>
-        <p>Tells Claude what the project is about, who the user persona is, what pages exist, and any domain-specific rules. <strong>Claude creates this file automatically when you start a new project</strong>, and updates it as the project grows. This is how Claude stays consistent across sessions.</p>
-      </div>
-
-      <div class="tip">
-        <strong>In practice, you just tell Claude what you want — it reads all three files silently and builds accordingly.</strong>
-        It reads your project <code>CLAUDE.md</code> for context → reads <code>lib/component-conventions.md</code> for component rules → builds using UI5 Web Components throughout → keeps all paths relative so pages work on GitHub Pages.
-      </div>
-    </div>
-
-    <!-- Step 3 -->
-    <div class="section" id="step3">
-      <h2><span class="step-badge">3</span> Create Your First Project</h2>
-
-      <p>To create a new project, tell Claude:</p>
-
-      <div class="md-callout" style="font-style:italic;">"Create a new project called [name]."</div>
-
-      <p>If you don't include a name, Claude will ask for one. Claude creates the project folder inside <code>Projects/</code> and sets up a <code>CLAUDE.md</code> file with your project context — this is how Claude stays consistent across sessions.</p>
-
-      <p>Once the project is created, ask Claude to build your first screen:</p>
-
-      <div class="md-callout" style="font-style:italic;">"Build a vendor change request worklist page."</div>
-
-      <p>Attach a screenshot or mockup if you have one. Claude will automatically pick the right floorplan or page template if your screen matches one — you don't need to ask.</p>
-
-      <hr class="divider">
-
-      <h3>Available Floorplans — in <code>Projects/UI5/</code></h3>
-      <p>These match standard SAP Fiori floorplan patterns. When your page fits one of these, always start here.</p>
-      <table>
-        <thead><tr><th>File</th><th>Use when you need…</th></tr></thead>
-        <tbody>
-          <tr><td><code>floorplan-list-report.html</code></td><td>A filterable, searchable table of records</td></tr>
-          <tr><td><code>floorplan-object-page.html</code></td><td>A full detail view for a single record</td></tr>
-          <tr><td><code>floorplan-worklist.html</code></td><td>A task-oriented list where users take actions</td></tr>
-          <tr><td><code>floorplan-overview-page.html</code></td><td>A dashboard or KPI summary card layout</td></tr>
-          <tr><td><code>floorplan-analytical-list-page.html</code></td><td>A chart combined with a filterable table</td></tr>
-        </tbody>
-      </table>
-
-      <h3>Available Templates — in <code>Projects/UI5/</code></h3>
-      <p>Templates are general-purpose page scaffolds for patterns that don't map to a named Fiori floorplan.</p>
-      <table>
-        <thead><tr><th>File</th><th>Use when you need…</th></tr></thead>
-        <tbody>
-          <tr><td><code>template-home.html</code></td><td>A home or dashboard page with icon-rail nav, hero banner, and card grid</td></tr>
-          <tr><td><code>template-instances.html</code></td><td>A master–detail layout with a collapsible list and tabbed detail pane</td></tr>
-          <tr><td><code>template-list-filter.html</code></td><td>A list with saved-view variant management and a collapsible filter bar</td></tr>
-          <tr><td><code>template-list-kpi.html</code></td><td>A list with KPI summary tiles above the table</td></tr>
-          <tr><td><code>template-news-hub.html</code></td><td>A portal or hub with icon rail, side panel, hero banner, and card grid</td></tr>
-          <tr><td><code>template-settings.html</code></td><td>A settings or admin page with tab bar, form cards, and user management</td></tr>
-          <tr><td><code>template-detail-two-column.html</code></td><td>A detail view with a fixed sub-header, scrollable main column, and fixed side column</td></tr>
-          <tr><td><code>template-document-review.html</code></td><td>A document review page with a 60/40 split and a workflow stepper</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Step 4 -->
-    <div class="section" id="step4">
-      <h2><span class="step-badge">4</span> Run Pages Locally</h2>
-
-      <p>Because UI5 components in these pages are loaded as JavaScript modules, they must be served via a local HTTP server — browsers block module loading when files are opened directly from disk.</p>
-
-      <p>To set this up, tell Claude:</p>
-
-      <div class="md-callout" style="font-style:italic;">"Set up a local HTTP server for this folder."</div>
-
-      <p>On a Mac, Python is built in and nothing needs to be installed — Claude will handle the rest.</p>
-
-      <p>Not on a Mac? You can also use a <strong>Node.js server</strong> or the <strong>VS Code Live Server</strong> extension — just ask Claude to help you set either one up.</p>
-    </div>
-
-    <!-- Step 5 -->
-    <div class="section" id="step5">
-      <h2><span class="step-badge">5</span> Publish to GitHub Pages</h2>
-
-      <p>GitHub Pages turns your <code>Claude Code/</code> folder into a shareable URL — for free. Every page that works locally works on GitHub Pages without any changes.</p>
-
-      <div class="prereq">
-        <strong>Before your first push, have these ready</strong>
-        <ul>
-          <li>A <strong>GitHub account</strong> and a repository named <code>Claude-Code</code></li>
-          <li>A <strong>personal access token</strong> with <code>repo</code> scope — generate one at GitHub → Settings → Developer Settings → Personal access tokens</li>
-          <li>The <strong>repository URL</strong> (e.g. <code>https://github.com/your-username/Claude-Code</code>)</li>
-        </ul>
-      </div>
-
-      <p>To publish for the first time, tell Claude:</p>
-      <div class="md-callout" style="font-style:italic;">"Push this project to GitHub Pages."</div>
-
-      <p>To push updates after making changes:</p>
-      <div class="md-callout" style="font-style:italic;">"Push my latest changes to GitHub."</div>
-      <p>Your live URL will update within about 30 seconds of each push.</p>
-    </div>
-
-    <!-- Reference -->
-    <div class="section" id="reference">
-      <h2><ui5-icon name="list" style="color:var(--sapButton_Emphasized_Background,#0057d2)"></ui5-icon> Non-negotiable Rules Claude Always Follows</h2>
-      <table>
-        <thead><tr><th>Rule</th><th>Detail</th></tr></thead>
-        <tbody>
-          <tr><td>UI5 bundle path</td><td><code>../../lib/ui5-bundle/ui5-bundle.js</code> from any project subfolder</td></tr>
-          <tr><td>Shellbar</td><td>Always <code>&lt;app-shellbar&gt;</code> — never hand-coded HTML</td></tr>
-          <tr><td>Button hierarchy</td><td>Primary = <code>design="Emphasized"</code>, Secondary = <code>design="Default"</code>, Tertiary = <code>design="Transparent"</code></td></tr>
-          <tr><td>Button order</td><td>Positive/primary action on the left, negative/cancel on the right — in all toolbars, dialogs, and footer bars</td></tr>
-          <tr><td>Content density</td><td>Cozy by default — no class needed on body. Compact only on specific dense containers.</td></tr>
-          <tr><td>Colors</td><td>Always SAP design tokens: <code>var(--sapXxx, #fallback)</code></td></tr>
-          <tr><td>Font</td><td>SAP 72 <code>@font-face</code> declarations in every HTML file — UI5 does not load the font automatically</td></tr>
-          <tr><td>Font size</td><td>Never set <code>font-size</code> on <code>body</code> or <code>html</code> — UI5 components manage their own sizing</td></tr>
-          <tr><td>Paths</td><td>Always relative — never absolute <code>/</code> paths</td></tr>
-          <tr><td>Floorplans</td><td>Claude picks the matching floorplan or template automatically — you don't need to ask</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-  </div>
-
+</main>
+<div id="env" hidden>STAGING &mdash; not the live site</div>
+<script>
+  if (location.pathname.indexOf('/staging/') !== -1) {
+    document.getElementById('env').hidden = false;
+    document.title = '[Staging] ' + document.title;
+  }
+  fetch('projects.json')
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      var root = document.getElementById('projects');
+      root.textContent = '';
+      data.projects.forEach(function (p) {
+        var card = document.createElement('article');
+        card.className = 'card';
+        var h = document.createElement('h2'); h.textContent = p.name;
+        var s = document.createElement('span'); s.className = 'status'; s.textContent = p.status;
+        var d = document.createElement('p'); d.textContent = p.description;
+        var ul = document.createElement('ul');
+        (p.links || []).forEach(function (l) {
+          var li = document.createElement('li'), a = document.createElement('a');
+          a.href = l.href; a.textContent = l.label; li.appendChild(a); ul.appendChild(li);
+        });
+        [h, s, d, ul].forEach(function (n) { card.appendChild(n); });
+        root.appendChild(card);
+      });
+    })
+    .catch(function () {});
+</script>
 </body>
 </html>

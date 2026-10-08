@@ -1,0 +1,72 @@
+name: Deploy Pages (live + staging)
+
+# main    -> https://<user>.github.io/FDE-World/
+# staging -> https://<user>.github.io/FDE-World/staging/
+#
+# GitHub Pages serves one site per repository, so both branches are assembled
+# into a single artifact. The github-pages environment only accepts deploys
+# from main, so a push to staging re-runs this workflow on main.
+
+on:
+  push:
+    branches: [main, staging]
+  workflow_dispatch:
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  retrigger-from-main:
+    if: github.ref == 'refs/heads/staging'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - name: Re-run deploy on main so staging is published
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run pages.yml --repo "$GITHUB_REPOSITORY" --ref main
+
+  build:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          path: live
+
+      - uses: actions/checkout@v4
+        with:
+          ref: staging
+          path: staging
+
+      - name: Assemble site
+        run: |
+          mkdir _site _site/staging
+          rsync -a --exclude='.git' --exclude='.github' live/ _site/
+          rsync -a --exclude='.git' --exclude='.github' staging/ _site/staging/
+          touch _site/.nojekyll
+          python3 live/scripts/inject_staging_banner.py _site/staging
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

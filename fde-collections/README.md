@@ -1,0 +1,180 @@
+# SAP Fiori Prototyping with Claude Code — Getting Started
+
+Step-by-step guide to create Fiori prototypes using UI5 Web Components and Claude Code.
+
+---
+
+## Step 0 — Get the Starter Files
+
+This guide assumes Claude Code is already installed. If not, follow the setup instructions at [ai-docs.portal.hyperspace.tools.sap](https://ai-docs.portal.hyperspace.tools.sap/llm-proxy/recipes/claude/) before continuing.
+
+Download the starter files from GitHub. They include a pre-bundled UI5 Web Components library, a component showcase, and a sample project.
+
+**[Download the Starter Files (.zip)](https://github.tools.sap/I753220/Claude-Code/archive/refs/heads/starter.zip)**
+
+---
+
+## Why Use This Starter Kit
+
+Building a Fiori prototype from scratch with Claude Code means training Claude on Fiori patterns — how to use every UI5 component correctly, structure a shellbar, build tables, order buttons — before you've written a single screen. Most of that setup is invisible.
+
+This folder is that setup, done once and done right. The moment you open it in Claude Code, everything is already wired: the UI5 Web Components bundle is local and offline-capable, the CLAUDE.md files encode every SAP Fiori rule Claude needs to follow, and the component conventions are documented in a form Claude reads automatically before building anything. You describe a screen — Claude builds it to spec.
+
+Every prototype you create inside this folder is a real UI5 Web Components application. Not a simulation, not a mockup approximation — the same component library that ships in production SAP Fiori apps. Buttons, tables, dialogs, and inputs behave exactly as they would in a real product.
+
+Compare that to Figma: you can design something that looks right, but a stakeholder clicking through it will hit dead ends, static states, and missing interactions. A prototype built here responds to real input, navigates on real conditions, and shows real data logic. It is a working product, just without the backend.
+
+> **These are real UI5 Web Components applications — not simulations of them.**
+> Every prototype is built with SAP UI5 Web Components — the exact same component library that ships in production SAP Fiori applications. Buttons, tables, dialogs, and inputs all behave exactly as they would in a real Fiori app.
+
+- **Every interaction is authentic** — hover states, focus rings, and scroll behavior come from the real UI5 components.
+- **Data stays current** — dates and statuses are set dynamically, so demos never look stale.
+- **UI elements respond to each other** — no need to duplicate Figma screens for every variation.
+- **Navigation is context-aware** — where a user lands next can depend on role, record state, or a decision they just made.
+- **Easy to share** — publish to GitHub Pages and share a URL.
+
+---
+
+## Step 1 — Set Up the Folder
+
+**Copy the contents of this folder into your existing Claude Code folder, or replace its contents entirely.** This gives you the full Fiori prototyping setup — all your projects will live in one place, share the same `lib/` infrastructure, and follow the same conventions automatically.
+
+Here is what is inside:
+
+```
+Claude Code/
+├── README.html                        ← this file
+├── CLAUDE.md                          ← standing rules Claude follows on every session
+├── lib/                               ← shared infrastructure — do not edit
+│   ├── ui5-bundle/ui5-bundle.js       ← SAP UI5 Web Components (bundled, offline-capable)
+│   ├── shared/shellbar.js             ← shared shellbar custom element
+│   ├── component-conventions.md       ← rules for how to use each UI5 component
+│   └── assets/                        ← shared icons and favicons
+└── Projects/                          ← all your projects live here
+    ├── UI5/                           ← UI5 component showcase and floorplan templates
+    ├── Sample Project/                  ← sample project to learn from or clone
+    └── Your Project/                  ← your new project
+```
+
+**Do not modify anything in `lib/`.** It is shared infrastructure used by every project. All your work goes inside `Projects/`.
+
+> **How to open this in Claude Code:** In the Claude Code desktop app or CLI, open or `cd` into the `Claude Code/` folder as your working directory. Claude will automatically pick up the `CLAUDE.md` at the root and apply its rules to every session in this folder.
+
+---
+
+## Step 2 — Understand How Claude Works With This Folder
+
+Claude Code reads `CLAUDE.md` files automatically every time you start a session. These files are the instructions Claude follows — you do not need to repeat yourself each time. There are three files to know about:
+
+### The Master Rulebook
+`CLAUDE.md` (root level)
+
+Tells Claude to always use UI5 Web Components, follow SAP design tokens, use relative paths, structure buttons correctly, and many other standards. **Claude applies these rules to every project without being asked.** Do not edit this file casually — it governs everything.
+
+### The Component Conventions
+`lib/component-conventions.md`
+
+For each UI5 component (table, button, shellbar, dialog, etc.) this file documents the exact HTML structure to use, known rendering quirks, and required CSS fixes. Claude reads this before building any new page and applies the conventions automatically.
+
+### Your Project Memory
+`Projects/<Your Project>/CLAUDE.md`
+
+Tells Claude what the project is about, who the user persona is, what pages exist, and any domain-specific rules. **Claude creates this file automatically when you start a new project**, and updates it as the project grows. This is how Claude stays consistent across sessions.
+
+> **In practice, you just tell Claude what you want — it reads all three files silently and builds accordingly.** It reads your project `CLAUDE.md` for context → reads `lib/component-conventions.md` for component rules → builds using UI5 Web Components throughout → keeps all paths relative so pages work on GitHub Pages.
+
+---
+
+## Step 3 — Create Your First Project
+
+To create a new project, tell Claude:
+
+> *"Create a new project called [name]."*
+
+If you don't include a name, Claude will ask for one. Claude creates the project folder inside `Projects/` and sets up a `CLAUDE.md` file with your project context — this is how Claude stays consistent across sessions.
+
+Once the project is created, ask Claude to build your first screen:
+
+> *"Build a vendor change request worklist page."*
+
+Attach a screenshot or mockup if you have one. Claude will automatically pick the right floorplan or page template if your screen matches one — you don't need to ask.
+
+### Available Floorplans — in `Projects/UI5/`
+
+These match standard SAP Fiori floorplan patterns. When your page fits one of these, always start here.
+
+| File | Use when you need… |
+|------|-------------------|
+| `floorplan-list-report.html` | A filterable, searchable table of records |
+| `floorplan-object-page.html` | A full detail view for a single record |
+| `floorplan-worklist.html` | A task-oriented list where users take actions |
+| `floorplan-overview-page.html` | A dashboard or KPI summary card layout |
+| `floorplan-analytical-list-page.html` | A chart combined with a filterable table |
+
+### Available Templates — in `Projects/UI5/`
+
+Templates are general-purpose page scaffolds for patterns that don't map to a named Fiori floorplan.
+
+| File | Use when you need… |
+|------|-------------------|
+| `template-home.html` | A home or dashboard page with icon-rail nav, hero banner, and card grid |
+| `template-instances.html` | A master–detail layout with a collapsible list and tabbed detail pane |
+| `template-list-filter.html` | A list with saved-view variant management and a collapsible filter bar |
+| `template-list-kpi.html` | A list with KPI summary tiles above the table |
+| `template-news-hub.html` | A portal or hub with icon rail, side panel, hero banner, and card grid |
+| `template-settings.html` | A settings or admin page with tab bar, form cards, and user management |
+| `template-detail-two-column.html` | A detail view with a fixed sub-header, scrollable main column, and fixed side column |
+| `template-document-review.html` | A document review page with a 60/40 split and a workflow stepper |
+
+---
+
+## Step 4 — Run Pages Locally
+
+Because UI5 components in these pages are loaded as JavaScript modules, they must be served via a local HTTP server — browsers block module loading when files are opened directly from disk.
+
+To set this up, tell Claude:
+
+> *"Set up a local HTTP server for this folder."*
+
+On a Mac, Python is built in and nothing needs to be installed — Claude will handle the rest.
+
+Not on a Mac? You can also use a **Node.js server** or the **VS Code Live Server** extension — just ask Claude to help you set either one up.
+
+---
+
+## Step 5 — Publish to GitHub Pages
+
+GitHub Pages turns your `Claude Code/` folder into a shareable URL — for free. Every page that works locally works on GitHub Pages without any changes.
+
+**Before your first push, have these ready:**
+
+- A **GitHub account** and a repository named `Claude-Code`
+- A **personal access token** with `repo` scope — generate one at GitHub → Settings → Developer Settings → Personal access tokens
+- The **repository URL** (e.g. `https://github.com/your-username/Claude-Code`)
+
+To publish for the first time, tell Claude:
+
+> *"Push this project to GitHub Pages."*
+
+To push updates after making changes:
+
+> *"Push my latest changes to GitHub."*
+
+That's it — your live URL will update within about 30 seconds of each push.
+
+---
+
+## Non-negotiable Rules Claude Always Follows
+
+| Rule | Detail |
+|------|--------|
+| UI5 bundle path | `../../lib/ui5-bundle/ui5-bundle.js` from any project subfolder |
+| Shellbar | Always `<app-shellbar>` — never hand-coded HTML |
+| Button hierarchy | Primary = `design="Emphasized"`, Secondary = `design="Default"`, Tertiary = `design="Transparent"` |
+| Button order | Positive/primary action on the left, negative/cancel on the right — in all toolbars, dialogs, and footer bars |
+| Content density | Cozy by default — no class needed on body. Compact only on specific dense containers. |
+| Colors | Always SAP design tokens: `var(--sapXxx, #fallback)` |
+| Font | SAP 72 `@font-face` declarations in every HTML file — UI5 does not load the font automatically |
+| Font size | Never set `font-size` on `body` or `html` — UI5 components manage their own sizing |
+| Paths | Always relative — never absolute `/` paths |
+| Floorplans | Claude picks the matching floorplan or template automatically — you don't need to ask |
