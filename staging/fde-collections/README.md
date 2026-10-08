@@ -6,7 +6,7 @@ Step-by-step guide to create Fiori prototypes using UI5 Web Components and Claud
 
 ## Step 0 — Get the Starter Files
 
-This guide assumes Claude Code is already installed. If not, follow the setup instructions at [ai-docs.portal.hyperspace.tools.sap](https://ai-docs.portal.hyperspace.tools.sap/llm-proxy/recipes/claude/) before continuing.
+This guide assumes Claude Code is already installed.
 
 Download the starter files from GitHub. They include a pre-bundled UI5 Web Components library, a component showcase, and a sample project.
 
