@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>URL Helper</title>
+  <script type="module" src="../../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 600; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 300; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Light.woff2") format("woff2"); }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "72", sans-serif; font-size: 0.875rem; background: var(--sapBackgroundColor, #f5f6f7); padding: 2rem; color: var(--sapTextColor, #131e29); }
+    .panel-title { font-size: 1.5rem; font-weight: 700; color: #131e29; margin-bottom: 0.375rem; }
+    .panel-subtitle { font-size: 0.8125rem; color: var(--sapContent_LabelColor, #6a7588); margin-bottom: 2rem; }
+    .demo-section { background: #fff; border: 1px solid var(--sapList_BorderColor, #e5e5e5); border-radius: 8px; margin-bottom: 1.25rem; overflow: hidden; }
+    .demo-section-header { padding: 0.75rem 1rem; border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5); font-size: 0.8125rem; font-weight: 600; color: var(--sapContent_LabelColor, #6a7588); display: flex; align-items: center; justify-content: space-between; }
+    .demo-section-tag { font-family: monospace; font-size: 0.75rem; color: #0064d9; font-weight: 400; }
+    .demo-section-body { padding: 1.25rem 1rem; display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: flex-start; }
+    .demo-section-body.column { flex-direction: column; }
+    .demo-section-body.block { display: block; padding: 0; }
+  </style>
+</head>
+<body>
+  <div class="panel-title">URL Helper</div>
+  <div class="panel-subtitle">A contact-style list where each row triggers a protocol action — tel:, sms:, mailto:, or https:. Rendered using ui5-list + ui5-display-list-item. Equivalent to sap.m.URLHelper.</div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">
+      Contact Actions — Telephone, SMS, Email, Website
+      <span class="demo-section-tag">ui5-list · ui5-display-list-item</span>
+    </div>
+    <div class="demo-section-body block" style="padding:1.25rem 1rem;">
+      <ui5-list header-text="Talpa" style="width:420px;">
+        <ui5-display-list-item label="Telephone" value="+49 123 456 7890" type="Active" onclick="window.location.href='tel:+491234567890'"></ui5-display-list-item>
+        <ui5-display-list-item label="SMS" value="+49 123 456 7890" type="Active" onclick="window.location.href='sms:+491234567890'"></ui5-display-list-item>
+        <ui5-display-list-item label="Email" value="talpa@example.com" type="Active" onclick="window.location.href='mailto:talpa@example.com'"></ui5-display-list-item>
+        <ui5-display-list-item label="Website" value="https://www.example.com" type="Active" onclick="window.open('https://www.example.com','_blank')"></ui5-display-list-item>
+      </ui5-list>
+    </div>
+  </div>
+</body>
+</html>

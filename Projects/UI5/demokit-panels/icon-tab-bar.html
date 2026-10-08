@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Icon Tab Bar</title>
+  <script src="panel-init.js"></script>
+  <script type="module" src="../../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 600; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 300; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Light.woff2") format("woff2"); }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "72", sans-serif; font-size: 0.875rem; background: var(--sapBackgroundColor, #f5f6f7); padding: 2rem; color: var(--sapTextColor, #131e29); }
+    .panel-title { font-size: 1.5rem; font-weight: 700; color: #131e29; margin-bottom: 0.375rem; }
+    .panel-subtitle { font-size: 0.8125rem; color: var(--sapContent_LabelColor, #6a7588); margin-bottom: 2rem; }
+    .demo-section { background: #fff; border: 1px solid var(--sapList_BorderColor, #e5e5e5); border-radius: 8px; margin-bottom: 1.25rem; overflow: hidden; }
+    .demo-section-header { padding: 0.75rem 1rem; border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5); font-size: 0.8125rem; font-weight: 600; color: var(--sapContent_LabelColor, #6a7588); display: flex; align-items: center; justify-content: space-between; }
+    .demo-section-tag { font-family: monospace; font-size: 0.75rem; color: #0064d9; font-weight: 400; }
+    .demo-section-body { padding: 1.25rem 1rem; display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: flex-start; }
+    .demo-section-body.column { flex-direction: column; }
+    .demo-section-body.block { display: block; padding: 0; }
+    .cell-link { color: var(--sapLinkColor,#0064d9); cursor: pointer; text-decoration: none; }
+    .cell-link:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="panel-title">Icon Tab Bar</div>
+  <div class="panel-subtitle">A tab bar where each tab can filter a table below it. Tabs show item counts and filter the list on selection. Equivalent to sap.m.IconTabBar with filter tabs — rendered using ui5-tabcontainer.</div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">
+      Products Table with Weight Filter Tabs
+      <span class="demo-section-tag">ui5-tabcontainer · ui5-tab · filter-on-select</span>
+    </div>
+    <div class="demo-section-body block" style="padding:0;">
+      <ui5-tabcontainer id="itb-tabs" collapsed fixed style="border-bottom:1px solid var(--sapList_BorderColor,#e5e5e5);">
+        <ui5-tab text="All" additional-text="15" selected id="itb-all" data-filter="all"></ui5-tab>
+        <ui5-tab text="Ok" additional-text="5" id="itb-ok" data-filter="ok"></ui5-tab>
+        <ui5-tab text="Heavy" additional-text="7" id="itb-heavy" data-filter="heavy"></ui5-tab>
+        <ui5-tab text="Overweight" additional-text="3" id="itb-overweight" data-filter="overweight"></ui5-tab>
+      </ui5-tabcontainer>
+      <ui5-table id="itb-table">
+        <ui5-table-header-row slot="headerRow">
+          <ui5-table-header-cell style="padding-inline-start:1rem;" width="200px">Product Name</ui5-table-header-cell>
+          <ui5-table-header-cell width="120px">Supplier</ui5-table-header-cell>
+          <ui5-table-header-cell width="100px">Weight</ui5-table-header-cell>
+          <ui5-table-header-cell width="100px">Price</ui5-table-header-cell>
+          <ui5-table-header-cell>Status</ui5-table-header-cell>
+        </ui5-table-header-row>
+        <ui5-table-row interactive data-weight="ok"><ui5-table-cell style="padding-inline-start:1rem;"><a class="cell-link">Notebook Basic 15</a></ui5-table-cell><ui5-table-cell>Lenovo</ui5-table-cell><ui5-table-cell>0.5 kg</ui5-table-cell><ui5-table-cell>956 EUR</ui5-table-cell><ui5-table-cell><ui5-tag design="Set3" color-scheme="7">Ok</ui5-tag></ui5-table-cell></ui5-table-row>
+        <ui5-table-row interactive data-weight="ok"><ui5-table-cell style="padding-inline-start:1rem;"><a class="cell-link">ITelO Vault</a></ui5-table-cell><ui5-table-cell>Dell</ui5-table-cell><ui5-table-cell>0.3 kg</ui5-table-cell><ui5-table-cell>299 USD</ui5-table-cell><ui5-table-cell><ui5-tag design="Set3" color-scheme="7">Ok</ui5-tag></ui5-table-cell></ui5-table-row>
+        <ui5-table-row interactive data-weight="ok"><ui5-table-cell style="padding-inline-start:1rem;"><a class="cell-link">Benda Laptop</a></ui5-table-cell><ui5-table-cell>Benda</ui5-table-cell><ui5-table-cell>0.8 kg</ui5-table-cell><ui5-table-cell>1,099 EUR</ui5-table-cell><ui5-table-cell><ui5-tag design="Set3" color-scheme="7">Ok</ui5-tag></ui5-table-cell></ui5-table-row>
+        <ui5-table-row interactive data-weight="ok"><ui5-table-cell style="padding-inline-start:1rem;"><a class="cell-link">Astro Laptop</a></ui5-table-cell><ui5-table-cell>Astro</ui5-table-cell><ui5-table-cell>0.6 kg</ui5-table-cell><ui5-table-cell>849 USD</ui5-table-cell><ui5-table-cell><ui5-tag design="Set3" color-scheme="7">Ok</ui5-tag></ui5-table-cell></ui5-table-row>
+        <ui5-table-row interactive data-weight="ok"><ui5-table-cell style="padding-inline-start:1rem;"><a class="cell-link">Comfort Easy</a></ui5-table-cell><ui5-table-cell>Compu</ui5-table-cell><ui5-table-cell>0.9 kg</ui5-table-cell><ui5-table-cell>1,449 EUR</ui5-table-cell><ui5-table-cell><ui5-tag design="Set3" color-scheme="7">Ok</ui5-tag></ui5-table-cell></ui5-table-row>
+        <ui5-table-row interactive data-weight="heavy"><ui5-table-cell style="padding-inline-start:1rem;"><a class="cell-link">Notebook Professional 17</a></ui5-table-cell><ui5-table-cell>HP</ui5-table-cell><ui5-table-cell>2.8 kg</ui5-table-cell><ui5-table-cell>1,999 EUR</ui5-table-cell><ui5-table-cell><ui5-tag design="Set3" color-scheme="8">Heavy</ui5-tag></ui5-table-cell></ui5-table-row>
+        <ui5-table-row interactive data-weight="heavy"><ui5-table-cell style="padding-inline-start:1rem;"><a class="cell-link">Notebook Basic 17</a></ui5-table-cell><ui5-table-cell>Lenovo</ui5-table-cell><ui5-table-cell>4.5 kg</ui5-table-cell><ui5-table-cell>1,249 EUR</ui5-table-cell><ui5-table-cell><ui5-tag design="Set3" color-scheme="8">Heavy</ui5-tag></ui5-table-cell></ui5-table-row>
+        <ui5-table-row interactive data-weight="heavy"><ui5-table-cell style="padding-inline-start:1rem;"><a class="cell-link">Notebook Basic 18</a></ui5-table-cell><ui5-table-cell>HP</ui5-table-cell><ui5-table-cell>3.9 kg</ui5-table-cell><ui5-table-cell>1,118 USD</ui5-table-cell><ui5-table-cell><ui5-tag design="Set3" color-scheme="8">Heavy</ui5-tag></ui5-table-cell></ui5-table-row>
+        <ui5-table-row interactive data-weight="heavy"><ui5-table-cell style="padding-inline-start:1rem;"><a class="cell-link">Notebook Basic 19</a></ui5-table-cell><ui5-table-cell>Lenovo</ui5-table-cell><ui5-table-cell>1.2 kg</ui5-table-cell><ui5-table-cell>879 EUR</ui5-table-cell><ui5-table-cell><ui5-tag design="Set3" color-scheme="8">Heavy</ui5-tag></ui5-table-cell></ui5-table-row>
+        <ui5-table-row interactive data-weight="heavy"><ui5-table-cell style="padding-inline-start:1rem;"><a class="cell-link">Notebook Basic 20</a></ui5-table-cell><ui5-table-cell>Dell</ui5-table-cell><ui5-table-cell>3.1 kg</ui5-table-cell><ui5-table-cell>799 USD</ui5-table-cell><ui5-table-cell><ui5-tag design="Set3" color-scheme="8">Heavy</ui5-tag></ui5-table-cell></ui5-table-row>
+        <ui5-table-row interactive data-weight="heavy"><ui5-table-cell style="padding-inline-start:1rem;"><a class="cell-link">Laptop Pro</a></ui5-table-cell><ui5-table-cell>ProTech</ui5-table-cell><ui5-table-cell>2.3 kg</ui5-table-cell><ui5-table-cell>2,299 EUR</ui5-table-cell><ui5-table-cell><ui5-tag design="Set3" color-scheme="8">Heavy</ui5-tag></ui5-table-cell></ui5-table-row>
+        <ui5-table-row interactive data-weight="heavy"><ui5-table-cell style="padding-inline-start:1rem;"><a class="cell-link">Work Tough</a></ui5-table-cell><ui5-table-cell>Duro</ui5-table-cell><ui5-table-cell>4.8 kg</ui5-table-cell><ui5-table-cell>1,599 USD</ui5-table-cell><ui5-table-cell><ui5-tag design="Set3" color-scheme="8">Heavy</ui5-tag></ui5-table-cell></ui5-table-row>
+        <ui5-table-row interactive data-weight="overweight"><ui5-table-cell style="padding-inline-start:1rem;"><a class="cell-link">Workstation XT</a></ui5-table-cell><ui5-table-cell>HP</ui5-table-cell><ui5-table-cell>7.2 kg</ui5-table-cell><ui5-table-cell>3,499 EUR</ui5-table-cell><ui5-table-cell><ui5-tag design="Set3" color-scheme="3">Overweight</ui5-tag></ui5-table-cell></ui5-table-row>
+        <ui5-table-row interactive data-weight="overweight"><ui5-table-cell style="padding-inline-start:1rem;"><a class="cell-link">Desktop Dino</a></ui5-table-cell><ui5-table-cell>Dell</ui5-table-cell><ui5-table-cell>9.5 kg</ui5-table-cell><ui5-table-cell>2,199 USD</ui5-table-cell><ui5-table-cell><ui5-tag design="Set3" color-scheme="3">Overweight</ui5-tag></ui5-table-cell></ui5-table-row>
+        <ui5-table-row interactive data-weight="overweight"><ui5-table-cell style="padding-inline-start:1rem;"><a class="cell-link">Server Node</a></ui5-table-cell><ui5-table-cell>Lenovo</ui5-table-cell><ui5-table-cell>12.0 kg</ui5-table-cell><ui5-table-cell>5,999 EUR</ui5-table-cell><ui5-table-cell><ui5-tag design="Set3" color-scheme="3">Overweight</ui5-tag></ui5-table-cell></ui5-table-row>
+      </ui5-table>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('itb-tabs').addEventListener('tab-select', function(e) {
+      var filter = e.detail && e.detail.tab && e.detail.tab.getAttribute('data-filter');
+      document.querySelectorAll('#itb-table ui5-table-row').forEach(function(row) {
+        row.style.display = (!filter || filter === 'all' || row.getAttribute('data-weight') === filter) ? '' : 'none';
+      });
+    });
+  </script>
+</body>
+</html>

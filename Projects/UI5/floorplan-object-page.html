@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" href="../../lib/assets/favicon.ico">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Object Page | Floorplan</title>
+
+  <script data-ui5-config type="application/json">{ "theme": "sap_horizon" }</script>
+  <script type="module" src="../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <script src="../../lib/shared/shellbar.js"></script>
+
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 600; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 300; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Light.woff2") format("woff2"); }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      font-family: "72", sans-serif;
+      background: var(--sapBackgroundColor, #f5f6f7);
+      color: var(--sapTextColor, #131e29);
+    }
+
+    ui5-button {
+      --sapButton_FontFamily: "72", sans-serif;
+    }
+    ui5-button::part(text) {
+      font-family: "72", sans-serif;
+      font-weight: 400;
+    }
+
+    ui5-textarea {
+      --sapFontFamily: "72", sans-serif;
+      --sapFontSize: 0.875rem;
+    }
+
+    .breadcrumb-bar {
+      display: flex;
+      align-items: center;
+      padding: 0.5rem 1.5rem;
+      background: var(--sapBaseColor, #fff);
+      border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5);
+    }
+    .breadcrumb-bar ui5-breadcrumbs { display: block; }
+
+    .object-header {
+      background: var(--sapBaseColor, #fff);
+      border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      padding: 1.25rem 1.5rem 1rem;
+    }
+    .object-header-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .object-header-identity {}
+    .object-header-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--sapTextColor, #131e29);
+      line-height: 1.2;
+      margin-bottom: 0.25rem;
+    }
+    .object-header-subtitle {
+      font-size: 0.875rem;
+      color: var(--sapContent_LabelColor, #6a7588);
+    }
+    .object-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-shrink: 0;
+    }
+    .object-header-attrs {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+    .attr-pair {
+      display: flex;
+      flex-direction: column;
+      gap: 0.125rem;
+    }
+    .attr-label {
+      font-size: 0.875rem;
+      color: var(--sapContent_LabelColor, #6a7588);
+    }
+    .attr-value {
+      font-size: 0.875rem;
+      color: var(--sapTextColor, #131e29);
+      font-weight: 600;
+    }
+    .attr-value.status-open {
+      color: var(--sapPositiveColor, #256f3a);
+    }
+
+    .anchor-bar {
+      position: sticky;
+      top: 44px;
+      z-index: 50;
+      background: var(--sapBaseColor, #fff);
+      border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      padding: 0 1.5rem;
+      display: flex;
+      gap: 0;
+    }
+    .anchor-tab {
+      padding: 0.75rem 1.25rem;
+      font-size: 0.875rem;
+      font-family: "72", sans-serif;
+      color: var(--sapContent_LabelColor, #6a7588);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      white-space: nowrap;
+      user-select: none;
+      transition: color 0.15s;
+    }
+    .anchor-tab:hover { color: var(--sapTextColor, #131e29); }
+    .anchor-tab.active {
+      color: var(--sapSelectedColor, #0064d9);
+      border-bottom-color: var(--sapSelectedColor, #0064d9);
+      font-weight: 600;
+    }
+
+    .page-content {
+      padding: 1.5rem;
+      max-width: 1200px;
+    }
+
+    .section {
+      background: var(--sapBaseColor, #fff);
+      border: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      border-radius: 0.375rem;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .section-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--sapTextColor, #131e29);
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem 2rem;
+    }
+    .form-field {}
+    .form-field-label {
+      font-size: 0.875rem;
+      color: var(--sapContent_LabelColor, #6a7588);
+      margin-bottom: 0.25rem;
+    }
+    .form-field-value {
+      font-size: 0.875rem;
+      color: var(--sapTextColor, #131e29);
+    }
+
+    .notes-area {
+      width: 100%;
+      min-height: 120px;
+      padding: 0.75rem;
+      font-family: "72", sans-serif;
+      font-size: 0.875rem;
+      color: var(--sapTextColor, #131e29);
+      background: var(--sapField_Background, #fff);
+      border: 1px solid var(--sapField_BorderColor, #89919a);
+      border-radius: var(--sapField_BorderCornerRadius, 0.25rem);
+      resize: vertical;
+      outline: none;
+      box-sizing: border-box;
+    }
+    .notes-area::placeholder { color: var(--sapContent_LabelColor, #6a7588); }
+    .notes-area:focus { border-color: var(--sapField_Focus_BorderColor, #0064d9); box-shadow: 0 0 0 2px var(--sapField_Focus_OutlineColor, rgba(0,100,217,0.2)); }
+
+    .attachment-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    .attachment-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5);
+    }
+    .attachment-row:last-child { border-bottom: none; }
+    .attachment-icon {
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 0.25rem;
+      background: var(--sapBackgroundColor, #f5f6f7);
+      border: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .attachment-body { flex: 1; min-width: 0; }
+    .attachment-filename {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--sapLinkColor, #0064d9);
+      cursor: pointer;
+      text-decoration: none;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .attachment-filename:hover { text-decoration: underline; }
+    .attachment-meta {
+      font-size: 0.75rem;
+      color: var(--sapContent_LabelColor, #6a7588);
+      margin-top: 0.125rem;
+    }
+    .attachment-actions { flex-shrink: 0; }
+  </style>
+</head>
+<body>
+
+  <app-shellbar title="Purchase Orders" base-path="../../"></app-shellbar>
+
+  <div class="breadcrumb-bar">
+    <ui5-breadcrumbs>
+      <ui5-breadcrumbs-item href="#">Purchase Orders</ui5-breadcrumbs-item>
+      <ui5-breadcrumbs-item>PO-2026-00142</ui5-breadcrumbs-item>
+    </ui5-breadcrumbs>
+  </div>
+
+  <div class="object-header">
+    <div class="object-header-top">
+      <div class="object-header-identity">
+        <div class="object-header-title">PO-2026-00142</div>
+        <div class="object-header-subtitle">Meridian Office Supplies</div>
+      </div>
+      <div class="object-header-actions">
+        <ui5-button design="Emphasized">Edit</ui5-button>
+        <ui5-button design="Default">Submit for Approval</ui5-button>
+        <ui5-button design="Transparent">Delete</ui5-button>
+        <ui5-button design="Transparent" icon="overflow"></ui5-button>
+      </div>
+    </div>
+    <div class="object-header-attrs">
+      <div class="attr-pair">
+        <span class="attr-label">Status</span>
+        <span class="attr-value status-open">Open</span>
+      </div>
+      <div class="attr-pair">
+        <span class="attr-label">Net Amount</span>
+        <span class="attr-value">$24,500.00</span>
+      </div>
+      <div class="attr-pair">
+        <span class="attr-label">Created</span>
+        <span class="attr-value">01/15/2026</span>
+      </div>
+      <div class="attr-pair">
+        <span class="attr-label">Delivery</span>
+        <span class="attr-value">05/30/2026</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="anchor-bar" id="anchorBar">
+    <div class="anchor-tab active" data-section="sec-general">General Information</div>
+    <div class="anchor-tab" data-section="sec-lineitems">Line Items</div>
+    <div class="anchor-tab" data-section="sec-notes">Notes</div>
+    <div class="anchor-tab" data-section="sec-attachments">Attachments</div>
+  </div>
+
+  <div class="page-content">
+
+    <div class="section" id="sec-general">
+      <div class="section-title">General Information</div>
+      <div class="form-grid">
+        <div class="form-field">
+          <div class="form-field-label">Supplier</div>
+          <div class="form-field-value">Meridian Office Supplies</div>
+        </div>
+        <div class="form-field">
+          <div class="form-field-label">Supplier Contact</div>
+          <div class="form-field-value">Sandra K. Vogel</div>
+        </div>
+        <div class="form-field">
+          <div class="form-field-label">Payment Terms</div>
+          <div class="form-field-value">Net 30</div>
+        </div>
+        <div class="form-field">
+          <div class="form-field-label">Purchasing Org</div>
+          <div class="form-field-value">1000 – Global Purchasing</div>
+        </div>
+        <div class="form-field">
+          <div class="form-field-label">Purchasing Group</div>
+          <div class="form-field-value">001 – Office Supplies</div>
+        </div>
+        <div class="form-field">
+          <div class="form-field-label">Company Code</div>
+          <div class="form-field-value">US01 – SAP North America</div>
+        </div>
+        <div class="form-field">
+          <div class="form-field-label">Document Type</div>
+          <div class="form-field-value">NB – Standard PO</div>
+        </div>
+        <div class="form-field">
+          <div class="form-field-label">Currency</div>
+          <div class="form-field-value">USD – US Dollar</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section" id="sec-lineitems">
+      <div class="section-title">Line Items</div>
+      <ui5-table>
+        <ui5-table-selection-multi slot="features"></ui5-table-selection-multi>
+        <ui5-table-header-row slot="headerRow">
+          <ui5-table-header-cell width="70px" style="padding-inline-start: 1rem">Item</ui5-table-header-cell>
+          <ui5-table-header-cell width="120px">Material</ui5-table-header-cell>
+          <ui5-table-header-cell>Description</ui5-table-header-cell>
+          <ui5-table-header-cell width="90px">Quantity</ui5-table-header-cell>
+          <ui5-table-header-cell width="70px">UoM</ui5-table-header-cell>
+          <ui5-table-header-cell width="110px">Unit Price</ui5-table-header-cell>
+          <ui5-table-header-cell width="120px">Net Value</ui5-table-header-cell>
+        </ui5-table-header-row>
+
+        <ui5-table-row interactive>
+          <ui5-table-cell style="padding-inline-start: 1rem">10</ui5-table-cell>
+          <ui5-table-cell>MAT-00451</ui5-table-cell>
+          <ui5-table-cell>A4 Copy Paper, 80 gsm, 500 sheets/ream</ui5-table-cell>
+          <ui5-table-cell>200</ui5-table-cell>
+          <ui5-table-cell>EA</ui5-table-cell>
+          <ui5-table-cell>$12.50</ui5-table-cell>
+          <ui5-table-cell>$2,500.00</ui5-table-cell>
+          <ui5-table-row-action-navigation slot="actions"></ui5-table-row-action-navigation>
+        </ui5-table-row>
+
+        <ui5-table-row interactive>
+          <ui5-table-cell style="padding-inline-start: 1rem">20</ui5-table-cell>
+          <ui5-table-cell>MAT-00892</ui5-table-cell>
+          <ui5-table-cell>Ergonomic Office Chair, Mesh Back, Black</ui5-table-cell>
+          <ui5-table-cell>15</ui5-table-cell>
+          <ui5-table-cell>EA</ui5-table-cell>
+          <ui5-table-cell>$480.00</ui5-table-cell>
+          <ui5-table-cell>$7,200.00</ui5-table-cell>
+          <ui5-table-row-action-navigation slot="actions"></ui5-table-row-action-navigation>
+        </ui5-table-row>
+
+        <ui5-table-row interactive>
+          <ui5-table-cell style="padding-inline-start: 1rem">30</ui5-table-cell>
+          <ui5-table-cell>MAT-01134</ui5-table-cell>
+          <ui5-table-cell>Adjustable Standing Desk, 160 x 80 cm, White</ui5-table-cell>
+          <ui5-table-cell>10</ui5-table-cell>
+          <ui5-table-cell>EA</ui5-table-cell>
+          <ui5-table-cell>$950.00</ui5-table-cell>
+          <ui5-table-cell>$9,500.00</ui5-table-cell>
+          <ui5-table-row-action-navigation slot="actions"></ui5-table-row-action-navigation>
+        </ui5-table-row>
+
+        <ui5-table-row interactive>
+          <ui5-table-cell style="padding-inline-start: 1rem">40</ui5-table-cell>
+          <ui5-table-cell>MAT-00307</ui5-table-cell>
+          <ui5-table-cell>Whiteboard Markers, Assorted Colors, Pack of 12</ui5-table-cell>
+          <ui5-table-cell>50</ui5-table-cell>
+          <ui5-table-cell>PK</ui5-table-cell>
+          <ui5-table-cell>$106.00</ui5-table-cell>
+          <ui5-table-cell>$5,300.00</ui5-table-cell>
+          <ui5-table-row-action-navigation slot="actions"></ui5-table-row-action-navigation>
+        </ui5-table-row>
+      </ui5-table>
+    </div>
+
+    <div class="section" id="sec-notes">
+      <div class="section-title">Notes</div>
+      <ui5-textarea placeholder="No notes have been added to this purchase order. Click Edit to add notes." style="width:100%"></ui5-textarea>
+    </div>
+
+    <div class="section" id="sec-attachments">
+      <div class="section-title">Attachments</div>
+      <div class="attachment-list">
+        <div class="attachment-row">
+          <div class="attachment-icon">
+            <ui5-icon name="document-text" style="font-size: 1.25rem; color: var(--sapContent_LabelColor, #6a7588);"></ui5-icon>
+          </div>
+          <div class="attachment-body">
+            <a class="attachment-filename" href="#">PO-2026-00142_Quotation.pdf</a>
+            <div class="attachment-meta">PDF &nbsp;·&nbsp; 1.2 MB &nbsp;·&nbsp; Uploaded 01/14/2026</div>
+          </div>
+          <div class="attachment-actions">
+            <ui5-button design="Transparent" icon="download" tooltip="Download"></ui5-button>
+            <ui5-button design="Transparent" icon="delete" tooltip="Delete"></ui5-button>
+          </div>
+        </div>
+        <div class="attachment-row">
+          <div class="attachment-icon">
+            <ui5-icon name="document-text" style="font-size: 1.25rem; color: var(--sapContent_LabelColor, #6a7588);"></ui5-icon>
+          </div>
+          <div class="attachment-body">
+            <a class="attachment-filename" href="#">Supplier_Terms_Meridian_2026.docx</a>
+            <div class="attachment-meta">DOCX &nbsp;·&nbsp; 348 KB &nbsp;·&nbsp; Uploaded 01/15/2026</div>
+          </div>
+          <div class="attachment-actions">
+            <ui5-button design="Transparent" icon="download" tooltip="Download"></ui5-button>
+            <ui5-button design="Transparent" icon="delete" tooltip="Delete"></ui5-button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    var tabs = document.querySelectorAll('.anchor-tab');
+    var sections = ['sec-general', 'sec-lineitems', 'sec-notes', 'sec-attachments'];
+    var anchorBarHeight = 0;
+
+    tabs.forEach(function(tab) {
+      tab.addEventListener('click', function() {
+        var sectionId = tab.getAttribute('data-section');
+        var section = document.getElementById(sectionId);
+        if (section) {
+          section.scrollIntoView({ behavior: 'smooth' });
+        }
+        tabs.forEach(function(t) { t.classList.remove('active'); });
+        tab.classList.add('active');
+      });
+    });
+
+    var observerOptions = {
+      root: null,
+      rootMargin: '-50% 0px -50% 0px',
+      threshold: 0
+    };
+
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          var id = entry.target.id;
+          tabs.forEach(function(t) {
+            if (t.getAttribute('data-section') === id) {
+              t.classList.add('active');
+            } else {
+              t.classList.remove('active');
+            }
+          });
+        }
+      });
+    }, observerOptions);
+
+    sections.forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+  </script>
+
+</body>
+</html>

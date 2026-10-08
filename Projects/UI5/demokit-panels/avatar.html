@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <script src="panel-init.js"></script>
+  <script type="module" src="../../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+
+    body { font-family: "72", sans-serif; font-size: 0.875rem; background: #f5f6f7; color: #131e29; margin: 0; padding: 2rem; }
+
+    .panel-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .panel-subtitle { font-size: 0.875rem; color: #6a7588; margin-bottom: 2rem; }
+
+    .demo-section { margin-bottom: 2rem; }
+    .demo-section-header { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #6a7588; margin-bottom: 1rem; padding-bottom: 0.375rem; border-bottom: 1px solid #e5e5e5; }
+    .demo-section-body { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 1.5rem; }
+
+    .avatar-item { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; }
+    .avatar-label { font-size: 0.75rem; color: #6a7588; text-align: center; max-width: 100px; }
+  </style>
+</head>
+<body>
+
+  <div class="panel-title">Avatar</div>
+  <div class="panel-subtitle">Displays a user or product image, initials, or an icon in circular or square shape.</div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">Shapes &amp; Content Types</div>
+    <div class="demo-section-body">
+      <div class="avatar-item">
+        <ui5-avatar shape="Circle" initials="JD" color-scheme="Accent1" size="L"></ui5-avatar>
+        <span class="avatar-label">Circle + initials</span>
+      </div>
+      <div class="avatar-item">
+        <ui5-avatar shape="Square" initials="IS" color-scheme="Accent2" size="L"></ui5-avatar>
+        <span class="avatar-label">Square + initials</span>
+      </div>
+      <div class="avatar-item">
+        <ui5-avatar shape="Circle" icon="employee" color-scheme="Accent3" size="L"></ui5-avatar>
+        <span class="avatar-label">Circle + icon</span>
+      </div>
+      <div class="avatar-item">
+        <ui5-avatar shape="Square" icon="product" color-scheme="Accent4" size="L"></ui5-avatar>
+        <span class="avatar-label">Square + icon</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">Sizes</div>
+    <div class="demo-section-body">
+      <div class="avatar-item">
+        <ui5-avatar initials="XL" color-scheme="Accent5" size="XL"></ui5-avatar>
+        <span class="avatar-label">XL</span>
+      </div>
+      <div class="avatar-item">
+        <ui5-avatar initials="L" color-scheme="Accent5" size="L"></ui5-avatar>
+        <span class="avatar-label">L</span>
+      </div>
+      <div class="avatar-item">
+        <ui5-avatar initials="M" color-scheme="Accent5" size="M"></ui5-avatar>
+        <span class="avatar-label">M</span>
+      </div>
+      <div class="avatar-item">
+        <ui5-avatar initials="S" color-scheme="Accent5" size="S"></ui5-avatar>
+        <span class="avatar-label">S</span>
+      </div>
+      <div class="avatar-item">
+        <ui5-avatar initials="XS" color-scheme="Accent5" size="XS"></ui5-avatar>
+        <span class="avatar-label">XS</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">Color Schemes</div>
+    <div class="demo-section-body">
+      <div class="avatar-item">
+        <ui5-avatar initials="A1" color-scheme="Accent1" size="M"></ui5-avatar>
+        <span class="avatar-label">Accent1</span>
+      </div>
+      <div class="avatar-item">
+        <ui5-avatar initials="A2" color-scheme="Accent2" size="M"></ui5-avatar>
+        <span class="avatar-label">Accent2</span>
+      </div>
+      <div class="avatar-item">
+        <ui5-avatar initials="A3" color-scheme="Accent3" size="M"></ui5-avatar>
+        <span class="avatar-label">Accent3</span>
+      </div>
+      <div class="avatar-item">
+        <ui5-avatar initials="A4" color-scheme="Accent4" size="M"></ui5-avatar>
+        <span class="avatar-label">Accent4</span>
+      </div>
+      <div class="avatar-item">
+        <ui5-avatar initials="A5" color-scheme="Accent5" size="M"></ui5-avatar>
+        <span class="avatar-label">Accent5</span>
+      </div>
+      <div class="avatar-item">
+        <ui5-avatar initials="A6" color-scheme="Accent6" size="M"></ui5-avatar>
+        <span class="avatar-label">Accent6</span>
+      </div>
+      <div class="avatar-item">
+        <ui5-avatar initials="A7" color-scheme="Accent7" size="M"></ui5-avatar>
+        <span class="avatar-label">Accent7</span>
+      </div>
+      <div class="avatar-item">
+        <ui5-avatar initials="A8" color-scheme="Accent8" size="M"></ui5-avatar>
+        <span class="avatar-label">Accent8</span>
+      </div>
+      <div class="avatar-item">
+        <ui5-avatar initials="A9" color-scheme="Accent9" size="M"></ui5-avatar>
+        <span class="avatar-label">Accent9</span>
+      </div>
+      <div class="avatar-item">
+        <ui5-avatar initials="A10" color-scheme="Accent10" size="M"></ui5-avatar>
+        <span class="avatar-label">Accent10</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">Fallback &amp; Placeholder</div>
+    <div class="demo-section-body">
+      <div class="avatar-item">
+        <ui5-avatar size="L"></ui5-avatar>
+        <span class="avatar-label">No content (person)</span>
+      </div>
+      <div class="avatar-item">
+        <ui5-avatar shape="Square" size="L"></ui5-avatar>
+        <span class="avatar-label">No content (product)</span>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

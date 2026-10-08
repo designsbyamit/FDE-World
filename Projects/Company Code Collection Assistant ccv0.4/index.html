@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="../../lib/assets/favicon.ico">
+  <title>Collection Worklist — Company Code ccv0.4</title>
+  <script data-ui5-config type="application/json">{ "theme":"sap_horizon" }</script>
+  <script type="module" src="../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <script src="../../lib/shared/shellbar.js"></script>
+  <script src="collector-context.js"></script>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="collector-context.css">
+</head>
+<body>
+  <app-shellbar title="Collection Assistant" base-path="../../" avatar-initials="AM" hide-product-switch></app-shellbar>
+  <header class="page-header">
+    <div class="heading-row"><div><button class="title-selector" type="button" aria-label="Select worklist"><span>My Collection Worklist</span><ui5-icon name="slim-arrow-down"></ui5-icon></button><div class="last-review">Last agent review: 09/03/2026 11:59 PM</div></div><div class="currency-control header-currency"><label for="displayCurrency">Display Currency</label><ui5-select id="displayCurrency" accessible-name="Display Currency"><ui5-option value="GBP" selected>GBP</ui5-option><ui5-option value="EUR">EUR</ui5-option></ui5-select><span class="currency-rate">Rate · 1 EUR = 0.85 GBP · 21 Sep 2026</span></div></div>
+  </header>
+  <main class="content">
+    <section class="filter-card" id="filterBar" aria-label="Filters">
+      <div class="filters">
+        <label class="filter-field"><span class="field-label">Search:</span><div class="input-wrap"><ui5-input placeholder="Search by Customer ID, Customer..." show-clear-icon></ui5-input><ui5-icon class="input-icon" name="search"></ui5-icon></div></label>
+        <label class="filter-field" id="companyFilterField"><span class="field-label">Company Code:</span><ui5-select id="companyFilter"><ui5-option value="all" selected>All Company Codes</ui5-option><ui5-option value="GB-11">GB-11</ui5-option><ui5-option value="GB-95">GB-95</ui5-option><ui5-option value="GB-30">GB-30</ui5-option><ui5-option value="DE-33">DE-33</ui5-option><ui5-option value="GB-31">GB-31</ui5-option><ui5-option value="DE-34">DE-34</ui5-option><ui5-option value="GB-32">GB-32</ui5-option><ui5-option value="DE-35">DE-35</ui5-option><ui5-option value="GB-40">GB-40</ui5-option><ui5-option value="GB-50">GB-50</ui5-option><ui5-option value="GB-60">GB-60</ui5-option><ui5-option value="GB-70">GB-70</ui5-option><ui5-option value="GB-80">GB-80</ui5-option><ui5-option value="GB-90">GB-90</ui5-option><ui5-option value="GB-12">GB-12</ui5-option><ui5-option value="GB-13">GB-13</ui5-option><ui5-option value="GB-14">GB-14</ui5-option><ui5-option value="GB-15">GB-15</ui5-option><ui5-option value="GB-16">GB-16</ui5-option><ui5-option value="GB-17">GB-17</ui5-option><ui5-option value="GB-18">GB-18</ui5-option></ui5-select></label>
+        <label class="filter-field"><span class="field-label ai-label">Priority:</span><ui5-select><ui5-option selected></ui5-option><ui5-option>High</ui5-option><ui5-option>Medium</ui5-option><ui5-option>Low</ui5-option></ui5-select></label>
+        <label class="filter-field"><span class="field-label">Overdue Amount:</span><div class="input-wrap"><ui5-input></ui5-input><ui5-icon class="input-icon" name="value-help"></ui5-icon></div></label>
+        <label class="filter-field"><span class="field-label">Due by End of Month:</span><div class="input-wrap"><ui5-input></ui5-input><ui5-icon class="input-icon" name="value-help"></ui5-icon></div></label>
+        <label class="filter-field"><span class="field-label">Blocked Orders:</span><ui5-select><ui5-option selected></ui5-option><ui5-option>0</ui5-option><ui5-option>1–3</ui5-option><ui5-option>4+</ui5-option></ui5-select></label>
+        <label class="filter-field"><span class="field-label">Block Order Amount:</span><div class="input-wrap"><ui5-input></ui5-input><ui5-icon class="input-icon" name="value-help"></ui5-icon></div></label>
+        <div class="filter-actions"><ui5-button id="goButton" design="Emphasized">Go</ui5-button><ui5-button id="adaptFiltersButton" design="Transparent">Adapt Filters (7)</ui5-button></div>
+      </div>
+      <div id="filterResult" class="filter-result"><ui5-icon name="filter"></ui5-icon><span id="filterResultText"></span></div>
+    </section>
+    <div class="filter-toggle-row"><ui5-button id="filterToggle" design="Default" icon="slim-arrow-up" tooltip="Collapse filters"></ui5-button><ui5-button design="Default" icon="pushpin-off" tooltip="Pin filters"></ui5-button></div>
+    <section class="table-card">
+      <div class="table-toolbar">
+        <div class="section-title" id="tableTitle">Accounts (17)</div>
+        <div class="kpi-strip" aria-label="Worklist KPIs">
+          <div class="worklist-kpi"><span>Overdue Amount</span><strong id="worklistOverdueKpi">69.38M GBP</strong></div>
+          <div class="worklist-kpi"><span>Due by End of Month</span><strong id="worklistEomKpi">82.69M GBP</strong></div>
+          <div class="worklist-kpi"><span>High Risk Customers</span><strong id="worklistHighRiskKpi">8</strong></div>
+          <div class="worklist-kpi"><span>Blocked Orders</span><strong id="worklistBlockedKpi">10</strong></div>
+        </div>
+        <div class="toolbar-actions"><ui5-button id="settingsButton" design="Transparent" icon="action-settings" tooltip="Settings"></ui5-button><ui5-button id="fullscreenButton" design="Transparent" icon="full-screen" tooltip="Fullscreen"></ui5-button></div>
+      </div>
+      <div class="table-scroll" role="region" aria-label="Scrollable collection worklist" tabindex="0">
+      <ui5-table id="worklistTable" overflow-mode="Scroll">
+        <ui5-table-header-row slot="headerRow"><ui5-table-header-cell width="18%" min-width="190px" importance="10" style="padding-inline-start:.75rem">Customer</ui5-table-header-cell><ui5-table-header-cell width="6%" min-width="75px" importance="5"><span class="ai-column-label">Priority</span></ui5-table-header-cell><ui5-table-header-cell width="8%" min-width="90px" importance="10">Company Code</ui5-table-header-cell><ui5-table-header-cell width="10%" min-width="110px" importance="5">Overdue Amount</ui5-table-header-cell><ui5-table-header-cell width="10%" min-width="120px" importance="4">Due by End of Month</ui5-table-header-cell><ui5-table-header-cell width="9%" min-width="100px" importance="1">Credit Balance</ui5-table-header-cell><ui5-table-header-cell width="10%" min-width="115px" importance="2"><span class="ai-column-label">Predicted Average Arrear Days</span></ui5-table-header-cell><ui5-table-header-cell width="7%" min-width="70px" importance="2">Blocked Orders</ui5-table-header-cell><ui5-table-header-cell width="10%" min-width="115px" importance="2">Blocked Order Amount</ui5-table-header-cell><ui5-table-header-cell width="12%" min-width="135px" importance="10">Actions</ui5-table-header-cell></ui5-table-header-row>
+      </ui5-table>
+      </div>
+      <div class="annotation"><ui5-icon name="information"></ui5-icon><span>Expand a customer only when you need its company-code breakdown. Filtering by company code keeps one result per customer.</span></div>
+    </section>
+  </main>
+  <ui5-dialog id="priorityDialog" header-text="Why priority is High" style="max-width:560px"><div class="priority-dialog-content"><div class="priority-score-row"><div><div class="field-label">Customer-level priority</div><div class="priority-dialog-title">JKL Foods Limited</div></div><div class="priority-score">High</div></div><div class="priority-summary">Priority belongs to the overall customer relationship and is shared by every responsible collector.</div><div class="priority-factor"><div><strong>Holistic overdue exposure</strong><span>£95,261.93 overdue across 3 company codes. GB11 and GB95 account for most of the overdue amount and drive the High priority.</span></div><ui5-tag design="Negative">High impact</ui5-tag></div><div class="priority-factor"><div><strong>Collector responsibility</strong><span id="priorityCollectorContext"></span></div><ui5-tag design="Information">Context</ui5-tag></div></div><div slot="footer" class="dialog-footer"><ui5-button id="closePriorityDialog" design="Transparent">Close</ui5-button></div></ui5-dialog>
+  <ui5-dialog id="adaptFiltersDialog" header-text="Adapt Filters" style="max-width:520px"><div class="adapt-filter-list"><div class="small-note">Choose the fields available in the worklist filter bar.</div><ui5-checkbox checked text="Search"></ui5-checkbox><ui5-checkbox id="companyCodeFilterToggle" checked text="Company Code"></ui5-checkbox><ui5-checkbox checked text="Priority"></ui5-checkbox><ui5-checkbox checked text="Overdue Amount"></ui5-checkbox><ui5-checkbox checked text="Due by End of Month"></ui5-checkbox><ui5-checkbox checked text="Blocked Orders"></ui5-checkbox><ui5-checkbox checked text="Blocked Order Amount"></ui5-checkbox></div><div slot="footer" class="dialog-footer"><ui5-button id="closeAdaptFilters" design="Transparent">Cancel</ui5-button><ui5-button id="applyAdaptFilters" design="Emphasized">Apply</ui5-button></div></ui5-dialog>
+  <script>
+    const allCustomers=[
+      {key:'jkl',id:'92823',name:'JKL Foods Limited',priority:'High',summary:['£95,261.93 GBP','£124,201.82 GBP','£8,000.00 GBP','£145,000.00 GBP','2 · £8,018.29 GBP','133'],action:'Review Customer',link:'customer.html?customer=92823',codes:[{code:'GB11',collector:'A',currency:'GBP',v:['£60,000.00 GBP','£80,000.00 GBP','£4,000.00 GBP','£100,000.00 GBP','1 · £4,000.00 GBP','133'],action:'Email Customer'},{code:'GB95',collector:'A',currency:'EUR',v:['€37,661.09 EUR','€47,178.61 EUR','€4,117.65 EUR','€50,000.00 EUR','1 · €4,727.40 EUR','96'],action:'Email Customer'},{code:'GB16',collector:'B',currency:'GBP',v:['£3,250.00 GBP','£4,100.00 GBP','£500.00 GBP','£5,000.00 GBP','0','12'],action:'Email Customer'}]},
+      {key:'lumina',id:'56565',name:'Lumina Group UK Limited',priority:'High',summary:['£363,905.57 GBP','£377,455.19 GBP','£7,389.86 GBP','—','3 · £30,039.32 GBP','20'],codes:[{code:'GB-30',currency:'GBP',v:['£250,000.00 GBP','£260,000.00 GBP','£4,000.00 GBP','—','2 · £20,000.00 GBP','20']},{code:'DE-33',currency:'EUR',v:['€134,006.55 EUR','€138,182.58 EUR','€3,988.07 EUR','—','1 · €11,810.96 EUR','12']}]},
+      {key:'axispoint',id:'289303',name:'AxisPoint Health',priority:'High',summary:['£92,139.32 GBP','£121,897.36 GBP','£914.86 GBP','—','2 · £7,416.01 GBP','15'],action:'Email Customer',codes:[{code:'GB-31',currency:'GBP',v:['£60,000.00 GBP','£80,000.00 GBP','£500.00 GBP','—','1 · £4,000.00 GBP','15'],action:'Email Customer'},{code:'DE-34',currency:'EUR',v:['€37,810.96 EUR','€49,291.01 EUR','€488.07 EUR','—','1 · €4,018.83 EUR','9']}]},
+      {key:'bluehaven',id:'76494',name:'BlueHaven Group',priority:'High',summary:['£46,789.92 GBP','£71,961.07 GBP','£2,040.68 GBP','—','0','22'],codes:[{code:'GB-32',currency:'GBP',v:['£30,000.00 GBP','£45,000.00 GBP','£1,200.00 GBP','—','0','22']},{code:'DE-35',currency:'EUR',v:['€19,752.85 EUR','€31,718.91 EUR','€989.04 EUR','—','0','14']}]},
+      {key:'lm',id:'22034',name:'L & M Supplies (UK)',priority:'High',code:'GB-40',v:['£45,700.06 GBP','£53,810.25 GBP','£10,247.15 GBP','—','0','10'],action:'Call Customer'},
+      {key:'helix',id:'82028',name:'HelixCare Partners',priority:'High',code:'GB-50',v:['£70,616.73 GBP','£80,095.18 GBP','£14,299.94 GBP','—','0','18']},
+      {key:'purepath',id:'9383022',name:'PurePath Health',priority:'High',code:'GB-60',v:['£109,522.35 GBP','£117,760.25 GBP','£9,383.27 GBP','—','5 · £82,622.47 GBP','8'],action:'Review and Approve'},
+      {key:'elevance',id:'102938',name:'Elevance Care',priority:'High',code:'GB-70',v:['£91,456.10 GBP','£136,810.25 GBP','£4,477.65 GBP','—','0','17']},
+      {key:'summerbridge',id:'1029376',name:'SummerBridge Resources',priority:'Medium',code:'GB-80',v:['£18,400.00 GBP','£30,400.00 GBP','£8,543.90 GBP','—','0','18']},
+      {key:'hearthstone',id:'28290',name:'Hearthstone Medical',priority:'Medium',code:'GB-90',v:['£16,671.47 GBP','£66,181.25 GBP','£31,600.00 GBP','—','0','14']},
+      {key:'clearway',id:'21985',name:'Clearway Building Solutions',priority:'Medium',code:'GB-12',v:['£25,337.31 GBP','£32,290.25 GBP','£3,328.53 GBP','—','0','7']},
+      {key:'pulsespring',id:'219570',name:'PulseSpring Health',priority:'Medium',code:'GB-13',v:['£32,173.84 GBP','£38,619.42 GBP','£4,662.69 GBP','—','1 · £6,291.03 GBP','13'],action:'Follow up Internally'},
+      {key:'meridian',id:'209372',name:'Meridian Care Network',priority:'Low',code:'GB-14',v:['£13,715.99 GBP','£13,715.99 GBP','£7,826.16 GBP','—','0','6']},
+      {key:'wellora',id:'20372',name:'Wellora Health',priority:'Low',code:'GB-15',v:['0 GBP','£18,017.27 GBP','£136,284.01 GBP','—','0','4']},
+      {key:'apexlife',id:'949403',name:'ApexLife Medical',priority:'Low',code:'GB-16',v:['0 GBP','£34,810.25 GBP','£150,000.00 GBP','—','0','3']},
+      {key:'trubalance',id:'834502',name:'TruBalance Health',priority:'Low',code:'GB-17',v:['0 GBP','£10,810.25 GBP','£150,000.00 GBP','—','0','6']},
+      {key:'kindredcore',id:'870382',name:'KindredCore Health',priority:'Watch',code:'GB-18',v:['0 GBP','£8,728.29 GBP','£150,000.00 GBP','—','0','5']}
+    ];
+    const collector=CollectorContext.current,collectorId=CollectorContext.currentId;
+    const collectorBCompanyCodes=new Set(['GB16','DE-34','GB-50','GB-70','GB-13','GB-16']);
+    const assignedCollector=code=>collectorBCompanyCodes.has(code)?'B':'A';
+    const customers=allCustomers.map(customer=>{
+      if(customer.key!=='jkl')return customer;
+      const allCodes=customer.codes,visibleCodes=allCodes.filter(item=>item.collector===collectorId);
+      return {...customer,codes:visibleCodes,allCodeCount:allCodes.length,link:CollectorContext.withCollector(customer.link)};
+    });
+    document.getElementById('priorityCollectorContext').textContent=collector.role+' is responsible for '+collector.codes.join(' and ')+'. The High priority remains customer-level.';
+    const availableCodes=[...new Set(customers.flatMap(customer=>customer.codes?customer.codes.map(item=>item.code):[customer.code]))];
+    document.getElementById('companyFilter').innerHTML='<ui5-option value="all" selected>All Assigned Company Codes</ui5-option>'+availableCodes.map(code=>'<ui5-option value="'+code+'">'+code+'</ui5-option>').join('');
+    const priorityDesign={High:'Negative',Medium:'Critical',Low:'Positive',Watch:'Neutral'};
+    const parseAmount=value=>{const amountPart=value.includes('·')?value.split('·')[1]:value,cleaned=amountPart.replace(/[^0-9.-]/g,'');if(!cleaned||cleaned==='-'||cleaned==='.')return null;const parsed=Number(cleaned);return Number.isFinite(parsed)?parsed:null};
+    const blockedPrefix=value=>value.includes('·')?value.split('·')[0].trim()+' · ':'';
+    const currencyMarkup=(value,nativeCurrency,scopeNote='',allocationUnavailable=false)=>{
+      const amount=parseAmount(value);
+      return '<span class="currency-cell">'+blockedPrefix(value)+'<span class="currency-amount" data-native-currency="'+nativeCurrency+'" data-native-amount="'+(amount===null?'':amount)+'" data-scope-note="'+scopeNote+'" data-allocation-unavailable="'+allocationUnavailable+'"></span></span>';
+    };
+    const overdueHelp='<span class="overdue-info-trigger" tabindex="0" aria-label="Overdue amount information"><ui5-icon name="information"></ui5-icon></span>';
+    const blockedCount=value=>value.includes('·')?value.split('·')[0].trim():(value.trim()==='0'?'0':'—');
+    const blockedAmount=value=>value.includes('·')?value.split('·')[1].trim():'—';
+    const metricCells=(values,nativeCurrency='GBP',scopeNote='',allocationUnavailable=false)=>
+      '<ui5-table-cell><span class="overdue-with-info">'+currencyMarkup(values[0],nativeCurrency,scopeNote,allocationUnavailable)+overdueHelp+'</span></ui5-table-cell>'+
+      '<ui5-table-cell>'+currencyMarkup(values[1],nativeCurrency,scopeNote,allocationUnavailable)+'</ui5-table-cell>'+
+      '<ui5-table-cell>'+currencyMarkup(values[2],nativeCurrency,scopeNote,allocationUnavailable)+'</ui5-table-cell>'+
+      '<ui5-table-cell>'+values[5]+'</ui5-table-cell>'+
+      '<ui5-table-cell>'+blockedCount(values[4])+'</ui5-table-cell>'+
+      '<ui5-table-cell>'+currencyMarkup(blockedAmount(values[4]),nativeCurrency,scopeNote,allocationUnavailable)+'</ui5-table-cell>';
+    const identity=(customer,child)=>'<div class="child-customer-cell">'+(child?'<span class="tree-indent"></span>':'')+'<div class="'+(child?'child-customer':'')+'"><span class="customer-name">'+customer.name+'</span><div class="customer-id">'+customer.id+'</div></div></div>';
+    const actionCell=(customer,code,action)=>{const label=action||(customer.key==='jkl'?'Review Customer':'--'),icon=action||customer.key==='jkl'?'<ui5-icon name="information"></ui5-icon>':'';let content='<span class="action-label">'+icon+label+'</span>';if(customer.key==='jkl'){const href=CollectorContext.withCollector('customer.html?customer=92823'+(code?'&company='+code:''));content='<a class="action-label" href="'+href+'">'+icon+label+'</a>'}return '<div class="row-action">'+content+'<ui5-icon class="row-chevron" name="slim-arrow-right"></ui5-icon></div>'};
+    let rows='';
+    customers.forEach(customer=>{
+      if(customer.codes&&customer.codes.length===1&&customer.key!=='jkl'){
+        const item=customer.codes[0];
+        rows+='<ui5-table-row class="customer-row" data-code="'+item.code+'"><ui5-table-cell style="padding-inline-start:.75rem">'+identity(customer,false)+'</ui5-table-cell><ui5-table-cell><ui5-tag class="'+(customer.key==='jkl'?'priority-insight-trigger':'')+'" design="'+priorityDesign[customer.priority]+'"'+(customer.key==='jkl'?' interactive':'')+'>'+customer.priority+'</ui5-tag></ui5-table-cell><ui5-table-cell><span class="assigned-code-label">'+item.code+'</span></ui5-table-cell>'+metricCells(item.v,item.currency,'')+'<ui5-table-cell>'+actionCell(customer,item.code,item.action||customer.action)+'</ui5-table-cell></ui5-table-row>';
+      }else if(customer.codes){
+        const parentIdentity='<div class="customer-identity-cell"><ui5-button class="customer-expand" data-parent="'+customer.key+'" design="Transparent" icon="navigation-right-arrow" tooltip="Show company codes"></ui5-button><div>'+(customer.link?'<a class="company-link customer-name" href="'+customer.link+'">'+customer.name+'</a>':'<span class="customer-name">'+customer.name+'</span>')+'<div class="customer-id">'+customer.id+'</div></div></div>';
+        const summaryNote=customer.key==='jkl'?'Customer total across 3 company codes':'Consolidated from GBP + EUR';
+        rows+='<ui5-table-row class="group-row" data-parent="'+customer.key+'" data-codes="'+customer.codes.map(item=>item.code).join(',')+'"><ui5-table-cell style="padding-inline-start:.5rem">'+parentIdentity+'</ui5-table-cell><ui5-table-cell><ui5-tag class="'+(customer.key==='jkl'?'priority-insight-trigger':'')+'" design="'+priorityDesign[customer.priority]+'"'+(customer.key==='jkl'?' interactive':'')+'>'+customer.priority+'</ui5-tag></ui5-table-cell><ui5-table-cell><span class="multiple-code">Multiple ('+customer.codes.length+')</span></ui5-table-cell>'+metricCells(customer.summary,'GBP',summaryNote)+'<ui5-table-cell>'+actionCell(customer,'',customer.action)+'</ui5-table-cell></ui5-table-row>';
+        customer.codes.forEach(item=>{rows+='<ui5-table-row class="company-detail" data-parent="'+customer.key+'" data-code="'+item.code+'" hidden><ui5-table-cell>'+identity(customer,true)+'</ui5-table-cell><ui5-table-cell></ui5-table-cell><ui5-table-cell>'+item.code+'</ui5-table-cell>'+metricCells(item.v,item.currency,'',item.allocationUnavailable)+'<ui5-table-cell></ui5-table-cell></ui5-table-row>'});
+      }else{
+        rows+='<ui5-table-row class="customer-row" data-code="'+customer.code+'"><ui5-table-cell style="padding-inline-start:.75rem">'+identity(customer,false)+'</ui5-table-cell><ui5-table-cell><ui5-tag design="'+priorityDesign[customer.priority]+'">'+customer.priority+'</ui5-tag></ui5-table-cell><ui5-table-cell>'+customer.code+'</ui5-table-cell>'+metricCells(customer.v,'GBP')+'<ui5-table-cell>'+actionCell(customer,customer.code,customer.action)+'</ui5-table-cell></ui5-table-row>';
+      }
+    });
+    document.getElementById('worklistTable').insertAdjacentHTML('beforeend',rows);
+    document.getElementById('tableTitle').textContent='Accounts ('+customers.length+')';
+    const overdueTooltip=document.createElement('div');overdueTooltip.className='overdue-hover-tooltip';overdueTooltip.role='tooltip';overdueTooltip.textContent='Shown in the selected display currency. The native amount appears below only when different.';document.body.appendChild(overdueTooltip);
+    const showOverdueTooltip=trigger=>{const rect=trigger.getBoundingClientRect();overdueTooltip.classList.add('visible');const tip=overdueTooltip.getBoundingClientRect();overdueTooltip.style.left=Math.max(8,Math.min(window.innerWidth-tip.width-8,rect.left+rect.width/2-tip.width/2))+'px';overdueTooltip.style.top=Math.max(8,rect.top-tip.height-8)+'px'};
+    document.querySelectorAll('.overdue-info-trigger').forEach(trigger=>{trigger.addEventListener('mouseenter',()=>showOverdueTooltip(trigger));trigger.addEventListener('mouseleave',()=>overdueTooltip.classList.remove('visible'));trigger.addEventListener('focus',()=>showOverdueTooltip(trigger));trigger.addEventListener('blur',()=>overdueTooltip.classList.remove('visible'))});
+    const EUR_GBP=.85;
+    const formatCurrency=(amount,currency)=>new Intl.NumberFormat('en-GB',{style:'currency',currency,minimumFractionDigits:2,maximumFractionDigits:2}).format(amount);
+    const convertCurrency=(amount,from,to)=>from===to?amount:(from==='EUR'?amount*EUR_GBP:amount/EUR_GBP);
+    const getDisplayCurrency=()=>{const select=document.getElementById('displayCurrency');return select.selectedOption?.value||select.value||select.querySelector('ui5-option[selected]')?.value||'GBP'};
+    let activeCompanyCode='all';
+    const compactAmount=amount=>amount>=1000000?(amount/1000000).toFixed(2)+'M':amount>=1000?(amount/1000).toFixed(2)+'K':amount.toFixed(2);
+    function updateWorklistKpis(){
+      const displayCurrency=getDisplayCurrency();
+      const matching=customers.flatMap(customer=>customer.codes?customer.codes.map(item=>({customer,item})): [{customer,item:{code:customer.code,currency:'GBP',v:customer.v}}]).filter(({item})=>activeCompanyCode==='all'||item.code===activeCompanyCode);
+      const totals=matching.reduce((result,{customer,item})=>{
+        result.overdue+=convertCurrency(parseAmount(item.v[0])||0,item.currency,displayCurrency);
+        result.eom+=convertCurrency(parseAmount(item.v[1])||0,item.currency,displayCurrency);
+        result.blocked+=Number(blockedCount(item.v[4]))||0;
+        if(customer.priority==='High')result.highCustomers.add(customer.id);
+        return result;
+      },{overdue:0,eom:0,blocked:0,highCustomers:new Set()});
+      document.getElementById('worklistOverdueKpi').textContent=compactAmount(totals.overdue)+' '+displayCurrency;
+      document.getElementById('worklistEomKpi').textContent=compactAmount(totals.eom)+' '+displayCurrency;
+      document.getElementById('worklistHighRiskKpi').textContent=String(totals.highCustomers.size);
+      document.getElementById('worklistBlockedKpi').textContent=String(totals.blocked);
+    }
+    function updateCurrencyAmounts(){
+      const displayCurrency=getDisplayCurrency();
+      document.querySelectorAll('.currency-amount').forEach(element=>{
+        const nativeCurrency=element.dataset.nativeCurrency,amount=Number(element.dataset.nativeAmount),hasAmount=element.dataset.nativeAmount!=='';
+        if(!hasAmount){
+          if(element.dataset.allocationUnavailable==='true'){element.innerHTML='<span class="display-value">'+(displayCurrency==='GBP'?'£':'€')+'— '+displayCurrency+' equivalent</span><span class="native-value">€— EUR native · allocation unavailable</span>'}
+          else{element.innerHTML='<span class="display-value">—</span>'}
+          return;
+        }
+        const displayed=formatCurrency(convertCurrency(amount,nativeCurrency,displayCurrency),displayCurrency);
+        const secondary=!element.dataset.scopeNote&&nativeCurrency!==displayCurrency?formatCurrency(amount,nativeCurrency)+' native':'';
+        element.innerHTML='<span class="display-value">'+displayed+'</span>'+(secondary?'<span class="native-value">'+secondary+'</span>':'');
+      });
+      updateWorklistKpis();
+    }
+    updateCurrencyAmounts();
+    document.getElementById('displayCurrency').addEventListener('change',updateCurrencyAmounts);
+    const groupRows=[...document.querySelectorAll('.group-row')],detailRows=[...document.querySelectorAll('.company-detail')],customerRows=[...document.querySelectorAll('.customer-row')];
+    document.querySelectorAll('.customer-expand').forEach(button=>button.addEventListener('click',event=>{event.stopPropagation();const childRows=detailRows.filter(row=>row.dataset.parent===button.dataset.parent),open=childRows[0].hidden;childRows.forEach(row=>row.hidden=!open);button.icon=open?'navigation-down-arrow':'navigation-right-arrow';button.tooltip=open?'Hide company codes':'Show company codes'}));
+    function applyFilter(){const select=document.getElementById('companyFilter'),code=select.selectedOption.value,isAll=code==='all';activeCompanyCode=code;document.querySelectorAll('.customer-expand').forEach(button=>{const hasCode=button.closest('.group-row').dataset.codes.split(',').includes(code);button.icon=!isAll&&hasCode?'navigation-down-arrow':'navigation-right-arrow';button.tooltip=!isAll&&hasCode?'Matching company code shown':'Show company codes'});groupRows.forEach(row=>{const match=row.dataset.codes.split(',').includes(code);row.hidden=!isAll&&!match});detailRows.forEach(row=>{const match=!isAll&&row.dataset.code===code;row.hidden=!match;row.classList.remove('filtered-detail')});customerRows.forEach(row=>row.hidden=!isAll&&row.dataset.code!==code);const count=isAll?customers.length:groupRows.filter(row=>row.dataset.codes.split(',').includes(code)).length+customerRows.filter(row=>row.dataset.code===code).length;document.getElementById('tableTitle').textContent='Accounts ('+count+')';document.getElementById('filterResult').classList.toggle('visible',!isAll);document.getElementById('filterResultText').textContent=isAll?'':'Showing customers with company code '+code+'. Consolidated customer rows remain visible above the matching breakdown.';updateWorklistKpis()}
+    document.getElementById('goButton').addEventListener('click',applyFilter);document.getElementById('companyFilter').addEventListener('change',applyFilter);
+    document.getElementById('filterToggle').addEventListener('click',event=>{const bar=document.getElementById('filterBar'),collapsed=bar.classList.toggle('collapsed');event.currentTarget.icon=collapsed?'slim-arrow-down':'slim-arrow-up';event.currentTarget.tooltip=collapsed?'Expand filters':'Collapse filters'});
+    const fullscreenButton=document.getElementById('fullscreenButton'),tableCard=document.querySelector('.table-card');
+    document.getElementById('settingsButton').addEventListener('click',()=>location.href=CollectorContext.withCollector('admin.html'));
+    fullscreenButton.addEventListener('click',async()=>{if(document.fullscreenElement){await document.exitFullscreen()}else{await tableCard.requestFullscreen()}});
+    document.addEventListener('fullscreenchange',()=>{const active=Boolean(document.fullscreenElement);fullscreenButton.icon=active?'exit-full-screen':'full-screen';fullscreenButton.tooltip=active?'Exit Fullscreen':'Fullscreen'});
+    const priorityDialog=document.getElementById('priorityDialog'),priorityTooltip=document.createElement('div');priorityTooltip.className='priority-rationale-tooltip';priorityTooltip.innerHTML='<strong>High priority · customer level</strong>JKL Foods Limited has £95,261.93 overdue across 3 company codes. GB11 and GB95 account for the majority and drive the priority. '+collector.role+' sees the same customer priority while acting only on '+collector.codes.join(' and ')+'.';document.body.appendChild(priorityTooltip);const showPriorityTooltip=tag=>{const rect=tag.getBoundingClientRect();priorityTooltip.classList.add('visible');const tip=priorityTooltip.getBoundingClientRect();priorityTooltip.style.left=Math.max(8,Math.min(window.innerWidth-tip.width-8,rect.left+rect.width/2-tip.width/2))+'px';priorityTooltip.style.top=Math.max(8,rect.top-tip.height-8)+'px'};document.querySelectorAll('.priority-insight-trigger').forEach(tag=>{tag.addEventListener('mouseenter',()=>showPriorityTooltip(tag));tag.addEventListener('mouseleave',()=>priorityTooltip.classList.remove('visible'));tag.addEventListener('focus',()=>showPriorityTooltip(tag));tag.addEventListener('blur',()=>priorityTooltip.classList.remove('visible'));tag.addEventListener('click',event=>{event.stopPropagation();priorityDialog.open=true})});document.getElementById('closePriorityDialog').addEventListener('click',()=>priorityDialog.open=false);
+    const adaptFiltersDialog=document.getElementById('adaptFiltersDialog'),companyFilterField=document.getElementById('companyFilterField'),companyCodeFilterToggle=document.getElementById('companyCodeFilterToggle');document.getElementById('adaptFiltersButton').addEventListener('click',()=>{companyCodeFilterToggle.checked=!companyFilterField.hidden;adaptFiltersDialog.open=true});document.getElementById('closeAdaptFilters').addEventListener('click',()=>adaptFiltersDialog.open=false);document.getElementById('applyAdaptFilters').addEventListener('click',()=>{companyFilterField.hidden=!companyCodeFilterToggle.checked;document.getElementById('adaptFiltersButton').textContent='Adapt Filters ('+(companyCodeFilterToggle.checked?7:6)+')';if(!companyCodeFilterToggle.checked){document.getElementById('companyFilter').selectedOption.selected=false;document.querySelector('#companyFilter ui5-option[value="all"]').selected=true;applyFilter()}adaptFiltersDialog.open=false});
+    CollectorContext.mount();
+  </script>
+</body>
+</html>

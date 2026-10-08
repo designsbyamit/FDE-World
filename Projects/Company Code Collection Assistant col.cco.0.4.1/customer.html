@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="../../lib/assets/favicon.ico">
+  <title>JKL Foods Limited — Customer 360 col.cco.0.4.1</title>
+  <script data-ui5-config type="application/json">{ "theme":"sap_horizon" }</script>
+  <script type="module" src="../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <script src="../../lib/shared/shellbar.js"></script>
+  <script src="collector-context.js"></script>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="customer-aligned.css">
+  <link rel="stylesheet" href="collector-context.css">
+  <style>
+    .detail-app app-shellbar ui5-shellbar{padding-inline:3rem!important}
+    .detail-header{position:relative}
+    .detail-header-row{display:block}
+    .detail-title{font-weight:700}
+    .detail-body{grid-template-columns:minmax(0,1fr) 450px}
+    .detail-meta{margin-top:1px}
+    .company-scope-select{width:170px;margin-top:-1px}
+    .detail-filter-card{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex:0 0 66px;padding:10px 48px 12px;background:#fff;border-bottom:1px solid #d9d9d9;box-shadow:0 2px 6px rgba(0,0,0,.08)}
+    .detail-filter-card.collapsed{display:none}
+    .detail-filter-fields{display:flex;align-items:flex-end;gap:12px}
+    .detail-filter-field{display:flex;flex-direction:column;gap:4px;width:260px}
+    .detail-filter-field ui5-select{width:100%}
+    .detail-filter-actions{display:flex;align-items:center;padding-bottom:1px}
+    .detail-filter-toggle-row{position:relative;z-index:30;display:flex;flex:0 0 0;align-items:center;justify-content:center;gap:6px}
+    .detail-filter-toggle-row ui5-button::part(button){border-radius:8px;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.14)}
+    .action-box-figma h3{margin:0 0 6px;font-size:14px}
+    .nba-list{display:grid}
+    .nba-code-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:10px 0;border-top:1px solid #b8d8eb}
+    .nba-code-row:first-child{border-top:0}
+    .nba-code-row p{margin-top:3px!important;color:#354a5f}
+    .nba-code-label{margin-bottom:2px;color:#0064d9;font-size:11px;font-weight:700}
+    .kpi-level>h3{margin:0;padding:14px 16px 0;font-size:14px}
+    .company-kpi-level{border-top:1px solid #e5e5e5}
+    .customer-kpi-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+    .code-table-group{border-bottom:1px solid #d9d9d9}
+    .code-group-toggle{display:flex;align-items:center;gap:8px;width:100%;height:38px;padding:0 12px;border:0;background:#f5f6f7;color:#1d2d3e;font:inherit;text-align:left;cursor:pointer}
+    .code-group-toggle:hover{background:#eaecee}
+    .code-group-toggle ui5-icon{width:14px;height:14px;color:#0064d9}
+    .code-group-toggle strong{font-size:13px}
+    .code-group-toggle span{color:#556b82;font-size:11px}
+    .detail-close{position:absolute;top:40px;right:48px;margin:0}
+    .action-box-figma{margin-top:12px;padding:10px 16px}
+    .action-buttons-figma{margin-top:6px}
+    .detail-data-scroll{padding-bottom:16px}
+    .detail-data .icon-cell ui5-icon{color:#0070f2}
+    @media(max-width:1100px){.detail-body{grid-template-columns:1fr}.detail-filter-card{padding-left:32px;padding-right:32px}}
+  </style>
+</head>
+<body>
+  <app-shellbar title="Collection Assistant" base-path="../../" avatar-initials="AL" hide-product-switch></app-shellbar>
+  <div class="page-header"><ui5-breadcrumbs><ui5-breadcrumbs-item href="index.html">Collection Worklist</ui5-breadcrumbs-item><ui5-breadcrumbs-item>JKL Foods Limited</ui5-breadcrumbs-item></ui5-breadcrumbs></div>
+  <header class="object-header">
+    <div class="object-top"><div><div class="object-title">JKL Foods Limited</div><div class="subtitle">Customer 92823 · Worklist detail view</div></div><ui5-tag design="Negative">High Priority</ui5-tag></div>
+    <div class="object-meta"><span><span class="muted">Collector</span> Alan Morgan</span><span><span class="muted">Authorized company codes</span> GB11, GB95</span><span><span class="muted">Customer language</span> English (EN)</span><span><span class="muted">Prototype version</span> col.cco.0.4.1</span></div>
+  </header>
+  <div class="scope-bar"><div><div class="scope-control"><span class="field-label">Company-code context</span><ui5-segmented-button id="scopeControl"><ui5-segmented-button-item data-code="all" selected>All Company Codes</ui5-segmented-button-item><ui5-segmented-button-item data-code="GB-11">GB-11</ui5-segmented-button-item><ui5-segmented-button-item data-code="GB-95">GB-95</ui5-segmented-button-item></ui5-segmented-button></div><div class="scope-help">Updates company-code KPIs and actions. Customer-level insights and KPIs remain unchanged.</div></div><div class="scope-summary-group"><div class="scope-summary" id="scopeSummary">Consolidated across 2 company codes</div><div class="scope-currency" id="scopeCurrency">Reporting currency GBP · converted from GBP + EUR at 1 EUR = 0.85 GBP</div></div></div>
+  <main class="object-content">
+    <section class="insight-card"><div class="insight-title"><ui5-icon name="business-objects-experience"></ui5-icon>Insights and Recommendations <span class="scope-pill customer-level">Customer level</span></div><div class="insight-copy"><strong>Multiple invoices in extreme arrears (&gt;90 days)</strong><br>JKL Foods Limited has £92,011.93 reporting-currency overdue across 9 invoices; the oldest invoice is overdue by 133 days. This insight remains customer-level regardless of the selected company-code context.</div></section>
+    <section class="nba-card"><div class="nba-eyebrow" id="nbaEyebrow">Next Best Action <span class="scope-pill company-level">Company code required</span></div><div class="nba-title" id="nbaTitle">Choose the company code to act on</div><div class="nba-copy" id="nbaCopy">Recommendations and optional actions are always calculated for one company code. Select GB-11 or GB-95 above.</div><div class="nba-action"><ui5-button id="emailAction" design="Default" icon="email" disabled>Send Credit Note Copies</ui5-button><ui5-button id="optionalAction" design="Transparent" icon="task" disabled>Create Follow-Up Task</ui5-button></div></section>
+    <section class="kpi-grid" aria-label="Account overview">
+      <div class="kpi-card code-kpi"><span class="scope-pill company-level code-scope">All codes</span><div class="kpi-value" id="kpiOverdue">£92,011.93</div><div class="kpi-secondary" id="kpiOverdueSecondary">Consolidated from GBP + EUR</div><div class="kpi-label">Total Overdue Amount</div></div>
+      <div class="kpi-card code-kpi"><span class="scope-pill company-level code-scope">All codes</span><div class="kpi-value" id="kpiEom">£120,101.82</div><div class="kpi-secondary" id="kpiEomSecondary">Consolidated from GBP + EUR</div><div class="kpi-label">Due by End of Month</div></div>
+      <div class="kpi-card code-kpi"><span class="scope-pill company-level code-scope">All codes</span><div class="kpi-value" id="kpiBlocked">2</div><div class="kpi-label">Blocked Orders</div></div>
+      <div class="kpi-card code-kpi"><span class="scope-pill company-level code-scope">All codes</span><div class="kpi-value" id="kpiCredit">£7,500.00</div><div class="kpi-secondary" id="kpiCreditSecondary">Consolidated from GBP + EUR</div><div class="kpi-label">Credit Balance</div></div>
+      <div class="kpi-card"><span class="scope-pill customer-level">Customer level</span><div class="kpi-value">133 days</div><div class="kpi-label">Oldest Overdue Item</div></div>
+      <div class="kpi-card"><span class="scope-pill customer-level">Customer level</span><div class="kpi-value">£150,000.00</div><div class="kpi-label">Credit Limit</div></div>
+      <div class="kpi-card"><span class="scope-pill customer-level">Customer level</span><div class="kpi-value">£142,500.00</div><div class="kpi-label">Sum of Credit Items</div></div>
+      <div class="kpi-card"><span class="scope-pill customer-level">Customer level</span><div class="kpi-value">95%</div><div class="kpi-label">Credit Utilization</div></div>
+      <div class="kpi-card code-kpi"><span class="scope-pill company-level code-scope">All codes</span><div class="kpi-value" id="kpiBlockedAmount">£8,018.29</div><div class="kpi-secondary" id="kpiBlockedSecondary">Consolidated from GBP + EUR</div><div class="kpi-label">Blocked Order Amount</div></div>
+      <div class="kpi-card code-kpi"><span class="scope-pill company-level code-scope">All codes</span><div class="kpi-value" id="kpiDisputedAmount">£34,200.00</div><div class="kpi-secondary" id="kpiDisputeSecondary">Consolidated from GBP + EUR</div><div class="kpi-label">Disputed Amount</div></div>
+    </section>
+    <div class="two-col">
+      <div>
+        <section class="section-card">
+          <div class="section-card-header"><div class="section-title">Open Items</div><span class="scope-pill company-level code-scope" id="openItemsScope">All codes</span></div>
+          <ui5-table>
+            <ui5-table-header-row slot="headerRow"><ui5-table-header-cell width="120px" style="padding-inline-start:1rem">Company Code</ui5-table-header-cell><ui5-table-header-cell width="130px">Invoice</ui5-table-header-cell><ui5-table-header-cell width="130px">Due Date</ui5-table-header-cell><ui5-table-header-cell width="130px">Open Amount</ui5-table-header-cell><ui5-table-header-cell width="120px">Status</ui5-table-header-cell></ui5-table-header-row>
+            <ui5-table-row class="item-row" data-code="GB-11" interactive><ui5-table-cell style="padding-inline-start:1rem">GB-11</ui5-table-cell><ui5-table-cell><a class="company-link" href="#">90001894</a></ui5-table-cell><ui5-table-cell>15 Dec 2025</ui5-table-cell><ui5-table-cell>£60,000.00</ui5-table-cell><ui5-table-cell><ui5-tag design="Negative">Overdue</ui5-tag></ui5-table-cell><ui5-table-row-action-navigation slot="actions"></ui5-table-row>
+            <ui5-table-row class="item-row" data-code="GB-95" interactive><ui5-table-cell style="padding-inline-start:1rem">GB-95</ui5-table-cell><ui5-table-cell><a class="company-link" href="#">90002731</a></ui5-table-cell><ui5-table-cell>20 Dec 2025</ui5-table-cell><ui5-table-cell>€37,661.09</ui5-table-cell><ui5-table-cell><ui5-tag design="Negative">Overdue</ui5-tag></ui5-table-cell><ui5-table-row-action-navigation slot="actions"></ui5-table-row>
+          </ui5-table>
+        </section>
+        <section class="section-card"><div class="section-card-header"><div class="section-title">Ageing Invoices</div><span class="scope-pill company-level code-scope" id="agingScope">All codes</span></div><div class="mini-grid"><div><strong id="agingOldest">133 days</strong><span>Oldest overdue item</span></div><div><strong id="agingBuckets">4</strong><span>Ageing buckets shown</span></div><div><strong id="agingInvoices">9</strong><span>Overdue invoices</span></div></div><div class="aging-bars" id="agingBars"><div><span>&gt;90 days</span><strong>£9.1K</strong></div><div><span>61–90 days</span><strong>£41.3K</strong></div><div><span>31–60 days</span><strong>£10.8K</strong></div><div><span>1–30 days</span><strong>£30.8K</strong></div></div></section>
+        <section class="section-card"><div class="section-card-header"><div class="section-title">Disputes</div><span class="scope-pill company-level code-scope" id="disputesScope">All codes</span></div><div class="mini-grid"><div><strong id="disputeCount">5</strong><span>Open disputes</span></div><div><strong id="disputeAmount">£34,200.00</strong><span>Disputed amount</span><small class="kpi-secondary" id="disputeSecondary">Consolidated from GBP + EUR</small></div></div></section>
+        <section class="section-card"><div class="section-card-header"><div class="section-title">Account History</div><div class="history-filter"><span class="small-note">Show</span><ui5-select id="historyFilter"><ui5-option value="all" selected>All activity</ui5-option><ui5-option value="customer">Customer level</ui5-option><ui5-option value="GB-11">Company code GB-11</ui5-option><ui5-option value="GB-95">Company code GB-95</ui5-option></ui5-select></div></div><div class="history-list" id="historyList"><div class="history-event" data-scope="customer"><strong>Mar 03, 2026</strong><span><span class="scope-pill customer-level">Customer level</span> Credit limit and overall collection priority reviewed.</span></div><div class="history-event" data-scope="GB-11"><strong>Feb 28, 2026</strong><span><span class="scope-pill company-level">Code GB-11</span> Blocked-orders email sent to Murphy Purdy and Finance.</span></div><div class="history-event" data-scope="GB-95"><strong>Feb 20, 2026</strong><span><span class="scope-pill company-level">Code GB-95</span> EUR remittance advice received and applied.</span></div><div class="history-event" data-scope="GB-11"><strong>Feb 01, 2026</strong><span><span class="scope-pill company-level">Code GB-11</span> Credit-limit email sent.</span></div></div></section>
+        <section class="section-card"><div class="section-card-header"><div class="section-title">Customer Contacts</div><ui5-tag design="Information">Applies to all company codes</ui5-tag></div><div class="contact-list"><div class="contact contact-row" data-code="all"><div class="contact-name">Murphy Purdy</div><div class="contact-meta">Primary contact · m.purdy@jklfood.com</div></div><div class="contact contact-row" data-code="all"><div class="contact-name">Finance</div><div class="contact-meta">finance@jklfood.com</div></div><div class="contact contact-row" data-code="all"><div class="contact-name">Emily Brown</div><div class="contact-meta">Additional recipient</div></div></div><div class="annotation"><ui5-icon name="information"></ui5-icon><span>No company-code-specific contact mapping was supplied, so these contacts remain available in every scope.</span></div></section>
+      </div>
+      <aside>
+        <section class="section-card"><div class="section-card-header"><div class="section-title">Company Code Breakdown</div></div><div class="contact-list"><div class="contact"><div class="contact-name">GB-11 · GBP</div><div class="contact-meta">£60,000.00 overdue · 1 blocked order · £4,000.00 blocked amount</div></div><div class="contact"><div class="contact-name">GB-95 · EUR</div><div class="contact-meta">€37,661.09 overdue · 1 blocked order · €4,727.40 blocked amount</div></div></div><div class="annotation"><ui5-icon name="information"></ui5-icon><span>Both company codes belong to Customer 92823 · JKL Foods Limited. Consolidated GBP values use 1 EUR = 0.85 GBP.</span></div></section>
+      </aside>
+    </div>
+  </main>
+  <aside id="emailPanel" aria-hidden="true" aria-label="Email JKL Foods Limited">
+    <div class="email-panel-header" id="emailPanelHeader">Email JKL Foods Limited</div>
+    <div class="email-panel-body">
+      <label class="email-field"><span>From:<b>*</b></span><input class="email-from" value="AR Collection" readonly></label>
+      <div class="email-field"><span>To:<b>*</b></span><div class="email-recipient-row"><div class="email-recipient-box"><span class="email-token">m.purdy@jklfood.com <b>×</b></span><span class="email-token">finance@jklfood.com <b>×</b></span><a href="#">1 more</a><ui5-icon name="copy"></ui5-icon></div><ui5-button design="Transparent">CC</ui5-button></div></div>
+      <div class="email-subject-row"><label class="email-field"><span>Subject:</span><ui5-input id="emailSubject"></ui5-input></label><label class="email-field tone-field"><span>Tone:</span><ui5-select><ui5-option selected>Friendly</ui5-option><ui5-option>Formal</ui5-option><ui5-option>Urgent</ui5-option></ui5-select></label></div>
+      <div class="email-message-wrap">
+        <span class="email-label">Message:</span>
+        <div class="email-toolbar"><ui5-button design="Transparent" icon="bold-text" tooltip="Bold"></ui5-button><ui5-button design="Transparent" icon="italic-text" tooltip="Italic"></ui5-button><ui5-button design="Transparent" icon="underline-text" tooltip="Underline"></ui5-button><ui5-button design="Transparent" icon="strikethrough" tooltip="Strikethrough"></ui5-button><ui5-button design="Transparent" icon="text-align-justified" tooltip="Align"></ui5-button><ui5-select><ui5-option selected>Paragraph</ui5-option></ui5-select><ui5-select><ui5-option selected>Arial</ui5-option></ui5-select><ui5-button design="Transparent" icon="overflow" tooltip="More"></ui5-button></div>
+        <div id="emailMessage" class="email-editor" contenteditable="true">
+          <p>Good Morning,</p><p>Hope you are well and safe.</p><p>Please notice that your account is currently on block due to the overdue invoices listed in the table below for the total amount of 92,011.93 GBP.<br>Please send us a proof of payment or a remittance in order for us to request the release of your order block as soon as possible.</p>
+          <h4>Overdue Invoices</h4>
+          <table><thead><tr><th>Invoice</th><th>Ext. Ref (PO)</th><th>Invoice Amount</th><th>Open Amount</th><th>Due Date</th><th>Days Overdue</th></tr></thead><tbody><tr><td>90001894</td><td>PO-98765</td><td>19,503.26 GBP</td><td>19,503.26 GBP</td><td>12/15/2025</td><td>133</td></tr><tr><td>90007852</td><td>PO-43210</td><td>33,620.26 GBP</td><td>33,620.26 GBP</td><td>12/20/2025</td><td>83</td></tr><tr><td>90005731</td><td>PO-11223</td><td>23,747.36 GBP</td><td>23,747.36 GBP</td><td>12/30/2025</td><td>80</td></tr><tr><td>90005731</td><td>PO-11223</td><td>23,747.36 GBP</td><td>23,747.36 GBP</td><td>12/30/2025</td><td>80</td></tr><tr><td>90005731</td><td>PO-11223</td><td>23,747.36 GBP</td><td>23,747.36 GBP</td><td>12/30/2025</td><td>80</td></tr></tbody></table>
+          <h4>Upcoming Invoices (Due in the next 5 days)</h4>
+          <table><thead><tr><th>Invoice</th><th>Invoice Amount</th><th>Open Amount</th><th>Due Date</th><th>Days Until Due</th></tr></thead><tbody><tr><td>90009191</td><td>3,000.00 GBP</td><td>3,000.00 GBP</td><td>04/19/2026</td><td>3</td></tr></tbody></table>
+          <p>Kind regards,<br>Jordan Lee</p>
+        </div><span class="attachment-count-badge">3</span>
+      </div>
+      <div class="email-attachments"><div class="attachment-note">Attach PDF files, up to 2 MB per file and 10 MB total.</div><div class="attachment-heading"><strong>Attachments (3/10)</strong><ui5-icon name="message-information"></ui5-icon><ui5-button design="Default" icon="add">Upload</ui5-button></div><div class="attachment-row"><ui5-checkbox checked></ui5-checkbox><a href="#">File name-1.pdf</a><span>1.1 MB</span></div><div class="attachment-row"><ui5-checkbox checked></ui5-checkbox><a href="#">File name-2.pdf</a><span>1.2 MB</span></div><div class="attachment-row"><ui5-checkbox checked></ui5-checkbox><a href="#">File name-3.pdf</a><span>1.0 MB</span></div></div>
+    </div>
+    <div class="email-panel-footer"><ui5-button design="Transparent" icon="thumb-up" tooltip="Helpful"></ui5-button><ui5-button design="Transparent" icon="thumb-down" tooltip="Not helpful"></ui5-button><ui5-button id="sendEmail" design="Emphasized" icon="paper-plane">Send</ui5-button><ui5-button id="cancelEmail" design="Transparent">Cancel</ui5-button></div>
+  </aside>
+  <script>
+    const values={
+      all:{summary:'Consolidated across 2 company codes',currency:'Reporting currency GBP · converted from GBP + EUR at 1 EUR = 0.85 GBP',overdue:'£92,011.93',overdueSecondary:'Consolidated from GBP + EUR',eom:'£120,101.82',eomSecondary:'Consolidated from GBP + EUR',blocked:'2',credit:'£7,500.00',creditSecondary:'Consolidated from GBP + EUR',blockedAmount:'£8,018.29',blockedSecondary:'Consolidated from GBP + EUR',oldest:'133 days',buckets:'4',invoices:'9',disputes:'5',disputeAmount:'£34,200.00',disputeSecondary:'Consolidated from GBP + EUR'},
+      'GB-11':{summary:'Company code GB-11 · JKL Foods Limited',currency:'Native currency GBP',overdue:'£60,000.00',overdueSecondary:'',eom:'£80,000.00',eomSecondary:'',blocked:'1',credit:'£4,000.00',creditSecondary:'',blockedAmount:'£4,000.00',blockedSecondary:'',oldest:'133 days',buckets:'4',invoices:'6',disputes:'3',disputeAmount:'£20,000.00',disputeSecondary:''},
+      'GB-95':{summary:'Company code GB-95 · JKL Foods Limited',currency:'Native currency EUR · GBP equivalents available in consolidated view',overdue:'€37,661.09',overdueSecondary:'£32,011.93 equivalent',eom:'€47,178.61',eomSecondary:'£40,101.82 equivalent',blocked:'1',credit:'€4,117.65',creditSecondary:'£3,500.00 equivalent',blockedAmount:'€4,727.40',blockedSecondary:'£4,018.29 equivalent',oldest:'96 days',buckets:'3',invoices:'3',disputes:'2',disputeAmount:'€16,705.88',disputeSecondary:'£14,200.00 equivalent'}
+    };
+    const agingData={all:[['>90 days','£9.1K'],['61–90 days','£41.3K'],['31–60 days','£10.8K'],['1–30 days','£30.8K']],'GB-11':[['>90 days','£8.0K'],['61–90 days','£25.0K'],['31–60 days','£9.0K'],['1–30 days','£18.0K']],'GB-95':[['>90 days','€1.3K'],['61–90 days','€19.2K'],['31–60 days','€2.1K'],['1–30 days','€15.1K']]};
+    let currentScope='all';
+    function setScope(code){
+      currentScope=code;const value=values[code],scope=code==='all'?'All codes':'Code '+code;
+      document.getElementById('scopeSummary').textContent=value.summary;
+      document.getElementById('scopeCurrency').textContent=value.currency;
+      document.getElementById('kpiOverdue').textContent=value.overdue;
+      document.getElementById('kpiEom').textContent=value.eom;
+      document.getElementById('kpiBlocked').textContent=value.blocked;
+      document.getElementById('kpiCredit').textContent=value.credit;
+      document.getElementById('kpiBlockedAmount').textContent=value.blockedAmount;
+      document.getElementById('kpiDisputedAmount').textContent=value.disputeAmount;
+      document.getElementById('kpiOverdueSecondary').textContent=value.overdueSecondary;
+      document.getElementById('kpiEomSecondary').textContent=value.eomSecondary;
+      document.getElementById('kpiCreditSecondary').textContent=value.creditSecondary;
+      document.getElementById('kpiBlockedSecondary').textContent=value.blockedSecondary;
+      document.getElementById('kpiDisputeSecondary').textContent=value.disputeSecondary;
+      document.querySelectorAll('.code-scope').forEach(tag=>tag.textContent=scope);
+      document.getElementById('openItemsScope').textContent=scope;
+      document.getElementById('agingScope').textContent=scope;
+      document.getElementById('disputesScope').textContent=scope;
+      document.getElementById('agingOldest').textContent=value.oldest;
+      document.getElementById('agingBuckets').textContent=value.buckets;
+      document.getElementById('agingInvoices').textContent=value.invoices;
+      document.getElementById('agingBars').innerHTML=agingData[code].map(item=>'<div><span>'+item[0]+'</span><strong>'+item[1]+'</strong></div>').join('');
+      document.getElementById('disputeCount').textContent=value.disputes;
+      document.getElementById('disputeAmount').textContent=value.disputeAmount;
+      document.getElementById('disputeSecondary').textContent=value.disputeSecondary;
+      document.querySelectorAll('.item-row').forEach(row=>row.hidden=code!=='all'&&row.dataset.code!==code);
+      const action=document.getElementById('emailAction'),optionalAction=document.getElementById('optionalAction');
+      if(code==='all'){action.setAttribute('disabled','');optionalAction.setAttribute('disabled','')}else{action.removeAttribute('disabled');optionalAction.removeAttribute('disabled')}
+      action.textContent=code==='all'?'Select a Company Code':'Send Credit Note Copies';
+      if(code==='all')closeEmailPanel();
+      document.getElementById('nbaEyebrow').innerHTML=code==='all'?'Next Best Action <span class="scope-pill company-level">Company code required</span>':'Next Best Action <span class="scope-pill company-level">Code '+code+'</span>';
+      document.getElementById('nbaTitle').textContent=code==='all'?'Choose the company code to act on':'Send Credit Note Copies for '+code;
+      document.getElementById('nbaCopy').textContent=code==='all'?'Select a company code to review the relevant balance and action.':(code==='GB-11'?'£60,000.00 is overdue in GBP. The action and email are scoped only to company code GB-11.':'€37,661.09 is overdue in EUR. The action and email are scoped only to company code GB-95.');
+    }
+    document.getElementById('scopeControl').addEventListener('selection-change',event=>{const code=event.detail.selectedItems[0].dataset.code;history.replaceState(null,'','?customer=92823'+(code==='all'?'':'&company='+code));setScope(code)});
+    const emailContent={'GB-11':{subject:'Company code GB-11 · overdue invoices',body:'<p>Good Morning,</p><p>Please note that company code <strong>GB-11</strong> has overdue invoices totalling <strong>£60,000.00</strong>.</p><h4>Overdue Invoices</h4><table><thead><tr><th>Company Code</th><th>Invoice</th><th>Open Amount</th><th>Due Date</th></tr></thead><tbody><tr><td>GB-11</td><td>90001894</td><td>£60,000.00</td><td>15 Dec 2025</td></tr></tbody></table><p>Kind regards,<br>Jordan Lee</p>'},'GB-95':{subject:'Company code GB-95 · EUR overdue invoices',body:'<p>Good Morning,</p><p>Please note that company code <strong>GB-95</strong> has overdue invoices totalling <strong>€37,661.09</strong>.</p><h4>Overdue Invoices</h4><table><thead><tr><th>Company Code</th><th>Invoice</th><th>Open Amount</th><th>Due Date</th></tr></thead><tbody><tr><td>GB-95</td><td>90002731</td><td>€37,661.09</td><td>20 Dec 2025</td></tr></tbody></table><p>Kind regards,<br>Jordan Lee</p>'}};
+    setScope('all');
+    function openEmailPanel(){if(currentScope==='all')return;const content=emailContent[currentScope],panel=document.getElementById('emailPanel'),shellbar=document.querySelector('app-shellbar ui5-shellbar')||document.querySelector('ui5-shellbar');document.getElementById('emailPanelHeader').textContent='Email JKL Foods Limited · Company code '+currentScope;document.getElementById('emailSubject').value=content.subject;document.getElementById('emailMessage').innerHTML=content.body;panel.style.top=((shellbar&&shellbar.getBoundingClientRect().bottom)||44)+'px';panel.classList.add('open');panel.setAttribute('aria-hidden','false')}
+    function closeEmailPanel(){const panel=document.getElementById('emailPanel');panel.classList.remove('open');panel.setAttribute('aria-hidden','true')}
+    document.getElementById('emailAction').addEventListener('click',openEmailPanel);document.getElementById('cancelEmail').addEventListener('click',closeEmailPanel);document.getElementById('sendEmail').addEventListener('click',()=>{closeEmailPanel();document.getElementById('emailAction').textContent='Email queued';document.getElementById('emailAction').disabled=true});document.addEventListener('keydown',event=>{if(event.key==='Escape')closeEmailPanel()});
+    document.getElementById('historyFilter').addEventListener('change',event=>{const scope=event.currentTarget.selectedOption.value;document.querySelectorAll('.history-event').forEach(item=>item.hidden=scope!=='all'&&item.dataset.scope!==scope)});
+    // Deep-link scope is applied by customer-aligned.js after the aligned view is mounted.
+  </script>
+  <script src="customer-aligned.js"></script>
+</body>
+</html>

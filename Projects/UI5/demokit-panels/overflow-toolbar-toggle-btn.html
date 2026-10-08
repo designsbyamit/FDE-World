@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Overflow Toolbar Toggle Button</title>
+  <script src="panel-init.js"></script>
+  <script type="module" src="../../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 600; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 300; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Light.woff2") format("woff2"); }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "72", sans-serif; font-size: 0.875rem; background: var(--sapBackgroundColor, #f5f6f7); padding: 2rem; color: var(--sapTextColor, #131e29); }
+    .panel-title { font-size: 1.5rem; font-weight: 700; color: #131e29; margin-bottom: 0.375rem; }
+    .panel-subtitle { font-size: 0.8125rem; color: var(--sapContent_LabelColor, #6a7588); margin-bottom: 2rem; }
+    .demo-section { background: #fff; border: 1px solid var(--sapList_BorderColor, #e5e5e5); border-radius: 8px; margin-bottom: 1.25rem; overflow: hidden; }
+    .demo-section-header { padding: 0.75rem 1rem; border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5); font-size: 0.8125rem; font-weight: 600; color: var(--sapContent_LabelColor, #6a7588); display: flex; align-items: center; justify-content: space-between; }
+    .demo-section-tag { font-family: monospace; font-size: 0.75rem; color: #0064d9; font-weight: 400; }
+    .demo-section-body { padding: 1.25rem 1rem; display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: flex-start; }
+    .demo-section-body.column { flex-direction: column; }
+    .demo-section-body.block { display: block; padding: 0; }
+  </style>
+</head>
+<body>
+  <div class="panel-title">Overflow Toolbar Toggle Button</div>
+  <div class="panel-subtitle">A toggle button inside a toolbar that shows only its icon when space is available, but reveals its text label when moved to the overflow area. Equivalent to sap.m.OverflowToolbarToggleButton — rendered using ui5-toggle-button.</div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">
+      In a Footer Toolbar (with overflow mix)
+      <span class="demo-section-tag">ui5-toggle-button in toolbar context</span>
+    </div>
+    <div class="demo-section-body block" style="padding:0;">
+      <div style="border:1px solid var(--sapList_BorderColor,#e5e5e5); border-radius:8px; overflow:hidden;">
+        <div style="padding:1.25rem; background:var(--sapBackgroundColor,#f5f6f7);">
+          <ui5-message-strip design="Information">The Toggle button in the footer switches between pressed/unpressed. In overflow, it shows its text label.</ui5-message-strip>
+        </div>
+        <div style="display:flex; align-items:center; justify-content:flex-end; gap:0.5rem; padding:0.625rem 1rem; background:#fff; border-top:1px solid var(--sapList_BorderColor,#e5e5e5); flex-wrap:wrap;">
+          <ui5-button design="Positive">Accept</ui5-button>
+          <ui5-button design="Negative">Reject</ui5-button>
+          <ui5-button design="Transparent" icon="delete" tooltip="Delete">Delete</ui5-button>
+          <ui5-button design="Transparent" icon="edit" tooltip="Edit">Edit</ui5-button>
+          <ui5-button design="Transparent" icon="add" tooltip="Add">Add</ui5-button>
+          <ui5-button design="Transparent" icon="favorite" tooltip="Favorite">Favorite</ui5-button>
+          <ui5-button design="Transparent" icon="flag" tooltip="Flag">Flag</ui5-button>
+          <ui5-toggle-button id="ottb-footer-toggle" icon="touch" tooltip="Toggle">Toggle</ui5-toggle-button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">
+      Toggle Button States in Toolbar
+      <span class="demo-section-tag">Unpressed · Pressed · Disabled</span>
+    </div>
+    <div class="demo-section-body block" style="padding:0.75rem 1rem;">
+      <ui5-toolbar>
+        <ui5-toggle-button icon="touch" tooltip="Touch">Touch</ui5-toggle-button>
+        <ui5-toggle-button icon="bookmark" tooltip="Bookmark" pressed>Bookmark</ui5-toggle-button>
+        <ui5-toggle-button icon="favorite" tooltip="Favourite" pressed>Favourite</ui5-toggle-button>
+        <ui5-toggle-button icon="flag" tooltip="Flag" disabled>Flag</ui5-toggle-button>
+        <ui5-toggle-button icon="filter" tooltip="Filter">Filter</ui5-toggle-button>
+      </ui5-toolbar>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">
+      Event Feedback
+      <span class="demo-section-tag">press event — tracks pressed state</span>
+    </div>
+    <div class="demo-section-body" style="gap:0.75rem; align-items:center;">
+      <ui5-toggle-button id="ottb-event" icon="touch" tooltip="Toggle">Toggle</ui5-toggle-button>
+      <span id="ottb-feedback" style="font-size:0.875rem; color:var(--sapContent_LabelColor,#6a7588); font-style:italic;">Not pressed</span>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('ottb-event').addEventListener('click', function() {
+      var pressed = this.hasAttribute('pressed');
+      var fb = document.getElementById('ottb-feedback');
+      fb.textContent = pressed ? 'State: Pressed' : 'State: Not pressed';
+      fb.style.color = pressed ? 'var(--sapPositiveColor,#196800)' : 'var(--sapContent_LabelColor,#6a7588)';
+      fb.style.fontStyle = 'normal';
+    });
+  </script>
+</body>
+</html>

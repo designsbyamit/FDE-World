@@ -1,0 +1,1434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" href="../../lib/assets/favicon.ico">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vendor Profile — Meridian Supply Co. | BestRun Vendor Portal</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --br-purple:       #6D2077;
+      --br-purple-dark:  #521859;
+      --br-purple-light: #f3eaf5;
+      --br-teal:         #00A3A1;
+      --br-text:         #1a1a2e;
+      --br-text-muted:   #6b7280;
+      --br-border:       #e5e7eb;
+      --br-bg:           #f9fafb;
+      --br-white:        #ffffff;
+      --radius-sm:           4px;
+      --radius-md:           8px;
+      --radius-lg:           12px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html {
+      overflow-x: clip;
+    }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--br-bg);
+      color: var(--br-text);
+      min-height: 100vh;
+    }
+
+    /* ── Top nav ── */
+    .topnav {
+      background: var(--br-white);
+      padding: 0 2.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 60px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 1px 0 var(--br-border), 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .topnav-logo {
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+    }
+    .topnav-logo img {
+      height: 28px;
+      width: auto;
+      display: block;
+    }
+    .topnav-right {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+    .topnav-right a {
+      color: var(--br-text-muted);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      transition: color 0.15s;
+    }
+    .topnav-right a:hover { color: var(--br-purple); }
+    .topnav-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: var(--br-purple-light);
+      border: 2px solid var(--br-purple);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--br-purple);
+      cursor: pointer;
+    }
+
+    /* ── Page header ── */
+    .page-header {
+      background: var(--br-white);
+      border-bottom: 1px solid var(--br-border);
+      padding: 1.25rem 2.5rem 1.5rem;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      position: sticky;
+      top: 60px;
+      z-index: 90;
+      transition: padding 0.25s ease, box-shadow 0.25s ease;
+    }
+    .page-header.compact {
+      padding: 0.625rem 2.5rem;
+      align-items: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    }
+    .page-header.compact .breadcrumb,
+    .page-header.compact .page-subtitle { display: none; }
+    .page-header.compact .page-title { font-size: 16px; }
+    .page-header.compact .page-header-left { display: flex; align-items: center; }
+    .page-header-left { flex: 1; }
+    .page-edit-footer {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: var(--br-white);
+      border-top: 1px solid var(--br-border);
+      padding: 1rem 2.5rem;
+      display: none;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 0.75rem;
+      z-index: 90;
+    }
+
+    /* Edit mode: lock page scroll, let page-scroll (full-width) scroll between sticky header and footer */
+    body.editing {
+      overflow: hidden;
+    }
+    .page-scroll {
+      /* full-width wrapper — scrollbar sits at browser edge */
+    }
+    body.editing .page-scroll {
+      overflow-y: auto;
+      height: calc(100vh - 60px - 52px - 68px);
+      padding-bottom: 1rem;
+    }
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      font-size: 12px;
+      color: var(--br-text-muted);
+      margin-bottom: 0.5rem;
+    }
+    .breadcrumb a { color: var(--br-purple); text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+    .breadcrumb-sep { opacity: 0.4; }
+    .page-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--br-text);
+      letter-spacing: -0.01em;
+    }
+    .page-subtitle {
+      font-size: 13px;
+      color: var(--br-text-muted);
+      margin-top: 0.2rem;
+    }
+
+    /* ── Layout ── */
+    .page-body {
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 2rem 2.5rem 5rem;
+      position: relative;
+    }
+
+    /* ── Inline messages ── */
+    .inline-message {
+      display: none;
+      align-items: flex-start;
+      gap: 0.625rem;
+      padding: 0.875rem 1.125rem;
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      margin-bottom: 1.25rem;
+      line-height: 1.5;
+    }
+    .inline-message.success {
+      background: #f0fdf4;
+      border: 1px solid #86efac;
+      color: #166534;
+    }
+    .inline-message.info {
+      background: #fdf8ff;
+      border: 1px solid #c084fc;
+      color: #6b21a8;
+    }
+    .inline-message.show { display: flex; }
+    .inline-message-icon { flex-shrink: 0; margin-top: 1px; }
+
+    /* ── Section card ── */
+    .section-card {
+      background: var(--br-white);
+      border: 1px solid var(--br-border);
+      border-radius: var(--radius-lg);
+      margin-bottom: 1.25rem;
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--br-border);
+    }
+    .section-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--br-text);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .section-title-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--br-purple);
+      flex-shrink: 0;
+    }
+    .section-body { padding: 1.5rem; }
+
+    /* ── Form grid ── */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem 2rem;
+    }
+    .form-field { display: flex; flex-direction: column; gap: 0.3rem; }
+    .form-field label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--br-text-muted);
+    }
+    .field-value {
+      font-size: 14px;
+      color: var(--br-text);
+      padding: 0.45rem 0;
+      border-bottom: 1px solid var(--br-border);
+      font-weight: 500;
+      min-height: 34px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+    .field-updated-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 10px;
+      font-weight: 600;
+      color: #15803d;
+      background: #dcfce7;
+      border-radius: 4px;
+      padding: 1px 6px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .form-field input,
+    .form-field select {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 14px;
+      color: var(--br-text);
+      background: var(--br-white);
+      border: 1px solid #d1d5db;
+      border-radius: var(--radius-sm);
+      padding: 0.45rem 0.75rem;
+      width: 100%;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      height: 36px;
+    }
+    .form-field input:focus,
+    .form-field select:focus {
+      border-color: var(--br-purple);
+      box-shadow: 0 0 0 3px rgba(109,32,119,0.1);
+    }
+    .form-field select { cursor: pointer; appearance: auto; }
+
+    /* ── Section actions ── */
+
+    /* ── Buttons ── */
+    .btn {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: var(--radius-sm);
+      padding: 0.45rem 1.125rem;
+      cursor: pointer;
+      border: none;
+      transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+      height: 34px;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+    }
+    .btn-primary {
+      background: var(--br-purple);
+      color: #fff;
+    }
+    .btn-primary:hover { background: var(--br-purple-dark); box-shadow: 0 2px 6px rgba(109,32,119,0.25); }
+    .btn-ghost {
+      background: transparent;
+      color: var(--br-text-muted);
+      border: 1px solid var(--br-border);
+    }
+    .btn-ghost:hover { background: #f3f4f6; color: var(--br-text); }
+    .btn-edit {
+      background: transparent;
+      color: var(--br-purple);
+      border: 1px solid var(--br-purple);
+      font-size: 12px;
+      height: 28px;
+      padding: 0 0.75rem;
+    }
+    .btn-edit:hover { background: var(--br-purple-light); }
+
+    /* ── Next chapter floating card ── */
+    .next-chapter-card {
+      position: fixed;
+      right: 2rem;
+      top: 50%;
+      transform: translateY(-50%) translateX(calc(100% + 6rem));
+      width: 300px;
+      background: transparent;
+      border: none;
+      border-radius: var(--radius-lg);
+      box-shadow: none;
+      padding: 1.25rem;
+      z-index: 300;
+      transition: transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .next-chapter-card.visible {
+      transform: translateY(-50%) translateX(0);
+    }
+    .next-chapter-card * { visibility: hidden; }
+    .next-chapter-card-eyebrow {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #a78bfa;
+      margin-bottom: 0.625rem;
+    }
+    .next-chapter-card-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 0.5rem;
+      line-height: 1.3;
+    }
+    .next-chapter-card-body {
+      font-size: 12.5px;
+      color: rgba(255,255,255,0.55);
+      line-height: 1.55;
+      margin-bottom: 1rem;
+    }
+    .next-chapter-card-divider {
+      height: 1px;
+      background: rgba(255,255,255,0.1);
+      margin-bottom: 1rem;
+    }
+    .next-chapter-persona {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+    .next-chapter-avatar {
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #7c3aed, #a855f7);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .next-chapter-persona-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: #fff;
+      line-height: 1.3;
+    }
+    .next-chapter-persona-role {
+      font-size: 11.5px;
+      color: rgba(255,255,255,0.45);
+      margin-top: 0.1rem;
+    }
+    .next-chapter-btn {
+      width: 100%;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: #fff;
+      background: #7c3aed;
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 0.6rem 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.375rem;
+      transition: background 0.15s;
+    }
+    .next-chapter-btn:hover { background: #6d28d9; }
+
+    /* ── Fade to black transition ── */
+    .fade-overlay {
+      position: fixed;
+      inset: 0;
+      background: #000;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 999;
+      transition: opacity 1.1s ease;
+    }
+    .fade-overlay.fade-in { opacity: 1; pointer-events: all; }
+
+    /* ── Pending diff view ── */
+    .field-pending-diff {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.1rem;
+    }
+    .field-pending-diff-current {
+      flex: 1;
+      min-width: 0;
+    }
+    .field-pending-diff-current-label {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--br-text-muted);
+      margin-bottom: 0.2rem;
+    }
+    .field-pending-diff-current-val {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--br-text);
+      text-decoration: line-through;
+      text-decoration-color: #d1d5db;
+      opacity: 0.6;
+    }
+    .field-pending-diff-arrow {
+      color: #d97706;
+      font-size: 14px;
+      flex-shrink: 0;
+      line-height: 1;
+      margin-top: 1rem;
+    }
+    .field-pending-diff-new {
+      flex: 1;
+      min-width: 0;
+    }
+    .field-pending-diff-new-label {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #b45309;
+      margin-bottom: 0.2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    .field-pending-diff-new-val {
+      font-size: 14px;
+      font-weight: 600;
+      color: #92400e;
+      background: #fffbeb;
+      border: 1px solid #fcd34d;
+      border-radius: 4px;
+      padding: 0.2rem 0.5rem;
+      display: inline-block;
+    }
+    .field-updated-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-size: 11px;
+      font-weight: 600;
+      color: #166534;
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 4px;
+      padding: 0.15rem 0.5rem;
+      margin-top: 0.3rem;
+      width: fit-content;
+    }
+    .field-updated-tag-dot {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: #22c55e;
+      flex-shrink: 0;
+    }
+    /* ── Dialog ── */
+    .dialog-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.35);
+      z-index: 500;
+      align-items: center;
+      justify-content: center;
+    }
+    .dialog-overlay.open { display: flex; }
+    .dialog-box {
+      background: var(--br-white);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.18);
+      width: 700px;
+      max-width: calc(100vw - 2rem);
+      overflow: hidden;
+      animation: dialog-in 0.35s ease;
+    }
+    @keyframes dialog-in {
+      from { opacity: 0; transform: translateY(-12px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .dialog-header {
+      display: flex;
+      align-items: center;
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--br-border);
+      background: var(--br-white);
+    }
+    .dialog-icon { display: none; }
+    .dialog-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--br-text);
+    }
+    .dialog-body {
+      padding: 1.25rem 1.5rem;
+      font-size: 13.5px;
+      color: var(--br-text-muted);
+      line-height: 1.6;
+    }
+    .dialog-footer {
+      display: flex;
+      justify-content: flex-end;
+      padding: 0.875rem 1.5rem;
+      border-top: 1px solid var(--br-border);
+      background: #fafafa;
+    }
+    /* ── Tax ID upload section inside dialog ── */
+    .tax-upload-notice {
+      display: flex; align-items: flex-start; gap: 0.5rem;
+      padding: 0.5rem 0 0;
+      font-size: 12.5px; color: #6b21a8; line-height: 1.5;
+      margin-top: 0.375rem;
+    }
+    .tax-upload-notice svg { flex-shrink: 0; margin-top: 1px; }
+    .tax-upload-zone {
+      border: 2px dashed #d1d5db; border-radius: var(--radius-md);
+      padding: 1.25rem 1rem; text-align: center;
+      cursor: pointer; transition: border-color 0.15s, background 0.15s, opacity 0.25s;
+      margin-top: 0.5rem;
+    }
+    .tax-upload-label { font-size: 13px; font-weight: 600; color: var(--br-text); }
+    .tax-upload-hint { font-size: 11.5px; color: var(--br-text-muted); margin-top: 0.2rem; }
+    .tax-upload-hint span { color: var(--br-purple); font-weight: 500; }
+    .tax-file-pill {
+      display: none; align-items: center; gap: 0.5rem;
+      background: var(--br-purple-light); border: 1px solid #c084fc;
+      border-radius: var(--radius-md); padding: 0.5rem 0.75rem; margin-top: 0.625rem;
+      opacity: 0; transition: opacity 0.35s ease;
+    }
+    .tax-file-pill.show { display: flex; }
+    .tax-file-pill-name { font-size: 12.5px; font-weight: 500; color: var(--br-purple); flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .tax-file-pill-remove { background: none; border: none; cursor: pointer; color: var(--br-text-muted); padding: 0; line-height: 1; }
+    .tax-file-pill-remove:hover { color: #dc2626; }
+    /* ── Dialog success state ── */
+    .dialog-success {
+      display: none; flex-direction: column; align-items: center;
+      text-align: center; padding: 2.5rem 2rem;
+    }
+    .dialog-success.show { display: flex; }
+    .dialog-success-circle {
+      width: 56px; height: 56px; border-radius: 50%;
+      background: #f0fdf4; border: 2px solid #86efac;
+      display: flex; align-items: center; justify-content: center; margin-bottom: 1rem;
+    }
+    .dialog-success-title { font-size: 16px; font-weight: 700; color: var(--br-text); margin-bottom: 0.5rem; }
+    .dialog-success-body { font-size: 13.5px; color: var(--br-text-muted); line-height: 1.6; max-width: 380px; }
+  </style>
+</head>
+<body>
+
+  <!-- Top Nav -->
+  <nav class="topnav">
+    <a class="topnav-logo" href="#">
+      <span style="font-family:'Inter',sans-serif; font-size:1.125rem; font-weight:800; letter-spacing:-0.03em; color:#6D2077;">Best<span style="color:#1a1a2e;">Run</span></span>
+      <span style="font-size:13px; font-weight:500; color:var(--br-text-muted); margin-left:0.75rem; padding-left:0.75rem; border-left:1px solid var(--br-border);">Vendor Portal</span>
+    </a>
+    <div class="topnav-right">
+      <a href="#">Dashboard</a>
+      <a href="#">Company Profile</a>
+      <a href="#">Documents</a>
+      <a href="#">Support</a>
+      <div class="topnav-avatar">JW</div>
+    </div>
+  </nav>
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="breadcrumb">
+        <a href="#">Vendor Portal</a>
+        <span class="breadcrumb-sep">›</span>
+        <span>Company Profile</span>
+      </div>
+      <div class="page-title">Meridian Supply Co.</div>
+      <div class="page-subtitle">Vendor ID: VND-00482 &nbsp;·&nbsp; Last updated: April 10, 2026</div>
+    </div>
+    <button class="btn btn-edit" id="editPageBtn" onclick="enterEditMode()" style="margin-top:0.25rem; flex-shrink:0;">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      Edit
+    </button>
+  </div>
+
+  <!-- Page Scroll Wrapper (full-width — scrollbar at browser edge in edit mode) -->
+  <div class="page-scroll" id="pageScroll">
+  <!-- Page Body -->
+  <div class="page-body">
+
+    <div class="inline-message success" id="msgSuccess">
+      <span class="inline-message-icon">
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="10" fill="#22c55e"/><path d="M5.5 10.5l3 3 6-6" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </span>
+      <span>Your phone number has been updated successfully.</span>
+    </div>
+    <div class="inline-message info" id="msgPending">
+      <span class="inline-message-icon">
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="10" fill="#6D2077"/><path d="M10 6v4.5M10 13.5v.5" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </span>
+      <span>Your request has been submitted. Some changes require internal approval before they take effect — we'll notify you by email once complete.</span>
+    </div>
+
+    <!-- General Details -->
+    <div class="section-card">
+      <div class="section-header">
+        <span class="section-title">General Details</span>
+      </div>
+      <div class="section-body">
+        <div class="form-grid" id="generalView">
+          <div class="form-field"><label>Vendor Legal Name</label><div class="field-value" data-risk="low">Meridian Supply Co.</div></div>
+          <div class="form-field"><label>Vendor Trading Name</label><div class="field-value" data-risk="low">Meridian Supply</div></div>
+          <div class="form-field"><label>Street</label><div class="field-value" data-risk="low">1450 Industrial Pkwy</div></div>
+          <div class="form-field"><label>House No.</label><div class="field-value" data-risk="low">Suite 300</div></div>
+          <div class="form-field"><label>City</label><div class="field-value" data-risk="low">Cincinnati</div></div>
+          <div class="form-field"><label>State</label><div class="field-value" data-risk="low">Ohio</div></div>
+          <div class="form-field"><label>Country</label><div class="field-value" data-risk="low">United States</div></div>
+          <div class="form-field"><label>Postal Code</label><div class="field-value" data-risk="low">45202</div></div>
+        </div>
+        <div class="form-grid" id="generalEdit" style="display:none">
+          <div class="form-field"><label>Vendor Legal Name</label><input type="text" data-risk="low" value="Meridian Supply Co."></div>
+          <div class="form-field"><label>Vendor Trading Name</label><input type="text" data-risk="low" value="Meridian Supply"></div>
+          <div class="form-field"><label>Street</label><input type="text" data-risk="low" value="1450 Industrial Pkwy"></div>
+          <div class="form-field"><label>House No.</label><input type="text" data-risk="low" value="Suite 300"></div>
+          <div class="form-field"><label>City</label><input type="text" data-risk="low" value="Cincinnati"></div>
+          <div class="form-field"><label>State</label><input type="text" data-risk="low" value="Ohio"></div>
+          <div class="form-field"><label>Country</label><select data-risk="low"><option>Germany</option><option>Austria</option><option>Switzerland</option><option>France</option><option>Netherlands</option><option selected>United States</option></select></div>
+          <div class="form-field"><label>Postal Code</label><input type="text" data-risk="low" value="45202"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Vendor Contact Details -->
+    <div class="section-card">
+      <div class="section-header">
+        <span class="section-title">Vendor Contact Details</span>
+      </div>
+      <div class="section-body">
+        <div class="form-grid" id="contactView">
+          <div class="form-field"><label>Phone</label><div class="field-value" data-risk="low">+1 513 555 0142</div></div>
+          <div class="form-field"><label>Fax</label><div class="field-value" data-risk="low">+1 513 555 0143</div></div>
+          <div class="form-field"><label>Supplier Contact Name</label><div class="field-value" data-risk="low">James Whitfield</div></div>
+          <div class="form-field"><label>Email for POs</label><div class="field-value" data-risk="high">orders@meridiansupply.com</div></div>
+          <div class="form-field"><label>Email for Payment Advice</label><div class="field-value" data-risk="low">payments@meridiansupply.com</div></div>
+        </div>
+        <div class="form-grid" id="contactEdit" style="display:none">
+          <div class="form-field"><label>Phone</label><input type="text" data-risk="low" value="+1 513 555 0142"></div>
+          <div class="form-field"><label>Fax</label><input type="text" data-risk="low" value="+1 513 555 0143"></div>
+          <div class="form-field"><label>Supplier Contact Name</label><input type="text" data-risk="low" value="James Whitfield"></div>
+          <div class="form-field"><label>Email for POs</label><input type="text" data-risk="high" value="orders@meridiansupply.com"></div>
+          <div class="form-field"><label>Email for Payment Advice</label><input type="text" data-risk="low" value="payments@meridiansupply.com"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Vendor Identification -->
+    <div class="section-card">
+      <div class="section-header">
+        <span class="section-title">Vendor Identification</span>
+      </div>
+      <div class="section-body">
+        <div class="form-grid" id="identView">
+          <div class="form-field"><label>Local Tax ID</label><div class="field-value" data-risk="medium">31-1482930</div></div>
+          <div class="form-field"><label>VAT Number</label><div class="field-value" data-risk="medium">US314829300</div></div>
+        </div>
+        <div class="form-grid" id="identEdit" style="display:none">
+          <div class="form-field"><label>Local Tax ID</label><input type="text" data-risk="medium" value="31-1482930"></div>
+          <div class="form-field"><label>VAT Number</label><input type="text" data-risk="medium" value="US314829300"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bank Details -->
+    <div class="section-card">
+      <div class="section-header">
+        <span class="section-title">Bank Details</span>
+      </div>
+      <div class="section-body">
+        <div class="form-grid" id="bankView">
+          <div class="form-field"><label>Bank Country</label><div class="field-value" data-risk="high">United States</div></div>
+          <div class="form-field"><label>IBAN</label><div class="field-value" data-risk="high">US44 0420 0000 0010 0023 600</div></div>
+          <div class="form-field"><label>SWIFT</label><div class="field-value" data-risk="high">USBKUS44</div></div>
+          <div class="form-field"><label>Bank Key</label><div class="field-value" data-risk="high">042000013</div></div>
+          <div class="form-field"><label>Bank Name</label><div class="field-value" data-risk="high">Fifth Third Bank</div></div>
+          <div class="form-field"><label>Account Number</label><div class="field-value" data-risk="high">7892340156</div></div>
+          <div class="form-field"><label>Bank Address</label><div class="field-value" data-risk="high">38 Fountain Square Plaza, Cincinnati, OH</div></div>
+          <div class="form-field"><label>Branch Name</label><div class="field-value" data-risk="high">Cincinnati Downtown</div></div>
+          <div class="form-field"><label>Account Holder</label><div class="field-value" data-risk="high">Meridian Supply Co.</div></div>
+          <div class="form-field"><label>Bank Account Currency</label><div class="field-value" data-risk="high">USD</div></div>
+        </div>
+        <div class="form-grid" id="bankEdit" style="display:none">
+          <div class="form-field"><label>Bank Country</label><select data-risk="high"><option>Germany</option><option>Austria</option><option>Switzerland</option><option>France</option><option>Netherlands</option><option selected>United States</option></select></div>
+          <div class="form-field"><label>IBAN</label><input type="text" data-risk="high" value="US44 0420 0000 0010 0023 600"></div>
+          <div class="form-field"><label>SWIFT</label><input type="text" data-risk="high" value="USBKUS44"></div>
+          <div class="form-field"><label>Bank Key</label><input type="text" data-risk="high" value="042000013"></div>
+          <div class="form-field"><label>Bank Name</label><input type="text" data-risk="high" value="Fifth Third Bank"></div>
+          <div class="form-field"><label>Account Number</label><input type="text" data-risk="high" value="7892340156"></div>
+          <div class="form-field"><label>Bank Address</label><input type="text" data-risk="high" value="38 Fountain Square Plaza, Cincinnati, OH"></div>
+          <div class="form-field"><label>Branch Name</label><input type="text" data-risk="high" value="Cincinnati Downtown"></div>
+          <div class="form-field"><label>Account Holder</label><input type="text" data-risk="high" value="Meridian Supply Co."></div>
+          <div class="form-field"><label>Bank Account Currency</label><select data-risk="high"><option selected>USD</option><option>EUR</option><option>GBP</option><option>CHF</option></select></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /.page-body -->
+  </div><!-- /.page-scroll -->
+
+  <!-- Sticky edit footer -->
+  <div class="page-edit-footer" id="pageEditFooter">
+    <button class="btn btn-ghost" onclick="cancelAllEdits()">Cancel</button>
+    <button class="btn btn-primary" onclick="submitAllEdits()">Save Changes</button>
+  </div>
+
+  <!-- Invisible click target over the next-chapter card -->
+  <a id="nextChapterClickTarget" href="what-happens-next.html" target="_blank"
+     style="display:none; position:fixed; right:2rem; top:50%; transform:translateY(-50%); width:300px; height:100%; max-height:340px; z-index:301; cursor:pointer; border-radius:12px;"></a>
+
+  <!-- Next Chapter Floating Card -->
+  <div class="next-chapter-card" id="nextChapterCard">
+    <div style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:0.625rem;">
+      <div class="next-chapter-card-eyebrow" style="margin-bottom:0;">What happens next</div>
+      <button onclick="resetPage()" style="background:none; border:none; cursor:pointer; color:rgba(255,255,255,0.4); padding:0; line-height:1; margin-top:-2px; flex-shrink:0;" title="Close and reset">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="next-chapter-card-title">Meanwhile, at BestRun HQ&hellip;</div>
+    <div class="next-chapter-card-body">The approver has just received an email requesting their review of the submitted changes.</div>
+    <div class="next-chapter-card-divider"></div>
+    <div class="next-chapter-persona">
+      <div class="next-chapter-avatar" id="nextChapterAvatar">MS</div>
+      <div>
+        <div class="next-chapter-persona-name" id="nextChapterName">Linda Wei</div>
+        <div class="next-chapter-persona-role" id="nextChapterRole">Vendor Master Data Manager &nbsp;·&nbsp; BestRun</div>
+      </div>
+    </div>
+    <button class="next-chapter-btn" onclick="startSceneTransition()">
+      View her inbox &nbsp;&rarr;
+    </button>
+  </div>
+
+  <!-- Fade overlay -->
+  <div class="fade-overlay" id="fadeOverlay"></div>
+
+  <!-- Unified Save Dialog -->
+  <div class="dialog-overlay" id="saveDialog">
+    <div class="dialog-box">
+
+      <!-- Progress state -->
+      <div id="saveDialogProgress" style="padding: 2rem 1.5rem; text-align: center;">
+        <div style="font-size:13.5px; font-weight:600; color:var(--br-text); margin-bottom:1.25rem;" id="saveDialogProgressLabel">Saving changes…</div>
+        <div style="height:6px; background:#f0f0f0; border-radius:3px; overflow:hidden;">
+          <div id="saveDialogBar" style="height:100%; width:0%; background:linear-gradient(90deg,var(--br-purple),#a855f7); border-radius:3px; transition:width 1.4s cubic-bezier(0.4,0,0.2,1);"></div>
+        </div>
+      </div>
+
+      <!-- Confirmation state (hidden initially) -->
+      <div id="saveDialogConfirm" style="display:none;">
+        <div class="dialog-header" id="saveDialogHeader">
+          <div class="dialog-icon" id="saveDialogIcon"></div>
+          <div class="dialog-title" id="saveDialogTitle"></div>
+        </div>
+        <div class="dialog-body" id="saveDialogBody"></div>
+        <!-- Tax ID upload section -->
+        <div id="taxUploadSection" style="display:none; padding: 0 1.5rem 1.75rem; margin-top:-14px;">
+          <div class="tax-upload-notice">
+            <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="10" fill="#6D2077"/><path d="M10 6v4.5M10 13.5v.5" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg>
+            We need to verify the following documents before making changes.
+          </div>
+          <div class="tax-upload-zone" id="taxUploadZone" onclick="document.getElementById('taxFileInput').click()">
+            <input type="file" id="taxFileInput" accept=".pdf,.jpg,.jpeg,.png" style="display:none;">
+            <div class="tax-upload-label">Upload supporting Tax ID documents to verify Tax ID change</div>
+            <div class="tax-upload-hint">Drag & drop or <span>browse</span> &nbsp;·&nbsp; PDF, JPG, PNG</div>
+          </div>
+          <div class="tax-file-pill" id="taxFilePill" style="display:none;">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#6D2077" stroke-width="2" style="flex-shrink:0;margin-top:2px;"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:#6D2077;margin-bottom:1px;">Tax ID Document</div>
+              <div class="tax-file-pill-name" id="taxFilePillName"></div>
+            </div>
+            <button class="tax-file-pill-remove" onclick="removeTaxFile()">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1a1a2e" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Bank Account upload section -->
+        <div id="bankUploadSection" style="display:none; padding: 0 1.5rem 1.75rem; margin-top:-0.75rem;">
+          <div class="tax-upload-zone" id="bankUploadZone" onclick="document.getElementById('bankFileInput').click()">
+            <input type="file" id="bankFileInput" accept=".pdf,.jpg,.jpeg,.png" style="display:none;">
+            <div class="tax-upload-label">Upload Bank Account Details document to verify bank changes</div>
+            <div class="tax-upload-hint">Drag & drop or <span>browse</span> &nbsp;·&nbsp; PDF, JPG, PNG</div>
+          </div>
+          <div class="tax-file-pill" id="bankFilePill" style="display:none;">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#6D2077" stroke-width="2" style="flex-shrink:0;margin-top:2px;"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:#6D2077;margin-bottom:1px;">Bank Account Details</div>
+              <div class="tax-file-pill-name" id="bankFilePillName"></div>
+            </div>
+            <button class="tax-file-pill-remove" onclick="removeBankFile()">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1a1a2e" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="dialog-footer" id="saveDialogFooter">
+          <span id="saveDialogError" style="display:none; font-size:13px; color:#aa0808; flex:1; align-self:center;"></span>
+          <button class="btn btn-ghost" id="saveDialogCancelBtn" style="margin-right:0.5rem;">Cancel</button>
+          <button class="btn btn-primary" id="saveDialogOkBtn">OK</button>
+        </div>
+      </div>
+
+      <!-- Success state (shown after submit with tax doc) -->
+      <div class="dialog-success" id="saveDialogSuccess">
+        <div class="dialog-success-circle">
+          <svg width="26" height="26" viewBox="0 0 20 20" fill="none"><path d="M4.5 10.5l4 4 7-8" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="dialog-success-title" id="saveDialogSuccessTitle">Request submitted successfully</div>
+        <div class="dialog-success-body" id="saveDialogSuccessBody">Some changes require internal approval before they take effect — we'll notify you by email once complete.</div>
+        <div style="margin-top:1.5rem;">
+          <button class="btn btn-primary" onclick="closeSuccessDialog()">OK</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <script>
+    var SECTIONS = ['general', 'contact', 'ident', 'bank'];
+    var _pendingChanges = []; // [{label, oldVal, newVal}] stored for transition
+    var _approver = { name: 'Linda Wei', initials: 'LW', role: 'Vendor Management Director &nbsp;·&nbsp; BestRun' };
+
+    // Clear any stale upload data from previous sessions
+    localStorage.removeItem('attach_taxFileInput');
+    localStorage.removeItem('attach_bankFileInput');
+
+    var ORIG_VALUES = {
+      general: ['Meridian Supply Co.', 'Meridian Supply', '1450 Industrial Pkwy', 'Suite 300', 'Cincinnati', 'Ohio', 'United States', '45202'],
+      contact: ['+1 513 555 0142', '+1 513 555 0143', 'James Whitfield', 'orders@meridiansupply.com', 'payments@meridiansupply.com'],
+      ident:   ['31-1482930', 'US314829300'],
+      bank:    ['United States', 'US44 0420 0000 0010 0023 600', 'USBKUS44', '042000013', 'Fifth Third Bank', '7892340156', '38 Fountain Square Plaza, Cincinnati, OH', 'Cincinnati Downtown', 'Meridian Supply Co.', 'USD']
+    };
+
+    function enterEditMode() {
+      SECTIONS.forEach(function(s) {
+        document.getElementById(s + 'View').style.display = 'none';
+        document.getElementById(s + 'Edit').style.display = 'grid';
+      });
+      document.getElementById('editPageBtn').style.display = 'none';
+      document.getElementById('pageEditFooter').style.display = 'flex';
+      // Lock page scroll; compact the header; scroll body back to top
+      document.body.classList.add('editing');
+      document.querySelector('.page-header').classList.add('compact');
+      document.getElementById('pageScroll').scrollTop = 0;
+    }
+
+    function cancelAllEdits() {
+      SECTIONS.forEach(function(s) {
+        var viewFields = document.getElementById(s + 'View').querySelectorAll('.field-value');
+        var editFields = document.getElementById(s + 'Edit').querySelectorAll('input, select');
+        viewFields.forEach(function(vf, i) {
+          if (!editFields[i]) return;
+          var val = (vf.childNodes[0] && vf.childNodes[0].nodeType === 3)
+            ? vf.childNodes[0].nodeValue.trim() : vf.textContent.trim();
+          if (editFields[i].tagName.toLowerCase() === 'select') {
+            Array.from(editFields[i].options).forEach(function(o) { o.selected = o.text === val; });
+          } else { editFields[i].value = val; }
+        });
+        document.getElementById(s + 'View').style.display = 'grid';
+        document.getElementById(s + 'Edit').style.display = 'none';
+      });
+      document.getElementById('editPageBtn').style.display = '';
+      document.getElementById('pageEditFooter').style.display = 'none';
+      document.body.classList.remove('editing');
+      // Let scroll observer re-evaluate compactness naturally
+    }
+
+    function submitAllEdits() {
+      var riskRank = { low: 1, medium: 2, high: 3 };
+      var maxRisk = 'low';
+      var lowFields = [];    // saved immediately
+      var pendingFields = []; // need approval
+
+      SECTIONS.forEach(function(s) {
+        var editGrid = document.getElementById(s + 'Edit');
+        var viewGrid = document.getElementById(s + 'View');
+        var viewFields = viewGrid.querySelectorAll('.field-value');
+        var editFields = editGrid.querySelectorAll('input, select');
+
+        editFields.forEach(function(el, i) {
+          if (!viewFields[i]) return;
+          var newVal = el.tagName.toLowerCase() === 'select'
+            ? el.options[el.selectedIndex].text
+            : el.value;
+          var oldVal = (viewFields[i].childNodes[0] && viewFields[i].childNodes[0].nodeType === 3)
+            ? viewFields[i].childNodes[0].nodeValue.trim()
+            : viewFields[i].textContent.trim();
+          var fieldRisk = el.getAttribute('data-risk') || 'low';
+          if (newVal.trim() !== oldVal) {
+            if (riskRank[fieldRisk] > riskRank[maxRisk]) maxRisk = fieldRisk;
+            var labelEl = viewFields[i].closest('.form-field');
+            var labelText = labelEl ? labelEl.querySelector('label').textContent.trim() : '';
+            var entry = { label: labelText, oldVal: oldVal, newVal: newVal.trim(), risk: fieldRisk, viewField: viewFields[i] };
+            if (fieldRisk === 'low') lowFields.push(entry);
+            else pendingFields.push(entry);
+          }
+          // Only immediately update the displayed value for low-risk fields;
+          // pending fields keep their old value visible until approved
+          if ((el.getAttribute('data-risk') || 'low') === 'low') {
+            viewFields[i].textContent = newVal;
+          }
+        });
+      });
+
+      // Apply green "Updated" badges to low-risk changed fields
+      lowFields.forEach(function(f) {
+        var existing = f.viewField.querySelector('.field-updated-tag,.field-pending-diff');
+        if (existing) existing.remove();
+        var tag = document.createElement('div');
+        tag.className = 'field-updated-tag';
+        tag.innerHTML = '<span class="field-updated-tag-dot"></span>Updated';
+        f.viewField.appendChild(tag);
+      });
+
+      // Apply inline diff view to pending fields — shows old (struck out) → new (amber chip)
+      pendingFields.forEach(function(f) {
+        var existing = f.viewField.querySelector('.field-pending-diff,.field-updated-tag');
+        if (existing) existing.remove();
+        // Clear text node so only the diff widget shows
+        f.viewField.childNodes[0] && f.viewField.childNodes[0].nodeType === 3 && (f.viewField.childNodes[0].nodeValue = '');
+        var diff = document.createElement('div');
+        diff.className = 'field-pending-diff';
+        diff.innerHTML =
+          '<div class="field-pending-diff-current">' +
+            '<div class="field-pending-diff-current-label">Current</div>' +
+            '<div class="field-pending-diff-current-val">' + f.oldVal + '</div>' +
+          '</div>' +
+          '<div class="field-pending-diff-arrow">→</div>' +
+          '<div class="field-pending-diff-new">' +
+            '<div class="field-pending-diff-new-label">' +
+              '<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>' +
+              'Pending approval' +
+            '</div>' +
+            '<div class="field-pending-diff-new-val">' + f.newVal + '</div>' +
+          '</div>';
+        f.viewField.appendChild(diff);
+      });
+
+      // Exit edit mode
+      SECTIONS.forEach(function(s) {
+        document.getElementById(s + 'View').style.display = 'grid';
+        document.getElementById(s + 'Edit').style.display = 'none';
+      });
+      document.getElementById('editPageBtn').style.display = '';
+      document.getElementById('pageEditFooter').style.display = 'none';
+      document.body.classList.remove('editing');
+
+      document.getElementById('msgSuccess').classList.remove('show');
+      document.getElementById('msgPending').classList.remove('show');
+
+      var allChanged = lowFields.concat(pendingFields);
+      if (!allChanged.length) return;
+
+      // Store for email transition
+      _pendingChanges = pendingFields.length ? pendingFields : lowFields;
+      if (maxRisk === 'medium' || maxRisk === 'high') {
+        _approver = { name: 'Linda Wei', initials: 'LW', role: 'Vendor Management Director &nbsp;·&nbsp; BestRun' };
+      }
+
+      var hasPending = pendingFields.length > 0;
+      var taxIdChanged = pendingFields.some(function(f) { return f.label === 'Local Tax ID'; });
+      var bankChanged = pendingFields.some(function(f) {
+        return ['Bank Country','IBAN','SWIFT','Bank Key','Bank Name','Account Number','Bank Address','Branch Name','Account Holder','Bank Account Currency'].indexOf(f.label) !== -1;
+      });
+      var needsUpload = taxIdChanged || bankChanged;
+      var icon = hasPending
+        ? '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="10" fill="#f59e0b"/><path d="M10 5.5v5M10 13.5v.5" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg>'
+        : '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="10" fill="#6D2077"/><path d="M10 6v4.5M10 13.5v.5" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg>';
+      var iconStyle = hasPending ? 'background:#fffbeb; border-color:#fcd34d;' : 'background:#f3eaf5; border-color:#c084fc;';
+      var bodyHtml = buildChangesTable(allChanged);
+
+      showSaveDialog({
+        icon: icon,
+        iconStyle: iconStyle,
+        title: 'Let\'s review the changes you would like to make',
+        body: bodyHtml,
+        taxIdChanged: taxIdChanged,
+        bankChanged: bankChanged,
+        needsUpload: needsUpload,
+        lowFields: lowFields,
+        pendingFields: pendingFields,
+        hasPending: hasPending
+      });
+    }
+
+    function showSaveDialog(content) {
+      var dialog = document.getElementById('saveDialog');
+      var progressEl = document.getElementById('saveDialogProgress');
+      var confirmEl = document.getElementById('saveDialogConfirm');
+      var successEl = document.getElementById('saveDialogSuccess');
+      var okBtn = document.getElementById('saveDialogOkBtn');
+      var cancelBtn = document.getElementById('saveDialogCancelBtn');
+
+      // Show confirm state immediately
+      progressEl.style.display = 'none';
+      successEl.classList.remove('show');
+      document.getElementById('saveDialogTitle').textContent = content.title;
+      document.getElementById('saveDialogBody').innerHTML = content.body;
+      confirmEl.style.display = '';
+      dialog.classList.add('open');
+
+      // Track which uploads are required and which are done
+      var taxRequired = content.taxIdChanged;
+      var bankRequired = content.bankChanged;
+      var taxDone = false;
+      var bankDone = false;
+
+      function checkReady() {
+        var missing = (taxRequired && !taxDone) || (bankRequired && !bankDone);
+        okBtn.disabled = false;
+        if (!missing) document.getElementById('saveDialogError').style.display = 'none';
+      }
+
+      function wireUpload(zoneId, inputId, pillId, pillNameId, onDone, onRemove) {
+        var zone = document.getElementById(zoneId);
+        var pill = document.getElementById(pillId);
+        zone.style.display = '';
+        zone.style.opacity = '1';
+        pill.style.display = 'none';
+        pill.style.opacity = '0';
+        document.getElementById(inputId).value = '';
+        document.getElementById(inputId).onchange = function() {
+          if (this.files[0]) {
+            var file = this.files[0];
+            document.getElementById(pillNameId).textContent = file.name;
+            localStorage.setItem('attach_' + inputId, JSON.stringify({ name: file.name }));
+            zone.style.opacity = '0';
+            setTimeout(function() {
+              zone.style.display = 'none';
+              pill.style.display = 'flex';
+              setTimeout(function() { pill.style.opacity = '1'; }, 20);
+            }, 250);
+            onDone();
+            checkReady();
+          }
+        };
+        // wire remove via global function — pass callback
+        pill._onRemove = function() {
+          pill.style.opacity = '0';
+          setTimeout(function() {
+            pill.style.display = 'none';
+            zone.style.opacity = '0';
+            zone.style.display = '';
+            setTimeout(function() { zone.style.opacity = '1'; }, 20);
+          }, 250);
+          document.getElementById(inputId).value = '';
+          localStorage.removeItem('attach_' + inputId);
+          onRemove();
+          checkReady();
+        };
+      }
+
+      // Tax upload
+      var taxSection = document.getElementById('taxUploadSection');
+      if (taxRequired) {
+        taxSection.style.display = '';
+        wireUpload('taxUploadZone', 'taxFileInput', 'taxFilePill', 'taxFilePillName',
+          function() { taxDone = true; }, function() { taxDone = false; });
+      } else {
+        taxSection.style.display = 'none';
+      }
+
+      // Bank upload
+      var bankSection = document.getElementById('bankUploadSection');
+      if (bankRequired) {
+        bankSection.style.display = '';
+        wireUpload('bankUploadZone', 'bankFileInput', 'bankFilePill', 'bankFilePillName',
+          function() { bankDone = true; }, function() { bankDone = false; });
+      } else {
+        bankSection.style.display = 'none';
+      }
+
+      // Button setup
+      document.getElementById('saveDialogError').style.display = 'none';
+      if (content.needsUpload) {
+        okBtn.textContent = 'Submit';
+        okBtn.disabled = false;
+      } else {
+        okBtn.textContent = 'OK';
+        okBtn.disabled = false;
+      }
+
+      function runProgressThenSuccess() {
+        confirmEl.style.display = 'none';
+        successEl.classList.remove('show');
+        var bar = document.getElementById('saveDialogBar');
+        var lbl = document.getElementById('saveDialogProgressLabel');
+        lbl.textContent = content.needsUpload ? 'Submitting request…' : 'Saving changes…';
+        bar.style.transition = 'none';
+        bar.style.width = '0%';
+        progressEl.style.display = '';
+        setTimeout(function() {
+          bar.style.transition = 'width 1.4s cubic-bezier(0.4,0,0.2,1)';
+          bar.style.width = '90%';
+        }, 30);
+        setTimeout(function() {
+          bar.style.transition = 'width 0.2s ease';
+          bar.style.width = '100%';
+          setTimeout(function() {
+            progressEl.style.display = 'none';
+            document.getElementById('saveDialogSuccessTitle').textContent = content.hasPending ? 'Request submitted successfully' : 'Changes saved successfully';
+            document.getElementById('saveDialogSuccessBody').style.display = content.hasPending ? '' : 'none';
+            successEl.classList.add('show');
+            if (content.hasPending) {
+              document.getElementById('msgPending').classList.add('show');
+              updateNextChapterCard();
+              setTimeout(function() {
+                document.getElementById('nextChapterCard').classList.add('visible');
+                document.getElementById('nextChapterClickTarget').style.display = 'block';
+              }, 1000);
+            }
+          }, 250);
+        }, 1600);
+      }
+
+      okBtn.onclick = function() {
+        var missingTax  = taxRequired && !taxDone;
+        var missingBank = bankRequired && !bankDone;
+        if (missingTax || missingBank) {
+          var errorEl = document.getElementById('saveDialogError');
+          var docs = [];
+          if (missingTax)  docs.push('Tax ID document');
+          if (missingBank) docs.push('Bank Account Details document');
+          errorEl.textContent = 'Please upload the required document' + (docs.length > 1 ? 's' : '') + ': ' + docs.join(' and ') + '.';
+          errorEl.style.display = 'inline';
+          return;
+        }
+        runProgressThenSuccess();
+      };
+
+      // Cancel — revert
+      cancelBtn.onclick = function() {
+        dialog.classList.remove('open');
+        localStorage.removeItem('attach_taxFileInput');
+        localStorage.removeItem('attach_bankFileInput');
+        content.lowFields.concat(content.pendingFields).forEach(function(f) {
+          f.viewField.textContent = f.oldVal;
+          var existing = f.viewField.querySelector('.field-pending-diff,.field-updated-tag');
+          if (existing) existing.remove();
+        });
+      };
+    }
+
+    function buildChangesTable(fields) {
+      var h = '<table cellpadding="0" cellspacing="0" width="100%" style="margin-top:0.375rem;">';
+      h += '<tr>';
+      h += '<td style="width:46%; padding-bottom:0.5rem; font-size:0.75rem; font-weight:700; color:#1a1a2e;">Previous Value</td>';
+      h += '<td style="width:8%;"></td>';
+      h += '<td style="width:46%; padding-bottom:0.5rem; font-size:0.75rem; font-weight:700; color:#1a1a2e;">New Value</td>';
+      h += '</tr>';
+      fields.forEach(function(f) {
+        h += '<tr style="vertical-align:top;">';
+        h += '<td style="width:46%; padding-bottom:0.75rem;">';
+        h += '<div style="background:#f5f6f7; border:1px solid #e5e7eb; border-radius:8px; padding:0.625rem 0.75rem;">';
+        h += '<div style="font-size:0.6875rem; color:#6b7280; margin-bottom:0.25rem;">' + f.label + ':</div>';
+        h += '<div style="font-size:0.875rem; font-weight:500; color:#1a1a2e;">' + f.oldVal + '</div>';
+        h += '</div></td>';
+        h += '<td style="width:8%; text-align:center; vertical-align:middle; padding-bottom:0.75rem; font-size:1rem; color:#374151;">&#8594;</td>';
+        h += '<td style="width:46%; padding-bottom:0.75rem;">';
+        h += '<div style="background:#f5f6f7; border:1px solid #e5e7eb; border-radius:8px; padding:0.625rem 0.75rem;">';
+        h += '<div style="font-size:0.6875rem; color:#6b7280; margin-bottom:0.25rem;">' + f.label + ':</div>';
+        h += '<div style="font-size:0.875rem; font-weight:500; color:#1a1a2e;">' + f.newVal + '</div>';
+        h += '</div></td>';
+        h += '</tr>';
+      });
+      h += '</table>';
+      return h;
+    }
+
+    function getAttachmentsParam() {
+      var list = [];
+      var taxRaw = localStorage.getItem('attach_taxFileInput');
+      var bankRaw = localStorage.getItem('attach_bankFileInput');
+      if (taxRaw) { try { var a = JSON.parse(taxRaw); list.push({ docType: 'Tax ID Document', name: a.name }); } catch(e) {} }
+      if (bankRaw) { try { var b = JSON.parse(bankRaw); list.push({ docType: 'Bank Account Details', name: b.name }); } catch(e) {} }
+      return list;
+    }
+
+    function updateNextChapterCard() {
+      document.getElementById('nextChapterAvatar').textContent = _approver.initials;
+      document.getElementById('nextChapterName').textContent = _approver.name;
+      document.getElementById('nextChapterRole').innerHTML = _approver.role;
+      var target = document.getElementById('nextChapterClickTarget');
+      var whnParams = 'name=' + encodeURIComponent(_approver.name) + '&initials=' + encodeURIComponent(_approver.initials);
+      if (_pendingChanges.length) whnParams += '&changes=' + encodeURIComponent(JSON.stringify(_pendingChanges));
+      var atts = getAttachmentsParam();
+      if (atts.length) whnParams += '&attachments=' + encodeURIComponent(JSON.stringify(atts));
+      target.href = 'what-happens-next.html?' + whnParams;
+    }
+
+    function startSceneTransition() {
+      document.getElementById('nextChapterCard').classList.remove('visible');
+      document.getElementById('fadeOverlay').classList.add('fade-in');
+      var params = new URLSearchParams({ name: _approver.name });
+      if (_pendingChanges.length) params.set('changes', JSON.stringify(_pendingChanges));
+      var atts = getAttachmentsParam();
+      if (atts.length) params.set('attachments', JSON.stringify(atts));
+      setTimeout(function() { window.location.href = 'email-action-required.html?' + params.toString(); }, 1200);
+    }
+
+    function resetPage() {
+      document.getElementById('fadeOverlay').classList.remove('fade-in');
+      document.getElementById('nextChapterCard').classList.remove('visible');
+      document.getElementById('nextChapterClickTarget').style.display = 'none';
+      document.getElementById('saveDialog').classList.remove('open');
+      document.getElementById('msgSuccess').classList.remove('show');
+      document.getElementById('msgPending').classList.remove('show');
+      // Ensure edit mode is fully exited
+      SECTIONS.forEach(function(s) {
+        document.getElementById(s + 'View').style.display = 'grid';
+        document.getElementById(s + 'Edit').style.display = 'none';
+      });
+      document.getElementById('editPageBtn').style.display = '';
+      document.getElementById('pageEditFooter').style.display = 'none';
+      document.body.classList.remove('editing');
+      document.querySelector('.page-header').classList.remove('compact');
+      window.scrollTo(0, 0);
+      document.querySelectorAll('.field-pending-diff, .field-updated-tag').forEach(function(el) { el.remove(); });
+      SECTIONS.forEach(function(s) {
+        var viewFields = document.getElementById(s + 'View').querySelectorAll('.field-value');
+        var editFields = document.getElementById(s + 'Edit').querySelectorAll('input, select');
+        ORIG_VALUES[s].forEach(function(val, i) {
+          if (viewFields[i]) viewFields[i].textContent = val;
+          if (editFields[i]) {
+            if (editFields[i].tagName.toLowerCase() === 'select') {
+              Array.from(editFields[i].options).forEach(function(opt) { opt.selected = opt.text === val; });
+            } else {
+              editFields[i].value = val;
+            }
+          }
+        });
+      });
+    }
+
+    function closeSuccessDialog() {
+      document.getElementById('saveDialog').classList.remove('open');
+      document.getElementById('saveDialogSuccess').classList.remove('show');
+    }
+
+    function removeTaxFile() {
+      var pill = document.getElementById('taxFilePill');
+      if (pill._onRemove) pill._onRemove();
+    }
+    function removeBankFile() {
+      var pill = document.getElementById('bankFilePill');
+      if (pill._onRemove) pill._onRemove();
+    }
+
+    window.addEventListener('pageshow', function() {
+      resetPage();
+      // URL param demo states — used by screenflow.html iframes only
+      setTimeout(function() {
+        var state = new URLSearchParams(window.location.search).get('state');
+        if (!state) return;
+        if (state === 'edit') {
+          enterEditMode();
+        } else if (state === 'progress') {
+          // Show progress bar dialog mid-animation — "Submitting request…" (high risk)
+          var dialog = document.getElementById('saveDialog');
+          var progressEl = document.getElementById('saveDialogProgress');
+          progressEl.style.display = '';
+          document.getElementById('saveDialogConfirm').style.display = 'none';
+          document.getElementById('saveDialogSuccess').classList.remove('show');
+          document.getElementById('saveDialogProgressLabel').textContent = 'Submitting request…';
+          dialog.classList.add('open');
+          setTimeout(function() {
+            document.getElementById('saveDialogBar').style.transition = 'width 2s ease';
+            document.getElementById('saveDialogBar').style.width = '75%';
+          }, 50);
+        } else if (state === 'progress-low') {
+          // Show progress bar dialog mid-animation — "Saving changes…" (low risk)
+          var dialog = document.getElementById('saveDialog');
+          var progressEl = document.getElementById('saveDialogProgress');
+          progressEl.style.display = '';
+          document.getElementById('saveDialogConfirm').style.display = 'none';
+          document.getElementById('saveDialogSuccess').classList.remove('show');
+          document.getElementById('saveDialogProgressLabel').textContent = 'Saving changes…';
+          dialog.classList.add('open');
+          setTimeout(function() {
+            document.getElementById('saveDialogBar').style.transition = 'width 2s ease';
+            document.getElementById('saveDialogBar').style.width = '75%';
+          }, 50);
+        } else if (state === 'review-low') {
+          // Pre-open dialog with multiple low-risk changes (no upload needed)
+          showSaveDialog({
+            icon: '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="10" fill="#6D2077"/><path d="M10 6v4.5M10 13.5v.5" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg>',
+            iconStyle: 'background:#f3eaf5; border-color:#c084fc;',
+            title: 'Let\'s review the changes you would like to make',
+            body: buildChangesTable([
+              { label: 'Phone', oldVal: '+1 513 555 0142', newVal: '+1 513 555 0199', risk: 'low' },
+              { label: 'City', oldVal: 'Cincinnati', newVal: 'Columbus', risk: 'low' },
+              { label: 'Postal Code', oldVal: '45202', newVal: '43215', risk: 'low' }
+            ]),
+            taxIdChanged: false, bankChanged: false, needsUpload: false,
+            lowFields: [{ label: 'Phone', oldVal: '+1 513 555 0142', newVal: '+1 513 555 0199', viewField: document.querySelector('#contactView .field-value') }],
+            pendingFields: [], hasPending: false
+          });
+        } else if (state === 'review-docs') {
+          // Pre-open dialog with multiple high-risk bank changes (upload required)
+          showSaveDialog({
+            icon: '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="10" fill="#f59e0b"/><path d="M10 5.5v5M10 13.5v.5" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg>',
+            iconStyle: 'background:#fffbeb; border-color:#fcd34d;',
+            title: 'Let\'s review the changes you would like to make',
+            body: buildChangesTable([
+              { label: 'Account Number', oldVal: '7892340156', newVal: '9900012345', risk: 'high' },
+              { label: 'IBAN', oldVal: 'US44 0420 0000 0010 0023 600', newVal: 'US44 0420 0000 0010 0099 900', risk: 'high' },
+              { label: 'SWIFT', oldVal: 'USBKUS44', newVal: 'USBKUS99', risk: 'high' }
+            ]),
+            taxIdChanged: false, bankChanged: true, needsUpload: true,
+            lowFields: [],
+            pendingFields: [{ label: 'Account Number', oldVal: '7892340156', newVal: '9900012345', viewField: document.querySelector('#bankView .field-value') }],
+            hasPending: true
+          });
+        } else if (state === 'success') {
+          // Pre-open dialog in success state — low risk (changes saved immediately)
+          var dialog = document.getElementById('saveDialog');
+          document.getElementById('saveDialogProgress').style.display = 'none';
+          document.getElementById('saveDialogConfirm').style.display = 'none';
+          document.getElementById('saveDialogSuccessTitle').textContent = 'Changes saved successfully';
+          document.getElementById('saveDialogSuccessBody').style.display = 'none';
+          document.getElementById('saveDialogSuccess').classList.add('show');
+          dialog.classList.add('open');
+        } else if (state === 'success-pending') {
+          // Pre-open dialog in success state — high risk (request submitted, pending approval)
+          var dialog = document.getElementById('saveDialog');
+          document.getElementById('saveDialogProgress').style.display = 'none';
+          document.getElementById('saveDialogConfirm').style.display = 'none';
+          document.getElementById('saveDialogSuccessTitle').textContent = 'Request submitted successfully';
+          document.getElementById('saveDialogSuccessBody').style.display = '';
+          document.getElementById('saveDialogSuccess').classList.add('show');
+          dialog.classList.add('open');
+        } else if (state === 'submitted') {
+          // Show post-submission state: pending banner + next chapter card visible
+          document.getElementById('msgPending').classList.add('show');
+          _approver = { name: 'Linda Wei', initials: 'LW', role: 'Vendor Management Director &nbsp;·&nbsp; BestRun' };
+          updateNextChapterCard();
+          document.getElementById('nextChapterCard').classList.add('visible');
+          document.getElementById('nextChapterClickTarget').style.display = 'block';
+        } else if (state === 'updated-low') {
+          // Read-only profile with low-risk changes applied and green Updated tags
+          var updates = [
+            { label: 'Phone',       newVal: '+1 513 555 0199' },
+            { label: 'City',        newVal: 'Columbus' },
+            { label: 'Postal Code', newVal: '43215' }
+          ];
+          document.querySelectorAll('#generalView .field-value, #contactView .field-value').forEach(function(el) {
+            var labelEl = el.closest('.form-field') && el.closest('.form-field').querySelector('label');
+            if (!labelEl) return;
+            var match = updates.find(function(u) { return u.label === labelEl.textContent.trim(); });
+            if (!match) return;
+            el.textContent = match.newVal;
+            var tag = document.createElement('span');
+            tag.className = 'field-updated-tag';
+            tag.textContent = 'Updated';
+            el.appendChild(tag);
+          });
+        }
+      }, 0);
+    });
+
+    // Compact header on scroll (view mode only — window scroll)
+    window.addEventListener('scroll', function() {
+      if (document.body.classList.contains('editing')) return;
+      document.querySelector('.page-header').classList.toggle('compact', window.scrollY > 10);
+    }, { passive: true });
+
+    // In edit mode the page-scroll div scrolls, not window
+    document.getElementById('pageScroll').addEventListener('scroll', function() {
+      if (!document.body.classList.contains('editing')) return;
+      document.querySelector('.page-header').classList.add('compact');
+    }, { passive: true });
+
+  </script>
+
+</body>
+</html>

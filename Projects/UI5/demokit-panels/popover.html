@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <script src="panel-init.js"></script>
+  <script type="module" src="../../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    body { font-family: "72", sans-serif; font-size: 0.875rem; background: #f5f6f7; color: #131e29; margin: 0; padding: 2rem; }
+    .panel-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .panel-subtitle { font-size: 0.875rem; color: #6a7588; margin-bottom: 2rem; }
+    .demo-section { margin-bottom: 2rem; }
+    .demo-section-header { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #6a7588; margin-bottom: 1rem; padding-bottom: 0.375rem; border-bottom: 1px solid #e5e5e5; }
+    .demo-section-body { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 1rem; }
+    ui5-button { --sapButton_FontFamily: "72", sans-serif; }
+    ui5-button::part(text) { font-family: "72", sans-serif; font-weight: 400; }
+    ui5-popover { max-width: 360px; }
+  </style>
+</head>
+<body>
+  <div class="panel-title">Popover</div>
+  <div class="panel-subtitle">A small overlay that appears relative to an anchor element, used for contextual content.</div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">Basic Popover</div>
+    <div class="demo-section-body">
+      <ui5-button id="openInfo">Show Info</ui5-button>
+      <ui5-button design="Emphasized" id="openActions">Quick Actions</ui5-button>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">Placement Variants</div>
+    <div class="demo-section-body">
+      <ui5-button id="openTop">Above</ui5-button>
+      <ui5-button id="openBottom">Below</ui5-button>
+      <ui5-button id="openStart">Start</ui5-button>
+      <ui5-button id="openEnd">End</ui5-button>
+    </div>
+  </div>
+
+  <!-- Info Popover -->
+  <ui5-popover id="infoPopover" header-text="Order Summary" placement-type="Bottom">
+    <div style="padding:1rem; font-size:0.875rem; display:flex; flex-direction:column; gap:0.5rem;">
+      <div style="display:flex; justify-content:space-between;"><span style="color:#6a7588;">Order ID</span><strong>PO-2024-0049</strong></div>
+      <div style="display:flex; justify-content:space-between;"><span style="color:#6a7588;">Vendor</span><span>Acme Supplies</span></div>
+      <div style="display:flex; justify-content:space-between;"><span style="color:#6a7588;">Amount</span><span>€ 12,500.00</span></div>
+      <div style="display:flex; justify-content:space-between;"><span style="color:#6a7588;">Status</span><span style="color:#107e3e; font-weight:600;">Approved</span></div>
+    </div>
+  </ui5-popover>
+
+  <!-- Actions Popover -->
+  <ui5-popover id="actionsPopover" header-text="Actions" placement-type="Bottom">
+    <ui5-list separators="Inner" style="min-width:200px;">
+      <ui5-li icon="edit">Edit Order</ui5-li>
+      <ui5-li icon="copy">Duplicate</ui5-li>
+      <ui5-li icon="print">Print PDF</ui5-li>
+      <ui5-li icon="delete" style="color:#bb0000;">Delete Order</ui5-li>
+    </ui5-list>
+  </ui5-popover>
+
+  <!-- Placement popovers -->
+  <ui5-popover id="topPopover" placement-type="Top">
+    <div style="padding:0.75rem 1rem; font-size:0.875rem;">Placed above the button.</div>
+  </ui5-popover>
+  <ui5-popover id="bottomPopover" placement-type="Bottom">
+    <div style="padding:0.75rem 1rem; font-size:0.875rem;">Placed below the button.</div>
+  </ui5-popover>
+  <ui5-popover id="startPopover" placement-type="Start">
+    <div style="padding:0.75rem 1rem; font-size:0.875rem;">Placed to the start.</div>
+  </ui5-popover>
+  <ui5-popover id="endPopover" placement-type="End">
+    <div style="padding:0.75rem 1rem; font-size:0.875rem;">Placed to the end.</div>
+  </ui5-popover>
+
+  <script>
+    document.getElementById('openInfo').addEventListener('click', function() { document.getElementById('infoPopover').showAt(this); });
+    document.getElementById('openActions').addEventListener('click', function() { document.getElementById('actionsPopover').showAt(this); });
+    document.getElementById('openTop').addEventListener('click', function() { document.getElementById('topPopover').showAt(this); });
+    document.getElementById('openBottom').addEventListener('click', function() { document.getElementById('bottomPopover').showAt(this); });
+    document.getElementById('openStart').addEventListener('click', function() { document.getElementById('startPopover').showAt(this); });
+    document.getElementById('openEnd').addEventListener('click', function() { document.getElementById('endPopover').showAt(this); });
+  </script>
+</body>
+</html>

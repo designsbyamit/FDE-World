@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <script src="panel-init.js"></script>
+  <script type="module" src="../../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    body { font-family: "72", sans-serif; font-size: 0.875rem; background: #f5f6f7; color: #131e29; margin: 0; padding: 2rem; }
+    .panel-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .panel-subtitle { font-size: 0.875rem; color: #6a7588; margin-bottom: 2rem; }
+    .demo-section { margin-bottom: 2rem; }
+    .demo-section-header { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #6a7588; margin-bottom: 1rem; padding-bottom: 0.375rem; border-bottom: 1px solid #e5e5e5; }
+    .spacing-row { display: flex; align-items: center; gap: 1.25rem; padding: 0.875rem 1.25rem; background: #fff; border: 1px solid #e5e5e5; border-radius: 0.5rem; margin-bottom: 0.375rem; }
+    .spacing-visual { width: 80px; flex-shrink: 0; display: flex; align-items: center; }
+    .spacing-bar { height: 20px; background: #0064d9; border-radius: 2px; min-width: 4px; }
+    .spacing-meta { flex: 1; min-width: 0; }
+    .spacing-token { font-family: "Courier New", Courier, monospace; font-size: 0.8125rem; color: #131e29; font-weight: 600; }
+    .spacing-value { font-size: 0.75rem; color: #6a7588; margin-top: 0.125rem; }
+    .spacing-note { font-size: 0.8125rem; color: #6a7588; text-align: right; flex-shrink: 0; }
+  </style>
+</head>
+<body>
+  <div class="panel-title">Spacing</div>
+  <div class="panel-subtitle">SAP Fiori spacing tokens and standard increments. Reference these when specifying layout and gaps to Claude.</div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">Content Space Tokens</div>
+
+    <div class="spacing-row">
+      <div class="spacing-visual"><div class="spacing-bar" style="width:4px"></div></div>
+      <div class="spacing-meta">
+        <div class="spacing-token">--sapContent_Space_XXS</div>
+        <div class="spacing-value">0.25rem &mdash; 4px</div>
+      </div>
+      <div class="spacing-note">Icon gaps, tight inline spacing</div>
+    </div>
+
+    <div class="spacing-row">
+      <div class="spacing-visual"><div class="spacing-bar" style="width:8px"></div></div>
+      <div class="spacing-meta">
+        <div class="spacing-token">--sapContent_Space_XS</div>
+        <div class="spacing-value">0.5rem &mdash; 8px</div>
+      </div>
+      <div class="spacing-note">Between related elements</div>
+    </div>
+
+    <div class="spacing-row">
+      <div class="spacing-visual"><div class="spacing-bar" style="width:12px"></div></div>
+      <div class="spacing-meta">
+        <div class="spacing-token">--sapContent_Space_S</div>
+        <div class="spacing-value">0.75rem &mdash; 12px</div>
+      </div>
+      <div class="spacing-note">Compact padding, small gaps</div>
+    </div>
+
+    <div class="spacing-row">
+      <div class="spacing-visual"><div class="spacing-bar" style="width:16px"></div></div>
+      <div class="spacing-meta">
+        <div class="spacing-token">--sapContent_Space_M</div>
+        <div class="spacing-value">1rem &mdash; 16px</div>
+      </div>
+      <div class="spacing-note">Default padding, standard gap</div>
+    </div>
+
+    <div class="spacing-row">
+      <div class="spacing-visual"><div class="spacing-bar" style="width:24px"></div></div>
+      <div class="spacing-meta">
+        <div class="spacing-token">--sapContent_Space_L</div>
+        <div class="spacing-value">1.5rem &mdash; 24px</div>
+      </div>
+      <div class="spacing-note">Section padding, card padding</div>
+    </div>
+
+    <div class="spacing-row">
+      <div class="spacing-visual"><div class="spacing-bar" style="width:32px"></div></div>
+      <div class="spacing-meta">
+        <div class="spacing-token">--sapContent_Space_XL</div>
+        <div class="spacing-value">2rem &mdash; 32px</div>
+      </div>
+      <div class="spacing-note">Page margins, large section gaps</div>
+    </div>
+
+    <div class="spacing-row">
+      <div class="spacing-visual"><div class="spacing-bar" style="width:48px"></div></div>
+      <div class="spacing-meta">
+        <div class="spacing-token">--sapContent_Space_XXL</div>
+        <div class="spacing-value">3rem &mdash; 48px</div>
+      </div>
+      <div class="spacing-note">Hero spacing, top-level layout</div>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">Standard Fiori Increments</div>
+
+    <div class="spacing-row">
+      <div class="spacing-visual"><div class="spacing-bar" style="width:4px"></div></div>
+      <div class="spacing-meta">
+        <div class="spacing-token">4px</div>
+        <div class="spacing-value">0.25rem</div>
+      </div>
+      <div class="spacing-note">Micro: icon nudges, border offsets</div>
+    </div>
+
+    <div class="spacing-row">
+      <div class="spacing-visual"><div class="spacing-bar" style="width:8px"></div></div>
+      <div class="spacing-meta">
+        <div class="spacing-token">8px</div>
+        <div class="spacing-value">0.5rem</div>
+      </div>
+      <div class="spacing-note">XS: tight component gaps</div>
+    </div>
+
+    <div class="spacing-row">
+      <div class="spacing-visual"><div class="spacing-bar" style="width:16px"></div></div>
+      <div class="spacing-meta">
+        <div class="spacing-token">16px</div>
+        <div class="spacing-value">1rem</div>
+      </div>
+      <div class="spacing-note">S: default component padding</div>
+    </div>
+
+    <div class="spacing-row">
+      <div class="spacing-visual"><div class="spacing-bar" style="width:24px"></div></div>
+      <div class="spacing-meta">
+        <div class="spacing-token">24px</div>
+        <div class="spacing-value">1.5rem</div>
+      </div>
+      <div class="spacing-note">M: card/panel padding</div>
+    </div>
+
+    <div class="spacing-row">
+      <div class="spacing-visual"><div class="spacing-bar" style="width:32px"></div></div>
+      <div class="spacing-meta">
+        <div class="spacing-token">32px</div>
+        <div class="spacing-value">2rem</div>
+      </div>
+      <div class="spacing-note">L: section spacing</div>
+    </div>
+
+    <div class="spacing-row">
+      <div class="spacing-visual"><div class="spacing-bar" style="width:48px"></div></div>
+      <div class="spacing-meta">
+        <div class="spacing-token">48px</div>
+        <div class="spacing-value">3rem</div>
+      </div>
+      <div class="spacing-note">XL: page-level margins</div>
+    </div>
+
+    <div class="spacing-row">
+      <div class="spacing-visual"><div class="spacing-bar" style="width:64px"></div></div>
+      <div class="spacing-meta">
+        <div class="spacing-token">64px</div>
+        <div class="spacing-value">4rem</div>
+      </div>
+      <div class="spacing-note">XXL: hero / full-bleed sections</div>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">Border Radius</div>
+
+    <div class="spacing-row">
+      <div class="spacing-visual"><div class="spacing-bar" style="width:4px"></div></div>
+      <div class="spacing-meta">
+        <div class="spacing-token">--sapField_BorderCornerRadius</div>
+        <div class="spacing-value">0.25rem &mdash; 4px</div>
+      </div>
+      <div class="spacing-note">Inputs, selects</div>
+    </div>
+
+    <div class="spacing-row">
+      <div class="spacing-visual"><div class="spacing-bar" style="width:8px"></div></div>
+      <div class="spacing-meta">
+        <div class="spacing-token">--sapButton_BorderCornerRadius</div>
+        <div class="spacing-value">0.5rem &mdash; 8px</div>
+      </div>
+      <div class="spacing-note">Buttons</div>
+    </div>
+
+    <div class="spacing-row">
+      <div class="spacing-visual"><div class="spacing-bar" style="width:16px"></div></div>
+      <div class="spacing-meta">
+        <div class="spacing-token">--sapTile_BorderCornerRadius</div>
+        <div class="spacing-value">1rem &mdash; 16px</div>
+      </div>
+      <div class="spacing-note">Cards, tiles</div>
+    </div>
+  </div>
+</body>
+</html>

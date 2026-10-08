@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <script src="panel-init.js"></script>
+  <script type="module" src="../../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 600; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 300; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Light.woff2") format("woff2"); }
+    body { font-family: "72", sans-serif; font-size: 0.875rem; background: #f5f6f7; color: #131e29; margin: 0; padding: 2rem; }
+    .panel-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .panel-subtitle { font-size: 0.875rem; color: #6a7588; margin-bottom: 2rem; }
+    .demo-section { margin-bottom: 2rem; }
+    .demo-section-header { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #6a7588; margin-bottom: 1rem; padding-bottom: 0.375rem; border-bottom: 1px solid #e5e5e5; }
+    .demo-section-body { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 0.75rem; }
+    .demo-section-body.column { flex-direction: column; align-items: stretch; }
+    ui5-button { --sapButton_FontFamily: "72", sans-serif; }
+    ui5-button::part(text) { font-family: "72", sans-serif; font-weight: 400; }
+    .variant-label { font-size: 0.75rem; color: #6a7588; margin-bottom: 0.375rem; }
+  </style>
+</head>
+<body>
+
+  <div class="panel-title">Toolbar</div>
+  <div class="panel-subtitle">A responsive toolbar that holds buttons, spacers, separators, and input fields. Overflowing items collapse into a popover.</div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">Page Header Toolbars</div>
+    <div class="demo-section-body column">
+      <div>
+        <div class="variant-label">Object page header</div>
+        <ui5-toolbar>
+          <ui5-toolbar-button icon="nav-back" tooltip="Back"></ui5-toolbar-button>
+          <ui5-toolbar-button text="Notebook Basic 15" design="Transparent" style="font-weight:700;"></ui5-toolbar-button>
+          <ui5-toolbar-spacer></ui5-toolbar-spacer>
+          <ui5-toolbar-button icon="edit" tooltip="Edit" design="Transparent"></ui5-toolbar-button>
+          <ui5-toolbar-button icon="share-2" tooltip="Share" design="Transparent"></ui5-toolbar-button>
+          <ui5-toolbar-button icon="overflow" tooltip="More" design="Transparent"></ui5-toolbar-button>
+        </ui5-toolbar>
+      </div>
+      <div>
+        <div class="variant-label">List page header</div>
+        <ui5-toolbar>
+          <ui5-toolbar-button icon="menu2" tooltip="Menu"></ui5-toolbar-button>
+          <ui5-toolbar-button text="Products" design="Transparent" style="font-weight:700;"></ui5-toolbar-button>
+          <ui5-toolbar-spacer></ui5-toolbar-spacer>
+          <ui5-toolbar-button icon="search" tooltip="Search" design="Transparent"></ui5-toolbar-button>
+          <ui5-toolbar-button icon="filter" tooltip="Filter" design="Transparent"></ui5-toolbar-button>
+          <ui5-toolbar-button icon="sort" tooltip="Sort" design="Transparent"></ui5-toolbar-button>
+        </ui5-toolbar>
+      </div>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">Footer / Action Bar Toolbars</div>
+    <div class="demo-section-body column">
+      <div>
+        <div class="variant-label">Save / Cancel pattern</div>
+        <ui5-toolbar>
+          <ui5-toolbar-button text="Save" design="Emphasized"></ui5-toolbar-button>
+          <ui5-toolbar-button text="Cancel" design="Transparent"></ui5-toolbar-button>
+          <ui5-toolbar-spacer></ui5-toolbar-spacer>
+        </ui5-toolbar>
+      </div>
+      <div>
+        <div class="variant-label">Approve / Reject pattern</div>
+        <ui5-toolbar>
+          <ui5-toolbar-button text="Approve" design="Positive"></ui5-toolbar-button>
+          <ui5-toolbar-button text="Reject" design="Negative"></ui5-toolbar-button>
+          <ui5-toolbar-button text="Escalate" design="Default"></ui5-toolbar-button>
+          <ui5-toolbar-spacer></ui5-toolbar-spacer>
+          <ui5-toolbar-button text="Back" design="Transparent"></ui5-toolbar-button>
+        </ui5-toolbar>
+      </div>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">With Separator &amp; Input</div>
+    <div class="demo-section-body column">
+      <ui5-toolbar>
+        <ui5-toolbar-button icon="add" text="Create" design="Emphasized"></ui5-toolbar-button>
+        <ui5-toolbar-button icon="edit" text="Edit"></ui5-toolbar-button>
+        <ui5-toolbar-button icon="delete" text="Delete" design="Negative"></ui5-toolbar-button>
+        <ui5-toolbar-separator></ui5-toolbar-separator>
+        <ui5-toolbar-spacer></ui5-toolbar-spacer>
+        <ui5-toolbar-button icon="search" tooltip="Search" design="Transparent"></ui5-toolbar-button>
+        <ui5-toolbar-button icon="filter" tooltip="Filter" design="Transparent"></ui5-toolbar-button>
+        <ui5-toolbar-button icon="sort" tooltip="Sort" design="Transparent"></ui5-toolbar-button>
+        <ui5-toolbar-button icon="overflow" tooltip="More" design="Transparent"></ui5-toolbar-button>
+      </ui5-toolbar>
+    </div>
+  </div>
+
+</body>
+</html>

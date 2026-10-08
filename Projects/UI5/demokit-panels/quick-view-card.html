@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quick View Card</title>
+  <script src="panel-init.js"></script>
+  <script type="module" src="../../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 600; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 300; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Light.woff2") format("woff2"); }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "72", sans-serif; font-size: 0.875rem; background: var(--sapBackgroundColor, #f5f6f7); padding: 2rem; color: var(--sapTextColor, #131e29); }
+    .panel-title { font-size: 1.5rem; font-weight: 700; color: #131e29; margin-bottom: 0.375rem; }
+    .panel-subtitle { font-size: 0.8125rem; color: var(--sapContent_LabelColor, #6a7588); margin-bottom: 2rem; }
+    .demo-section { background: #fff; border: 1px solid var(--sapList_BorderColor, #e5e5e5); border-radius: 8px; margin-bottom: 1.25rem; overflow: hidden; }
+    .demo-section-header { padding: 0.75rem 1rem; border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5); font-size: 0.8125rem; font-weight: 600; color: var(--sapContent_LabelColor, #6a7588); display: flex; align-items: center; justify-content: space-between; }
+    .demo-section-tag { font-family: monospace; font-size: 0.75rem; color: #0064d9; font-weight: 400; }
+    .demo-section-body { padding: 1.25rem 1rem; display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: flex-start; }
+    .demo-section-body.column { flex-direction: column; }
+    .demo-section-body.block { display: block; padding: 0; }
+  </style>
+</head>
+<body>
+  <div class="panel-title">Quick View Card</div>
+  <div class="panel-subtitle">A business card popup showing entity details — avatar, name, title, contact info, and a navigation link. Triggered by a button click. Equivalent to sap.m.QuickViewCard / sap.m.QuickView — rendered as a ui5-popover with structured content.</div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">
+      Contact quick view popup
+      <span class="demo-section-tag">ui5-popover · contact card pattern</span>
+    </div>
+    <div class="demo-section-body block" style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+      <ui5-button id="qvc-open-btn" design="Default">Open Quick View</ui5-button>
+      <ui5-popover id="qvc-popover" placement="Right" header-text="Quick View" style="min-width:280px;">
+        <div style="padding:1rem;">
+          <div style="display:flex;align-items:center;gap:0.875rem;margin-bottom:1rem;">
+            <ui5-avatar initials="JD" color-scheme="Accent5" size="L"></ui5-avatar>
+            <div>
+              <div style="font-size:1rem;font-weight:700;color:var(--sapTextColor,#131e29);">John Doe</div>
+              <div style="font-size:0.8125rem;color:var(--sapContent_LabelColor,#6a7588);">Software Engineer</div>
+              <div style="font-size:0.8125rem;color:var(--sapContent_LabelColor,#6a7588);">IT Department</div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:max-content 1fr;gap:0.375rem 0.75rem;font-size:0.8125rem;border-top:1px solid var(--sapList_BorderColor,#e5e5e5);padding-top:0.75rem;">
+            <span style="color:var(--sapContent_LabelColor,#6a7588);">Phone</span>
+            <a style="color:var(--sapLinkColor,#0064d9);text-decoration:none;" href="#">+1 (555) 123-4567</a>
+            <span style="color:var(--sapContent_LabelColor,#6a7588);">Mobile</span>
+            <a style="color:var(--sapLinkColor,#0064d9);text-decoration:none;" href="#">+1 (555) 987-6543</a>
+            <span style="color:var(--sapContent_LabelColor,#6a7588);">Email</span>
+            <a style="color:var(--sapLinkColor,#0064d9);text-decoration:none;" href="#">john.doe@example.com</a>
+            <span style="color:var(--sapContent_LabelColor,#6a7588);">Company</span>
+            <a style="color:var(--sapLinkColor,#0064d9);text-decoration:none;" href="#">Acme Corp</a>
+            <span style="color:var(--sapContent_LabelColor,#6a7588);">Location</span>
+            <span>San Francisco, CA</span>
+          </div>
+        </div>
+      </ui5-popover>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">
+      Multiple quick views with back navigation
+      <span class="demo-section-tag">Navigate Back button · linked entity</span>
+    </div>
+    <div class="demo-section-body block" style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+      <ui5-button id="qvc-open-btn2" design="Default">Open Quick View</ui5-button>
+      <ui5-popover id="qvc-popover2" placement="Right" style="min-width:280px;">
+        <ui5-bar slot="header" design="Header">
+          <ui5-button id="qvc-back-btn" slot="startContent" design="Transparent" icon="nav-back" tooltip="Navigate Back" disabled></ui5-button>
+          <span slot="middleContent" style="font-size:0.9375rem;font-weight:600;">Quick View</span>
+        </ui5-bar>
+        <div style="padding:1rem;" id="qvc-card-content">
+          <div style="display:flex;align-items:center;gap:0.875rem;margin-bottom:1rem;">
+            <ui5-avatar initials="MW" color-scheme="Accent2" size="L"></ui5-avatar>
+            <div>
+              <div style="font-size:1rem;font-weight:700;color:var(--sapTextColor,#131e29);">Mary Watson</div>
+              <div style="font-size:0.8125rem;color:var(--sapContent_LabelColor,#6a7588);">Product Manager</div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:max-content 1fr;gap:0.375rem 0.75rem;font-size:0.8125rem;border-top:1px solid var(--sapList_BorderColor,#e5e5e5);padding-top:0.75rem;">
+            <span style="color:var(--sapContent_LabelColor,#6a7588);">Email</span>
+            <a style="color:var(--sapLinkColor,#0064d9);text-decoration:none;" href="#">m.watson@example.com</a>
+            <span style="color:var(--sapContent_LabelColor,#6a7588);">Department</span>
+            <a id="qvc-dept-link" style="color:var(--sapLinkColor,#0064d9);text-decoration:none;cursor:pointer;">Product &amp; Innovation</a>
+          </div>
+        </div>
+      </ui5-popover>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      var btn1 = document.getElementById('qvc-open-btn');
+      var pop1 = document.getElementById('qvc-popover');
+      if (btn1) btn1.addEventListener('click', function() { pop1.opener = btn1; pop1.open = true; });
+
+      var btn2 = document.getElementById('qvc-open-btn2');
+      var pop2 = document.getElementById('qvc-popover2');
+      if (btn2) btn2.addEventListener('click', function() { pop2.opener = btn2; pop2.open = true; });
+
+      var deptLink = document.getElementById('qvc-dept-link');
+      var backBtn = document.getElementById('qvc-back-btn');
+      if (deptLink) deptLink.addEventListener('click', function() {
+        document.getElementById('qvc-card-content').innerHTML = '<div style="padding:0.5rem 0;"><div style="font-size:0.875rem;font-weight:700;margin-bottom:0.75rem;">Product &amp; Innovation Dept.</div><div style="display:grid;grid-template-columns:max-content 1fr;gap:0.375rem 0.75rem;font-size:0.8125rem;"><span style="color:var(--sapContent_LabelColor,#6a7588);">Head</span><span>Dr. A. Fischer</span><span style="color:var(--sapContent_LabelColor,#6a7588);">Location</span><span>Walldorf, DE</span></div></div>';
+        if (backBtn) backBtn.removeAttribute('disabled');
+      });
+      if (backBtn) backBtn.addEventListener('click', function() {
+        document.getElementById('qvc-card-content').innerHTML = '<div style="display:flex;align-items:center;gap:0.875rem;margin-bottom:1rem;"><ui5-avatar initials="MW" color-scheme="Accent2" size="L"></ui5-avatar><div><div style="font-size:1rem;font-weight:700;color:var(--sapTextColor,#131e29);">Mary Watson</div><div style="font-size:0.8125rem;color:var(--sapContent_LabelColor,#6a7588);">Product Manager</div></div></div><div style="display:grid;grid-template-columns:max-content 1fr;gap:0.375rem 0.75rem;font-size:0.8125rem;border-top:1px solid var(--sapList_BorderColor,#e5e5e5);padding-top:0.75rem;"><span style="color:var(--sapContent_LabelColor,#6a7588);">Email</span><a style="color:var(--sapLinkColor,#0064d9);text-decoration:none;" href="#">m.watson@example.com</a><span style="color:var(--sapContent_LabelColor,#6a7588);">Department</span><a id="qvc-dept-link" style="color:var(--sapLinkColor,#0064d9);text-decoration:none;cursor:pointer;">Product &amp; Innovation</a></div>';
+        backBtn.setAttribute('disabled', '');
+        var newLink = document.getElementById('qvc-dept-link');
+        if (newLink) newLink.addEventListener('click', deptLink.onclick || function(){});
+      });
+    })();
+  </script>
+</body>
+</html>

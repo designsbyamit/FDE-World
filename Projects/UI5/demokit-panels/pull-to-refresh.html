@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pull To Refresh</title>
+  <script src="panel-init.js"></script>
+  <script type="module" src="../../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 600; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 300; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Light.woff2") format("woff2"); }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "72", sans-serif; font-size: 0.875rem; background: var(--sapBackgroundColor, #f5f6f7); padding: 2rem; color: var(--sapTextColor, #131e29); }
+    .panel-title { font-size: 1.5rem; font-weight: 700; color: #131e29; margin-bottom: 0.375rem; }
+    .panel-subtitle { font-size: 0.8125rem; color: var(--sapContent_LabelColor, #6a7588); margin-bottom: 2rem; }
+    .demo-section { background: #fff; border: 1px solid var(--sapList_BorderColor, #e5e5e5); border-radius: 8px; margin-bottom: 1.25rem; overflow: hidden; }
+    .demo-section-header { padding: 0.75rem 1rem; border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5); font-size: 0.8125rem; font-weight: 600; color: var(--sapContent_LabelColor, #6a7588); display: flex; align-items: center; justify-content: space-between; }
+    .demo-section-tag { font-family: monospace; font-size: 0.75rem; color: #0064d9; font-weight: 400; }
+    .demo-section-body { padding: 1.25rem 1rem; display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: flex-start; }
+    .demo-section-body.column { flex-direction: column; }
+    .demo-section-body.block { display: block; padding: 0; }
+    .ptr-container { height: 340px; overflow-y: auto; border: 1px solid var(--sapList_BorderColor,#e5e5e5); border-radius: 8px; position: relative; background: #fff; }
+    .ptr-indicator { display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 0.5rem; height: 0; overflow: hidden; transition: height 0.2s; background: var(--sapBackgroundColor,#f5f6f7); font-size: 0.8125rem; color: var(--sapContent_LabelColor,#6a7588); font-family: "72", sans-serif; }
+    .ptr-indicator.pulling { height: 64px; }
+    .ptr-indicator.refreshing { height: 64px; }
+    .ptr-spinner { width: 24px; height: 24px; border: 3px solid #e5e5e5; border-top-color: var(--sapSelectedColor,#0064d9); border-radius: 50%; animation: ptr-spin 0.7s linear infinite; }
+    @keyframes ptr-spin { to { transform: rotate(360deg); } }
+    .ptr-arrow { font-size: 1.25rem; transition: transform 0.2s; color: var(--sapSelectedColor,#0064d9); }
+    .ptr-arrow.ready { transform: rotate(180deg); }
+    .ptr-list-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border-bottom: 1px solid var(--sapList_BorderColor,#e5e5e5); font-family: "72", sans-serif; }
+    .ptr-list-item:last-child { border-bottom: none; }
+    .ptr-list-icon { width: 40px; height: 40px; border-radius: 8px; background: var(--sapBackgroundColor,#f5f6f7); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 0.75rem; font-weight: 700; color: #fff; }
+    .ptr-list-title { font-size: 0.875rem; font-weight: 600; color: var(--sapTextColor,#131e29); }
+    .ptr-list-desc  { font-size: 0.75rem; color: var(--sapContent_LabelColor,#6a7588); }
+  </style>
+</head>
+<body>
+  <div class="panel-title">Pull To Refresh</div>
+  <div class="panel-subtitle">A gesture-based refresh trigger for scrollable content. Pull the list down to reveal the indicator and release to refresh. Equivalent to sap.m.PullToRefresh.</div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">
+      Pull Down to Refresh
+      <span class="demo-section-tag">Touch + mouse drag supported</span>
+    </div>
+    <div class="demo-section-body block">
+      <div class="ptr-container" id="ptr-wrap">
+        <div class="ptr-indicator" id="ptr-indicator">
+          <div class="ptr-arrow" id="ptr-arrow">&#8595;</div>
+          <div class="ptr-spinner" id="ptr-spinner" style="display:none;"></div>
+          <span id="ptr-text" style="font-size:0.75rem; color:var(--sapContent_LabelColor,#6a7588);">Pull down to refresh</span>
+        </div>
+        <ul style="list-style:none; padding:0.5rem 0; margin:0;" id="ptr-list">
+          <li class="ptr-list-item">
+            <div class="ptr-list-icon" style="background:var(--sapAccentColor6,#e8743b);">SF</div>
+            <div>
+              <div class="ptr-list-title">Sales Order 4500123456</div>
+              <div class="ptr-list-desc">Customer: Exotic Liquids · EUR 19,503</div>
+            </div>
+          </li>
+          <li class="ptr-list-item">
+            <div class="ptr-list-icon" style="background:var(--sapAccentColor4,#6c32a0);">PO</div>
+            <div>
+              <div class="ptr-list-title">Purchase Order 4500789012</div>
+              <div class="ptr-list-desc">Vendor: DelBont Industries · USD 33,620</div>
+            </div>
+          </li>
+          <li class="ptr-list-item">
+            <div class="ptr-list-icon" style="background:var(--sapAccentColor5,#0092d1);">IV</div>
+            <div>
+              <div class="ptr-list-title">Invoice 5100456789</div>
+              <div class="ptr-list-desc">Vendor: Lyngbysild · JPY 23,747</div>
+            </div>
+          </li>
+          <li class="ptr-list-item">
+            <div class="ptr-list-icon" style="background:var(--sapAccentColor2,#00b3bc);">CR</div>
+            <div>
+              <div class="ptr-list-title">Credit Memo 5100112233</div>
+              <div class="ptr-list-desc">Customer: Jologa · EUR 8,792</div>
+            </div>
+          </li>
+          <li class="ptr-list-item">
+            <div class="ptr-list-icon" style="background:var(--sapAccentColor8,#c04e00);">GR</div>
+            <div>
+              <div class="ptr-list-title">Goods Receipt 5000334455</div>
+              <div class="ptr-list-desc">Plant: Hamburg · Items: 12</div>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div style="margin-top:0.75rem; display:flex; align-items:center; gap:0.5rem;">
+        <ui5-button id="ptr-trigger-btn" design="Default" icon="refresh">Trigger Refresh</ui5-button>
+        <span id="ptr-feedback" style="font-size:0.8125rem; color:var(--sapContent_LabelColor,#6a7588); font-style:italic;">Pull the list above, or click the button.</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      var wrap = document.getElementById('ptr-wrap');
+      var indicator = document.getElementById('ptr-indicator');
+      var arrow = document.getElementById('ptr-arrow');
+      var spinner = document.getElementById('ptr-spinner');
+      var text = document.getElementById('ptr-text');
+      var feedback = document.getElementById('ptr-feedback');
+      var THRESHOLD = 64;
+      var startY = 0, pulling = false, refreshing = false;
+
+      function startRefresh() {
+        if (refreshing) return;
+        refreshing = true;
+        indicator.classList.remove('pulling');
+        indicator.classList.add('refreshing');
+        arrow.style.display = 'none';
+        spinner.style.display = 'block';
+        text.textContent = 'Refreshing\u2026';
+        feedback.textContent = 'Refresh triggered!';
+        feedback.style.color = 'var(--sapPositiveColor,#196800)';
+        setTimeout(function() {
+          indicator.classList.remove('refreshing');
+          arrow.style.display = 'block';
+          spinner.style.display = 'none';
+          text.textContent = 'Pull down to refresh';
+          feedback.textContent = 'List refreshed.';
+          feedback.style.color = 'var(--sapContent_LabelColor,#6a7588)';
+          wrap.style.paddingTop = '';
+          refreshing = false;
+          pulling = false;
+        }, 1500);
+      }
+
+      wrap.addEventListener('touchstart', function(e) {
+        if (wrap.scrollTop === 0) { startY = e.touches[0].clientY; pulling = true; }
+      }, { passive: true });
+      wrap.addEventListener('touchmove', function(e) {
+        if (!pulling || refreshing) return;
+        var dy = Math.max(0, e.touches[0].clientY - startY);
+        if (dy > 0) {
+          wrap.style.paddingTop = Math.min(dy * 0.5, THRESHOLD) + 'px';
+          indicator.classList.toggle('pulling', dy >= THRESHOLD);
+          text.textContent = dy >= THRESHOLD ? 'Release to refresh' : 'Pull down to refresh';
+          arrow.classList.toggle('ready', dy >= THRESHOLD);
+        }
+      }, { passive: true });
+      wrap.addEventListener('touchend', function() {
+        if (!pulling || refreshing) return;
+        if (indicator.classList.contains('pulling')) { startRefresh(); }
+        else { wrap.style.paddingTop = ''; pulling = false; }
+      });
+
+      wrap.addEventListener('mousedown', function(e) {
+        if (wrap.scrollTop === 0) { startY = e.clientY; pulling = true; }
+      });
+      window.addEventListener('mousemove', function(e) {
+        if (!pulling || refreshing) return;
+        var dy = Math.max(0, e.clientY - startY);
+        if (dy > 0) {
+          wrap.style.paddingTop = Math.min(dy * 0.5, THRESHOLD) + 'px';
+          indicator.classList.toggle('pulling', dy >= THRESHOLD);
+          text.textContent = dy >= THRESHOLD ? 'Release to refresh' : 'Pull down to refresh';
+          arrow.classList.toggle('ready', dy >= THRESHOLD);
+        }
+      });
+      window.addEventListener('mouseup', function() {
+        if (!pulling || refreshing) return;
+        if (indicator.classList.contains('pulling')) { startRefresh(); }
+        else { wrap.style.paddingTop = ''; pulling = false; }
+      });
+
+      document.getElementById('ptr-trigger-btn').addEventListener('click', startRefresh);
+    })();
+  </script>
+</body>
+</html>

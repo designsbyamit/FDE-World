@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Overflow Toolbar</title>
+  <script src="panel-init.js"></script>
+  <script type="module" src="../../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 600; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 300; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Light.woff2") format("woff2"); }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "72", sans-serif; font-size: 0.875rem; background: var(--sapBackgroundColor, #f5f6f7); padding: 2rem; color: var(--sapTextColor, #131e29); }
+    .panel-title { font-size: 1.5rem; font-weight: 700; color: #131e29; margin-bottom: 0.375rem; }
+    .panel-subtitle { font-size: 0.8125rem; color: var(--sapContent_LabelColor, #6a7588); margin-bottom: 2rem; }
+    .demo-section { background: #fff; border: 1px solid var(--sapList_BorderColor, #e5e5e5); border-radius: 8px; margin-bottom: 1.25rem; overflow: hidden; }
+    .demo-section-header { padding: 0.75rem 1rem; border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5); font-size: 0.8125rem; font-weight: 600; color: var(--sapContent_LabelColor, #6a7588); display: flex; align-items: center; justify-content: space-between; }
+    .demo-section-tag { font-family: monospace; font-size: 0.75rem; color: #0064d9; font-weight: 400; }
+    .demo-section-body { padding: 1.25rem 1rem; display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: flex-start; }
+    .demo-section-body.column { flex-direction: column; }
+    .demo-section-body.block { display: block; padding: 0; }
+  </style>
+</head>
+<body>
+  <div class="panel-title">Overflow Toolbar</div>
+  <div class="panel-subtitle">A toolbar that moves controls into an overflow popover when space is limited. Supports mixed control types — buttons, inputs, selects, date pickers, segmented buttons, separators, and spacers. Equivalent to sap.m.OverflowToolbar — rendered using ui5-toolbar with overflow.</div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">
+      Mixed Controls — resize to see overflow
+      <span class="demo-section-tag">ui5-toolbar · various controls</span>
+    </div>
+    <div class="demo-section-body block" style="padding:0.75rem 1rem;">
+      <ui5-message-strip design="Information" style="margin-bottom:1rem;">Resize the browser window or reduce the panel width to see controls collapse into the overflow menu.</ui5-message-strip>
+      <ui5-toolbar id="otf-main" overflow-button style="width:100%">
+        <ui5-label>Label:</ui5-label>
+        <ui5-toolbar-button text="Button" design="Default"></ui5-toolbar-button>
+        <ui5-toggle-button id="otf-tog">ToggleButton</ui5-toggle-button>
+        <ui5-checkbox text="CheckBox"></ui5-checkbox>
+        <ui5-segmented-button id="otf-seg">
+          <ui5-segmented-button-item>Seg One</ui5-segmented-button-item>
+          <ui5-segmented-button-item selected>Seg Two</ui5-segmented-button-item>
+        </ui5-segmented-button>
+        <ui5-toolbar-separator></ui5-toolbar-separator>
+        <ui5-combobox placeholder="ComboBox" style="min-width:160px;">
+          <ui5-cb-item text="Germany"></ui5-cb-item>
+          <ui5-cb-item text="France"></ui5-cb-item>
+          <ui5-cb-item text="United States"></ui5-cb-item>
+        </ui5-combobox>
+        <ui5-date-picker placeholder="Date Picker" style="min-width:160px;"></ui5-date-picker>
+        <ui5-breadcrumbs>
+          <ui5-breadcrumbs-item href="#">Breadcrumbs</ui5-breadcrumbs-item>
+          <ui5-breadcrumbs-item>Current</ui5-breadcrumbs-item>
+        </ui5-breadcrumbs>
+        <ui5-menu-button id="otf-menu-btn" text="Menu Button">
+          <ui5-menu>
+            <ui5-menu-item text="basic" icon="chalkboard">
+              <ui5-menu-item text="add" icon="add"></ui5-menu-item>
+              <ui5-menu-item text="subtract" icon="less"></ui5-menu-item>
+            </ui5-menu-item>
+            <ui5-menu-item text="complex" icon="display">
+              <ui5-menu-item text="square" icon="status-completed"></ui5-menu-item>
+            </ui5-menu-item>
+          </ui5-menu>
+        </ui5-menu-button>
+        <ui5-toolbar-spacer></ui5-toolbar-spacer>
+        <ui5-tag>Generic Tag</ui5-tag>
+        <ui5-input placeholder="Input" style="min-width:120px;"></ui5-input>
+        <ui5-input placeholder="SearchField" show-clear-icon style="min-width:140px;">
+          <ui5-icon slot="icon" name="search"></ui5-icon>
+        </ui5-input>
+        <ui5-time-picker></ui5-time-picker>
+        <ui5-select style="min-width:130px;">
+          <ui5-option>Germany</ui5-option>
+          <ui5-option>France</ui5-option>
+          <ui5-option>United States</ui5-option>
+        </ui5-select>
+        <ui5-toolbar-button text="OverflowToolbarButton" design="Transparent"></ui5-toolbar-button>
+        <ui5-toggle-button id="otf-ovf-tog">OvfToggleButton</ui5-toggle-button>
+      </ui5-toolbar>
+    </div>
+  </div>
+</body>
+</html>

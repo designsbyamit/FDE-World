@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <script src="panel-init.js"></script>
+  <script type="module" src="../../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 600; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 300; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Light.woff2") format("woff2"); }
+    body { font-family: "72", sans-serif; font-size: 0.875rem; background: #f5f6f7; color: #131e29; margin: 0; padding: 2rem; }
+    .panel-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .panel-subtitle { font-size: 0.875rem; color: #6a7588; margin-bottom: 2rem; }
+    .demo-section { margin-bottom: 2rem; }
+    .demo-section-header { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #6a7588; margin-bottom: 1rem; padding-bottom: 0.375rem; border-bottom: 1px solid #e5e5e5; }
+    .token-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    .token-table col.col-name  { width: 38%; }
+    .token-table col.col-value { width: 28%; }
+    .token-table col.col-desc  { width: 34%; }
+    .token-table tr:nth-child(odd)  td { background: #fff; }
+    .token-table tr:nth-child(even) td { background: #f9fafb; }
+    .token-table td { padding: 0.5rem 0.75rem; vertical-align: middle; border: none; }
+    .token-name { font-family: "Menlo", "Consolas", "Monaco", monospace; font-size: 0.75rem; color: #131e29; word-break: break-all; }
+    .token-value { font-family: "Menlo", "Consolas", "Monaco", monospace; font-size: 0.75rem; color: #6a7588; word-break: break-all; }
+    .token-desc { font-size: 0.8125rem; color: #6a7588; }
+    .token-desc-note { font-size: 0.8125rem; color: #6a7588; font-style: italic; }
+    .shadow-preview { display: inline-block; width: 40px; height: 24px; background: #fff; border-radius: 3px; margin-left: auto; vertical-align: middle; }
+    .desc-cell { display: flex; align-items: center; gap: 0.75rem; }
+    .z-badge { display: inline-block; font-family: "Menlo", "Consolas", "Monaco", monospace; font-size: 0.75rem; font-weight: 700; color: #0064d9; background: #e8f0fd; border-radius: 0.25rem; padding: 0.1rem 0.4rem; white-space: nowrap; }
+    .convention-note { display: inline-block; font-size: 0.6875rem; color: #a0aab4; margin-left: 0.375rem; }
+  </style>
+</head>
+<body>
+  <div class="panel-title">Design Tokens</div>
+  <div class="panel-subtitle">SAP Horizon CSS custom properties for shadows, borders, animation and component chrome. Reference these when specifying visual details to Claude.</div>
+
+  <!-- SHADOWS -->
+  <div class="demo-section">
+    <div class="demo-section-header">Shadows</div>
+    <table class="token-table">
+      <colgroup>
+        <col class="col-name">
+        <col class="col-value">
+        <col class="col-desc">
+      </colgroup>
+      <tbody>
+        <tr>
+          <td><span class="token-name">--sapContent_Shadow0</span></td>
+          <td><span class="token-value">none</span></td>
+          <td>
+            <div class="desc-cell">
+              <span class="token-desc">Flat / no elevation</span>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="token-name">--sapContent_Shadow1</span></td>
+          <td><span class="token-value">0 0 0.25rem 0 rgba(0,0,0,0.15)</span></td>
+          <td>
+            <div class="desc-cell">
+              <span class="token-desc">Subtle card lift</span>
+              <span class="shadow-preview" style="box-shadow: 0 0 0.25rem 0 rgba(0,0,0,0.15);"></span>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="token-name">--sapContent_Shadow2</span></td>
+          <td><span class="token-value">0 0.25rem 0.5rem 0 rgba(0,0,0,0.15)</span></td>
+          <td>
+            <div class="desc-cell">
+              <span class="token-desc">Popover / dropdown</span>
+              <span class="shadow-preview" style="box-shadow: 0 0.25rem 0.5rem 0 rgba(0,0,0,0.15);"></span>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="token-name">--sapContent_Shadow3</span></td>
+          <td><span class="token-value">0 0.625rem 1.875rem 0 rgba(0,0,0,0.2)</span></td>
+          <td>
+            <div class="desc-cell">
+              <span class="token-desc">Dialog / modal</span>
+              <span class="shadow-preview" style="box-shadow: 0 0.625rem 1.875rem 0 rgba(0,0,0,0.2);"></span>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="token-name">--sapContent_HeaderShadow</span></td>
+          <td><span class="token-value">0 0.125rem 0.125rem 0 rgba(0,0,0,0.05)</span></td>
+          <td>
+            <div class="desc-cell">
+              <span class="token-desc">Shell bar / sticky header</span>
+              <span class="shadow-preview" style="box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.05);"></span>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- BORDERS -->
+  <div class="demo-section">
+    <div class="demo-section-header">Borders</div>
+    <table class="token-table">
+      <colgroup>
+        <col class="col-name">
+        <col class="col-value">
+        <col class="col-desc">
+      </colgroup>
+      <tbody>
+        <tr>
+          <td><span class="token-name">--sapList_BorderColor</span></td>
+          <td><span class="token-value">#e5e5e5</span></td>
+          <td><span class="token-desc">Table rows, list items</span></td>
+        </tr>
+        <tr>
+          <td><span class="token-name">--sapField_BorderColor</span></td>
+          <td><span class="token-value">#8696a9</span></td>
+          <td><span class="token-desc">Input fields</span></td>
+        </tr>
+        <tr>
+          <td><span class="token-name">--sapField_FocusBorderWidth</span></td>
+          <td><span class="token-value">0.0625rem</span></td>
+          <td><span class="token-desc">Focus ring width</span></td>
+        </tr>
+        <tr>
+          <td><span class="token-name">--sapContent_FocusColor</span></td>
+          <td><span class="token-value">#0064d9</span></td>
+          <td><span class="token-desc">Focus ring color</span></td>
+        </tr>
+        <tr>
+          <td><span class="token-name">--sapContent_FocusWidth</span></td>
+          <td><span class="token-value">0.0625rem</span></td>
+          <td><span class="token-desc">Focus outline width</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ANIMATION -->
+  <div class="demo-section">
+    <div class="demo-section-header">Animation</div>
+    <table class="token-table">
+      <colgroup>
+        <col class="col-name">
+        <col class="col-value">
+        <col class="col-desc">
+      </colgroup>
+      <tbody>
+        <tr>
+          <td><span class="token-name">--sapContent_AnimationDuration</span></td>
+          <td><span class="token-value">0.1s</span></td>
+          <td><span class="token-desc">Default transition</span></td>
+        </tr>
+        <tr>
+          <td><span class="token-name">--sapContent_AnimationDurationSlow</span></td>
+          <td><span class="token-value">0.3s</span></td>
+          <td><span class="token-desc">Expanded transitions</span></td>
+        </tr>
+        <tr>
+          <td><span class="token-name">ease-in-out</span></td>
+          <td><span class="token-value">ease-in-out</span></td>
+          <td><span class="token-desc">Standard easing — use for all transitions</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Z-INDEX -->
+  <div class="demo-section">
+    <div class="demo-section-header">Z-Index Layers</div>
+    <table class="token-table">
+      <colgroup>
+        <col class="col-name">
+        <col class="col-value">
+        <col class="col-desc">
+      </colgroup>
+      <tbody>
+        <tr>
+          <td><span class="token-name">Shell bar</span></td>
+          <td><span class="z-badge">100</span></td>
+          <td><span class="token-desc-note">Convention — no CSS var<span class="convention-note">position: sticky; top: 0; z-index: 100</span></span></td>
+        </tr>
+        <tr>
+          <td><span class="token-name">Popover / tooltip</span></td>
+          <td><span class="z-badge">200</span></td>
+          <td><span class="token-desc-note">Convention — no CSS var</span></td>
+        </tr>
+        <tr>
+          <td><span class="token-name">Dialog</span></td>
+          <td><span class="z-badge">300</span></td>
+          <td><span class="token-desc-note">Convention — no CSS var</span></td>
+        </tr>
+        <tr>
+          <td><span class="token-name">Message Toast</span></td>
+          <td><span class="z-badge">400</span></td>
+          <td><span class="token-desc-note">Convention — no CSS var</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- COMPONENT-SPECIFIC -->
+  <div class="demo-section">
+    <div class="demo-section-header">Component-Specific</div>
+    <table class="token-table">
+      <colgroup>
+        <col class="col-name">
+        <col class="col-value">
+        <col class="col-desc">
+      </colgroup>
+      <tbody>
+        <tr>
+          <td><span class="token-name">--sapButton_BorderWidth</span></td>
+          <td><span class="token-value">0.0625rem</span></td>
+          <td><span class="token-desc">Button border thickness</span></td>
+        </tr>
+        <tr>
+          <td><span class="token-name">--sapField_BorderWidth</span></td>
+          <td><span class="token-value">0.0625rem</span></td>
+          <td><span class="token-desc">Input field border thickness</span></td>
+        </tr>
+        <tr>
+          <td><span class="token-name">--sapField_BorderRadius</span></td>
+          <td><span class="token-value">0.25rem</span></td>
+          <td><span class="token-desc">Input field corner radius</span></td>
+        </tr>
+        <tr>
+          <td><span class="token-name">--sapGroup_ContentBackground</span></td>
+          <td><span class="token-value">#ffffff</span></td>
+          <td><span class="token-desc">Panel / group body background</span></td>
+        </tr>
+        <tr>
+          <td><span class="token-name">--sapGroup_TitleBackground</span></td>
+          <td><span class="token-value">#f5f6f7</span></td>
+          <td><span class="token-desc">Panel / group header background</span></td>
+        </tr>
+        <tr>
+          <td><span class="token-name">--sapGroup_BorderColor</span></td>
+          <td><span class="token-value">#e5e5e5</span></td>
+          <td><span class="token-desc">Panel / group border color</span></td>
+        </tr>
+        <tr>
+          <td><span class="token-name">--sapGroup_BorderCornerRadius</span></td>
+          <td><span class="token-value">0.5rem</span></td>
+          <td><span class="token-desc">Panel / group corner radius</span></td>
+        </tr>
+        <tr>
+          <td><span class="token-name">--sapToolbar_Background</span></td>
+          <td><span class="token-value">#ffffff</span></td>
+          <td><span class="token-desc">Toolbar background</span></td>
+        </tr>
+        <tr>
+          <td><span class="token-name">--sapToolbar_SeparatorColor</span></td>
+          <td><span class="token-value">#e5e5e5</span></td>
+          <td><span class="token-desc">Toolbar divider color</span></td>
+        </tr>
+        <tr>
+          <td><span class="token-name">--sapPageHeader_Background</span></td>
+          <td><span class="token-value">#ffffff</span></td>
+          <td><span class="token-desc">Page header background</span></td>
+        </tr>
+        <tr>
+          <td><span class="token-name">--sapPageHeader_BorderColor</span></td>
+          <td><span class="token-value">#e5e5e5</span></td>
+          <td><span class="token-desc">Page header bottom border</span></td>
+        </tr>
+        <tr>
+          <td><span class="token-name">--sapPageFooter_Background</span></td>
+          <td><span class="token-value">#ffffff</span></td>
+          <td><span class="token-desc">Page footer background</span></td>
+        </tr>
+        <tr>
+          <td><span class="token-name">--sapPageFooter_BorderColor</span></td>
+          <td><span class="token-value">#e5e5e5</span></td>
+          <td><span class="token-desc">Page footer top border</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>

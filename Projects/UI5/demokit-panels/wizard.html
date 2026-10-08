@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <script src="panel-init.js"></script>
+  <script type="module" src="../../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 600; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 300; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Light.woff2") format("woff2"); }
+    body { font-family: "72", sans-serif; font-size: 0.875rem; background: #f5f6f7; color: #131e29; margin: 0; padding: 2rem; }
+    .panel-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .panel-subtitle { font-size: 0.875rem; color: #6a7588; margin-bottom: 2rem; }
+    .demo-section { margin-bottom: 2rem; }
+    .demo-section-header { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #6a7588; margin-bottom: 1rem; padding-bottom: 0.375rem; border-bottom: 1px solid #e5e5e5; }
+    .demo-section-body { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 0.75rem; }
+    ui5-button { --sapButton_FontFamily: "72", sans-serif; }
+    ui5-button::part(text) { font-family: "72", sans-serif; font-weight: 400; }
+
+    .wz-steps { display: flex; align-items: center; padding: 1.25rem 1.5rem; background: #fff; border: 1px solid #e5e5e5; border-radius: 6px 6px 0 0; gap: 0; }
+    .wz-step { display: flex; align-items: center; gap: 0.5rem; flex: 1; cursor: pointer; }
+    .wz-step:last-child { flex: none; }
+    .wz-connector { flex: 1; height: 1px; background: #e5e5e5; margin: 0 0.25rem; }
+    .wz-circle { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.75rem; flex-shrink: 0; }
+    .wz-content-wrap { background: #fff; border: 1px solid #e5e5e5; border-top: none; padding: 1.5rem; }
+    .wz-footer { background: #f5f6f7; border: 1px solid #e5e5e5; border-top: none; border-radius: 0 0 6px 6px; padding: 0.75rem 1.5rem; display: flex; justify-content: flex-end; gap: 0.5rem; align-items: center; }
+    .wz-step-content { display: none; }
+    .wz-step-content.active { display: block; }
+    .wz-form { display: grid; grid-template-columns: 140px 1fr; gap: 0.5rem 0.75rem; align-items: center; margin-bottom: 1rem; }
+  </style>
+</head>
+<body>
+
+  <div class="panel-title">Wizard</div>
+  <div class="panel-subtitle">A multi-step guided flow — each step can be validated before the next becomes active.</div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">Create Product — 4 Steps</div>
+    <div class="demo-section-body" style="width:100%; flex-direction:column; gap:0;">
+
+      <div class="wz-steps">
+        <div class="wz-step" id="wz-step-0" onclick="wzGoTo(0)">
+          <div class="wz-circle" style="background:#0064d9;color:#fff;">1</div>
+          <span style="font-size:0.8125rem;font-weight:600;">Product Type</span>
+        </div>
+        <div class="wz-connector"></div>
+        <div class="wz-step" id="wz-step-1" onclick="wzGoTo(1)">
+          <div class="wz-circle" style="background:#e5e5e5;color:#6a7588;">2</div>
+          <span style="font-size:0.8125rem;color:#6a7588;">Product Info</span>
+        </div>
+        <div class="wz-connector"></div>
+        <div class="wz-step" id="wz-step-2" onclick="wzGoTo(2)">
+          <div class="wz-circle" style="background:#e5e5e5;color:#6a7588;">3</div>
+          <span style="font-size:0.8125rem;color:#6a7588;">Optional Info</span>
+        </div>
+        <div class="wz-connector"></div>
+        <div class="wz-step" id="wz-step-3" onclick="wzGoTo(3)">
+          <div class="wz-circle" style="background:#e5e5e5;color:#6a7588;">4</div>
+          <span style="font-size:0.8125rem;color:#6a7588;">Pricing</span>
+        </div>
+      </div>
+
+      <div class="wz-content-wrap">
+        <div class="wz-step-content active" id="wz-content-0">
+          <ui5-message-strip design="Information" hide-close-button style="margin-bottom:1rem;">Select the type of product you want to create.</ui5-message-strip>
+          <div style="display:flex;justify-content:center;">
+            <ui5-segmented-button>
+              <ui5-segmented-button-item icon="iphone">Mobile</ui5-segmented-button-item>
+              <ui5-segmented-button-item icon="sys-monitor" pressed>Desktop</ui5-segmented-button-item>
+              <ui5-segmented-button-item icon="database">Other</ui5-segmented-button-item>
+            </ui5-segmented-button>
+          </div>
+        </div>
+
+        <div class="wz-step-content" id="wz-content-1">
+          <ui5-message-strip design="Information" hide-close-button style="margin-bottom:1rem;">Fill in the required product information.</ui5-message-strip>
+          <div class="wz-form">
+            <ui5-label required>Name</ui5-label><ui5-input placeholder="Product name (min 6 chars)"></ui5-input>
+            <ui5-label required>Weight (kg)</ui5-label><ui5-input type="Number" placeholder="e.g. 2.5"></ui5-input>
+            <ui5-label>Manufacturer</ui5-label>
+            <ui5-select>
+              <ui5-option>Apple</ui5-option>
+              <ui5-option selected>Google</ui5-option>
+              <ui5-option>Microsoft</ui5-option>
+              <ui5-option>Samsung</ui5-option>
+            </ui5-select>
+            <ui5-label>Description</ui5-label><ui5-textarea rows="3"></ui5-textarea>
+          </div>
+        </div>
+
+        <div class="wz-step-content" id="wz-content-2">
+          <ui5-message-strip design="Information" hide-close-button style="margin-bottom:1rem;">Optional fields — you can skip this step.</ui5-message-strip>
+          <div class="wz-form">
+            <ui5-label>Cover Photo</ui5-label><ui5-button icon="upload">Choose a file…</ui5-button>
+            <ui5-label>Manufacturing Date</ui5-label><ui5-date-picker style="width:100%;"></ui5-date-picker>
+            <ui5-label>Availability</ui5-label>
+            <ui5-segmented-button>
+              <ui5-segmented-button-item pressed>In Store</ui5-segmented-button-item>
+              <ui5-segmented-button-item>In Depot</ui5-segmented-button-item>
+              <ui5-segmented-button-item>Out of Stock</ui5-segmented-button-item>
+            </ui5-segmented-button>
+          </div>
+        </div>
+
+        <div class="wz-step-content" id="wz-content-3">
+          <ui5-message-strip design="Information" hide-close-button style="margin-bottom:1rem;">Set the pricing details for this product.</ui5-message-strip>
+          <div class="wz-form">
+            <ui5-label>Price</ui5-label><ui5-input placeholder="e.g. 299.00" suffix="EUR"></ui5-input>
+            <ui5-label>Discount Group</ui5-label>
+            <ui5-select>
+              <ui5-option>Kids</ui5-option>
+              <ui5-option>Teens</ui5-option>
+              <ui5-option selected>Adults</ui5-option>
+            </ui5-select>
+            <ui5-label>VAT Included</ui5-label><ui5-checkbox></ui5-checkbox>
+          </div>
+        </div>
+      </div>
+
+      <div class="wz-footer">
+        <ui5-button id="wz-back" design="Transparent" onclick="wzNav(-1)" style="display:none;">Back</ui5-button>
+        <ui5-button id="wz-next" design="Emphasized" onclick="wzNav(1)">Next</ui5-button>
+        <ui5-button design="Transparent" onclick="wzReset()">Cancel</ui5-button>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    var wzStep = 0;
+    var wzMax = 0;
+    function wzGoTo(n) { if (n > wzMax) return; wzStep = n; wzRender(); }
+    function wzNav(dir) {
+      var next = wzStep + dir;
+      if (next < 0 || next > 3) return;
+      if (next > wzMax) wzMax = next;
+      wzStep = next;
+      wzRender();
+    }
+    function wzReset() { wzStep = 0; wzMax = 0; wzRender(); }
+    function wzRender() {
+      for (var i = 0; i < 4; i++) {
+        var s = document.getElementById('wz-step-' + i);
+        var c = document.getElementById('wz-content-' + i);
+        if (c) c.classList.toggle('active', i === wzStep);
+        if (!s) continue;
+        var circle = s.querySelector('.wz-circle');
+        var label = s.querySelector('span');
+        if (i < wzMax) {
+          circle.style.background = '#196800'; circle.style.color = '#fff'; circle.textContent = '✓';
+          if (label) { label.style.color = ''; label.style.fontWeight = ''; }
+        } else if (i === wzStep) {
+          circle.style.background = '#0064d9'; circle.style.color = '#fff'; circle.textContent = i + 1;
+          if (label) { label.style.color = ''; label.style.fontWeight = '600'; }
+        } else {
+          circle.style.background = '#e5e5e5'; circle.style.color = '#6a7588'; circle.textContent = i + 1;
+          if (label) { label.style.color = '#6a7588'; label.style.fontWeight = ''; }
+        }
+      }
+      document.getElementById('wz-back').style.display = wzStep > 0 ? '' : 'none';
+      document.getElementById('wz-next').textContent = wzStep === 3 ? 'Finish' : 'Next';
+    }
+  </script>
+
+</body>
+</html>

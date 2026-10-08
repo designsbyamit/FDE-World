@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Collection Assistant UI Guardrails</title>
+  <script data-ui5-config type="application/json">{ "theme":"sap_horizon" }</script>
+  <script type="module" src="../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <script src="../../lib/shared/shellbar.js"></script>
+  <style>
+    @font-face{font-family:"72";font-weight:400;src:url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2")}
+    @font-face{font-family:"72";font-weight:600;src:url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2")}
+    @font-face{font-family:"72";font-weight:700;src:url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2")}
+    *{box-sizing:border-box}html,body{margin:0;background:var(--sapBackgroundColor,#f5f6f7);color:var(--sapTextColor,#131e29);font-family:"72",sans-serif}body{padding-bottom:3rem}.page{max-width:1180px;margin:0 auto;padding:1.5rem 2rem}.hero,.card{background:var(--sapBaseColor,#fff);border:1px solid var(--sapGroup_ContentBorderColor,#d9d9d9);border-radius:var(--sapTile_BorderCornerRadius,1rem);box-shadow:var(--sapContent_Shadow0,0 1px 2px rgba(0,0,0,.08))}.hero{padding:1.5rem 1.75rem;margin-bottom:1rem}.eyebrow{color:var(--sapContent_LabelColor,#556b82);font-size:.875rem}.hero h1{margin:.3rem 0 .5rem;font-size:1.75rem}.hero p{max-width:850px;margin:0;line-height:1.55;color:var(--sapContent_LabelColor,#556b82)}.status{display:inline-flex;margin-top:1rem;padding:.35rem .65rem;border-radius:.5rem;background:var(--sapInformationBackground,#e8f2fe);color:var(--sapInformativeColor,#0064d9);font-size:.875rem}.toc{display:flex;flex-wrap:wrap;gap:.5rem;margin:1rem 0}.toc a{color:var(--sapLinkColor,#0064d9);text-decoration:none;border:1px solid var(--sapList_BorderColor,#d9d9d9);border-radius:.5rem;padding:.5rem .75rem;background:#fff}.card{padding:1.25rem 1.5rem;margin:1rem 0}.card h2{margin:0 0 .75rem;font-size:1.25rem}.card h3{margin:1.2rem 0 .4rem;font-size:1rem}.card p{line-height:1.55;margin:.5rem 0}.card ul{margin:.5rem 0;padding-left:1.25rem}.card li{margin:.4rem 0;line-height:1.45}.rule{display:grid;grid-template-columns:12rem 1fr;gap:1rem;padding:.7rem 0;border-top:1px solid var(--sapList_BorderColor,#e5e5e5)}.rule:first-of-type{border-top:0}.rule strong{font-weight:600}.tag{display:inline-block;padding:.2rem .45rem;border-radius:.35rem;font-size:.75rem;background:#eef1f4;color:#33485c}.must{background:#fff3d6;color:#8d4a00}.avoid{background:#fce4e4;color:#aa0808}.flow{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin:.75rem 0}.flow span{padding:.6rem .8rem;border:1px solid var(--sapList_BorderColor,#d9d9d9);border-radius:.5rem;background:#fff}.flow b{color:var(--sapContent_LabelColor,#556b82)}table{width:100%;border-collapse:collapse;font-size:.9rem}th,td{text-align:left;padding:.65rem;border-bottom:1px solid var(--sapList_BorderColor,#e5e5e5);vertical-align:top}th{font-weight:600;background:var(--sapList_HeaderBackground,#f7f7f7)}code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.85em;background:#f1f3f5;padding:.1rem .25rem;border-radius:.2rem}.callout{padding:.8rem 1rem;border-left:4px solid var(--sapInformativeColor,#0070f2);background:var(--sapInformationBackground,#e8f2fe);line-height:1.5}.footer{color:var(--sapContent_LabelColor,#556b82);font-size:.875rem;margin-top:1.25rem}@media(max-width:760px){.page{padding:1rem}.rule{grid-template-columns:1fr}table{display:block;overflow:auto;white-space:normal}}
+  </style>
+</head>
+<body>
+  <app-shellbar title="Collection Assistant" avatar-initials="JL" hide-product-switch base-path="../../"></app-shellbar>
+  <main class="page">
+    <section class="hero">
+      <div class="eyebrow">UI reference · ccv0.2</div>
+      <h1>Collection Assistant UI Guardrails</h1>
+      <p>Reusable layout and interaction rules extracted from the established Collection Assistant worklist and Customer 360 prototypes. New features—including Company Code—should fit these patterns with the smallest possible visual and behavioural change.</p>
+      <span class="status">Baseline: SAP Horizon · SAP 72 · UI5 Web Components · cozy density</span>
+    </section>
+
+    <nav class="toc" aria-label="Sections">
+      <a href="#frame">Page frame</a><a href="#worklist">Worklist</a><a href="#detail">Customer 360</a><a href="#overlays">Overlays</a><a href="#controls">Controls</a><a href="#company-code">Company Code decisions</a>
+    </nav>
+
+    <section class="card" id="frame"><h2>1. Page frame</h2>
+      <div class="rule"><strong>Global shell</strong><span>Use the shared <code>app-shellbar</code> at the top. Keep product title, navigation/menu affordance, help, and profile treatment consistent across pages.</span></div>
+      <div class="rule"><strong>Sub-header</strong><span>Below the shellbar, use a white sub-header with breadcrumb/context on the left, page/customer title, compact metadata, and primary page actions on the right.</span></div>
+      <div class="rule"><strong>Spacing</strong><span>Use the established rhythm: approximately <code>2rem</code> horizontal page padding, <code>1.5rem</code> main content padding, and generous section separation. Do not introduce dense edge-to-edge feature panels.</span></div>
+      <div class="rule"><strong>Visual language</strong><span>Use SAP design tokens for background, borders, text, link, status, information, and shadows. Prefer white cards on the SAP background with light borders and modest radius.</span></div>
+      <div class="rule"><strong>Typography</strong><span>Use SAP 72. Page titles are prominent; section titles are semibold; supporting labels and metadata are smaller but readable. Keep new feature copy at least 14px where it is user-facing.</span></div>
+    </section>
+
+    <section class="card" id="worklist"><h2>2. Worklist pattern</h2>
+      <div class="flow"><span>Shellbar</span><b>→</b><span>Page title/subtitle</span><b>→</b><span>Filter area</span><b>→</b><span>Toolbar</span><b>→</b><span>UI5 table</span></div>
+      <ul><li>Keep filters in a white, full-width filter band directly below the page header.</li><li>Use labelled fields, UI5 inputs/selects, and an emphasized <strong>Go</strong> action; secondary actions remain transparent.</li><li>Support filter collapse and pin affordances in the established centered control row.</li><li>Use a UI5 table with clear column headings, pop-in behavior, sticky/right-aligned actions where needed, and link-style navigation.</li><li>Use tags for priority/status; do not rely on color alone for meaning.</li><li>Use lightweight popovers for ageing detail, priority explanation, and other contextual information.</li></ul>
+      <div class="callout"><strong>Company Code rule:</strong> Company Code may be added as a table column and adaptable filter, but it must not change the customer identity model. If one customer spans multiple codes, show one parent customer row and repeat the same Customer ID and Customer Name in child rows; only Company Code and code-specific measures differ.</div>
+    </section>
+
+    <section class="card" id="detail"><h2>3. Customer 360 pattern</h2>
+      <div class="rule"><strong>Identity header</strong><span>Show breadcrumb, customer name, customer ID, key contact, and priority in the established compact header. Keep a Close/back action in the header action group.</span></div>
+      <div class="rule"><strong>Main/side layout</strong><span>Use a scrollable main column and a fixed right rail of approximately 450px for Account History or Agent content. Separate the rail with a left border.</span></div>
+      <div class="rule"><strong>AI insight card</strong><span>Place Insights and Recommendations near the top of the main column in a white card. Explain the reason, relevant exposure, and next action in plain language.</span></div>
+      <div class="rule"><strong>Account content</strong><span>Use a card with a UI5 tab container for Account Overview, Open Items, Payments/Reimbursements, and Disputes. Tables inside tabs get a compact toolbar and settings action.</span></div>
+      <div class="rule"><strong>KPI tiles</strong><span>Use a three-column KPI grid inside the account card. Keep values prominent, labels below, and card treatment consistent. New dimensions should add or replace tiles without changing the card grammar.</span></div>
+      <div class="rule"><strong>Right rail</strong><span>Keep Account History and Agent views as tabs in the side rail. Do not move history into a full-page route for a new feature.</span></div>
+    </section>
+
+    <section class="card" id="overlays"><h2>4. Overlay and panel patterns</h2>
+      <table><thead><tr><th>Pattern</th><th>Use for</th><th>Guardrail</th></tr></thead><tbody>
+        <tr><td>Right slide-in panel</td><td>Email compose, notes, call script, consequential action workflow</td><td>Anchor to the right edge; preserve page context; use a header, scrollable body, and footer actions. Existing prototype uses roughly 660px width with a shadow and rounded top-left corner.</td></tr>
+        <tr><td>Popover</td><td>Ageing breakdown, priority explanation, small filters, email preview</td><td>Keep contextual and lightweight; anchor to the triggering control; avoid using it for long forms or multi-step work.</td></tr>
+        <tr><td>Dialog</td><td>Settings, feedback, discard/confirmation, focused decision</td><td>Use only for a bounded decision. Provide explicit Cancel/Confirm or Close actions and keep width close to existing patterns.</td></tr>
+        <tr><td>Toast</td><td>Non-blocking completion feedback</td><td>Use after a successful low-risk action; do not use it as the only confirmation for consequential writes.</td></tr>
+      </tbody></table>
+      <div class="callout"><strong>Do not invent a new drawer, bottom sheet, full-screen modal, or floating command bar</strong> when an existing slide-in panel, popover, or dialog covers the interaction.</div>
+    </section>
+
+    <section class="card" id="controls"><h2>5. Control placement and behavior</h2>
+      <ul><li>Primary page actions sit in the top-right header action group or at the bottom-right of a slide-in panel.</li><li>Use emphasized buttons for the primary action; use Default or Transparent for secondary actions.</li><li>Use transparent/link-style actions inside tables and cards; avoid solid button clutter in repeated rows.</li><li>Use overflow/settings icons for secondary configuration, with tooltips.</li><li>Keep filter, sort, export, and table settings in toolbars—not mixed into data cells.</li><li>Maintain keyboard focus, visible state changes, and text labels/tooltips for icon-only controls.</li><li>For AI explanations, make the reason discoverable from the priority/status control without navigating away.</li></ul>
+    </section>
+
+    <section class="card" id="company-code"><h2>6. Company Code decision guardrails</h2>
+      <table><thead><tr><th>Decision</th><th>Use this pattern</th><th>Do not do this</th></tr></thead><tbody>
+        <tr><td>Customer identity</td><td>Customer ID + Customer Name remain stable across company codes.</td><td>Do not create a different customer row/name for each code when the underlying customer is the same.</td></tr>
+        <tr><td>Worklist row</td><td>One consolidated parent row; show <code>Multiple (n)</code> and expand into child rows.</td><td>Do not fragment one customer into unrelated top-level customers solely because the code differs.</td></tr>
+        <tr><td>Financial measures</td><td>Show code-specific amounts in child rows/details; show consolidated values in the parent only when the aggregation basis is known.</td><td>Do not add incompatible currencies or unallocated code values without an explicit assumption.</td></tr>
+        <tr><td>Customer 360 scope</td><td>Use an inline scope control such as All Company Codes / code values; keep the page shell and layout unchanged.</td><td>Do not create separate Customer 360 pages per company code.</td></tr>
+        <tr><td>Insights and priority</td><td>Keep customer-level insight/priority where the requirement says scoring spans accessible codes; explain code contributions in a popover or panel.</td><td>Do not recalculate or visually imply a separate customer identity per code.</td></tr>
+        <tr><td>Actions</td><td>Make the selected company code explicit inside the existing right slide-in action panel; retain existing approval/recipient patterns.</td><td>Do not introduce a new action surface just for Company Code.</td></tr>
+      </tbody></table>
+    </section>
+
+    <section class="card"><h2>7. Change review checklist</h2>
+      <ul><li><span class="tag must">Required</span> Does the change preserve shellbar, sub-header, main/side layout, card grammar, and control placement?</li><li><span class="tag must">Required</span> Does a customer spanning codes still appear as one customer identity?</li><li><span class="tag">Check</span> Are new overlays one of the established panel, popover, dialog, or toast patterns?</li><li><span class="tag">Check</span> Are summary and code-specific values clearly separated?</li><li><span class="tag avoid">Avoid</span> Does the change add a new navigation model, persistent floating control, or full-screen interruption?</li><li><span class="tag">Check</span> Are unresolved backend/data assumptions visible as annotations rather than disguised as final UI behavior?</li></ul>
+    </section>
+    <p class="footer">References: <a href="https://pages.github.tools.sap/I753220/Claude-Code/Projects/Agentic%20AI%20Collection%20Assistant%20Nestle/detail.html?customer=Grovemart%20Retail%20Group">published Customer 360 detail prototype</a>, local <code>Agentic AI Collection Assistant Nestle/detail.html</code> and <code>worklist.html</code>, and the Company Code requirements prototype. This document is a design guardrail, not a backend specification.</p>
+  </main>
+</body>
+</html>

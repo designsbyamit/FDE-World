@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Overview Page | Floorplan</title>
+
+  <script data-ui5-config type="application/json">{ "theme": "sap_horizon" }</script>
+  <script type="module" src="../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <script src="../../lib/shared/shellbar.js"></script>
+
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 600; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 300; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Light.woff2") format("woff2"); }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      font-family: "72", sans-serif;
+      background: var(--sapBackgroundColor, #f5f6f7);
+      color: var(--sapTextColor, #131e29);
+      min-height: 100vh;
+    }
+
+    ui5-button {
+      --sapButton_FontFamily: "72", sans-serif;
+    }
+    ui5-button::part(text) {
+      font-family: "72", sans-serif;
+      font-weight: 400;
+    }
+
+    .page-header {
+      background: var(--sapBaseColor, #fff);
+      border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      padding: 0.75rem 2rem;
+    }
+
+    .page-header-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--sapTextColor, #131e29);
+      line-height: 1.3;
+    }
+
+    .page-header-subtitle {
+      font-size: 0.875rem;
+      color: var(--sapContent_LabelColor, #6a7a87);
+      margin-top: 0.125rem;
+    }
+
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      padding: 1.5rem 2rem 0;
+    }
+
+    .kpi-card {
+      background: var(--sapBaseColor, #fff);
+      border: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      border-radius: 0.5rem;
+      padding: 1.25rem;
+      cursor: default;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .kpi-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--sapContent_Shadow1, 0 4px 16px rgba(0,0,0,0.12));
+    }
+
+    .kpi-label {
+      font-size: 0.75rem;
+      color: var(--sapContent_LabelColor, #6a7a87);
+      margin-bottom: 0.375rem;
+    }
+
+    .kpi-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--sapTextColor, #131e29);
+      line-height: 1.1;
+    }
+
+    .kpi-trend {
+      font-size: 0.75rem;
+      margin-top: 0.375rem;
+    }
+
+    .kpi-trend.positive { color: var(--sapPositiveColor, #188918); }
+    .kpi-trend.negative { color: var(--sapNegativeColor, #aa0808); }
+    .kpi-trend.neutral  { color: var(--sapContent_LabelColor, #6a7a87); }
+
+    .content-row {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 1rem;
+      padding: 1rem 2rem 1.5rem;
+    }
+
+    .content-card {
+      background: var(--sapBaseColor, #fff);
+      border: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      border-radius: 0.5rem;
+      overflow: hidden;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .content-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--sapContent_Shadow1, 0 4px 16px rgba(0,0,0,0.12));
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5);
+    }
+
+    .card-header-title {
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: var(--sapTextColor, #131e29);
+    }
+
+    .card-see-all {
+      font-size: 0.75rem;
+      color: var(--sapLinkColor, #0064d9);
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .card-see-all:hover {
+      text-decoration: underline;
+    }
+
+    .po-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.625rem 1rem;
+      border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      gap: 0.75rem;
+    }
+
+    .po-row:last-child {
+      border-bottom: none;
+    }
+
+    .po-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.125rem;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .po-number {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--sapTextColor, #131e29);
+    }
+
+    .po-supplier {
+      font-size: 0.75rem;
+      color: var(--sapContent_LabelColor, #6a7a87);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .po-amount {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--sapTextColor, #131e29);
+      white-space: nowrap;
+    }
+
+    .supplier-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5);
+    }
+
+    .supplier-row:last-child {
+      border-bottom: none;
+    }
+
+    .supplier-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.125rem;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .supplier-name {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--sapTextColor, #131e29);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .supplier-spend {
+      font-size: 0.75rem;
+      color: var(--sapContent_LabelColor, #6a7a87);
+    }
+
+    .alert-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.625rem;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5);
+    }
+
+    .alert-row:last-child {
+      border-bottom: none;
+    }
+
+    .alert-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-top: 0.2rem;
+      flex-shrink: 0;
+    }
+
+    .alert-dot.warning { background: var(--sapWarningColor, #df6e0c); }
+    .alert-dot.error   { background: var(--sapNegativeColor, #aa0808); }
+    .alert-dot.info    { background: var(--sapInformativeColor, #0064d9); }
+
+    .alert-content {
+      display: flex;
+      flex-direction: column;
+      gap: 0.125rem;
+      flex: 1;
+    }
+
+    .alert-message {
+      font-size: 0.875rem;
+      color: var(--sapTextColor, #131e29);
+      line-height: 1.4;
+    }
+
+    .alert-time {
+      font-size: 0.75rem;
+      color: var(--sapContent_LabelColor, #6a7a87);
+    }
+  </style>
+</head>
+<body>
+
+  <app-shellbar title="Procurement Overview" base-path="../../"></app-shellbar>
+
+  <div class="page-header">
+    <div class="page-header-title">Good morning, Linda</div>
+    <div class="page-header-subtitle">Here's your procurement overview for today, April 29, 2026</div>
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi-card">
+      <div class="kpi-label">Open Purchase Orders</div>
+      <div class="kpi-value">142</div>
+      <div class="kpi-trend positive">+12 this week</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Pending Approvals</div>
+      <div class="kpi-value">18</div>
+      <div class="kpi-trend negative">5 overdue</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Invoices Due This Week</div>
+      <div class="kpi-value">34</div>
+      <div class="kpi-trend neutral">$284K total</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Active Suppliers</div>
+      <div class="kpi-value">267</div>
+      <div class="kpi-trend positive">+3 new this month</div>
+    </div>
+  </div>
+
+  <div class="content-row">
+
+    <div class="content-card">
+      <div class="card-header">
+        <span class="card-header-title">Recent Purchase Orders</span>
+        <a class="card-see-all">See All</a>
+      </div>
+      <div class="po-row">
+        <div class="po-info">
+          <span class="po-number">PO-2026-04821</span>
+          <span class="po-supplier">Accenture Supply Co.</span>
+        </div>
+        <span class="po-amount">$48,200</span>
+        <ui5-tag design="Positive">Approved</ui5-tag>
+      </div>
+      <div class="po-row">
+        <div class="po-info">
+          <span class="po-number">PO-2026-04815</span>
+          <span class="po-supplier">GlobalParts Ltd.</span>
+        </div>
+        <span class="po-amount">$12,750</span>
+        <ui5-tag design="Critical">Pending</ui5-tag>
+      </div>
+      <div class="po-row">
+        <div class="po-info">
+          <span class="po-number">PO-2026-04809</span>
+          <span class="po-supplier">TechSource GmbH</span>
+        </div>
+        <span class="po-amount">$96,400</span>
+        <ui5-tag design="Information">Open</ui5-tag>
+      </div>
+      <div class="po-row">
+        <div class="po-info">
+          <span class="po-number">PO-2026-04798</span>
+          <span class="po-supplier">Meridian Logistics</span>
+        </div>
+        <span class="po-amount">$7,340</span>
+        <ui5-tag design="Positive">Approved</ui5-tag>
+      </div>
+      <div class="po-row">
+        <div class="po-info">
+          <span class="po-number">PO-2026-04782</span>
+          <span class="po-supplier">Nordic Raw Materials</span>
+        </div>
+        <span class="po-amount">$31,600</span>
+        <ui5-tag design="Critical">Pending</ui5-tag>
+      </div>
+    </div>
+
+    <div class="content-card">
+      <div class="card-header">
+        <span class="card-header-title">Top Suppliers by Spend</span>
+      </div>
+      <div class="supplier-row">
+        <ui5-avatar initials="TS" color-scheme="Accent1" size="S"></ui5-avatar>
+        <div class="supplier-info">
+          <span class="supplier-name">TechSource GmbH</span>
+          <span class="supplier-spend">$1.24M YTD</span>
+        </div>
+      </div>
+      <div class="supplier-row">
+        <ui5-avatar initials="GL" color-scheme="Accent2" size="S"></ui5-avatar>
+        <div class="supplier-info">
+          <span class="supplier-name">GlobalParts Ltd.</span>
+          <span class="supplier-spend">$987K YTD</span>
+        </div>
+      </div>
+      <div class="supplier-row">
+        <ui5-avatar initials="ML" color-scheme="Accent4" size="S"></ui5-avatar>
+        <div class="supplier-info">
+          <span class="supplier-name">Meridian Logistics</span>
+          <span class="supplier-spend">$743K YTD</span>
+        </div>
+      </div>
+      <div class="supplier-row">
+        <ui5-avatar initials="NR" color-scheme="Accent6" size="S"></ui5-avatar>
+        <div class="supplier-info">
+          <span class="supplier-name">Nordic Raw Materials</span>
+          <span class="supplier-spend">$612K YTD</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="content-card">
+      <div class="card-header">
+        <span class="card-header-title">Alerts</span>
+      </div>
+      <div class="alert-row">
+        <div class="alert-dot warning"></div>
+        <div class="alert-content">
+          <span class="alert-message">Contract with GlobalParts Ltd. expires in 14 days</span>
+          <span class="alert-time">2 hours ago</span>
+        </div>
+      </div>
+      <div class="alert-row">
+        <div class="alert-dot error"></div>
+        <div class="alert-content">
+          <span class="alert-message">PO-2026-04751 exceeded budget threshold by 18%</span>
+          <span class="alert-time">4 hours ago</span>
+        </div>
+      </div>
+      <div class="alert-row">
+        <div class="alert-dot warning"></div>
+        <div class="alert-content">
+          <span class="alert-message">5 purchase orders pending approval for over 48 hours</span>
+          <span class="alert-time">Yesterday</span>
+        </div>
+      </div>
+      <div class="alert-row">
+        <div class="alert-dot info"></div>
+        <div class="alert-content">
+          <span class="alert-message">Q2 supplier evaluation period opens May 1</span>
+          <span class="alert-time">Yesterday</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" href="../../lib/assets/favicon.ico">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Screen Flow — Collection Assistant</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #dde1e7;
+      min-height: 100vh;
+      overflow-x: auto;
+    }
+
+    /* ── Toolbar ── */
+    .toolbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 44px;
+      background: #2c2c2c;
+      display: flex;
+      align-items: center;
+      padding: 0 1.25rem;
+      gap: 1.5rem;
+      z-index: 1000;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+    .toolbar-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #fff;
+      white-space: nowrap;
+    }
+    .toolbar-divider { width: 1px; height: 20px; background: #555; }
+    .toolbar-legend {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+    }
+    .toolbar-spacer { flex: 1; }
+    .toolbar-btn {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: #1a1a2e;
+      background: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 5px 14px;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .toolbar-btn:hover { background: #e8e8f0; }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      font-size: 0.75rem;
+      color: #ccc;
+      white-space: nowrap;
+    }
+    .legend-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .legend-line {
+      width: 24px; height: 2px;
+      flex-shrink: 0;
+    }
+
+    /* ── Canvas ── */
+    .canvas {
+      padding: 72px 48px 80px;
+      min-width: 3600px;
+    }
+
+    /* ── Flow section ── */
+    .flow-section {
+      margin-bottom: 72px;
+    }
+    .flow-section-title {
+      font-size: 1.375rem;
+      font-weight: 700;
+      color: #1a1a2e;
+      margin-bottom: 28px;
+      letter-spacing: -0.01em;
+    }
+    .flow-section-title span {
+      display: inline-block;
+      background: #1a1a2e;
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-right: 0.5rem;
+      vertical-align: middle;
+      letter-spacing: 0.05em;
+    }
+    .sub-flow-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #1a1a2e;
+      margin-bottom: 18px;
+      letter-spacing: -0.01em;
+    }
+    .sub-flow-title span {
+      display: inline-block;
+      background: #1a1a2e;
+      color: #fff;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 4px;
+      margin-right: 0.4rem;
+      vertical-align: middle;
+      letter-spacing: 0.05em;
+    }
+
+    /* ── Flow row ── */
+    .flow-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 0;
+      position: relative;
+    }
+
+    /* ── Screen card ── */
+    .screen-card {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      flex-shrink: 0;
+    }
+    .screen-label {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: #1a1a2e;
+      margin-bottom: 8px;
+      max-width: 280px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .screen-label::before {
+      content: '';
+      display: inline-block;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      background: #9ca3af;
+    }
+    .persona-badge.agent ~ .screen-label::before    { background: #0369a1; }
+    .persona-badge.system ~ .screen-label::before   { background: #15803d; }
+    .persona-badge.admin ~ .screen-label::before    { background: #92400e; }
+    .screen-frame {
+      width: 280px;
+      height: 175px;
+      border-radius: 6px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.08);
+      background: #fff;
+      position: relative;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+      flex-shrink: 0;
+    }
+    .screen-frame:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.22), 0 0 0 1px rgba(0,0,0,0.08);
+    }
+    .screen-frame iframe {
+      width: 1280px;
+      height: 800px;
+      border: none;
+      transform: scale(0.21875);
+      transform-origin: top left;
+      pointer-events: none;
+    }
+    .screen-frame-overlay {
+      position: absolute;
+      inset: 0;
+      cursor: pointer;
+    }
+    .screen-tag {
+      margin-top: 7px;
+      font-size: 0.6875rem;
+      color: #1a1a2e;
+      max-width: 280px;
+      line-height: 1.4;
+    }
+
+    /* ── Persona badge ── */
+    .persona-badge { display: none; }
+
+    /* ── Connector ── */
+    .connector {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      padding: 0 6px;
+      align-self: flex-start;
+      margin-top: 113px;
+    }
+    .connector-line {
+      display: flex;
+      align-items: center;
+      gap: 0;
+    }
+    .arrow-shaft {
+      height: 2px;
+      background: #e91e8c;
+    }
+    .arrow-head {
+      width: 0; height: 0;
+      border-top: 5px solid transparent;
+      border-bottom: 5px solid transparent;
+      border-left: 8px solid #e91e8c;
+      flex-shrink: 0;
+    }
+    .arrow-shaft.dashed {
+      background: repeating-linear-gradient(90deg, #e91e8c 0, #e91e8c 5px, transparent 5px, transparent 10px);
+    }
+
+    /* ── Branch connector ── */
+    .branch-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 0;
+    }
+    .branch-col-wrap {
+      display: flex;
+      flex-direction: row;
+      align-items: flex-start;
+      flex-shrink: 0;
+      position: relative;
+    }
+    .branch-col-vert {
+      position: relative;
+      width: 2px;
+      flex-shrink: 0;
+      align-self: stretch;
+    }
+    .branch-col-vert::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: var(--vert-top, 113px);
+      height: var(--vert-height, 0px);
+      background: #e91e8c;
+      width: 2px;
+    }
+    .branch-col-rows {
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      gap: 48px;
+    }
+    .branch-col-row {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+    .branch-col-row::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 113px;
+      width: 52px;
+      height: 2px;
+      background: #e91e8c;
+    }
+    .branch-col-row::after {
+      content: '';
+      position: absolute;
+      left: 52px;
+      top: 108px;
+      width: 0; height: 0;
+      border-top: 5px solid transparent;
+      border-bottom: 5px solid transparent;
+      border-left: 8px solid #e91e8c;
+    }
+    .branch-col-row-content {
+      padding-left: 60px;
+    }
+
+    /* ── Section divider ── */
+    .section-divider {
+      height: 1px;
+      background: rgba(0,0,0,0.12);
+      margin: 8px 0 64px;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div class="toolbar-title">Collection Assistant — Screen Flow</div>
+    <div class="toolbar-divider"></div>
+    <div class="toolbar-legend">
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#0369a1"></div> Collections Agent
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#15803d"></div> System / Agent
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#92400e"></div> Administrator
+      </div>
+      <div class="legend-item">
+        <div class="legend-line" style="background:#e91e8c"></div> Navigation
+      </div>
+      <div class="legend-item">
+        <div class="legend-line" style="background: repeating-linear-gradient(90deg,#e91e8c 0,#e91e8c 5px,transparent 5px,transparent 10px)"></div> Optional / Conditional
+      </div>
+    </div>
+    <div class="toolbar-spacer"></div>
+    <button class="toolbar-btn" onclick="window.open('worklist.html','_blank')">View Prototype</button>
+  </div>
+
+  <div class="canvas">
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- FLOW 1 — COLLECTIONS AGENT EXPERIENCE                  -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div class="flow-section">
+      <div class="flow-section-title"><span>FLOW 1</span> Collections Agent Experience</div>
+      <div class="flow-row">
+
+        <div class="screen-card">
+          <div class="persona-badge agent">Collections Agent</div>
+          <div class="screen-label">Collections Worklist</div>
+          <div class="screen-frame" onclick="window.open('worklist.html','_blank')">
+            <iframe src="worklist.html" scrolling="no" tabindex="-1"></iframe>
+            <div class="screen-frame-overlay"></div>
+          </div>
+          <div class="screen-tag">Agent opens the worklist filtered to "Action Required" cases, sorted by priority. Agent clicks a customer row to open the collection case detail.</div>
+        </div>
+
+        <!-- T-junction -->
+        <div class="connector" style="margin-top:147px;">
+          <div class="connector-line">
+            <div class="arrow-shaft" style="width:44px"></div>
+            <div class="arrow-head"></div>
+          </div>
+        </div>
+
+        <div class="branch-col-wrap" id="f1-branch-col">
+          <div class="branch-col-vert" id="f1-branch-vert"></div>
+          <div class="branch-col-rows">
+
+            <div class="branch-col-row">
+            <div class="branch-col-row-content">
+            <div style="display:flex; flex-direction:column;">
+            <div class="sub-flow-title"><span>Flow 1a</span> Email Customer</div>
+            <div id="f1-path-a" class="branch-row">
+              <div class="screen-card">
+                <div class="persona-badge agent">Collections Agent</div>
+                <div class="screen-label">Collection Case Detail</div>
+                <div class="screen-frame" onclick="window.open('detail.html?customer=Institut%20Bergoni%C3%A9','_blank')">
+                  <iframe src="detail.html?customer=Institut%20Bergoni%C3%A9" scrolling="no" tabindex="-1"></iframe>
+                  <div class="screen-frame-overlay"></div>
+                </div>
+                <div class="screen-tag">Agent opens a case. AI summary and suggested actions are shown. Agent clicks "Email Customer" to open the email panel.</div>
+              </div>
+              <div class="connector">
+                <div class="connector-line">
+                  <div class="arrow-shaft" style="width:44px"></div>
+                  <div class="arrow-head"></div>
+                </div>
+              </div>
+              <div class="screen-card">
+                <div class="persona-badge agent">Collections Agent</div>
+                <div class="screen-label">Email Panel — Draft</div>
+                <div class="screen-frame" onclick="window.open('detail.html?customer=Institut%20Bergoni%C3%A9','_blank')">
+                  <iframe src="detail.html?customer=Institut%20Bergoni%C3%A9" scrolling="no" tabindex="-1"></iframe>
+                  <div class="screen-frame-overlay"></div>
+                </div>
+                <div class="screen-tag">Slide-in panel opens with a pre-populated subject and AI-drafted body. Agent selects tone (Neutral, Professional, Friendly, Firm) and edits if needed, then clicks Send.</div>
+              </div>
+              <div class="connector">
+                <div class="connector-line">
+                  <div class="arrow-shaft" style="width:44px"></div>
+                  <div class="arrow-head"></div>
+                </div>
+              </div>
+              <div class="screen-card">
+                <div class="persona-badge system">System</div>
+                <div class="screen-label">Email Sent</div>
+                <div style="width:280px; height:175px; border-radius:6px; background:#f0fdf4; border:1.5px solid #86efac; display:flex; align-items:center; justify-content:center;">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none"><rect x="2" y="4" width="20" height="16" rx="2" fill="#16a34a"/><path d="M2 7l10 7 10-7" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg>
+                </div>
+                <div class="screen-tag">Email is sent to the customer. The communication history updates with a timestamped entry showing the message summary and tone used.</div>
+              </div>
+            </div>
+            </div>
+            </div><!-- /branch-col-row-content -->
+            </div><!-- /branch-col-row -->
+
+            <div class="branch-col-row">
+            <div class="branch-col-row-content">
+            <div style="display:flex; flex-direction:column;">
+            <div class="sub-flow-title"><span>Flow 1b</span> Call Customer</div>
+            <div id="f1-path-b" class="branch-row">
+              <div class="screen-card">
+                <div class="persona-badge agent">Collections Agent</div>
+                <div class="screen-label">Collection Case Detail</div>
+                <div class="screen-frame" onclick="window.open('detail.html?customer=Meridian%20Oncology%20Partners','_blank')">
+                  <iframe src="detail.html?customer=Meridian%20Oncology%20Partners" scrolling="no" tabindex="-1"></iframe>
+                  <div class="screen-frame-overlay"></div>
+                </div>
+                <div class="screen-tag">Agent opens a case. AI summary and suggested actions are shown. Agent clicks "Call Customer" to open the call script panel.</div>
+              </div>
+              <div class="connector">
+                <div class="connector-line">
+                  <div class="arrow-shaft" style="width:44px"></div>
+                  <div class="arrow-head"></div>
+                </div>
+              </div>
+              <div class="screen-card">
+                <div class="persona-badge agent">Collections Agent</div>
+                <div class="screen-label">Call Script Panel</div>
+                <div class="screen-frame" onclick="window.open('detail.html?customer=Meridian%20Oncology%20Partners','_blank')">
+                  <iframe src="detail.html?customer=Meridian%20Oncology%20Partners" scrolling="no" tabindex="-1"></iframe>
+                  <div class="screen-frame-overlay"></div>
+                </div>
+                <div class="screen-tag">Slide-in panel opens with an AI-generated call script tailored to the account's overdue balance and history. Agent uses the script as a guide during the call.</div>
+              </div>
+              <div class="connector">
+                <div class="connector-line">
+                  <div class="arrow-shaft" style="width:44px"></div>
+                  <div class="arrow-head"></div>
+                </div>
+              </div>
+              <div class="screen-card">
+                <div class="persona-badge system">System</div>
+                <div class="screen-label">Call Attempt Logged</div>
+                <div style="width:280px; height:175px; border-radius:6px; background:#f0fdf4; border:1.5px solid #86efac; display:flex; align-items:center; justify-content:center;">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="11" fill="#16a34a"/><path d="M7 12.5l3.5 3.5 6.5-7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="screen-tag">Call attempt is recorded in the communication history. Agent can add notes via the Notes panel after the call.</div>
+              </div>
+            </div>
+            </div>
+            </div><!-- /branch-col-row-content -->
+            </div><!-- /branch-col-row -->
+
+            <div class="branch-col-row">
+            <div class="branch-col-row-content">
+            <div style="display:flex; flex-direction:column;">
+            <div class="sub-flow-title"><span>Flow 1c</span> Review and Approve</div>
+            <div id="f1-path-c" class="branch-row">
+              <div class="screen-card">
+                <div class="persona-badge agent">Collections Agent</div>
+                <div class="screen-label">Collection Case Detail</div>
+                <div class="screen-frame" onclick="window.open('detail.html?customer=Clairmont%20Diagnostic%20Clinic','_blank')">
+                  <iframe src="detail.html?customer=Clairmont%20Diagnostic%20Clinic" scrolling="no" tabindex="-1"></iframe>
+                  <div class="screen-frame-overlay"></div>
+                </div>
+                <div class="screen-tag">Agent opens a case. Reviews overdue invoices, account KPIs, open items, payment history, and disputes. Agent clicks "Approve" on the AI-suggested action card.</div>
+              </div>
+              <div class="connector">
+                <div class="connector-line">
+                  <div class="arrow-shaft" style="width:44px"></div>
+                  <div class="arrow-head"></div>
+                </div>
+              </div>
+              <div class="screen-card">
+                <div class="persona-badge system">System</div>
+                <div class="screen-label">Action Approved</div>
+                <div style="width:280px; height:175px; border-radius:6px; background:#f0fdf4; border:1.5px solid #86efac; display:flex; align-items:center; justify-content:center;">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="11" fill="#16a34a"/><path d="M7 12.5l3.5 3.5 6.5-7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="screen-tag">The approved action is executed (e.g. ServiceNow ticket created, follow-up scheduled). Action is recorded in the communication history.</div>
+              </div>
+            </div>
+            </div>
+            </div><!-- /branch-col-row-content -->
+            </div><!-- /branch-col-row -->
+
+          </div><!-- /branch-col-rows -->
+        </div><!-- /f1-branch-col -->
+
+      </div>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- FLOW 2 — ADMINISTRATOR EXPERIENCE                      -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div class="flow-section">
+      <div class="flow-section-title"><span>FLOW 2</span> Administrator Experience</div>
+      <div class="flow-row">
+
+        <div class="screen-card">
+          <div class="persona-badge admin">Administrator</div>
+          <div class="screen-label">Administration — System Configuration</div>
+          <div class="screen-frame" onclick="window.open('admin.html','_blank')">
+            <iframe src="admin.html" scrolling="no" tabindex="-1"></iframe>
+            <div class="screen-frame-overlay"></div>
+          </div>
+          <div class="screen-tag">Admin opens the Administration page. System Configuration tab is shown by default with a table of integrations (Office365, SAP FSCM, Databricks, ServiceNow) and their connection status.</div>
+        </div>
+
+        <div class="connector">
+          <div class="connector-line">
+            <div class="arrow-shaft" style="width:44px"></div>
+            <div class="arrow-head"></div>
+          </div>
+        </div>
+
+        <div class="screen-card">
+          <div class="persona-badge admin">Administrator</div>
+          <div class="screen-label">Connect Integration</div>
+          <div class="screen-frame" onclick="window.open('admin.html','_blank')">
+            <iframe src="admin.html" scrolling="no" tabindex="-1"></iframe>
+            <div class="screen-frame-overlay"></div>
+          </div>
+          <div class="screen-tag">Admin clicks "Connect" on a row (e.g. SAP FSCM). Authentication and configuration steps are completed to bring the integration online.</div>
+        </div>
+
+        <div class="connector">
+          <div class="connector-line">
+            <div class="arrow-shaft" style="width:44px"></div>
+            <div class="arrow-head"></div>
+          </div>
+        </div>
+
+        <div class="screen-card">
+          <div class="persona-badge admin">Administrator</div>
+          <div class="screen-label">Manage Users</div>
+          <div class="screen-frame" onclick="window.open('admin.html','_blank')">
+            <iframe src="admin.html" scrolling="no" tabindex="-1"></iframe>
+            <div class="screen-frame-overlay"></div>
+          </div>
+          <div class="screen-tag">Admin clicks "SAP Cloud IAS" to open identity and access management. Users can be added, removed, or have their permissions updated.</div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    function drawVert(colId) {
+      var col = document.getElementById(colId);
+      if (!col) return;
+      var vert = col.querySelector('.branch-col-vert');
+      var rows = col.querySelectorAll(':scope > .branch-col-rows > .branch-col-row');
+      if (!vert || rows.length < 2) return;
+
+      var firstRow = rows[0];
+      var lastRow  = rows[rows.length - 1];
+      var colRect   = col.getBoundingClientRect();
+      var firstRect = firstRow.getBoundingClientRect();
+      var lastRect  = lastRow.getBoundingClientRect();
+
+      var top    = (firstRect.top - colRect.top) + 113;
+      var bottom = (lastRect.top  - colRect.top) + 113;
+      var height = bottom - top;
+      if (height <= 0) return;
+
+      vert.style.setProperty('--vert-top',    top    + 'px');
+      vert.style.setProperty('--vert-height', height + 'px');
+    }
+
+    function drawAllVerts() {
+      ['f1-branch-col'].forEach(drawVert);
+    }
+
+    window.addEventListener('load', function() {
+      drawAllVerts();
+
+      var ro = new ResizeObserver(drawAllVerts);
+      ro.observe(document.querySelector('.canvas'));
+
+      document.querySelectorAll('.screen-frame iframe').forEach(function(iframe) {
+        iframe.addEventListener('load', drawAllVerts);
+      });
+    });
+  </script>
+</body>
+</html>

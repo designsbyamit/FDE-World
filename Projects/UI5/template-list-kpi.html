@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>List with KPI Tiles | Template</title>
+
+  <script data-ui5-config type="application/json">{ "theme": "sap_horizon" }</script>
+  <script type="module" src="../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <script src="../../lib/shared/shellbar.js"></script>
+
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 600; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 300; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Light.woff2") format("woff2"); }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      font-family: "72", sans-serif;
+      background: var(--sapBackgroundColor, #f5f6f7);
+      color: var(--sapTextColor, #131e29);
+      min-height: 100vh;
+    }
+
+    ui5-button { --sapButton_FontFamily: "72", sans-serif; }
+    ui5-button::part(text) { font-family: "72", sans-serif; font-weight: 400; }
+
+    app-shellbar { position: sticky; top: 0; z-index: 100; }
+
+    /* ── Page Header ── */
+    .page-header {
+      background: var(--sapBaseColor, #fff);
+      border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      padding: 1rem 2rem;
+    }
+
+    .page-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--sapTextColor, #131e29);
+      line-height: 1.25;
+    }
+
+    /* ── Page Content ── */
+    .page-content {
+      padding: 1.5rem 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    /* ── KPI Tile Grid ── */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+
+    .kpi-tile {
+      background: var(--sapBaseColor, #fff);
+      border: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      border-radius: var(--sapTile_BorderCornerRadius, 1rem);
+      padding: 1.25rem 1.5rem;
+    }
+
+    .kpi-number {
+      font-size: 2rem;
+      font-weight: 300;
+      color: var(--sapTextColor, #131e29);
+      line-height: 1.1;
+    }
+
+    .kpi-unit {
+      display: inline-block;
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: var(--sapContent_LabelColor, #556b82);
+      margin-left: 0.25rem;
+      vertical-align: baseline;
+      line-height: 1;
+    }
+
+    .kpi-description {
+      margin-top: 0.375rem;
+      font-size: 0.875rem;
+      color: var(--sapContent_LabelColor, #556b82);
+    }
+
+    /* ── Table Card ── */
+    .table-card {
+      background: var(--sapBaseColor, #fff);
+      border: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      border-radius: 0.375rem;
+      overflow: hidden;
+    }
+
+    .table-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 0.75rem;
+      border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      gap: 1rem;
+    }
+
+    .table-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--sapTextColor, #131e29);
+      white-space: nowrap;
+    }
+
+    .table-toolbar-right {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+    }
+
+    .toolbar-separator {
+      width: 1px;
+      height: 1.25rem;
+      background: var(--sapList_BorderColor, #e5e5e5);
+      margin: 0 0.125rem;
+    }
+
+    /* ── Skeleton Loader ── */
+    @keyframes sap-pulse {
+      0%   { opacity: 1; }
+      50%  { opacity: 0.4; }
+      100% { opacity: 1; }
+    }
+
+    .skeleton-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .skeleton-table td {
+      padding: 0.75rem 0.875rem;
+      border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5);
+    }
+
+    .skeleton-table td:first-child { padding-inline-start: 1rem; }
+
+    .skel-bar {
+      display: block;
+      height: 0.875rem;
+      border-radius: 0.25rem;
+      background: var(--sapNeutralBackground, #e8eaed);
+      animation: sap-pulse 1.5s ease-in-out infinite;
+    }
+
+    .skel-bar.w-40  { width: 40%; }
+    .skel-bar.w-55  { width: 55%; }
+    .skel-bar.w-65  { width: 65%; }
+    .skel-bar.w-80  { width: 80%; }
+    .skel-bar.w-30  { width: 30%; }
+    .skel-bar.w-20  { width: 20%; }
+    .skel-bar.w-50  { width: 50%; }
+
+    /* ── Status text ── */
+    .status-inprogress { color: var(--sapInformativeColor, #0070f2); font-weight: 600; }
+    .status-completed  { color: var(--sapPositiveColor,     #256f3a); font-weight: 600; }
+    .status-pending    { color: var(--sapWarningColor,      #df6e0c); font-weight: 600; }
+
+    /* ── Nav chevron ── */
+    .nav-chevron {
+      color: var(--sapContent_LabelColor, #556b82);
+      font-size: 1rem;
+      line-height: 1;
+    }
+
+    /* ── Pagination ── */
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.125rem;
+      padding: 0.875rem;
+      border-top: 1px solid var(--sapList_BorderColor, #e5e5e5);
+    }
+
+    .page-btn {
+      min-width: 26px;
+      height: 26px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 0.5rem;
+      font-family: "72", sans-serif;
+      font-size: 0.875rem;
+      cursor: pointer;
+      border: none;
+      background: none;
+      color: var(--sapTextColor, #131e29);
+      padding: 0 0.35rem;
+      transition: background 0.15s;
+    }
+    .page-btn:hover { background: var(--sapList_HoverBackground, #f0f2f5); }
+    .page-btn.active { color: var(--sapLinkColor, #0070f2); font-weight: 600; text-decoration: underline; }
+    .page-btn-nav { color: var(--sapContent_LabelColor, #556b82); }
+    .page-btn svg { width: 12px; height: 12px; }
+  </style>
+</head>
+<body>
+
+  <app-shellbar title="SAP Fiori" base-path="../../"></app-shellbar>
+
+  <div class="page-header">
+    <div class="page-title">Items</div>
+  </div>
+
+  <div class="page-content">
+
+    <!-- KPI Tiles -->
+    <div class="kpi-grid">
+
+      <div class="kpi-tile">
+        <div><span class="kpi-number">247</span></div>
+        <div class="kpi-description">Total Items</div>
+      </div>
+
+      <div class="kpi-tile">
+        <div><span class="kpi-number">18</span></div>
+        <div class="kpi-description">Pending Review</div>
+      </div>
+
+      <div class="kpi-tile">
+        <div><span class="kpi-number">94</span><span class="kpi-unit">%</span></div>
+        <div class="kpi-description">Completion Rate</div>
+      </div>
+
+    </div>
+
+    <!-- Table Card -->
+    <div class="table-card">
+
+      <!-- Toolbar -->
+      <div class="table-toolbar">
+        <span class="table-title">Items (247)</span>
+        <div class="table-toolbar-right">
+          <ui5-button design="Transparent" icon="action-settings" tooltip="Settings"></ui5-button>
+          <ui5-button design="Transparent" icon="full-screen" tooltip="Fullscreen"></ui5-button>
+          <div class="toolbar-separator"></div>
+          <ui5-button design="Transparent" icon="download" tooltip="Export"></ui5-button>
+        </div>
+      </div>
+
+      <!-- Skeleton Loader -->
+      <div id="skeleton">
+        <table class="skeleton-table">
+          <tbody>
+            <tr>
+              <td><span class="skel-bar w-40"></span></td>
+              <td><span class="skel-bar w-65"></span></td>
+              <td><span class="skel-bar w-55"></span></td>
+              <td><span class="skel-bar w-50"></span></td>
+              <td><span class="skel-bar w-30"></span></td>
+              <td><span class="skel-bar w-40"></span></td>
+            </tr>
+            <tr>
+              <td><span class="skel-bar w-55"></span></td>
+              <td><span class="skel-bar w-80"></span></td>
+              <td><span class="skel-bar w-40"></span></td>
+              <td><span class="skel-bar w-65"></span></td>
+              <td><span class="skel-bar w-30"></span></td>
+              <td><span class="skel-bar w-50"></span></td>
+            </tr>
+            <tr>
+              <td><span class="skel-bar w-40"></span></td>
+              <td><span class="skel-bar w-55"></span></td>
+              <td><span class="skel-bar w-65"></span></td>
+              <td><span class="skel-bar w-50"></span></td>
+              <td><span class="skel-bar w-20"></span></td>
+              <td><span class="skel-bar w-40"></span></td>
+            </tr>
+            <tr>
+              <td><span class="skel-bar w-30"></span></td>
+              <td><span class="skel-bar w-65"></span></td>
+              <td><span class="skel-bar w-55"></span></td>
+              <td><span class="skel-bar w-40"></span></td>
+              <td><span class="skel-bar w-30"></span></td>
+              <td><span class="skel-bar w-50"></span></td>
+            </tr>
+            <tr>
+              <td><span class="skel-bar w-55"></span></td>
+              <td><span class="skel-bar w-80"></span></td>
+              <td><span class="skel-bar w-40"></span></td>
+              <td><span class="skel-bar w-65"></span></td>
+              <td><span class="skel-bar w-20"></span></td>
+              <td><span class="skel-bar w-30"></span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Real Table (hidden until skeleton done) -->
+      <div id="tableContainer" style="display: none;">
+        <ui5-table>
+          <ui5-table-header-row slot="headerRow">
+            <ui5-table-header-cell width="110px" style="padding-inline-start: 1rem">Record ID</ui5-table-header-cell>
+            <ui5-table-header-cell width="200px">Name</ui5-table-header-cell>
+            <ui5-table-header-cell width="130px">Submitted Date</ui5-table-header-cell>
+            <ui5-table-header-cell width="160px">Category</ui5-table-header-cell>
+            <ui5-table-header-cell width="150px">Risk Level</ui5-table-header-cell>
+            <ui5-table-header-cell width="120px">Status</ui5-table-header-cell>
+            <ui5-table-header-cell width="40px"></ui5-table-header-cell>
+          </ui5-table-header-row>
+
+          <ui5-table-row interactive onclick="location.href='#'">
+            <ui5-table-cell style="padding-inline-start: 1rem">REC-00247</ui5-table-cell>
+            <ui5-table-cell>Global Solutions Ltd</ui5-table-cell>
+            <ui5-table-cell>04.01.2026</ui5-table-cell>
+            <ui5-table-cell>Compliance</ui5-table-cell>
+            <ui5-table-cell>1 High, 2 Medium</ui5-table-cell>
+            <ui5-table-cell><span class="status-inprogress">In Progress</span></ui5-table-cell>
+            <ui5-table-cell><span class="nav-chevron">›</span></ui5-table-cell>
+          </ui5-table-row>
+
+          <ui5-table-row interactive onclick="location.href='#'">
+            <ui5-table-cell style="padding-inline-start: 1rem">REC-00246</ui5-table-cell>
+            <ui5-table-cell>Apex Technologies</ui5-table-cell>
+            <ui5-table-cell>04.03.2026</ui5-table-cell>
+            <ui5-table-cell>Risk Management</ui5-table-cell>
+            <ui5-table-cell>3 Medium</ui5-table-cell>
+            <ui5-table-cell><span class="status-completed">Completed</span></ui5-table-cell>
+            <ui5-table-cell><span class="nav-chevron">›</span></ui5-table-cell>
+          </ui5-table-row>
+
+          <ui5-table-row interactive onclick="location.href='#'">
+            <ui5-table-cell style="padding-inline-start: 1rem">REC-00245</ui5-table-cell>
+            <ui5-table-cell>Meridian Corp</ui5-table-cell>
+            <ui5-table-cell>04.05.2026</ui5-table-cell>
+            <ui5-table-cell>Procurement</ui5-table-cell>
+            <ui5-table-cell>1 High</ui5-table-cell>
+            <ui5-table-cell><span class="status-pending">Pending</span></ui5-table-cell>
+            <ui5-table-cell><span class="nav-chevron">›</span></ui5-table-cell>
+          </ui5-table-row>
+
+          <ui5-table-row interactive onclick="location.href='#'">
+            <ui5-table-cell style="padding-inline-start: 1rem">REC-00244</ui5-table-cell>
+            <ui5-table-cell>Pinnacle Group</ui5-table-cell>
+            <ui5-table-cell>04.07.2026</ui5-table-cell>
+            <ui5-table-cell>Finance</ui5-table-cell>
+            <ui5-table-cell>2 Medium</ui5-table-cell>
+            <ui5-table-cell><span class="status-completed">Completed</span></ui5-table-cell>
+            <ui5-table-cell><span class="nav-chevron">›</span></ui5-table-cell>
+          </ui5-table-row>
+
+          <ui5-table-row interactive onclick="location.href='#'">
+            <ui5-table-cell style="padding-inline-start: 1rem">REC-00243</ui5-table-cell>
+            <ui5-table-cell>Vertex Enterprises</ui5-table-cell>
+            <ui5-table-cell>04.09.2026</ui5-table-cell>
+            <ui5-table-cell>Operations</ui5-table-cell>
+            <ui5-table-cell>1 High, 1 Medium</ui5-table-cell>
+            <ui5-table-cell><span class="status-inprogress">In Progress</span></ui5-table-cell>
+            <ui5-table-cell><span class="nav-chevron">›</span></ui5-table-cell>
+          </ui5-table-row>
+
+          <ui5-table-row interactive onclick="location.href='#'">
+            <ui5-table-cell style="padding-inline-start: 1rem">REC-00242</ui5-table-cell>
+            <ui5-table-cell>Horizon Industries</ui5-table-cell>
+            <ui5-table-cell>04.11.2026</ui5-table-cell>
+            <ui5-table-cell>Compliance</ui5-table-cell>
+            <ui5-table-cell>4 Low</ui5-table-cell>
+            <ui5-table-cell><span class="status-completed">Completed</span></ui5-table-cell>
+            <ui5-table-cell><span class="nav-chevron">›</span></ui5-table-cell>
+          </ui5-table-row>
+
+          <ui5-table-row interactive onclick="location.href='#'">
+            <ui5-table-cell style="padding-inline-start: 1rem">REC-00241</ui5-table-cell>
+            <ui5-table-cell>Cascade Partners</ui5-table-cell>
+            <ui5-table-cell>04.14.2026</ui5-table-cell>
+            <ui5-table-cell>Legal</ui5-table-cell>
+            <ui5-table-cell>2 High</ui5-table-cell>
+            <ui5-table-cell><span class="status-pending">Pending</span></ui5-table-cell>
+            <ui5-table-cell><span class="nav-chevron">›</span></ui5-table-cell>
+          </ui5-table-row>
+
+          <ui5-table-row interactive onclick="location.href='#'">
+            <ui5-table-cell style="padding-inline-start: 1rem">REC-00240</ui5-table-cell>
+            <ui5-table-cell>Summit Holdings</ui5-table-cell>
+            <ui5-table-cell>04.16.2026</ui5-table-cell>
+            <ui5-table-cell>Risk Management</ui5-table-cell>
+            <ui5-table-cell>3 Medium</ui5-table-cell>
+            <ui5-table-cell><span class="status-inprogress">In Progress</span></ui5-table-cell>
+            <ui5-table-cell><span class="nav-chevron">›</span></ui5-table-cell>
+          </ui5-table-row>
+
+          <ui5-table-row interactive onclick="location.href='#'">
+            <ui5-table-cell style="padding-inline-start: 1rem">REC-00239</ui5-table-cell>
+            <ui5-table-cell>Nexus Systems</ui5-table-cell>
+            <ui5-table-cell>04.18.2026</ui5-table-cell>
+            <ui5-table-cell>Procurement</ui5-table-cell>
+            <ui5-table-cell>1 High</ui5-table-cell>
+            <ui5-table-cell><span class="status-completed">Completed</span></ui5-table-cell>
+            <ui5-table-cell><span class="nav-chevron">›</span></ui5-table-cell>
+          </ui5-table-row>
+
+          <ui5-table-row interactive onclick="location.href='#'">
+            <ui5-table-cell style="padding-inline-start: 1rem">REC-00238</ui5-table-cell>
+            <ui5-table-cell>Elevate Capital</ui5-table-cell>
+            <ui5-table-cell>04.21.2026</ui5-table-cell>
+            <ui5-table-cell>Finance</ui5-table-cell>
+            <ui5-table-cell>2 Medium, 1 Low</ui5-table-cell>
+            <ui5-table-cell><span class="status-pending">Pending</span></ui5-table-cell>
+            <ui5-table-cell><span class="nav-chevron">›</span></ui5-table-cell>
+          </ui5-table-row>
+
+        </ui5-table>
+
+        <!-- Pagination -->
+        <div class="pagination">
+          <button class="page-btn page-btn-nav">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+          <button class="page-btn active">1</button>
+          <button class="page-btn">2</button>
+          <button class="page-btn">3</button>
+          <button class="page-btn">…</button>
+          <button class="page-btn">25</button>
+          <button class="page-btn page-btn-nav">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <script>
+    setTimeout(function () {
+      document.getElementById('skeleton').style.display = 'none';
+      document.getElementById('tableContainer').style.display = 'block';
+    }, 1500);
+  </script>
+
+</body>
+</html>

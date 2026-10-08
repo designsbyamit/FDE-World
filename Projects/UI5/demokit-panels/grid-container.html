@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grid Container</title>
+  <script src="panel-init.js"></script>
+  <script type="module" src="../../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 600; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 300; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Light.woff2") format("woff2"); }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "72", sans-serif; font-size: 0.875rem; background: var(--sapBackgroundColor, #f5f6f7); padding: 2rem; color: var(--sapTextColor, #131e29); }
+    .panel-title { font-size: 1.5rem; font-weight: 700; color: #131e29; margin-bottom: 0.375rem; }
+    .panel-subtitle { font-size: 0.8125rem; color: var(--sapContent_LabelColor, #6a7588); margin-bottom: 2rem; }
+    .demo-section { background: #fff; border: 1px solid var(--sapList_BorderColor, #e5e5e5); border-radius: 8px; margin-bottom: 1.25rem; overflow: hidden; }
+    .demo-section-header { padding: 0.75rem 1rem; border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5); font-size: 0.8125rem; font-weight: 600; color: var(--sapContent_LabelColor, #6a7588); display: flex; align-items: center; justify-content: space-between; }
+    .demo-section-tag { font-family: monospace; font-size: 0.75rem; color: #0064d9; font-weight: 400; }
+    .demo-section-body { padding: 1.25rem 1rem; display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: flex-start; }
+    .demo-section-body.column { flex-direction: column; }
+    .demo-section-body.block { display: block; padding: 0; }
+  </style>
+</head>
+<body>
+  <div class="panel-title">Grid Container</div>
+  <div class="panel-subtitle">A CSS grid layout that arranges tiles and cards in a configurable grid with row/column sizing and gap. Items specify their column span and minimum row count. Equivalent to sap.f.GridContainer — rendered using CSS Grid.</div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">
+      Grid Container with Tiles &amp; Cards
+      <span class="demo-section-tag">CSS Grid · sap.f.GridContainer pattern</span>
+    </div>
+    <div class="demo-section-body block" style="padding:1.25rem 1rem;">
+      <div style="display:flex;align-items:center;gap:1rem;margin-bottom:0.75rem;">
+        <ui5-switch id="gc-snap" text="Snap to Row"></ui5-switch>
+        <span style="font-size:0.8125rem;color:var(--sapContent_LabelColor,#6a7588);">Snap to Row</span>
+      </div>
+      <div id="gc-grid" style="display:grid;grid-template-columns:repeat(auto-fill,84px);grid-auto-rows:84px;gap:8px;">
+
+        <div style="grid-column:span 2;grid-row:span 2;background:#fff;border:1px solid var(--sapList_BorderColor,#e5e5e5);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.25rem;cursor:pointer;padding:0.5rem;">
+          <ui5-icon name="home-share" style="font-size:1.75rem;color:var(--sapSelectedColor,#0064d9);"></ui5-icon>
+          <div style="font-size:0.6875rem;font-weight:600;text-align:center;color:var(--sapTextColor,#131e29);">Sales Fulfillment</div>
+          <div style="font-size:0.6875rem;color:var(--sapContent_LabelColor,#6a7588);">EUR · Current Quarter</div>
+        </div>
+
+        <div style="grid-column:span 4;grid-row:span 3;background:#fff;border:1px solid var(--sapList_BorderColor,#e5e5e5);border-radius:8px;overflow:hidden;">
+          <div style="padding:0.5rem 0.75rem;border-bottom:1px solid var(--sapList_BorderColor,#e5e5e5);font-size:0.875rem;font-weight:700;">Project Cloud Transformation</div>
+          <div style="padding:0.5rem 0.75rem;font-size:0.8125rem;display:flex;flex-direction:column;gap:0.375rem;">
+            <div style="display:flex;justify-content:space-between;"><span>Notebooks</span><ui5-tag design="Set3" color-scheme="7">+12.5%</ui5-tag></div>
+            <div style="display:flex;justify-content:space-between;"><span>Tablets</span><ui5-tag design="Set3" color-scheme="3">-4.2%</ui5-tag></div>
+            <div style="display:flex;justify-content:space-between;"><span>Phones</span><ui5-tag design="Set3" color-scheme="7">+8.1%</ui5-tag></div>
+          </div>
+        </div>
+
+        <div style="grid-column:span 2;grid-row:span 2;background:#fff;border:1px solid var(--sapList_BorderColor,#e5e5e5);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.25rem;cursor:pointer;padding:0.5rem;">
+          <ui5-icon name="activities" style="font-size:1.75rem;color:var(--sapAccentColor4,#6c32a0);"></ui5-icon>
+          <div style="font-size:0.6875rem;font-weight:600;text-align:center;color:var(--sapTextColor,#131e29);">Manage Activities</div>
+        </div>
+
+        <div style="grid-column:span 4;grid-row:span 3;background:#fff;border:1px solid var(--sapList_BorderColor,#e5e5e5);border-radius:8px;overflow:hidden;">
+          <div style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0.75rem;border-bottom:1px solid var(--sapList_BorderColor,#e5e5e5);">
+            <ui5-icon name="bus-public-transport" style="font-size:1.25rem;color:var(--sapSelectedColor,#0064d9);"></ui5-icon>
+            <div><div style="font-size:0.875rem;font-weight:700;">Buy bus ticket on-line</div><div style="font-size:0.75rem;color:var(--sapContent_LabelColor,#6a7588);">Buy a single drive ticket for a date</div></div>
+          </div>
+          <div style="padding:0.5rem 0.75rem;display:flex;flex-direction:column;gap:0.5rem;">
+            <div style="display:flex;gap:0.5rem;">
+              <ui5-input placeholder="From City" style="flex:1;"></ui5-input>
+              <ui5-input placeholder="To City" style="flex:1;"></ui5-input>
+            </div>
+            <div style="display:flex;gap:0.5rem;align-items:center;">
+              <ui5-date-picker placeholder="Choose Date…" style="flex:1;"></ui5-date-picker>
+              <ui5-button design="Emphasized">Book</ui5-button>
+            </div>
+          </div>
+        </div>
+
+        <div style="grid-column:span 2;grid-row:span 2;background:#fff;border:1px solid var(--sapList_BorderColor,#e5e5e5);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.25rem;cursor:pointer;padding:0.5rem;">
+          <div style="font-size:1.5rem;font-weight:700;color:var(--sapPositiveColor,#196800);">12</div>
+          <div style="font-size:0.6875rem;font-weight:600;text-align:center;color:var(--sapTextColor,#131e29);">Cumulative Totals</div>
+          <div style="font-size:0.6875rem;color:var(--sapContent_LabelColor,#6a7588);">Unit · Footer Text</div>
+        </div>
+        <div style="grid-column:span 2;grid-row:span 2;background:#fff;border:1px solid var(--sapList_BorderColor,#e5e5e5);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.25rem;cursor:pointer;padding:0.5rem;">
+          <ui5-icon name="travel-expense" style="font-size:1.75rem;color:var(--sapAccentColor6,#e8743b);"></ui5-icon>
+          <div style="font-size:0.6875rem;font-weight:600;text-align:center;color:var(--sapTextColor,#131e29);">Travel and Expenses</div>
+        </div>
+        <div style="grid-column:span 2;grid-row:span 2;background:#fff;border:1px solid var(--sapList_BorderColor,#e5e5e5);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.25rem;cursor:pointer;padding:0.5rem;">
+          <ui5-icon name="map-3" style="font-size:1.75rem;color:var(--sapSelectedColor,#0064d9);"></ui5-icon>
+          <div style="font-size:0.6875rem;font-weight:600;text-align:center;color:var(--sapTextColor,#131e29);">Success Map</div>
+          <div style="font-size:0.6875rem;color:var(--sapContent_LabelColor,#6a7588);">EUR · Current Quarter</div>
+        </div>
+        <div style="grid-column:span 2;grid-row:span 2;background:#fff;border:1px solid var(--sapList_BorderColor,#e5e5e5);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.25rem;cursor:pointer;padding:0.5rem;">
+          <ui5-icon name="check-availability" style="font-size:1.75rem;color:var(--sapAccentColor4,#6c32a0);"></ui5-icon>
+          <div style="font-size:0.6875rem;font-weight:600;text-align:center;color:var(--sapTextColor,#131e29);">My Team Calendar</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</body>
+</html>

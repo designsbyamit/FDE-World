@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document Review | Template</title>
+
+  <script data-ui5-config type="application/json">{ "theme": "sap_horizon" }</script>
+  <script type="module" src="../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <script src="../../lib/shared/shellbar.js"></script>
+
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 600; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 300; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Light.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 900; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Black.woff2") format("woff2"); }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    ui5-button { --sapButton_FontFamily: "72", sans-serif; }
+    ui5-button::part(text) { font-family: "72", sans-serif; font-weight: 400; }
+
+    html, body {
+      font-family: "72", sans-serif;
+      background: var(--sapBackgroundColor, #f5f6f7);
+      color: var(--sapTextColor, #131e29);
+      min-height: 100vh;
+    }
+
+    /* ─── App Wrapper ─────────────────────────────────────────── */
+    .app {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* ─── Sub-header ──────────────────────────────────────────── */
+    .sub-header {
+      background: var(--sapBaseColor, #fff);
+      border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      padding: 0.75rem 2rem 1rem;
+    }
+
+    .sub-header ui5-breadcrumbs {
+      display: block;
+      margin-bottom: 0.4rem;
+    }
+
+    .title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 0.625rem;
+    }
+
+    .record-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--sapTextColor, #131e29);
+      line-height: 1.3;
+    }
+
+    .title-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      flex-shrink: 0;
+    }
+
+    .meta-strip {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0 0;
+      font-size: 0.875rem;
+      color: var(--sapContent_LabelColor, #556b82);
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      white-space: nowrap;
+    }
+
+    .meta-item strong {
+      font-weight: 700;
+      color: var(--sapTextColor, #131e29);
+    }
+
+    .meta-sep {
+      margin: 0 0.625rem;
+      color: var(--sapContent_LabelColor, #556b82);
+      opacity: 0.5;
+    }
+
+    /* ─── Page Body ───────────────────────────────────────────── */
+    .page-body {
+      display: grid;
+      grid-template-columns: 60fr 40fr;
+      gap: 1.5rem;
+      padding: 1.5rem 2rem;
+      align-items: start;
+    }
+
+    /* ─── Cards ───────────────────────────────────────────────── */
+    .card {
+      background: var(--sapBaseColor, #fff);
+      border: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      border-radius: 0.375rem;
+      overflow: hidden;
+    }
+
+    .main-col {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .side-col {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .card-title-bar {
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: var(--sapTextColor, #131e29);
+      padding: 0.875rem 1.25rem;
+      border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5);
+    }
+
+    /* ─── Change Table ────────────────────────────────────────── */
+    .change-table {
+      width: 100%;
+    }
+
+    .change-table-header {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      padding: 0.5rem 1.25rem;
+      border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      gap: 0.5rem;
+    }
+
+    .change-table-header span {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--sapContent_LabelColor, #556b82);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .change-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      padding: 0.75rem 1.25rem;
+      border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .change-row:last-child {
+      border-bottom: none;
+    }
+
+    .change-row.warning {
+      background: var(--sapWarningBackground, #fff3e0);
+    }
+
+    .change-field-name {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--sapTextColor, #131e29);
+    }
+
+    .change-values {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+    }
+
+    .change-current {
+      color: var(--sapContent_LabelColor, #556b82);
+    }
+
+    .change-arrow {
+      color: var(--sapContent_LabelColor, #556b82);
+      font-size: 0.75rem;
+      flex-shrink: 0;
+    }
+
+    .change-requested {
+      color: var(--sapTextColor, #131e29);
+      font-weight: 600;
+    }
+
+    .risk-badge {
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.125rem 0.5rem;
+      border-radius: 0.75rem;
+      display: inline-block;
+    }
+
+    .risk-high {
+      background: var(--sapErrorBackground, #ffecd5);
+      color: var(--sapNegativeColor, #aa0808);
+    }
+
+    .risk-medium {
+      background: var(--sapWarningBackground, #fff3e0);
+      color: var(--sapCriticalColor, #e76500);
+    }
+
+    /* ─── Document Tiles ──────────────────────────────────────── */
+    .doc-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.875rem;
+      padding: 1rem 1.25rem;
+    }
+
+    .doc-tile {
+      background: var(--sapBaseColor, #fff);
+      border: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      border-radius: 0.375rem;
+      padding: 0.875rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .doc-preview {
+      height: 60px;
+      background: var(--sapNeutralBackground, #f5f6f7);
+      border-radius: 0.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .doc-preview svg {
+      width: 28px;
+      height: 28px;
+      color: var(--sapContent_LabelColor, #556b82);
+      opacity: 0.5;
+    }
+
+    .doc-type {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--sapContent_LabelColor, #556b82);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .doc-filename {
+      font-size: 0.875rem;
+      color: var(--sapTextColor, #131e29);
+      line-height: 1.3;
+      word-break: break-word;
+    }
+
+    /* ─── Workflow Stepper ────────────────────────────────────── */
+    @keyframes step-pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(0, 112, 242, 0.35); }
+      50% { box-shadow: 0 0 0 5px rgba(0, 112, 242, 0); }
+    }
+
+    .workflow-steps {
+      padding: 1rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .step-item {
+      display: flex;
+      gap: 0.875rem;
+      position: relative;
+    }
+
+    .step-left {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .step-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-top: 0.175rem;
+    }
+
+    .step-dot.completed {
+      background: var(--sapPositiveColor, #256f3a);
+    }
+
+    .step-dot.active {
+      background: var(--sapInformativeColor, #0070f2);
+      animation: step-pulse 1.8s ease-in-out infinite;
+    }
+
+    .step-connector {
+      width: 2px;
+      flex: 1;
+      min-height: 0.875rem;
+      background: var(--sapList_BorderColor, #e5e5e5);
+      margin: 0.25rem 0;
+    }
+
+    .step-content {
+      padding-bottom: 1.25rem;
+      flex: 1;
+    }
+
+    .step-item:last-child .step-content {
+      padding-bottom: 0;
+    }
+
+    .step-name {
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: var(--sapTextColor, #131e29);
+      line-height: 1.3;
+    }
+
+    .step-name.active {
+      color: var(--sapInformativeColor, #0070f2);
+    }
+
+    .step-sub {
+      font-size: 0.75rem;
+      color: var(--sapContent_LabelColor, #556b82);
+      margin-top: 0.2rem;
+    }
+
+    .step-check {
+      font-size: 0.7rem;
+      margin-left: 0.3rem;
+      color: var(--sapPositiveColor, #256f3a);
+    }
+
+    /* ─── Record Info ─────────────────────────────────────────── */
+    .info-list {
+      padding: 0;
+    }
+
+    .info-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1.25rem;
+      border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      gap: 1rem;
+    }
+
+    .info-row:last-child {
+      border-bottom: none;
+    }
+
+    .info-label {
+      font-size: 0.875rem;
+      color: var(--sapContent_LabelColor, #556b82);
+      flex-shrink: 0;
+    }
+
+    .info-value {
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: var(--sapTextColor, #131e29);
+      text-align: right;
+    }
+  </style>
+</head>
+<body>
+
+  <app-shellbar title="SAP Fiori" base-path="../../"></app-shellbar>
+
+  <div class="app">
+
+    <!-- Sub-header -->
+    <div class="sub-header">
+      <ui5-breadcrumbs>
+        <ui5-breadcrumbs-item href="#">Requests</ui5-breadcrumbs-item>
+        <ui5-breadcrumbs-item>REQ-2025-0847</ui5-breadcrumbs-item>
+      </ui5-breadcrumbs>
+
+      <div class="title-row">
+        <span class="record-title">REQ-2025-0847 — Change Request</span>
+        <div class="title-actions">
+          <ui5-button design="Emphasized">Approve</ui5-button>
+          <ui5-button design="Default">Reject</ui5-button>
+          <ui5-button design="Transparent">Request Info</ui5-button>
+        </div>
+      </div>
+
+      <div class="meta-strip">
+        <span class="meta-item">Submitted: <strong>12.03.2026</strong></span>
+        <span class="meta-sep">|</span>
+        <span class="meta-item">Submitted By: <strong>Alex Johnson</strong></span>
+        <span class="meta-sep">|</span>
+        <span class="meta-item">Category: <strong>Master Data</strong></span>
+        <span class="meta-sep">|</span>
+        <span class="meta-item">Risk: <strong>2 High, 3 Medium</strong></span>
+      </div>
+    </div>
+
+    <!-- Page Body -->
+    <div class="page-body">
+
+      <!-- Main Column -->
+      <div class="main-col">
+
+        <!-- Card 1: Requested Changes -->
+        <div class="card">
+          <div class="card-title-bar">Requested Changes</div>
+          <div class="change-table">
+            <div class="change-table-header">
+              <span>Field Name</span>
+              <span>Current → Requested Value</span>
+              <span>Risk Level</span>
+            </div>
+
+            <div class="change-row">
+              <div class="change-field-name">Legal Name</div>
+              <div class="change-values">
+                <span class="change-current">Acme Corp Ltd.</span>
+                <span class="change-arrow">→</span>
+                <span class="change-requested">Acme Corporation Ltd.</span>
+              </div>
+              <div><span class="risk-badge risk-medium">Medium</span></div>
+            </div>
+
+            <div class="change-row warning">
+              <div class="change-field-name">Bank Account</div>
+              <div class="change-values">
+                <span class="change-current">DE89 3704 0044 0532</span>
+                <span class="change-arrow">→</span>
+                <span class="change-requested">DE12 2004 1010 0505</span>
+              </div>
+              <div><span class="risk-badge risk-high">High</span></div>
+            </div>
+
+            <div class="change-row">
+              <div class="change-field-name">Payment Terms</div>
+              <div class="change-values">
+                <span class="change-current">Net 30</span>
+                <span class="change-arrow">→</span>
+                <span class="change-requested">Net 14</span>
+              </div>
+              <div><span class="risk-badge risk-high">High</span></div>
+            </div>
+
+            <div class="change-row">
+              <div class="change-field-name">Billing Address</div>
+              <div class="change-values">
+                <span class="change-current">123 Oak Street, Berlin</span>
+                <span class="change-arrow">→</span>
+                <span class="change-requested">47 Maple Ave, Hamburg</span>
+              </div>
+              <div><span class="risk-badge risk-medium">Medium</span></div>
+            </div>
+
+            <div class="change-row">
+              <div class="change-field-name">Contact Email</div>
+              <div class="change-values">
+                <span class="change-current">ap@acme.com</span>
+                <span class="change-arrow">→</span>
+                <span class="change-requested">finance@acme-corp.com</span>
+              </div>
+              <div><span class="risk-badge risk-medium">Medium</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 2: Supporting Documents -->
+        <div class="card">
+          <div class="card-title-bar">Supporting Documents</div>
+          <div class="doc-grid">
+
+            <div class="doc-tile">
+              <div class="doc-preview">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                  <line x1="16" y1="13" x2="8" y2="13"/>
+                  <line x1="16" y1="17" x2="8" y2="17"/>
+                  <polyline points="10 9 9 9 8 9"/>
+                </svg>
+              </div>
+              <span class="doc-type">Certificate</span>
+              <span class="doc-filename">company_registration_2026.pdf</span>
+              <ui5-tag design="Positive">Verified</ui5-tag>
+            </div>
+
+            <div class="doc-tile">
+              <div class="doc-preview">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                  <circle cx="8.5" cy="8.5" r="1.5"/>
+                  <polyline points="21 15 16 10 5 21"/>
+                </svg>
+              </div>
+              <span class="doc-type">Bank Letter</span>
+              <span class="doc-filename">bank_confirmation_letter.jpg</span>
+              <ui5-tag design="Critical">Pending</ui5-tag>
+            </div>
+
+            <div class="doc-tile">
+              <div class="doc-preview">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                  <line x1="16" y1="13" x2="8" y2="13"/>
+                  <line x1="16" y1="17" x2="8" y2="17"/>
+                  <polyline points="10 9 9 9 8 9"/>
+                </svg>
+              </div>
+              <span class="doc-type">Authorization</span>
+              <span class="doc-filename">signed_authorization_form.pdf</span>
+              <ui5-tag design="Positive">Verified</ui5-tag>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Side Column -->
+      <div class="side-col">
+
+        <!-- Card 3: Workflow Status -->
+        <div class="card">
+          <div class="card-title-bar">Workflow Status</div>
+          <div class="workflow-steps">
+
+            <div class="step-item">
+              <div class="step-left">
+                <div class="step-dot completed"></div>
+                <div class="step-connector"></div>
+              </div>
+              <div class="step-content">
+                <div class="step-name">Submitted <span class="step-check">✓</span></div>
+                <div class="step-sub">03/03/2026 · Alex Johnson</div>
+              </div>
+            </div>
+
+            <div class="step-item">
+              <div class="step-left">
+                <div class="step-dot completed"></div>
+                <div class="step-connector"></div>
+              </div>
+              <div class="step-content">
+                <div class="step-name">Automated Check <span class="step-check">✓</span></div>
+                <div class="step-sub">03/03/2026 · System</div>
+              </div>
+            </div>
+
+            <div class="step-item">
+              <div class="step-left">
+                <div class="step-dot completed"></div>
+                <div class="step-connector"></div>
+              </div>
+              <div class="step-content">
+                <div class="step-name">Risk Classification <span class="step-check">✓</span></div>
+                <div class="step-sub">04/03/2026 · System</div>
+              </div>
+            </div>
+
+            <div class="step-item">
+              <div class="step-left">
+                <div class="step-dot active"></div>
+              </div>
+              <div class="step-content">
+                <div class="step-name active">Human Review</div>
+                <div class="step-sub">In progress · Assigned to you</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Card 4: Record Information -->
+        <div class="card">
+          <div class="card-title-bar">Record Information</div>
+          <div class="info-list">
+            <div class="info-row">
+              <span class="info-label">Request ID</span>
+              <span class="info-value">REQ-2025-0847</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Entity</span>
+              <span class="info-value">Acme Corporation Ltd.</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Record Type</span>
+              <span class="info-value">Vendor Master</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Submission Channel</span>
+              <span class="info-value">Self-Service Portal</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Processing Time</span>
+              <span class="info-value">3 days, 4 hours</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+</body>
+</html>

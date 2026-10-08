@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <script src="panel-init.js"></script>
+  <script type="module" src="../../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    body { font-family: "72", sans-serif; font-size: 0.875rem; background: #f5f6f7; color: #131e29; margin: 0; padding: 2rem; }
+    .panel-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .panel-subtitle { font-size: 0.875rem; color: #6a7588; margin-bottom: 2rem; }
+    .demo-section { margin-bottom: 2rem; }
+    .demo-section-header { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #6a7588; margin-bottom: 1rem; padding-bottom: 0.375rem; border-bottom: 1px solid #e5e5e5; }
+    .demo-section-body { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 1rem; }
+    .placeholder-img { border-radius: 0.25rem; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 600; color: #fff; }
+  </style>
+</head>
+<body>
+  <div class="panel-title">Media Gallery</div>
+  <div class="panel-subtitle">Displays a collection of media items with thumbnail strip and main viewer.</div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">Product Images Gallery</div>
+    <div class="demo-section-body">
+      <ui5-media-gallery style="width:640px; height:400px;">
+        <ui5-media-gallery-item selected>
+          <div slot="thumbnail" class="placeholder-img" style="background:#0064d9; width:60px; height:60px;">P1</div>
+          <div class="placeholder-img" style="background:#0064d9; width:100%; height:100%; font-size:1.5rem;">Product Front View</div>
+        </ui5-media-gallery-item>
+        <ui5-media-gallery-item>
+          <div slot="thumbnail" class="placeholder-img" style="background:#107e3e; width:60px; height:60px;">P2</div>
+          <div class="placeholder-img" style="background:#107e3e; width:100%; height:100%; font-size:1.5rem;">Product Side View</div>
+        </ui5-media-gallery-item>
+        <ui5-media-gallery-item>
+          <div slot="thumbnail" class="placeholder-img" style="background:#e9730c; width:60px; height:60px;">P3</div>
+          <div class="placeholder-img" style="background:#e9730c; width:100%; height:100%; font-size:1.5rem;">Product Rear View</div>
+        </ui5-media-gallery-item>
+        <ui5-media-gallery-item>
+          <div slot="thumbnail" class="placeholder-img" style="background:#6a1f70; width:60px; height:60px;">P4</div>
+          <div class="placeholder-img" style="background:#6a1f70; width:100%; height:100%; font-size:1.5rem;">Packaging Detail</div>
+        </ui5-media-gallery-item>
+        <ui5-media-gallery-item>
+          <div slot="thumbnail" class="placeholder-img" style="background:#0f828f; width:60px; height:60px;">P5</div>
+          <div class="placeholder-img" style="background:#0f828f; width:100%; height:100%; font-size:1.5rem;">Accessories Included</div>
+        </ui5-media-gallery-item>
+      </ui5-media-gallery>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">Vertical Layout</div>
+    <div class="demo-section-body">
+      <ui5-media-gallery style="width:500px; height:360px;" show-all-thumbnails layout="Vertical">
+        <ui5-media-gallery-item selected>
+          <div slot="thumbnail" class="placeholder-img" style="background:#bb0000; width:60px; height:50px;">A</div>
+          <div class="placeholder-img" style="background:#bb0000; width:100%; height:100%; font-size:1.25rem;">View A</div>
+        </ui5-media-gallery-item>
+        <ui5-media-gallery-item>
+          <div slot="thumbnail" class="placeholder-img" style="background:#2b7c2b; width:60px; height:50px;">B</div>
+          <div class="placeholder-img" style="background:#2b7c2b; width:100%; height:100%; font-size:1.25rem;">View B</div>
+        </ui5-media-gallery-item>
+        <ui5-media-gallery-item>
+          <div slot="thumbnail" class="placeholder-img" style="background:#355ecf; width:60px; height:50px;">C</div>
+          <div class="placeholder-img" style="background:#355ecf; width:100%; height:100%; font-size:1.25rem;">View C</div>
+        </ui5-media-gallery-item>
+      </ui5-media-gallery>
+    </div>
+  </div>
+</body>
+</html>

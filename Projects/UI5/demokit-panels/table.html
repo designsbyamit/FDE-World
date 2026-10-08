@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <script src="panel-init.js"></script>
+  <script type="module" src="../../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    body { font-family: "72", sans-serif; font-size: 0.875rem; background: #f5f6f7; color: #131e29; margin: 0; padding: 2rem; }
+    .panel-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .panel-subtitle { font-size: 0.875rem; color: #6a7588; margin-bottom: 2rem; }
+    .demo-section { margin-bottom: 2rem; }
+    .demo-section-header { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #6a7588; margin-bottom: 1rem; padding-bottom: 0.375rem; border-bottom: 1px solid #e5e5e5; }
+    .demo-section-body { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 1rem; }
+  </style>
+</head>
+<body>
+  <div class="panel-title">Table</div>
+  <div class="panel-subtitle">Displays structured data in rows and columns with selection, sorting, and actions.</div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">Basic Table</div>
+    <div class="demo-section-body">
+      <ui5-table style="width:100%;">
+        <ui5-table-header-row slot="headerRow">
+          <ui5-table-header-cell width="160px" style="padding-inline-start:1rem;">Order ID</ui5-table-header-cell>
+          <ui5-table-header-cell width="200px">Vendor</ui5-table-header-cell>
+          <ui5-table-header-cell width="120px">Amount</ui5-table-header-cell>
+          <ui5-table-header-cell width="120px">Date</ui5-table-header-cell>
+          <ui5-table-header-cell>Status</ui5-table-header-cell>
+        </ui5-table-header-row>
+        <ui5-table-row>
+          <ui5-table-cell style="padding-inline-start:1rem;">PO-2024-0049</ui5-table-cell>
+          <ui5-table-cell>Acme Supplies GmbH</ui5-table-cell>
+          <ui5-table-cell>€ 12,500.00</ui5-table-cell>
+          <ui5-table-cell>Apr 22, 2025</ui5-table-cell>
+          <ui5-table-cell><ui5-tag design="Positive">Approved</ui5-tag></ui5-table-cell>
+        </ui5-table-row>
+        <ui5-table-row>
+          <ui5-table-cell style="padding-inline-start:1rem;">PO-2024-0048</ui5-table-cell>
+          <ui5-table-cell>Tech GmbH &amp; Co.</ui5-table-cell>
+          <ui5-table-cell>€ 5,200.00</ui5-table-cell>
+          <ui5-table-cell>Apr 20, 2025</ui5-table-cell>
+          <ui5-table-cell><ui5-tag design="Critical">Pending</ui5-tag></ui5-table-cell>
+        </ui5-table-row>
+        <ui5-table-row>
+          <ui5-table-cell style="padding-inline-start:1rem;">PO-2024-0047</ui5-table-cell>
+          <ui5-table-cell>Office World AG</ui5-table-cell>
+          <ui5-table-cell>€ 780.50</ui5-table-cell>
+          <ui5-table-cell>Apr 18, 2025</ui5-table-cell>
+          <ui5-table-cell><ui5-tag design="Positive">Approved</ui5-tag></ui5-table-cell>
+        </ui5-table-row>
+        <ui5-table-row>
+          <ui5-table-cell style="padding-inline-start:1rem;">PO-2024-0046</ui5-table-cell>
+          <ui5-table-cell>Logistics Express</ui5-table-cell>
+          <ui5-table-cell>€ 34,100.00</ui5-table-cell>
+          <ui5-table-cell>Apr 15, 2025</ui5-table-cell>
+          <ui5-table-cell><ui5-tag design="Negative">Rejected</ui5-tag></ui5-table-cell>
+        </ui5-table-row>
+        <ui5-table-row>
+          <ui5-table-cell style="padding-inline-start:1rem;">PO-2024-0045</ui5-table-cell>
+          <ui5-table-cell>Global Freight Ltd.</ui5-table-cell>
+          <ui5-table-cell>€ 9,870.00</ui5-table-cell>
+          <ui5-table-cell>Apr 12, 2025</ui5-table-cell>
+          <ui5-table-cell><ui5-tag>Draft</ui5-tag></ui5-table-cell>
+        </ui5-table-row>
+      </ui5-table>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">With Multi-Selection</div>
+    <div class="demo-section-body">
+      <ui5-table style="width:100%;">
+        <ui5-table-selection-multi slot="features"></ui5-table-selection-multi>
+        <ui5-table-header-row slot="headerRow">
+          <ui5-table-header-cell width="160px" style="padding-inline-start:1rem;">Employee</ui5-table-header-cell>
+          <ui5-table-header-cell width="180px">Role</ui5-table-header-cell>
+          <ui5-table-header-cell width="140px">Department</ui5-table-header-cell>
+          <ui5-table-header-cell>Location</ui5-table-header-cell>
+        </ui5-table-header-row>
+        <ui5-table-row selected>
+          <ui5-table-cell style="padding-inline-start:1rem;">Maria Schmidt</ui5-table-cell>
+          <ui5-table-cell>Senior Buyer</ui5-table-cell>
+          <ui5-table-cell>Procurement</ui5-table-cell>
+          <ui5-table-cell>Berlin</ui5-table-cell>
+        </ui5-table-row>
+        <ui5-table-row selected>
+          <ui5-table-cell style="padding-inline-start:1rem;">Thomas Wagner</ui5-table-cell>
+          <ui5-table-cell>Finance Analyst</ui5-table-cell>
+          <ui5-table-cell>Finance</ui5-table-cell>
+          <ui5-table-cell>Munich</ui5-table-cell>
+        </ui5-table-row>
+        <ui5-table-row>
+          <ui5-table-cell style="padding-inline-start:1rem;">Elena Petrova</ui5-table-cell>
+          <ui5-table-cell>HR Manager</ui5-table-cell>
+          <ui5-table-cell>HR</ui5-table-cell>
+          <ui5-table-cell>Hamburg</ui5-table-cell>
+        </ui5-table-row>
+        <ui5-table-row>
+          <ui5-table-cell style="padding-inline-start:1rem;">Kenji Nakamura</ui5-table-cell>
+          <ui5-table-cell>IT Architect</ui5-table-cell>
+          <ui5-table-cell>IT</ui5-table-cell>
+          <ui5-table-cell>Frankfurt</ui5-table-cell>
+        </ui5-table-row>
+      </ui5-table>
+    </div>
+  </div>
+</body>
+</html>

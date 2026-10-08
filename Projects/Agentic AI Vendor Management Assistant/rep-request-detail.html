@@ -1,0 +1,1569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" href="../../lib/assets/favicon.ico">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vendor Change Request</title>
+
+  <script data-ui5-config type="application/json">{ "theme": "sap_horizon" }</script>
+  <script type="module" src="../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <script src="../../lib/shared/shellbar.js"></script>
+
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 600; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 300; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Light.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 900; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Black.woff2") format("woff2"); }
+
+    html, body {
+      margin: 0;
+      height: 100%;
+      font-family: "72", sans-serif;
+      background: var(--sapBackgroundColor, #f5f6f7);
+      color: var(--sapTextColor, #131e29);
+    }
+    .app { display: flex; flex-direction: column; height: 100vh; }
+
+    /* ── Shell bar ── */
+    app-shellbar { position: sticky; top: 0; z-index: 100; }
+
+    /* ── Sub-header ── */
+    .sub-header {
+      background: var(--sapGroup_ContentBackground, #fff);
+      border-bottom: 1px solid var(--sapGroup_ContentBorderColor, #e5e5e5);
+      padding: 0.75rem 2rem 0.875rem;
+      flex-shrink: 0;
+    }
+    .sub-header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 0.5rem;
+    }
+    .sub-header-actions {
+      display: flex;
+      gap: 0.5rem;
+      padding-top: 0.4rem;
+      flex-shrink: 0;
+      align-items: center;
+    }
+    ui5-button { --sapButton_FontFamily: "72", sans-serif; }
+    ui5-button::part(text) { font-family: "72", sans-serif; font-weight: 400; }
+    .sub-header-meta {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      flex-wrap: wrap;
+      font-size: 0.875rem;
+      color: var(--sapTextColor, #131e29);
+    }
+    .sub-header-meta-item {
+      display: flex;
+      align-items: center;
+      padding-right: 1rem;
+      margin-right: 1rem;
+      border-right: 1px solid var(--sapGroup_ContentBorderColor, #e5e5e5);
+    }
+    .sub-header-meta-item:last-child {
+      border-right: none;
+      padding-right: 0;
+      margin-right: 0;
+    }
+    .sub-header-meta-item .label { color: var(--sapContent_LabelColor, #556b82); margin-right: 0.3rem; }
+    .sub-header-meta-item .value { font-weight: 700; }
+    .sub-header-meta-item a { color: var(--sapLinkColor, #0070f2); font-weight: 400; text-decoration: underline; font-family: "72", sans-serif; }
+    .sub-header-meta-item a:hover { text-decoration: none; }
+
+    /* ── Two-column body ── */
+    .body {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .col-main {
+      flex: 1;
+      min-width: 0;
+      overflow-y: auto;
+      padding: 1.5rem 2rem 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      align-items: stretch;
+    }
+    .col-side {
+      width: 450px;
+      flex-shrink: 0;
+      border-left: 1px solid var(--sapGroup_ContentBorderColor, #e5e5e5);
+      background: var(--sapGroup_ContentBackground, #fff);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    #sideTabs { margin-top: 0.75rem; }
+    #sideTabs::part(tabstrip) { margin-top: 0.75rem; }
+    .col-side > ui5-tabcontainer::part(content) { display: none; }
+    #side-panel-agent,
+    #side-panel-history { flex: 1; overflow-y: auto; padding-top: 14px; padding-bottom: 20px; }
+    #side-panel-agent .history-item,
+    #side-panel-agent .history-item-child { padding-bottom: calc(0.9375rem + 8px); }
+
+    /* ── Panel card shell ── */
+    .panel-card {
+      background: var(--sapTile_Background, #fff);
+      box-shadow: var(--sapContent_Shadow0);
+      border-radius: var(--sapTile_BorderCornerRadius, 1rem);
+      overflow: visible;
+    }
+    .panel-card-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1rem;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--sapTextColor, #131e29);
+      border-bottom: 1px solid var(--sapGroup_ContentBorderColor, #e5e5e5);
+    }
+    .panel-card-body { padding: 0 1.25rem 1.75rem; }
+    .panel-card-body.with-strip { padding-top: 1.125rem; }
+
+
+    /* ── Scope: before/after comparison ── */
+    .scope-intro {
+      font-size: 0.875rem;
+      color: var(--sapTextColor, #131e29);
+      margin-bottom: 1rem;
+    }
+    .change-headers {
+      display: grid;
+      grid-template-columns: 1fr calc(2rem + 20px) 1fr;
+      margin-bottom: 0.5rem;
+    }
+    .change-header-label {
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: var(--sapTextColor, #131e29);
+    }
+    .change-rows { display: flex; flex-direction: column; gap: 0.625rem; }
+    .change-row {
+      display: grid;
+      grid-template-columns: 1fr calc(2rem + 20px) 1fr;
+      align-items: center;
+    }
+    .change-cell {
+      background: var(--sapNeutralBackground, #eaecee);
+      border: none;
+      border-radius: 0.75rem;
+      padding: calc(0.625rem + 4px) 0.875rem;
+    }
+    .change-cell-label {
+      font-size: 0.875rem;
+      color: var(--sapContent_LabelColor, #556b82);
+      margin-bottom: 0.2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .change-cell-risk {
+      font-size: 0.8125rem;
+      color: var(--sapContent_LabelColor, #556b82);
+      font-weight: 400;
+      white-space: nowrap;
+    }
+    .change-cell-value {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--sapTextColor, #131e29);
+    }
+    .change-cell-ocr-error {
+      background: var(--sapWarningBackground, #fef7ec);
+      border: 1px solid var(--sapWarningBorderColor, #e9730c);
+    }
+    .change-cell-ocr-icon {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    .change-arrow {
+      text-align: center;
+      color: var(--sapTextColor, #131e29);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .scope-actions { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; margin-top: 1.25rem; }
+
+    /* ── Supporting documents ── */
+    .supporting-docs { margin-top: 0.75rem; }
+    .supporting-docs-title { font-size: 0.875rem; font-weight: 700; color: var(--sapTextColor,#131e29); margin-top: 0.75rem; margin-bottom: 0.625rem; }
+    .doc-tiles { display: flex; flex-wrap: wrap; gap: 0.625rem; }
+    .doc-tile {
+      display: flex; align-items: center; gap: 0.75rem;
+      background: var(--sapInformationBackground, #e8f0fe); border: 1px solid var(--sapInformativeBorderColor, #b8ccf4); border-radius: 0.5rem;
+      padding: 0.625rem 0.875rem; cursor: pointer; text-decoration: none;
+      min-width: 200px; max-width: 280px;
+      transition: background 0.15s, box-shadow 0.15s;
+    }
+    .doc-tile:hover { background: var(--sapList_SelectionBackgroundColor, #d2e3fc); box-shadow: 0 2px 6px rgba(26,115,232,0.15); }
+    .doc-tile-icon { flex-shrink: 0; color: var(--sapInformativeColor, #0070f2); }
+    .doc-tile-info { min-width: 0; }
+    .doc-tile-type { font-size: 0.75rem; font-weight: 700; color: var(--sapTextColor, #131e29); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .doc-tile-name { font-size: 0.6875rem; color: var(--sapContent_LabelColor, #556b82); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px; }
+
+    /* ── Full profile ── */
+    .profile-section { margin-bottom: 1.5rem; overflow: hidden; }
+    .profile-section:first-child { margin-top: 1.25rem; }
+    .profile-section:last-child { margin-bottom: 0; }
+    .profile-section-title {
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: var(--sapTextColor, #131e29);
+      padding: 0.625rem 0;
+      margin-bottom: 0.25rem;
+    }
+    .profile-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+    .profile-field {
+      padding: 0.625rem 0.75rem 0.625rem 0;
+    }
+    .profile-field:nth-child(even) {
+      padding-left: 0.75rem;
+    }
+    .profile-field-label {
+      font-size: 0.875rem;
+      color: var(--sapContent_LabelColor, #556b82);
+      margin-bottom: 0.2rem;
+    }
+    .profile-field-value { font-size: 0.875rem; color: var(--sapTextColor, #131e29); }
+
+    /* ── Agent Runs timeline ── */
+    .history-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      padding-left: calc(1rem + 3px);
+      border-left: 1px solid #B0B0B0;
+      margin-left: calc(1.25rem + 4px);
+      padding-top: 12px;
+    }
+    .history-item {
+      display: flex;
+      gap: 0;
+      padding: 0 0.75rem 0.9375rem 0;
+      position: relative;
+    }
+    .history-item-child { padding-bottom: 0.9375rem; }
+    .history-item:last-child { padding-bottom: 0; }
+    .history-dot-col { flex-shrink: 0; width: 0; position: relative; }
+    .history-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #758CA4;
+      box-shadow: 0 0 0 4px #EAECEE, 0 0 0 5px #ffffff;
+      position: absolute;
+      top: 0.2rem;
+      left: calc(-1.25rem - 3px);
+    }
+    .history-dot-green {
+      width: 18px;
+      height: 18px;
+      background: var(--sapPositiveColor, #256f3a);
+      top: calc(0.1rem - 2px);
+      left: calc(-1.25rem - 9px);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 18 18'%3E%3Ccircle cx='9' cy='9' r='9' fill='%23256f3a'/%3E%3Cpath d='M5 9.2l2.8 2.8 5-5.5' stroke='%23fff' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E");
+      background-size: cover;
+    }
+    .history-dot-pending {
+      width: 18px;
+      height: 18px;
+      background: none;
+      border: none;
+      box-shadow: none;
+      top: calc(0.1rem - 2px);
+      left: calc(-1.25rem - 9px);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 18 18'%3E%3Ccircle cx='9' cy='9' r='8' fill='%23e8f3ff' stroke='%230070f2' stroke-width='1.5' stroke-dasharray='3.5 2.5'/%3E%3Cpath d='M9 5v4.2l2.5 2.5' stroke='%230070f2' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E");
+      background-size: cover;
+      box-sizing: border-box;
+    }
+    .history-dot-warning {
+      width: 18px;
+      height: 18px;
+      background: none;
+      border: none;
+      box-shadow: none;
+      top: calc(0.1rem - 2px);
+      left: calc(-1.25rem - 9px);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 18 18'%3E%3Cpath d='M9 1L17 16H1L9 1Z' fill='%23e9730c'/%3E%3Crect x='8.25' y='6.5' width='1.5' height='4' rx='0.75' fill='%23fff'/%3E%3Crect x='8.25' y='12' width='1.5' height='1.5' rx='0.75' fill='%23fff'/%3E%3C/svg%3E");
+      background-size: cover;
+      box-sizing: border-box;
+    }
+    .history-step-title.warning { color: var(--sapWarningColor, #e9730c); }
+    .history-cycle-divider {
+      border: none;
+      border-top: 1px solid #B0B0B0;
+      margin: 0.75rem 1rem 0.75rem 0;
+    }
+    .history-item-child .history-dot-col { visibility: hidden; }
+    .history-loader {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding-bottom: 0.9375rem;
+      padding-left: 0.5rem;
+    }
+    .history-loader-dot {
+      border-radius: 50%;
+      background: var(--sapInformativeColor, #0070f2);
+      animation: history-dot-pulse 1.2s ease-in-out infinite;
+    }
+    .history-loader-dot:nth-child(1) { width: 7px; height: 7px; animation-delay: 0s; }
+    .history-loader-dot:nth-child(2) { width: 9px; height: 9px; animation-delay: 0.2s; }
+    .history-loader-dot:nth-child(3) { width: 11px; height: 11px; animation-delay: 0.4s; }
+    .step-loader {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 0.2rem 0;
+    }
+    @keyframes history-dot-pulse {
+      0%, 60%, 100% { opacity: 0.3; transform: scale(0.85); }
+      30% { opacity: 1; transform: scale(1); }
+    }
+    .history-step-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--sapTextColor, #131e29);
+      margin-bottom: 0.2rem;
+    }
+    .history-step-title.pending { color: var(--sapContent_LabelColor, #556b82); font-weight: 400; }
+    .history-step-desc {
+      font-size: 0.875rem;
+      color: var(--sapContent_LabelColor, #556b82);
+      line-height: 1.4;
+    }
+    .history-step-desc.warning { color: var(--sapWarningColor, #e9730c); }
+    .history-step-body {
+      font-size: 0.875rem;
+      color: var(--sapTextColor, #131e29);
+      line-height: 1.4;
+    }
+
+    /* ── Skeleton loader ── */
+    .skel-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      z-index: 10;
+      pointer-events: none;
+    }
+    .skel-main {
+      flex: 1;
+      padding: 1.5rem 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      overflow: hidden;
+    }
+    .skel-side {
+      width: 450px;
+      flex-shrink: 0;
+      border-left: 1px solid var(--sapGroup_ContentBorderColor, #e5e5e5);
+      padding: 1rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .skel-card {
+      background: var(--sapGroup_ContentBackground, #fff);
+      border: 1px solid var(--sapGroup_ContentBorderColor, #e5e5e5);
+      border-radius: 0.5rem;
+      padding: 1rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.625rem;
+    }
+    .skel-bar {
+      border-radius: 0.25rem;
+      background: linear-gradient(90deg, #e8eaed 25%, #d4d7dc 50%, #e8eaed 75%);
+      background-size: 400% 100%;
+      animation: skel-shimmer 1.5s ease infinite;
+    }
+    @keyframes skel-shimmer {
+      0%   { background-position: 100% 50%; }
+      100% { background-position:   0% 50%; }
+    }
+    .skel-overlay.fade-out {
+      opacity: 0;
+      transition: opacity 0.35s ease;
+    }
+
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.1875rem 0.5rem;
+      border-radius: 0.5rem;
+    }
+    .badge-orange { background: var(--sapCriticalBackground, #fff3e0); color: var(--sapCriticalColor, #e76500); }
+    .badge-blue   { background: var(--sapInformationBackground, #e8f4ff); color: var(--sapInformativeColor, #0070f2); }
+    .badge-red    { background: var(--sapErrorBackground, #fce4e4); color: var(--sapNegativeColor, #bb0000); }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <app-shellbar title="Vendor Management Assistant" base-path="../../" avatar-initials="LW" hide-menu hide-product-switch></app-shellbar>
+
+  <!-- Sub-header -->
+  <div class="sub-header">
+    <div class="sub-header-top">
+      <div>
+        <div style="display:flex; align-items:center; gap:0.375rem; margin-bottom:0.375rem; font-size:14px; font-family:'72',sans-serif;">
+          <a href="vendor-change-requests.html" style="color:var(--sapLinkColor,#0070f2); text-decoration:none;">Vendor Change Requests</a>
+          <span style="color:#8c9fac;">/</span>
+          <span style="color:var(--sapContent_LabelColor,#556b82);"><span class="vendor-name-placeholder">Meridian Supply Co.</span></span>
+        </div>
+        <h1 style="font-size:24px; font-weight:900; font-family:'72',sans-serif; color:var(--sapTextColor,#131e29); margin:0;"><span class="vendor-name-placeholder">Meridian Supply Co.</span></h1>
+      </div>
+      <div class="sub-header-actions">
+        <ui5-button id="overflowBtn" design="Default" icon="overflow"></ui5-button>
+        <ui5-menu id="overflowMenu" horizontal-align="End" placement="Bottom">
+          <ui5-menu-item text="View Vendor Profile"></ui5-menu-item>
+          <ui5-menu-item text="Download Request PDF"></ui5-menu-item>
+          <ui5-menu-item text="Add Internal Note"></ui5-menu-item>
+        </ui5-menu>
+        <ui5-button design="Default" onclick="location.href='vendor-change-requests.html'">Close</ui5-button>
+      </div>
+    </div>
+    <div class="sub-header-meta">
+      <div class="sub-header-meta-item">
+        <span class="label">Vendor Contact:</span>
+        <a href="#">James Whitfield</a>
+      </div>
+      <div class="sub-header-meta-item">
+        <span class="label">Submitted:</span>
+        <span class="value" id="submittedDate">Apr 17, 2026</span>
+      </div>
+      <div class="sub-header-meta-item" id="riskClassificationMeta" style="display:none">
+        <span class="label">Field Risk Classification:</span>
+        <span id="riskPills"></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="body">
+
+    <!-- Skeleton loader -->
+    <div class="skel-overlay" id="skelOverlay">
+      <div class="skel-main" style="background:var(--sapBackgroundColor,#f5f6f7);">
+        <!-- Card 1 -->
+        <div class="skel-card">
+          <div class="skel-bar" style="height:14px;width:40%;"></div>
+          <div class="skel-bar" style="height:12px;width:100%;"></div>
+          <div class="skel-bar" style="height:12px;width:85%;"></div>
+          <div style="display:grid;grid-template-columns:1fr 24px 1fr;gap:0.75rem;margin-top:0.25rem;">
+            <div class="skel-bar" style="height:60px;border-radius:0.375rem;"></div>
+            <div class="skel-bar" style="height:20px;width:20px;border-radius:50%;align-self:center;"></div>
+            <div class="skel-bar" style="height:60px;border-radius:0.375rem;"></div>
+          </div>
+          <div style="display:flex;gap:0.5rem;margin-top:0.25rem;">
+            <div class="skel-bar" style="height:32px;width:140px;border-radius:0.5rem;"></div>
+            <div class="skel-bar" style="height:32px;width:120px;border-radius:0.5rem;"></div>
+            <div class="skel-bar" style="height:32px;width:140px;border-radius:0.5rem;"></div>
+          </div>
+        </div>
+        <!-- Card 2 -->
+        <div class="skel-card">
+          <div class="skel-bar" style="height:14px;width:30%;"></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-top:0.25rem;">
+            <div style="display:flex;flex-direction:column;gap:0.4rem;">
+              <div class="skel-bar" style="height:11px;width:60%;"></div>
+              <div class="skel-bar" style="height:13px;width:80%;"></div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:0.4rem;">
+              <div class="skel-bar" style="height:11px;width:60%;"></div>
+              <div class="skel-bar" style="height:13px;width:80%;"></div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:0.4rem;">
+              <div class="skel-bar" style="height:11px;width:60%;"></div>
+              <div class="skel-bar" style="height:13px;width:70%;"></div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:0.4rem;">
+              <div class="skel-bar" style="height:11px;width:60%;"></div>
+              <div class="skel-bar" style="height:13px;width:75%;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="skel-side" style="background:var(--sapGroup_ContentBackground,#fff);">
+        <div style="display:flex;gap:1rem;margin-bottom:0.5rem;">
+          <div class="skel-bar" style="height:14px;width:80px;"></div>
+          <div class="skel-bar" style="height:14px;width:100px;"></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:0.75rem;margin-top:0.5rem;">
+          <div style="display:flex;gap:0.75rem;align-items:flex-start;">
+            <div class="skel-bar" style="width:8px;height:8px;border-radius:50%;margin-top:3px;flex-shrink:0;"></div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:0.35rem;">
+              <div class="skel-bar" style="height:13px;width:55%;"></div>
+              <div class="skel-bar" style="height:11px;width:75%;"></div>
+            </div>
+          </div>
+          <div style="display:flex;gap:0.75rem;align-items:flex-start;">
+            <div class="skel-bar" style="width:8px;height:8px;border-radius:50%;margin-top:3px;flex-shrink:0;"></div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:0.35rem;">
+              <div class="skel-bar" style="height:13px;width:45%;"></div>
+              <div class="skel-bar" style="height:11px;width:65%;"></div>
+            </div>
+          </div>
+          <div style="display:flex;gap:0.75rem;align-items:flex-start;">
+            <div class="skel-bar" style="width:8px;height:8px;border-radius:50%;margin-top:3px;flex-shrink:0;"></div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:0.35rem;">
+              <div class="skel-bar" style="height:13px;width:60%;"></div>
+              <div class="skel-bar" style="height:11px;width:80%;"></div>
+            </div>
+          </div>
+          <div style="display:flex;gap:0.75rem;align-items:flex-start;">
+            <div class="skel-bar" style="width:8px;height:8px;border-radius:50%;margin-top:3px;flex-shrink:0;opacity:0.5;"></div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:0.35rem;">
+              <div class="skel-bar" style="height:13px;width:50%;"></div>
+              <div class="skel-bar" style="height:11px;width:70%;"></div>
+            </div>
+          </div>
+          <div style="display:flex;gap:0.75rem;align-items:flex-start;">
+            <div class="skel-bar" style="width:8px;height:8px;border-radius:50%;margin-top:3px;flex-shrink:0;opacity:0.5;"></div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:0.35rem;">
+              <div class="skel-bar" style="height:13px;width:40%;"></div>
+              <div class="skel-bar" style="height:11px;width:60%;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main column -->
+    <div class="col-main">
+
+      <!-- Scope of the Change Request -->
+      <div class="panel-card">
+        <div class="panel-card-header">
+          <svg width="18" height="18" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;"><path d="M4.77386 5.51772C5.00416 4.82742 5.99565 4.82746 6.22601 5.51772C7.03711 7.8988 8.09862 8.9593 10.4819 9.76967C11.1728 10.0098 11.1728 11.0005 10.4819 11.2306C8.09867 12.041 7.0371 13.1015 6.22601 15.4826C5.99555 16.1726 5.00425 16.1726 4.77386 15.4826C3.96275 13.1015 2.90125 12.041 0.517998 11.2306C-0.172689 10.9904 -0.172643 9.99991 0.517998 9.76967C2.90124 8.9593 3.96275 7.89878 4.77386 5.51772ZM12.6049 0.284318C12.735 -0.0948015 13.2648 -0.0947441 13.395 0.284318C13.835 1.58216 14.4153 2.16146 15.7153 2.60072C16.095 2.7306 16.0951 3.26972 15.7153 3.39955C14.4153 3.83882 13.835 4.41812 13.395 5.71596C13.2647 6.09477 12.7351 6.09482 12.6049 5.71596C12.1649 4.41812 11.5846 3.83882 10.2846 3.39955C9.90511 3.2696 9.90515 2.73073 10.2846 2.60072C11.5846 2.16146 12.1649 1.58216 12.6049 0.284318Z" fill="#0070f2"/></svg>
+          <span style="margin-top:2px;">Scope of the Change Request</span>
+        </div>
+        <div class="panel-card-body">
+          <p id="statusText" style="font-size:14px; color:var(--sapTextColor,#131e29); margin-bottom:1rem; line-height:1.5;">The agent has completed its review: submitted documents were scanned via OCR, field values were verified against the uploaded files, and no discrepancies were found. These changes are ready for your approval.</p>
+          <div id="statusStrip" style="display:none; align-items:center; gap:0.5rem; background:var(--sapList_SelectionBackgroundColor,#e8f3ff); border:1px solid var(--sapButton_Information_BorderColor,#0064d9); border-radius:0.5rem; padding:0.625rem 0.875rem; margin-bottom:1rem; font-size:14px; color:var(--sapTextColor,#131e29);">
+            <svg id="statusStripIcon" width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;"><circle cx="8" cy="8" r="8" fill="#0070f2"/><rect x="7" y="6" width="2" height="2" rx="1" fill="#fff"/><rect x="7" y="9" width="2" height="4" rx="1" fill="#fff"/></svg>
+            <span id="statusStripText"></span>
+          </div>
+
+          <div class="change-headers">
+            <span class="change-header-label">Previous Value</span>
+            <span></span>
+            <span class="change-header-label">New Value</span>
+          </div>
+
+          <div class="change-rows" id="changeRows"></div>
+
+          <div class="supporting-docs" id="supportingDocs" style="display:none;">
+            <hr style="border:none; border-top:1px solid var(--sapList_BorderColor,#e5e5e5); margin:1rem 0 1rem;">
+            <div class="supporting-docs-title">Supporting Documents</div>
+            <div class="doc-tiles" id="docTiles"></div>
+          </div>
+
+          <div class="scope-actions">
+            <ui5-button design="Emphasized" icon="accept" id="btn-approve">Approve Changes</ui5-button>
+            <ui5-button design="Default" icon="decline" id="btn-reject">Reject Changes</ui5-button>
+            <ui5-button design="Transparent" id="btn-escalate">Escalate to Manager</ui5-button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Full Profile -->
+      <div class="panel-card">
+        <div class="panel-card-header">
+          <span style="margin-top:2px;">Full Vendor Profile</span>
+        </div>
+        <div class="panel-card-body">
+
+          <div class="profile-section">
+            <div class="profile-section-title">General Details</div>
+            <div class="profile-grid">
+              <div class="profile-field"><div class="profile-field-label">Vendor Legal Name</div><div class="profile-field-value">Meridian Supply Co.</div></div>
+              <div class="profile-field"><div class="profile-field-label">Vendor Trading Name</div><div class="profile-field-value">Meridian Supply</div></div>
+              <div class="profile-field"><div class="profile-field-label">Street</div><div class="profile-field-value">1450 Industrial Pkwy</div></div>
+              <div class="profile-field"><div class="profile-field-label">House No.</div><div class="profile-field-value">Suite 300</div></div>
+              <div class="profile-field"><div class="profile-field-label">City</div><div class="profile-field-value">Cincinnati</div></div>
+              <div class="profile-field"><div class="profile-field-label">State</div><div class="profile-field-value">Ohio</div></div>
+              <div class="profile-field"><div class="profile-field-label">Country</div><div class="profile-field-value">United States</div></div>
+              <div class="profile-field"><div class="profile-field-label">Postal Code</div><div class="profile-field-value">45202</div></div>
+            </div>
+          </div>
+
+          <div class="profile-section">
+            <div class="profile-section-title">Vendor Contact Details</div>
+            <div class="profile-grid">
+              <div class="profile-field"><div class="profile-field-label">Phone</div><div class="profile-field-value">+1 513 555 0142</div></div>
+              <div class="profile-field"><div class="profile-field-label">Fax</div><div class="profile-field-value">+1 513 555 0143</div></div>
+              <div class="profile-field"><div class="profile-field-label">Supplier Contact Name</div><div class="profile-field-value">James Whitfield</div></div>
+              <div class="profile-field"><div class="profile-field-label">Email for POs</div><div class="profile-field-value">orders@meridiansupply.com</div></div>
+              <div class="profile-field"><div class="profile-field-label">Email for Payment Advice</div><div class="profile-field-value">payments@meridiansupply.com</div></div>
+            </div>
+          </div>
+
+          <div class="profile-section">
+            <div class="profile-section-title">Vendor Identification</div>
+            <div class="profile-grid">
+              <div class="profile-field"><div class="profile-field-label">Local Tax ID</div><div class="profile-field-value">31-1482930</div></div>
+              <div class="profile-field"><div class="profile-field-label">VAT Number</div><div class="profile-field-value">US314829300</div></div>
+            </div>
+          </div>
+
+          <div class="profile-section">
+            <div class="profile-section-title">Bank Details</div>
+            <div class="profile-grid">
+              <div class="profile-field"><div class="profile-field-label">Bank Country</div><div class="profile-field-value">United States</div></div>
+              <div class="profile-field"><div class="profile-field-label">IBAN</div><div class="profile-field-value">US44 0420 0000 0010 0023 600</div></div>
+              <div class="profile-field"><div class="profile-field-label">SWIFT</div><div class="profile-field-value">USBKUS44</div></div>
+              <div class="profile-field"><div class="profile-field-label">Bank Key</div><div class="profile-field-value">042000013</div></div>
+              <div class="profile-field"><div class="profile-field-label">Bank Name</div><div class="profile-field-value">Fifth Third Bank</div></div>
+              <div class="profile-field"><div class="profile-field-label">Account Number</div><div class="profile-field-value">7892340156</div></div>
+              <div class="profile-field"><div class="profile-field-label">Bank Address</div><div class="profile-field-value">38 Fountain Square Plaza, Cincinnati, OH</div></div>
+              <div class="profile-field"><div class="profile-field-label">Branch Name</div><div class="profile-field-value">Cincinnati Downtown</div></div>
+              <div class="profile-field"><div class="profile-field-label">Account Holder</div><div class="profile-field-value">Meridian Supply Co.</div></div>
+              <div class="profile-field"><div class="profile-field-label">Bank Account Currency</div><div class="profile-field-value">USD</div></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Side column -->
+    <div class="col-side">
+      <ui5-tabcontainer fixed id="sideTabs">
+        <ui5-tab text="Agent Runs" selected></ui5-tab>
+        <ui5-tab text="Account History"></ui5-tab>
+      </ui5-tabcontainer>
+
+      <div id="side-panel-agent">
+        <ul class="history-list" id="agentRunsList">
+        </ul>
+      </div>
+
+      <div id="side-panel-history" style="display:none">
+        <ul class="history-list" id="accountHistoryList">
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Approve Dialog -->
+<ui5-dialog id="dlg-approve" header-text="Approve Change Request" style="max-width:560px">
+  <div style="padding:0.3125rem 1rem 0.75rem; font-size:14px; color:var(--sapTextColor); line-height:1.6;">
+    Are you sure you want to approve these changes? The vendor profile will be updated immediately.
+  </div>
+  <div slot="footer" style="display:flex; justify-content:flex-end; align-items:center; gap:0.5rem; padding:0.5rem; width:100%; box-sizing:border-box;">
+    <ui5-button design="Emphasized" id="btn-approve-confirm">Approve</ui5-button>
+    <ui5-button design="Transparent" id="btn-approve-cancel">Cancel</ui5-button>
+  </div>
+</ui5-dialog>
+
+<!-- Reject Dialog -->
+<ui5-dialog id="dlg-reject" header-text="Reject Change Request" style="max-width:560px">
+  <div style="padding:0.3125rem 1rem 0.75rem; font-size:14px; color:var(--sapTextColor); line-height:1.6;">
+    Please provide a reason for rejecting this change request.
+    <ui5-textarea style="width:100%; margin-top:0.75rem;" placeholder="Enter rejection reason..." rows="4"></ui5-textarea>
+  </div>
+  <div slot="footer" style="display:flex; justify-content:flex-end; align-items:center; gap:0.5rem; padding:0.5rem; width:100%; box-sizing:border-box;">
+    <ui5-button design="Emphasized" id="btn-reject-confirm">Reject</ui5-button>
+    <ui5-button design="Transparent" id="btn-reject-cancel">Cancel</ui5-button>
+  </div>
+</ui5-dialog>
+
+<!-- Escalate Dialog -->
+<ui5-dialog id="dlg-escalate" header-text="Escalate to Manager" style="max-width:560px">
+  <div style="padding:0.3125rem 1rem 0.75rem; font-size:14px; color:var(--sapTextColor); line-height:1.6;">
+    This request will be escalated to your manager for review.
+    <ui5-textarea style="width:100%; margin-top:0.75rem;" placeholder="Add any context for your manager..." rows="4"></ui5-textarea>
+  </div>
+  <div slot="footer" style="display:flex; justify-content:flex-end; align-items:center; gap:0.5rem; padding:0.5rem; width:100%; box-sizing:border-box;">
+    <ui5-button design="Emphasized" id="btn-escalate-confirm">Escalate</ui5-button>
+    <ui5-button design="Transparent" id="btn-escalate-cancel">Cancel</ui5-button>
+  </div>
+</ui5-dialog>
+
+<script>
+  // Overflow menu
+  var overflowBtn = document.getElementById('overflowBtn');
+  var overflowMenu = document.getElementById('overflowMenu');
+  overflowBtn.addEventListener('click', function(e) { overflowMenu.showAt(overflowBtn); });
+
+  // Tab switching
+  document.getElementById('sideTabs').addEventListener('tab-select', function(e) {
+    var idx = e.detail.tabIndex;
+    document.getElementById('side-panel-agent').style.display  = idx === 0 ? '' : 'none';
+    document.getElementById('side-panel-history').style.display = idx === 1 ? '' : 'none';
+  });
+
+  function showDecisionBanner(action) {
+    var now = new Date();
+    var stamp = (now.getMonth()+1) + '/' + now.getDate() + '/' + now.getFullYear() +
+      ' at ' + now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+    var isApprove = action === 'approve';
+    var strip = document.getElementById('statusStrip');
+    var stripText = document.getElementById('statusStripText');
+    var stripIcon = document.getElementById('statusStripIcon');
+    document.querySelector('.scope-actions').style.display = 'none';
+    if (isApprove) {
+      var awaitingBody = document.querySelector('#step-awaiting-approval .history-body');
+      if (awaitingBody) {
+        awaitingBody.innerHTML = '<div class="step-loader"><div class="history-loader-dot"></div><div class="history-loader-dot"></div><div class="history-loader-dot"></div></div>';
+      }
+      setTimeout(function() {
+        var awaitingDot = document.querySelector('#step-awaiting-approval .history-dot');
+        if (awaitingDot) {
+          awaitingDot.classList.remove('history-dot-pending');
+          awaitingDot.classList.add('history-dot-green');
+        }
+        if (awaitingBody) {
+          awaitingBody.innerHTML =
+            '<div class="history-step-title">Awaiting Approval</div>' +
+            '<div class="history-step-desc" id="desc-awaiting-approval">Approved by you on ' + stamp + '.</div>';
+        }
+      }, 500);
+      setTimeout(function() {
+        var mdgBody = document.querySelector('#step-update-mdg .history-body');
+        if (mdgBody) {
+          mdgBody.innerHTML = '<div class="step-loader"><div class="history-loader-dot"></div><div class="history-loader-dot"></div><div class="history-loader-dot"></div></div>';
+        }
+        setTimeout(function() {
+          var mdgDot = document.getElementById('dot-update-mdg');
+          if (mdgDot) {
+            mdgDot.classList.remove('history-dot-pending');
+            mdgDot.classList.add('history-dot-green');
+          }
+          if (mdgBody) {
+            mdgBody.innerHTML =
+              '<div class="history-step-title" id="title-update-mdg">Update MDG</div>' +
+              '<div class="history-step-desc" id="desc-update-mdg">Vendor profile successfully updated in MDG.</div>';
+          }
+        }, 500);
+      }, 3000);
+      document.getElementById('statusText').style.display = 'none';
+      strip.style.display = 'flex';
+      strip.closest('.panel-card-body').classList.add('with-strip');
+      stripText.textContent = 'You approved this request on ' + stamp + '. MDG has been updated and the changes have been made live.';
+      addHistoryEntries(stamp, 'approve');
+    } else {
+      var awaitingBodyElse = document.querySelector('#step-awaiting-approval .history-body');
+      var isReject = action === 'reject';
+      if (awaitingBodyElse) {
+        awaitingBodyElse.innerHTML = '<div class="step-loader"><div class="history-loader-dot"></div><div class="history-loader-dot"></div><div class="history-loader-dot"></div></div>';
+      }
+      setTimeout(function() {
+        var awaitingDotElse = document.querySelector('#step-awaiting-approval .history-dot');
+        if (awaitingDotElse) {
+          awaitingDotElse.classList.remove('history-dot-pending');
+          awaitingDotElse.classList.add('history-dot-green');
+        }
+        if (awaitingBodyElse) {
+          awaitingBodyElse.innerHTML =
+            '<div class="history-step-title">Awaiting Approval</div>' +
+            '<div class="history-step-desc">' + (isReject ? 'Rejected by you on ' : 'Escalated by you on ') + stamp + '.</div>';
+        }
+      }, 500);
+      document.getElementById('statusText').style.display = 'none';
+      strip.style.display = 'flex';
+      strip.closest('.panel-card-body').classList.add('with-strip');
+      if (isReject) {
+        strip.style.background = '#fff4f4';
+        strip.style.border = '1px solid #aa0808';
+        stripIcon.innerHTML = '<circle cx="8" cy="8" r="8" fill="#aa0808"/><path d="M5 5l6 6M11 5l-6 6" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>';
+        stripText.textContent = 'You rejected this request on ' + stamp + '. The vendor has been notified.';
+      } else {
+        strip.style.background = 'var(--sapCriticalBackground, #fff3e0)';
+        strip.style.border = '1px solid var(--sapCriticalColor, #e76500)';
+        stripIcon.innerHTML = '<circle cx="8" cy="8" r="8" fill="#e76500"/><path d="M8 4v4" stroke="#fff" stroke-width="2" stroke-linecap="round"/><circle cx="8" cy="11.5" r="1" fill="#fff"/>';
+        stripText.textContent = 'You escalated this request on ' + stamp + '. Your manager has been notified.';
+      }
+      addHistoryEntries(stamp, action);
+    }
+  }
+
+  // Dialogs
+  var approveDialog  = document.getElementById('dlg-approve');
+  var rejectDialog   = document.getElementById('dlg-reject');
+  var escalateDialog = document.getElementById('dlg-escalate');
+
+  document.getElementById('btn-approve').addEventListener('click', function() { approveDialog.setAttribute('open', ''); });
+  document.getElementById('btn-approve-cancel').addEventListener('click', function() { approveDialog.removeAttribute('open'); });
+  document.getElementById('btn-approve-confirm').addEventListener('click', function() {
+    approveDialog.removeAttribute('open');
+    if (hasOcrError) {
+      runOcrConfirmSequence();
+    } else {
+      showDecisionBanner('approve');
+    }
+  });
+
+  document.getElementById('btn-reject').addEventListener('click', function() { rejectDialog.setAttribute('open', ''); });
+  document.getElementById('btn-reject-cancel').addEventListener('click', function() { rejectDialog.removeAttribute('open'); });
+  document.getElementById('btn-reject-confirm').addEventListener('click', function() {
+    rejectDialog.removeAttribute('open');
+    if (hasOcrError) {
+      runOcrFlagSequence();
+    } else {
+      showDecisionBanner('reject');
+    }
+  });
+
+  document.getElementById('btn-escalate').addEventListener('click', function() { escalateDialog.setAttribute('open', ''); });
+  document.getElementById('btn-escalate-cancel').addEventListener('click', function() { escalateDialog.removeAttribute('open'); });
+  document.getElementById('btn-escalate-confirm').addEventListener('click', function() {
+    escalateDialog.removeAttribute('open');
+    showDecisionBanner('escalate');
+  });
+
+
+
+  function addHistoryEntry(dateText, bodyText) {
+    var list = document.querySelector('#side-panel-history .history-list');
+    var loader = document.createElement('li');
+    loader.className = 'history-loader';
+    loader.innerHTML = '<div class="history-loader-dot"></div><div class="history-loader-dot"></div><div class="history-loader-dot"></div>';
+    list.insertBefore(loader, historyInsertMarker);
+    setTimeout(function() {
+      var li = document.createElement('li');
+      li.className = 'history-item history-item-child';
+      li.innerHTML =
+        '<div class="history-dot-col"><div class="history-dot"></div></div>' +
+        '<div class="history-body">' +
+        '<div class="history-step-desc">' + dateText + '</div>' +
+        '<div class="history-step-body">' + bodyText + '</div>' +
+        '</div>';
+      list.replaceChild(li, loader);
+      historyInsertMarker = li.nextSibling;
+    }, 500);
+  }
+
+  function addHistoryEntries(stamp, action) {
+    var isApprove = action === 'approve';
+    var isEscalate = action === 'escalate';
+    if (isApprove) {
+      addHistoryEntry(stamp, 'Changes approved by Linda Wei.');
+      setTimeout(function() {
+        var now2 = new Date();
+        var stamp2 = (now2.getMonth()+1) + '/' + now2.getDate() + '/' + now2.getFullYear() +
+          ' at ' + now2.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+        addHistoryEntry(stamp2, 'MDG updated.');
+      }, 2500);
+    } else if (isEscalate) {
+      addHistoryEntry(stamp, 'Request escalated to manager for further review.');
+    } else {
+      addHistoryEntry(stamp, 'Changes rejected. Vendor has been notified.');
+    }
+  }
+
+  function runOcrConfirmSequence() {
+    document.querySelector('.scope-actions').style.display = 'none';
+
+    // Step 1: immediately mark OCR Check green
+    var ocrBody = document.querySelector('#step-ocr-check .history-body');
+    if (ocrBody) {
+      ocrBody.innerHTML = '<div class="step-loader"><div class="history-loader-dot"></div><div class="history-loader-dot"></div><div class="history-loader-dot"></div></div>';
+    }
+    setTimeout(function() {
+      var ocrDot = document.querySelector('#step-ocr-check .history-dot');
+      if (ocrDot) { ocrDot.className = 'history-dot history-dot-green'; }
+      if (ocrBody) {
+        ocrBody.innerHTML =
+          '<div class="history-step-title">OCR Check</div>' +
+          '<div class="history-step-desc">Human reviewer confirmed the account number matches the document. Verification complete.</div>';
+      }
+
+      // Update account history OCR action item
+      var histOcrAction = document.getElementById('hist-ocr-action');
+      if (histOcrAction) {
+        histOcrAction.querySelector('.history-step-body').textContent = 'Linda Wei confirmed the account number on the document matches what the vendor entered.';
+      }
+      var MONTHS_LONG = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+      var now = new Date();
+      var todayHistStr = MONTHS_LONG[now.getMonth()] + ' ' + now.getDate() + ', ' + now.getFullYear();
+      addHistoryEntry(todayHistStr, 'Approval workflow determined. Request routed for Trustpair verification.');
+      setTimeout(function() {
+        addHistoryEntry(todayHistStr, 'Trustpair verification initiated. Pending completion (1–3 business days).');
+      }, 1200);
+
+      // Remove warning strip and replace with confirmation text
+      var strip = document.getElementById('statusStrip');
+      if (strip) {
+        strip.style.display = 'none';
+        var confirmText = document.createElement('p');
+        confirmText.style.cssText = 'font-size:14px; color:var(--sapTextColor,#131e29); line-height:1.6; margin-bottom:1rem;';
+        confirmText.textContent = 'Documents submitted by the vendor were scanned via OCR, but the agent was unable to read the bank document clearly. The request was routed to Linda Wei for manual review. Linda Wei confirmed that the account number on the document matches what the vendor entered. The change has been routed for Trustpair verification. No further action is required at this time.';
+        strip.parentNode.insertBefore(confirmText, strip);
+      }
+
+      // Remove OCR error highlight and warning icon from the bank account cell
+      var ocrCell = document.querySelector('.change-cell-ocr-error');
+      if (ocrCell) {
+        ocrCell.classList.remove('change-cell-ocr-error');
+        var iconSpan = ocrCell.querySelector('.change-cell-ocr-icon');
+        if (iconSpan) {
+          iconSpan.parentElement.innerHTML = iconSpan.textContent.trim();
+        }
+      }
+    }, 500);
+
+    // Step 2: after 600ms, animate Routing Decision
+    setTimeout(function() {
+      var routingBody = document.querySelector('#step-routing-decision .history-body');
+      if (routingBody) {
+        routingBody.innerHTML = '<div class="step-loader"><div class="history-loader-dot"></div><div class="history-loader-dot"></div><div class="history-loader-dot"></div></div>';
+      }
+      setTimeout(function() {
+        var routingDot = document.querySelector('#step-routing-decision .history-dot');
+        if (routingDot) { routingDot.className = 'history-dot history-dot-green'; }
+        if (routingBody) {
+          routingBody.innerHTML =
+            '<div class="history-step-title">Routing Decision</div>' +
+            '<div class="history-step-desc">Approval workflow determined. Request routed for Trustpair verification.</div>';
+        }
+
+        // Step 3: Trustpair stays pending — update text only
+        var trustpairBody = document.querySelector('#step-trustpair .history-body');
+        if (trustpairBody) {
+          trustpairBody.innerHTML =
+            '<div class="history-step-title pending">Trustpair Verification</div>' +
+            '<div class="history-step-desc">Trustpair verification initiated. This may take 1–3 business days to complete.</div>';
+        }
+      }, 500);
+    }, 600);
+  }
+
+  function runOcrFlagSequence() {
+    document.querySelector('.scope-actions').style.display = 'none';
+
+    // Mark OCR Check as complete with flag outcome
+    var ocrBody = document.querySelector('#step-ocr-check .history-body');
+    if (ocrBody) {
+      ocrBody.innerHTML = '<div class="step-loader"><div class="history-loader-dot"></div><div class="history-loader-dot"></div><div class="history-loader-dot"></div></div>';
+    }
+    setTimeout(function() {
+      var ocrDot = document.querySelector('#step-ocr-check .history-dot');
+      if (ocrDot) { ocrDot.className = 'history-dot history-dot-green'; }
+      if (ocrBody) {
+        ocrBody.innerHTML =
+          '<div class="history-step-title">OCR Check</div>' +
+          '<div class="history-step-desc">Linda Wei reviewed the document and flagged a discrepancy — the account number on the document does not match what the vendor entered. The vendor has been notified.</div>';
+      }
+
+      // Update account history OCR action item
+      var histOcrAction = document.getElementById('hist-ocr-action');
+      if (histOcrAction) {
+        histOcrAction.querySelector('.history-step-body').textContent = 'Linda Wei flagged a discrepancy — the account number on the document does not match what the vendor entered. Vendor notified to resubmit.';
+      }
+
+      // Replace warning strip with flagging confirmation text
+      var strip = document.getElementById('statusStrip');
+      if (strip) {
+        strip.style.display = 'none';
+        var flagText = document.createElement('p');
+        flagText.style.cssText = 'font-size:14px; color:var(--sapTextColor,#131e29); line-height:1.6; margin-bottom:1rem;';
+        flagText.textContent = 'A discrepancy was flagged between the bank document and the account number submitted by the vendor. The vendor has been notified and will need to resubmit with a legible document. No further action is required at this time.';
+        strip.parentNode.insertBefore(flagText, strip);
+      }
+    }, 500);
+  }
+
+  // Populate change rows from URL params (or use fallback demo data
+  var params = new URLSearchParams(window.location.search);
+  var changesRaw = params.get('changes');
+
+  // Per-vendor fallback datasets — risk counts match the worklist badges
+  var vendorFallbacks = {
+    'Blue Horizon Tech Inc': [
+      { label: 'Payment Terms',   oldVal: 'Net 30',          newVal: 'Net 45',          risk: 'medium' },
+      { label: 'Contact Email',   oldVal: 'ap@bluehorizon.com', newVal: 'finance@bluehorizon.com', risk: 'medium' }
+    ],
+    'Global Solutions Group Ltd': [
+      { label: 'Street Address',  oldVal: '12 Commerce St',  newVal: '88 Business Ave', risk: 'medium' }
+    ],
+    'Pinnacle Health Systems': [
+      { label: 'Email for POs',         oldVal: 'orders@pinnacle.com',  newVal: 'purchasing@pinnacle.com', risk: 'medium' },
+      { label: 'Email for Payment Advice', oldVal: 'ap@pinnacle.com',   newVal: 'payments@pinnacle.com',  risk: 'medium' },
+      { label: 'Supplier Contact Name', oldVal: 'Carol Reed',           newVal: 'Marcus Hill',            risk: 'medium' }
+    ],
+    'Quantum Dynamics LLC': [
+      { label: 'IBAN',            oldVal: 'DE89 3704 0044 0532 0130 00', newVal: 'DE02 1001 0010 0055 0133 00', risk: 'high' }
+    ],
+    'TerraNova Enterprises': [
+      { label: 'City',            oldVal: 'Austin',          newVal: 'Houston',         risk: 'medium' },
+      { label: 'Postal Code',     oldVal: '78701',           newVal: '77002',           risk: 'medium' }
+    ],
+    'Atlas Consulting Partners': [
+      { label: 'Bank Account Number', oldVal: '4400123456',  newVal: '4400987654',      risk: 'high',   ocr: true },
+      { label: 'Email for POs',   oldVal: 'orders@atlas.com', newVal: 'billing@atlas.com', risk: 'medium' },
+      { label: 'VAT Number',      oldVal: 'GB123456789',     newVal: 'GB987654321',     risk: 'medium' }
+    ],
+    'Synergy Marketing Corp': [
+      { label: 'Fax',             oldVal: '+1 312 555 0177', newVal: '+1 312 555 0199', risk: 'medium' }
+    ],
+    'Vertex Financial Services': [
+      { label: 'SWIFT',           oldVal: 'CITIUS33',        newVal: 'BOFAUS3N',        risk: 'high'   },
+      { label: 'Payment Terms',   oldVal: 'Net 30',          newVal: 'Net 60',          risk: 'medium' }
+    ],
+    'Apex Logistics Solutions': [
+      { label: 'Street Address',  oldVal: '5 Harbour Rd',    newVal: '17 Dock Lane',    risk: 'medium' },
+      { label: 'City',            oldVal: 'Seattle',         newVal: 'Tacoma',          risk: 'medium' }
+    ],
+    'Stellar Research Group': [
+      { label: 'Contact Email',   oldVal: 'info@stellar.com', newVal: 'contact@stellar.com', risk: 'medium' }
+    ],
+    'Elemental Design Co': [
+      { label: 'Email for POs',   oldVal: 'orders@elemental.com', newVal: 'purchasing@elemental.com', risk: 'medium' },
+      { label: 'Phone',           oldVal: '+1 415 555 0120', newVal: '+1 415 555 0188', risk: 'medium' }
+    ],
+    'Summit Engineering Services': [
+      { label: 'IBAN',            oldVal: 'GB29 NWBK 6016 1331 9268 19', newVal: 'GB82 WEST 1234 5698 7654 32', risk: 'high' },
+      { label: 'Email for POs',   oldVal: 'ap@summit.com',   newVal: 'orders@summit.com', risk: 'medium' },
+      { label: 'VAT Number',      oldVal: 'GB333444555',     newVal: 'GB777888999',     risk: 'medium' }
+    ],
+    'Radiant Energy Solutions': [
+      { label: 'Supplier Contact Name', oldVal: 'Diana Cole', newVal: 'Tom Barker',     risk: 'medium' }
+    ],
+    'Crescent Moon Technologies': [
+      { label: 'Payment Terms',   oldVal: 'Net 30',          newVal: 'Net 45',          risk: 'medium' },
+      { label: 'Email for Payment Advice', oldVal: 'payments@crescent.com', newVal: 'ap@crescent.com', risk: 'medium' },
+      { label: 'Contact Email',   oldVal: 'hello@crescent.com', newVal: 'info@crescent.com', risk: 'medium' }
+    ],
+    'Innovatech Ventures': [
+      { label: 'Street Address',  oldVal: '9 Innovation Dr', newVal: '22 Tech Park Blvd', risk: 'medium' }
+    ],
+    'Nexus Communications LLC': [
+      { label: 'Bank Name',       oldVal: 'Wells Fargo',     newVal: 'Bank of America', risk: 'high'   },
+      { label: 'Email for POs',   oldVal: 'orders@nexus.com', newVal: 'billing@nexus.com', risk: 'medium' }
+    ]
+  };
+
+  var defaultFallback = [
+    { label: 'SWIFT',          oldVal: 'USBKUS44',        newVal: 'USBKUS99',        risk: 'high'   },
+    { label: 'Bank Name',      oldVal: 'Fifth Third Bank', newVal: 'JP Morgan Chase', risk: 'high'   },
+    { label: 'Account Number', oldVal: '7892340156',       newVal: '9001234567',      risk: 'medium' }
+  ];
+  var changes = [];
+  if (changesRaw) { try { changes = JSON.parse(changesRaw); } catch(e) {} }
+  if (!changes.length) {
+    var vendorParam = params.get('vendor') || '';
+    changes = vendorFallbacks[vendorParam] || defaultFallback;
+  }
+
+  // Render Risk Classification in sub-header as plain text
+  (function() {
+    var highCount = changes.filter(function(c) { return (c.risk || 'high') === 'high'; }).length;
+    var medCount  = changes.filter(function(c) { return c.risk === 'medium'; }).length;
+    var pillsEl = document.getElementById('riskPills');
+    var metaEl  = document.getElementById('riskClassificationMeta');
+    if (highCount > 0 || medCount > 0) {
+      var parts = [];
+      if (highCount > 0) parts.push(highCount + ' High');
+      if (medCount  > 0) parts.push(medCount  + ' Medium');
+      pillsEl.textContent = parts.join(', ');
+      metaEl.style.display = '';
+    }
+  })();
+
+  // Set vendor name from URL param (passed from worklist) or keep default
+  var vendorName = params.get('vendor') || 'Meridian Supply Co.';
+  document.title = vendorName + ' — Vendor Change Request';
+  document.querySelectorAll('.vendor-name-placeholder').forEach(function(el) {
+    el.textContent = vendorName;
+  });
+
+  // Build Agent Runs timeline dynamically based on changes
+  var hasOcrError = changes.some(function(c) { return c.ocr; });
+
+  if (hasOcrError) {
+    var btnApprove = document.getElementById('btn-approve');
+    var btnReject  = document.getElementById('btn-reject');
+    btnApprove.setAttribute('icon', 'accept');
+    btnApprove.textContent = 'Confirm Match';
+    btnReject.removeAttribute('icon');
+    btnReject.textContent = 'Flag Discrepancy';
+
+    var approveDialog = document.getElementById('dlg-approve');
+    approveDialog.setAttribute('header-text', 'Confirm Document Match');
+    approveDialog.querySelector('div').textContent = 'You have reviewed the bank document and confirmed that the account number on the document matches what the vendor entered. The agent will proceed with the verification process.';
+    setTimeout(function() { document.getElementById('btn-approve-confirm').textContent = 'Confirm'; }, 0);
+    var rejectDialog = document.getElementById('dlg-reject');
+    rejectDialog.setAttribute('header-text', 'Flag Discrepancy');
+    rejectDialog.querySelector('div').firstChild.textContent = 'The account number on the document does not match what the vendor entered. Please describe the discrepancy so it can be investigated.';
+    rejectDialog.querySelector('ui5-textarea').setAttribute('placeholder', 'Describe the discrepancy you found...');
+    setTimeout(function() { document.getElementById('btn-reject-confirm').textContent = 'Flag'; }, 0);
+  }
+  (function() {
+    var highCount = changes.filter(function(c) { return (c.risk || 'high') === 'high'; }).length;
+    var medCount  = changes.filter(function(c) { return c.risk === 'medium'; }).length;
+    var hasMedOrHigh = highCount > 0 || medCount > 0;
+    var hasHigh = highCount > 0;
+
+    function makeStep(dotClass, title, desc, id, titleId, descId) {
+      var li = document.createElement('li');
+      li.className = 'history-item';
+      if (id) li.id = id;
+      var dotExtra = id ? ' id="dot-' + id.replace('step-','') + '"' : '';
+      var titleExtra = titleId ? ' id="' + titleId + '"' : '';
+      var descExtra = descId ? ' id="' + descId + '"' : '';
+      li.innerHTML =
+        '<div class="history-dot-col"><div class="history-dot ' + dotClass + '"' + dotExtra + '></div></div>' +
+        '<div class="history-body">' +
+        '<div class="history-step-title' + (dotClass === 'history-dot-pending' ? ' pending' : dotClass === 'history-dot-warning' ? ' warning' : '') + '"' + titleExtra + '>' + title + '</div>' +
+        '<div class="history-step-desc' + (dotClass === 'history-dot-warning' ? ' warning' : '') + '"' + descExtra + '>' + desc + '</div>' +
+        '</div>';
+      return li;
+    }
+
+    var list = document.getElementById('agentRunsList');
+
+    var riskDesc = '';
+    if (highCount > 0 && medCount > 0) {
+      riskDesc = 'Deterministic risk rules applied. <strong>' + highCount + ' field' + (highCount > 1 ? 's' : '') + ' classified as High risk</strong> and <strong>' + medCount + ' field' + (medCount > 1 ? 's' : '') + ' as Medium risk</strong>.';
+    } else if (highCount > 0) {
+      riskDesc = 'Deterministic risk rules applied. <strong>' + highCount + ' field' + (highCount > 1 ? 's' : '') + ' classified as High risk</strong>.';
+    } else if (medCount > 0) {
+      riskDesc = 'Deterministic risk rules applied. <strong>' + medCount + ' field' + (medCount > 1 ? 's' : '') + ' classified as Medium risk</strong>.';
+    } else {
+      riskDesc = 'Deterministic risk rules applied. All fields classified as Low risk.';
+    }
+
+    list.appendChild(makeStep('history-dot-green', 'Form Submission', 'Vendor change request received from ' + vendorName + '.'));
+    list.appendChild(makeStep('history-dot-green', 'Validation', 'Data format and completeness checked. All fields passed validation.'));
+    list.appendChild(makeStep('history-dot-green', 'Risk Assessment', riskDesc));
+
+    if (hasMedOrHigh) {
+      list.appendChild(makeStep('history-dot-green', 'Supporting Documents Requested', 'Vendor was prompted to upload documents supporting the High and Medium risk field changes. Documents received and stored.'));
+      var ocrDot = hasOcrError ? 'history-dot-warning' : 'history-dot-green';
+      var ocrDesc = hasOcrError
+        ? 'Documents submitted by the vendor were scanned via OCR. Agent was not able to read the document clearly. Routed to human to review and verify.'
+        : 'Submitted documents scanned and field values verified against the uploaded files.';
+      list.appendChild(makeStep(ocrDot, 'OCR Check', ocrDesc, 'step-ocr-check'));
+    }
+
+    list.appendChild(makeStep(hasOcrError ? 'history-dot-pending' : 'history-dot-green', 'Routing Decision', hasOcrError ? 'Pending — waiting for human verification of OCR result.' : 'Approval workflow determined. Request routed to the assigned reviewer.', 'step-routing-decision'));
+
+    if (hasHigh) {
+      list.appendChild(makeStep(hasOcrError ? 'history-dot-pending' : 'history-dot-green', 'Trustpair Verification', hasOcrError ? 'Pending — will run after human verification is complete.' : 'Bank account details independently verified by Trustpair. Verification passed.', 'step-trustpair'));
+    }
+
+    list.appendChild(makeStep('history-dot-pending', 'Approval by Human', 'Pending approval from the assigned reviewer.', 'step-awaiting-approval', null, 'desc-awaiting-approval'));
+    list.appendChild(makeStep('history-dot-pending', 'Update MDG', 'Pending — vendor profile will be updated in MDG once approved.', 'step-update-mdg', 'title-update-mdg', 'desc-update-mdg'));
+  })();
+
+  // Inject current request entries into Account History and build historical cycles
+  var historyInsertMarker = null;
+  (function() {
+    var highRisk = changes.some(function(c) { return (c.risk || 'high') === 'high'; });
+    var medRisk  = changes.some(function(c) { return c.risk === 'medium'; });
+    var hasMedOrHigh = highRisk || medRisk;
+    var fieldNames = changes.map(function(c) { return c.label; }).join(', ');
+    var list = document.querySelector('#side-panel-history .history-list');
+
+    function makeHistItem(cls, dateStr, timeStr, body) {
+      var li = document.createElement('li');
+      li.className = cls;
+      li.innerHTML =
+        '<div class="history-dot-col"><div class="history-dot"></div></div>' +
+        '<div class="history-body">' +
+        '<div class="history-step-desc">' + dateStr + (timeStr ? ' · ' + timeStr : '') + '</div>' +
+        '<div class="history-step-body">' + body + '</div>' +
+        '</div>';
+      return li;
+    }
+
+    var today = new Date();
+    var MONTHS_LONG = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+    function dateOffset(days) {
+      var d = new Date(today);
+      d.setDate(d.getDate() - days);
+      return MONTHS_LONG[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+    }
+
+    var todayStr = dateOffset(0);
+
+    // ── Current request (today) ──
+    var currentItems = [
+      { time: '09:14', body: vendorName + ' submitted a change request for ' + fieldNames + '.' },
+      { time: '09:15', body: 'Data format and completeness checked. All fields passed validation.' },
+      { time: '09:16', body: (function() {
+        var hc = changes.filter(function(c){ return (c.risk||'high')==='high'; }).length;
+        var mc = changes.filter(function(c){ return c.risk==='medium'; }).length;
+        if (hc && mc) return 'Deterministic risk rules applied. ' + hc + ' field' + (hc>1?'s':'') + ' classified as High risk and ' + mc + ' field' + (mc>1?'s':'') + ' as Medium risk.';
+        if (hc)       return 'Deterministic risk rules applied. ' + hc + ' field' + (hc>1?'s':'') + ' classified as High risk.';
+        if (mc)       return 'Deterministic risk rules applied. ' + mc + ' field' + (mc>1?'s':'') + ' classified as Medium risk.';
+        return 'Deterministic risk rules applied. All fields classified as Low risk.';
+      })() }
+    ];
+    if (hasMedOrHigh) {
+      currentItems.push({ time: '09:30', body: 'Supporting documents requested from vendor. Documents received and stored.' });
+      if (hasOcrError) {
+        currentItems.push({ time: '09:45', body: 'OCR scan attempted. Agent was unable to read the bank document clearly. Routed to Linda Wei for manual review.' });
+        currentItems.push({ time: '10:00', id: 'hist-ocr-action', body: 'Pending manual review by Linda Wei.' });
+      } else {
+        currentItems.push({ time: '09:45', body: 'OCR check complete. Field values verified against uploaded documents.' });
+      }
+    }
+    if (!hasOcrError) {
+      currentItems.push({ time: '10:00', body: 'Approval workflow determined. Request routed to the assigned reviewer.' });
+      if (highRisk) {
+        currentItems.push({ time: '10:15', body: 'Trustpair verification successfully completed.' });
+      }
+      currentItems.push({ time: '10:30', body: 'Pending approval from Linda Wei.' });
+    }
+
+    var divider0 = document.createElement('hr');
+    divider0.className = 'history-cycle-divider';
+    list.insertBefore(divider0, list.firstChild);
+    currentItems.forEach(function(item, i) {
+      var li = makeHistItem(i === 0 ? 'history-item' : 'history-item history-item-child', todayStr, item.time, item.body);
+      if (item.id) li.id = item.id;
+      list.insertBefore(li, divider0);
+    });
+    historyInsertMarker = divider0;
+
+    // ── Cycle 1 — ~30 days ago, High risk ──
+    var d1 = dateOffset(30);
+    [
+      { cls: 'history-item',       time: '08:55', body: vendorName + ' submitted a change request for Email for POs.' },
+      { cls: 'history-item-child', time: '08:56', body: 'Data format and completeness checked. All fields passed validation.' },
+      { cls: 'history-item-child', time: '08:57', body: 'Deterministic risk rules applied. 1 field classified as High risk.' },
+      { cls: 'history-item-child', time: '09:01', body: 'Supporting documents requested from vendor. Documents received and stored.' },
+      { cls: 'history-item-child', time: '09:03', body: 'OCR check complete. Field values verified against uploaded documents.' },
+      { cls: 'history-item-child', time: '09:04', body: 'Approval workflow determined. Request routed to Linda Wei.' },
+      { cls: 'history-item-child', time: '09:10', body: 'Trustpair verification successfully completed.' },
+      { cls: 'history-item-child', time: '09:18', body: 'Changes approved by Linda Wei.' },
+      { cls: 'history-item-child', time: '09:22', body: 'Vendor profile updated in MDG.' }
+    ].forEach(function(s) { list.appendChild(makeHistItem('history-item ' + s.cls, d1, s.time, s.body)); });
+
+    // ── Cycle 2 — ~60 days ago, Medium risk ──
+    var d2 = dateOffset(60);
+    var div2 = document.createElement('hr'); div2.className = 'history-cycle-divider';
+    list.appendChild(div2);
+    [
+      { cls: 'history-item',       time: '14:10', body: vendorName + ' submitted a change request for Local Tax ID and VAT Number.' },
+      { cls: 'history-item-child', time: '14:11', body: 'Data format and completeness checked. All fields passed validation.' },
+      { cls: 'history-item-child', time: '14:11', body: 'Deterministic risk rules applied. 2 fields classified as Medium risk.' },
+      { cls: 'history-item-child', time: '14:14', body: 'Supporting documents requested from vendor. Documents received and stored.' },
+      { cls: 'history-item-child', time: '14:16', body: 'OCR check complete. Field values verified against uploaded documents.' },
+      { cls: 'history-item-child', time: '14:17', body: 'Approval workflow determined. Request routed to Linda Wei.' },
+      { cls: 'history-item-child', time: '14:28', body: 'Changes approved by Linda Wei.' },
+      { cls: 'history-item-child', time: '14:30', body: 'Vendor profile updated in MDG.' }
+    ].forEach(function(s) { list.appendChild(makeHistItem('history-item ' + s.cls, d2, s.time, s.body)); });
+
+    // ── Cycle 3 — ~90 days ago, Low risk ──
+    var d3 = dateOffset(90);
+    var div3 = document.createElement('hr'); div3.className = 'history-cycle-divider';
+    list.appendChild(div3);
+    [
+      { cls: 'history-item',       time: '11:03', body: vendorName + ' submitted a change request for Street, City and Postal Code.' },
+      { cls: 'history-item-child', time: '11:04', body: 'Data format and completeness checked. All fields passed validation.' },
+      { cls: 'history-item-child', time: '11:04', body: 'Deterministic risk rules applied. All fields classified as Low risk.' },
+      { cls: 'history-item-child', time: '11:04', body: 'Low risk changes auto-approved. No human review required.' },
+      { cls: 'history-item-child', time: '11:05', body: 'Vendor profile updated in MDG.' }
+    ].forEach(function(s) { list.appendChild(makeHistItem('history-item ' + s.cls, d3, s.time, s.body)); });
+
+  })();
+
+  var container = document.getElementById('changeRows');
+  changes.forEach(function(c) {
+    var row = document.createElement('div');
+    row.className = 'change-row';
+    var riskLabel = (c.risk ? (c.risk.charAt(0).toUpperCase() + c.risk.slice(1)) : 'High') + ' Risk Field';
+    var labelHtml = '<div class="change-cell-label"><span>' + c.label + '</span><span class="change-cell-risk">' + riskLabel + '</span></div>';
+    var warnSvg = '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;vertical-align:-2px;"><path d="M8 1L15.5 14H0.5L8 1Z" fill="#e9730c"/><rect x="7.25" y="6" width="1.5" height="4" rx="0.75" fill="#fff"/><rect x="7.25" y="11.5" width="1.5" height="1.5" rx="0.75" fill="#fff"/></svg>';
+    var newCellExtra = c.ocr ? ' change-cell-ocr-error' : '';
+    var newValHtml = c.ocr
+      ? '<div class="change-cell-value"><span class="change-cell-ocr-icon">' + warnSvg + ' ' + c.newVal + '</span></div>'
+      : '<div class="change-cell-value">' + c.newVal + '</div>';
+    row.innerHTML =
+      '<div class="change-cell">' + labelHtml + '<div class="change-cell-value">' + c.oldVal + '</div></div>' +
+      '<div class="change-arrow"><ui5-icon name="arrow-right" style="color:#131e29;"></ui5-icon></div>' +
+      '<div class="change-cell' + newCellExtra + '">' + labelHtml + newValHtml + '</div>';
+    container.appendChild(row);
+  });
+
+  var isHighRisk = changes.some(function(c) { return (c.risk || 'high') === 'high'; });
+
+  if (hasOcrError) {
+    document.getElementById('statusText').style.display = 'none';
+    var strip = document.getElementById('statusStrip');
+    strip.style.display = 'flex';
+    strip.style.marginTop = '1rem';
+    strip.style.background = 'var(--sapWarningBackground, #fef7ec)';
+    strip.style.borderColor = 'var(--sapWarningBorderColor, #e9730c)';
+    document.getElementById('statusStripIcon').innerHTML = '<path d="M8 1L15.5 14H0.5L8 1Z" fill="#e9730c"/><rect x="7.25" y="6" width="1.5" height="4" rx="0.75" fill="#fff"/><rect x="7.25" y="11.5" width="1.5" height="1.5" rx="0.75" fill="#fff"/>';
+    document.getElementById('statusStripText').textContent = 'Documents submitted by the vendor were scanned via OCR. The agent was not able to read the bank document clearly. Review the document to confirm the account number matches what the vendor entered.';
+  }
+
+  // Render supporting documents
+  (function() {
+    var attRaw = params.get('attachments');
+    if (!attRaw) return;
+    var atts = [];
+    try { atts = JSON.parse(attRaw); } catch(e) {}
+    if (!atts.length) return;
+    document.getElementById('supportingDocs').style.display = '';
+    var tilesEl = document.getElementById('docTiles');
+    atts.forEach(function(att) {
+      var tile = document.createElement('a');
+      tile.className = 'doc-tile';
+      tile.target = '_blank';
+      tile.rel = 'noopener';
+      // Try to retrieve the file data from sessionStorage
+      var storageKey = att.docType === 'Tax ID Document' ? 'attach_taxFileInput' : 'attach_bankFileInput';
+      var storedRaw = localStorage.getItem(storageKey);
+      var knownFiles = {
+        'Tax-document.pdf': 'Tax-document.pdf',
+        'Bank-statement.pdf': 'Bank-statement.pdf'
+      };
+      if (storedRaw) {
+        try {
+          var stored = JSON.parse(storedRaw);
+          tile.href = knownFiles[stored.name] || '#';
+        } catch(e) { tile.href = '#'; }
+      } else {
+        tile.href = '#';
+      }
+      tile.innerHTML =
+        '<svg class="doc-tile-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">' +
+        '<path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>' +
+        '<polyline points="14 2 14 8 20 8"/>' +
+        '<line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>' +
+        '<polyline points="10 9 9 9 8 9"/>' +
+        '</svg>' +
+        '<div class="doc-tile-info">' +
+        '<div class="doc-tile-type">' + att.docType + '</div>' +
+        '<div class="doc-tile-name">' + att.name + '</div>' +
+        '</div>';
+      tilesEl.appendChild(tile);
+    });
+  })();
+
+  if (hasOcrError && !params.get('attachments')) {
+    var docsEl = document.getElementById('supportingDocs');
+    docsEl.style.display = '';
+    var tilesEl2 = document.getElementById('docTiles');
+    var tile = document.createElement('a');
+    tile.className = 'doc-tile';
+    tile.href = 'Bank-statement.pdf';
+    tile.target = '_blank';
+    tile.rel = 'noopener';
+    tile.innerHTML =
+      '<svg class="doc-tile-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">' +
+      '<path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>' +
+      '<polyline points="14 2 14 8 20 8"/>' +
+      '<line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>' +
+      '<polyline points="10 9 9 9 8 9"/>' +
+      '</svg>' +
+      '<div class="doc-tile-info"><div class="doc-tile-type">Bank Account Details</div><div class="doc-tile-name">bank-statement.pdf</div></div>';
+    tilesEl2.appendChild(tile);
+  }
+  if (isHighRisk) {
+    var trustpairItem = document.createElement('li');
+    trustpairItem.className = 'history-item';
+    var vdDotClass = hasOcrError ? 'history-dot-pending' : 'history-dot-green';
+    var vdTitleClass = hasOcrError ? ' pending' : '';
+    var vdDesc = hasOcrError ? 'Pending — will run after human verification is complete.' : 'Verification completed by Trustpair.';
+    trustpairItem.innerHTML =
+      '<div class="history-dot-col"><div class="history-dot ' + vdDotClass + '"></div></div>' +
+      '<div class="history-body">' +
+      '<div class="history-step-title' + vdTitleClass + '">Verification Decision</div>' +
+      '<div class="history-step-desc">' + vdDesc + '</div>' +
+      '</div>';
+    var awaitingStep = document.getElementById('step-awaiting-approval');
+    awaitingStep.parentNode.insertBefore(trustpairItem, awaitingStep);
+  }
+
+  // Populate dynamic history dates: c0=today, c1=~30d ago, c2=~60d ago, c3=~90d ago
+  (function() {
+    var MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    function daysAgo(n) {
+      var d = new Date();
+      d.setDate(d.getDate() - n);
+      return MONTHS[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+    }
+    var MONTHS_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var cycleDates = { c0: daysAgo(0), c1: daysAgo(30), c2: daysAgo(60), c3: daysAgo(90) };
+    document.querySelectorAll('[data-hdate]').forEach(function(el) {
+      var key = el.getAttribute('data-hdate');
+      var time = el.getAttribute('data-time');
+      el.textContent = cycleDates[key] + ' · ' + time;
+    });
+    var now = new Date();
+    var subEl = document.getElementById('submittedDate');
+    if (subEl) subEl.textContent = MONTHS_SHORT[now.getMonth()] + ' ' + now.getDate() + ', ' + now.getFullYear();
+  })();
+
+  // State overrides for screenflow iframes
+  var stateParam = params.get('state');
+  if (stateParam === 'approve-dialog') {
+    setTimeout(function() {
+      var dlg = document.getElementById('dlg-approve');
+      if (dlg) dlg.setAttribute('open', '');
+    }, 1600);
+  } else if (stateParam === 'approved') {
+    var approvedStamp = 'May 14, 2026 at 10:32 AM';
+    setTimeout(function() {
+      document.querySelector('.scope-actions').style.display = 'none';
+      document.getElementById('statusText').style.display = 'none';
+      var strip = document.getElementById('statusStrip');
+      strip.style.display = 'flex';
+      strip.closest('.panel-card-body').classList.add('with-strip');
+      var stripIcon = document.getElementById('statusStripIcon');
+      stripIcon.innerHTML = '<circle cx="8" cy="8" r="8" fill="#0a7a3e"/><path d="M4.5 8l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>';
+      strip.style.background = '#f0fdf4';
+      strip.style.border = '1px solid #86efac';
+      document.getElementById('statusStripText').textContent = 'You approved this request on ' + approvedStamp + '. MDG has been updated and the changes have been made live.';
+      var awaitingDot = document.querySelector('#step-awaiting-approval .history-dot');
+      if (awaitingDot) { awaitingDot.classList.remove('history-dot-pending'); awaitingDot.classList.add('history-dot-green'); }
+      var awaitingBody = document.querySelector('#step-awaiting-approval .history-body');
+      if (awaitingBody) awaitingBody.innerHTML = '<div class="history-step-title">Awaiting Approval</div><div class="history-step-desc">Approved by you on ' + approvedStamp + '.</div>';
+      var mdgDot = document.getElementById('dot-update-mdg');
+      if (mdgDot) { mdgDot.classList.remove('history-dot-pending'); mdgDot.classList.add('history-dot-green'); }
+      var mdgBody = document.querySelector('#step-update-mdg .history-body');
+      if (mdgBody) mdgBody.innerHTML = '<div class="history-step-title" id="title-update-mdg">Update MDG</div><div class="history-step-desc" id="desc-update-mdg">Vendor profile successfully updated in MDG.</div>';
+    }, 1600);
+  } else if (stateParam === 'reject-dialog') {
+    setTimeout(function() {
+      var dlg = document.getElementById('dlg-reject');
+      if (dlg) dlg.setAttribute('open', '');
+    }, 1600);
+  } else if (stateParam === 'rejected') {
+    var rejectedStamp = 'May 14, 2026 at 10:45 AM';
+    setTimeout(function() {
+      document.querySelector('.scope-actions').style.display = 'none';
+      document.getElementById('statusText').style.display = 'none';
+      var strip = document.getElementById('statusStrip');
+      strip.style.display = 'flex';
+      strip.closest('.panel-card-body').classList.add('with-strip');
+      strip.style.background = '#fff4f4';
+      strip.style.border = '1px solid #aa0808';
+      var stripIcon = document.getElementById('statusStripIcon');
+      stripIcon.innerHTML = '<circle cx="8" cy="8" r="8" fill="#aa0808"/><path d="M5 5l6 6M11 5l-6 6" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>';
+      document.getElementById('statusStripText').textContent = 'You rejected this request on ' + rejectedStamp + '. The vendor has been notified.';
+      var awaitingDot = document.querySelector('#step-awaiting-approval .history-dot');
+      if (awaitingDot) { awaitingDot.classList.remove('history-dot-pending'); awaitingDot.classList.add('history-dot-green'); }
+      var awaitingBody = document.querySelector('#step-awaiting-approval .history-body');
+      if (awaitingBody) awaitingBody.innerHTML = '<div class="history-step-title">Awaiting Approval</div><div class="history-step-desc">Rejected by you on ' + rejectedStamp + '.</div>';
+    }, 1600);
+  } else if (stateParam === 'escalate-dialog') {
+    setTimeout(function() {
+      var dlg = document.getElementById('dlg-escalate');
+      if (dlg) dlg.setAttribute('open', '');
+    }, 1600);
+  } else if (stateParam === 'escalated') {
+    var escalatedStamp = 'May 14, 2026 at 11:02 AM';
+    setTimeout(function() {
+      document.querySelector('.scope-actions').style.display = 'none';
+      document.getElementById('statusText').style.display = 'none';
+      var strip = document.getElementById('statusStrip');
+      strip.style.display = 'flex';
+      strip.closest('.panel-card-body').classList.add('with-strip');
+      strip.style.background = 'var(--sapCriticalBackground, #fff3e0)';
+      strip.style.border = '1px solid var(--sapCriticalColor, #e76500)';
+      var stripIcon = document.getElementById('statusStripIcon');
+      stripIcon.innerHTML = '<circle cx="8" cy="8" r="8" fill="#e76500"/><path d="M8 4v4" stroke="#fff" stroke-width="2" stroke-linecap="round"/><circle cx="8" cy="11.5" r="1" fill="#fff"/>';
+      document.getElementById('statusStripText').textContent = 'You escalated this request on ' + escalatedStamp + '. Your manager has been notified.';
+      var awaitingDot = document.querySelector('#step-awaiting-approval .history-dot');
+      if (awaitingDot) { awaitingDot.classList.remove('history-dot-pending'); awaitingDot.classList.add('history-dot-green'); }
+      var awaitingBody = document.querySelector('#step-awaiting-approval .history-body');
+      if (awaitingBody) awaitingBody.innerHTML = '<div class="history-step-title">Awaiting Approval</div><div class="history-step-desc">Escalated by you on ' + escalatedStamp + '.</div>';
+    }, 1600);
+  } else if (stateParam === 'ocr-confirm-dialog') {
+    setTimeout(function() {
+      var dlg = document.getElementById('dlg-approve');
+      if (dlg) dlg.setAttribute('open', '');
+    }, 1600);
+  } else if (stateParam === 'ocr-confirmed') {
+    setTimeout(function() {
+      document.querySelector('.scope-actions').style.display = 'none';
+      document.getElementById('statusText').style.display = 'none';
+      var strip = document.getElementById('statusStrip');
+      if (strip) strip.style.display = 'none';
+      var confirmText = document.createElement('p');
+      confirmText.style.cssText = 'font-size:14px; color:var(--sapTextColor,#131e29); line-height:1.6; margin-bottom:1rem;';
+      confirmText.textContent = 'Linda Wei confirmed that the account number on the document matches what the vendor entered. The change has been routed for Trustpair verification. No further action is required at this time.';
+      strip.parentNode.insertBefore(confirmText, strip);
+      var ocrDot = document.querySelector('#step-ocr-check .history-dot');
+      if (ocrDot) { ocrDot.className = 'history-dot history-dot-green'; }
+      var ocrBody = document.querySelector('#step-ocr-check .history-body');
+      if (ocrBody) ocrBody.innerHTML = '<div class="history-step-title">OCR Check</div><div class="history-step-desc">Human reviewer confirmed the account number matches the document. Verification complete.</div>';
+      var routingDot = document.querySelector('#step-routing-decision .history-dot');
+      if (routingDot) { routingDot.className = 'history-dot history-dot-green'; }
+      var routingBody = document.querySelector('#step-routing-decision .history-body');
+      if (routingBody) routingBody.innerHTML = '<div class="history-step-title">Routing Decision</div><div class="history-step-desc">Approval workflow determined. Request routed for Trustpair verification.</div>';
+      var trustpairBody = document.querySelector('#step-trustpair .history-body');
+      if (trustpairBody) trustpairBody.innerHTML = '<div class="history-step-title pending">Trustpair Verification</div><div class="history-step-desc">Trustpair verification initiated. This may take 1–3 business days to complete.</div>';
+      var ocrCell = document.querySelector('.change-cell-ocr-error');
+      if (ocrCell) {
+        ocrCell.classList.remove('change-cell-ocr-error');
+        var iconSpan = ocrCell.querySelector('.change-cell-ocr-icon');
+        if (iconSpan) iconSpan.parentElement.innerHTML = iconSpan.textContent.trim();
+      }
+    }, 1600);
+  } else if (stateParam === 'ocr-flag-dialog') {
+    setTimeout(function() {
+      var dlg = document.getElementById('dlg-reject');
+      if (dlg) dlg.setAttribute('open', '');
+    }, 1600);
+  } else if (stateParam === 'ocr-flagged') {
+    setTimeout(function() {
+      document.querySelector('.scope-actions').style.display = 'none';
+      document.getElementById('statusText').style.display = 'none';
+      var strip = document.getElementById('statusStrip');
+      if (strip) {
+        strip.style.display = 'flex';
+        strip.closest('.panel-card-body').classList.add('with-strip');
+        strip.style.background = 'var(--sapWarningBackground, #fef7ec)';
+        strip.style.border = '1px solid var(--sapWarningBorderColor, #e9730c)';
+        var stripIcon = document.getElementById('statusStripIcon');
+        stripIcon.innerHTML = '<path d="M8 1L15.5 14H0.5L8 1Z" fill="#e9730c"/><rect x="7.25" y="6" width="1.5" height="4" rx="0.75" fill="#fff"/><rect x="7.25" y="11.5" width="1.5" height="1.5" rx="0.75" fill="#fff"/>';
+        document.getElementById('statusStripText').textContent = 'A discrepancy was flagged between the bank document and the account number submitted by the vendor. The vendor has been notified and will need to resubmit with a legible document.';
+      }
+      var ocrDot = document.querySelector('#step-ocr-check .history-dot');
+      if (ocrDot) { ocrDot.className = 'history-dot history-dot-green'; }
+      var ocrBody = document.querySelector('#step-ocr-check .history-body');
+      if (ocrBody) ocrBody.innerHTML = '<div class="history-step-title">OCR Check</div><div class="history-step-desc">Linda Wei reviewed the document and flagged a discrepancy — the account number on the document does not match what the vendor entered. The vendor has been notified.</div>';
+    }, 1600);
+  } else if (stateParam === 'account-history') {
+    setTimeout(function() {
+      var tabs = document.getElementById('sideTabs');
+      var tabItems = tabs.querySelectorAll('ui5-tab');
+      if (tabItems[1]) tabItems[1].setAttribute('selected', '');
+      if (tabItems[0]) tabItems[0].removeAttribute('selected');
+      document.getElementById('side-panel-agent').style.display = 'none';
+      document.getElementById('side-panel-history').style.display = '';
+    }, 1600);
+  }
+
+  // Dismiss skeleton overlay
+  var skelOverlay = document.getElementById('skelOverlay');
+  setTimeout(function() {
+    skelOverlay.classList.add('fade-out');
+    setTimeout(function() { skelOverlay.style.display = 'none'; }, 350);
+  }, 1400);
+</script>
+</body>
+</html>

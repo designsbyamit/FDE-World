@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <script src="panel-init.js"></script>
+  <script type="module" src="../../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 600; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 300; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Light.woff2") format("woff2"); }
+    body { font-family: "72", sans-serif; font-size: 0.875rem; background: #f5f6f7; color: #131e29; margin: 0; padding: 2rem; }
+    .panel-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .panel-subtitle { font-size: 0.875rem; color: #6a7588; margin-bottom: 2rem; }
+    .demo-section { margin-bottom: 2rem; }
+    .demo-section-header { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #6a7588; margin-bottom: 1rem; padding-bottom: 0.375rem; border-bottom: 1px solid #e5e5e5; }
+    .type-row { display: flex; align-items: center; gap: 1.5rem; padding: 1rem 1.25rem; background: #fff; border: 1px solid #e5e5e5; border-radius: 0.5rem; margin-bottom: 0.5rem; }
+    .type-label { flex: 0 0 260px; min-width: 0; }
+    .type-token { font-family: "Courier New", Courier, monospace; font-size: 0.75rem; font-weight: 700; color: #0064d9; display: block; margin-bottom: 0.2rem; }
+    .type-value { font-family: "Courier New", Courier, monospace; font-size: 0.6875rem; color: #6a7588; display: block; }
+    .type-preview { flex: 1; color: #131e29; line-height: 1.4; }
+    .type-preview-muted { color: #6a7588; }
+  </style>
+</head>
+<body>
+  <div class="panel-title">Typography</div>
+  <div class="panel-subtitle">SAP 72 font scale and text tokens. Reference these when specifying text styles to Claude.</div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">Font Family</div>
+
+    <div class="type-row">
+      <div class="type-label">
+        <span class="type-token">--sapFontFamily</span>
+        <span class="type-value">"72", Arial, Helvetica, sans-serif</span>
+      </div>
+      <div class="type-preview" style="font-family: '72', Arial, Helvetica, sans-serif; font-size: 0.875rem; font-weight: 400;">The quick brown fox</div>
+    </div>
+
+    <div class="type-row">
+      <div class="type-label">
+        <span class="type-token">--sapFontHeaderFamily</span>
+        <span class="type-value">"72", Arial, Helvetica, sans-serif</span>
+      </div>
+      <div class="type-preview" style="font-family: '72', Arial, Helvetica, sans-serif; font-size: 1.25rem; font-weight: 700;">Page Title</div>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">Font Sizes</div>
+
+    <div class="type-row">
+      <div class="type-label">
+        <span class="type-token">--sapFontSmallSize</span>
+        <span class="type-value">0.75rem (12px)</span>
+      </div>
+      <div class="type-preview" style="font-size: 0.75rem; font-weight: 400;">Small / Caption text</div>
+    </div>
+
+    <div class="type-row">
+      <div class="type-label">
+        <span class="type-token">--sapFontSize</span>
+        <span class="type-value">0.875rem (14px)</span>
+      </div>
+      <div class="type-preview" style="font-size: 0.875rem; font-weight: 400;">Body / Default text</div>
+    </div>
+
+    <div class="type-row">
+      <div class="type-label">
+        <span class="type-token">--sapFontMediumSize</span>
+        <span class="type-value">0.9375rem (15px)</span>
+      </div>
+      <div class="type-preview" style="font-size: 0.9375rem; font-weight: 400;">Medium text</div>
+    </div>
+
+    <div class="type-row">
+      <div class="type-label">
+        <span class="type-token">--sapFontLargeSize</span>
+        <span class="type-value">1rem (16px)</span>
+      </div>
+      <div class="type-preview" style="font-size: 1rem; font-weight: 400;">Large text</div>
+    </div>
+
+    <div class="type-row">
+      <div class="type-label">
+        <span class="type-token">--sapFontHeader6Size</span>
+        <span class="type-value">0.875rem (14px) bold</span>
+      </div>
+      <div class="type-preview" style="font-size: 0.875rem; font-weight: 700;">Heading 6</div>
+    </div>
+
+    <div class="type-row">
+      <div class="type-label">
+        <span class="type-token">--sapFontHeader5Size</span>
+        <span class="type-value">1rem (16px) bold</span>
+      </div>
+      <div class="type-preview" style="font-size: 1rem; font-weight: 700;">Heading 5</div>
+    </div>
+
+    <div class="type-row">
+      <div class="type-label">
+        <span class="type-token">--sapFontHeader4Size</span>
+        <span class="type-value">1.125rem (18px) bold</span>
+      </div>
+      <div class="type-preview" style="font-size: 1.125rem; font-weight: 700;">Heading 4</div>
+    </div>
+
+    <div class="type-row">
+      <div class="type-label">
+        <span class="type-token">--sapFontHeader3Size</span>
+        <span class="type-value">1.25rem (20px) bold</span>
+      </div>
+      <div class="type-preview" style="font-size: 1.25rem; font-weight: 700;">Heading 3</div>
+    </div>
+
+    <div class="type-row">
+      <div class="type-label">
+        <span class="type-token">--sapFontHeader2Size</span>
+        <span class="type-value">1.5rem (24px) bold</span>
+      </div>
+      <div class="type-preview" style="font-size: 1.5rem; font-weight: 700;">Heading 2</div>
+    </div>
+
+    <div class="type-row">
+      <div class="type-label">
+        <span class="type-token">--sapFontHeader1Size</span>
+        <span class="type-value">2rem (32px) bold</span>
+      </div>
+      <div class="type-preview" style="font-size: 2rem; font-weight: 700;">Heading 1</div>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">Font Weights</div>
+
+    <div class="type-row">
+      <div class="type-label">
+        <span class="type-token">Light</span>
+        <span class="type-value">font-weight: 300</span>
+      </div>
+      <div class="type-preview" style="font-size: 0.875rem; font-weight: 300;">Light weight text (72 Light)</div>
+    </div>
+
+    <div class="type-row">
+      <div class="type-label">
+        <span class="type-token">Regular</span>
+        <span class="type-value">font-weight: 400</span>
+      </div>
+      <div class="type-preview" style="font-size: 0.875rem; font-weight: 400;">Regular weight text (72 Regular)</div>
+    </div>
+
+    <div class="type-row">
+      <div class="type-label">
+        <span class="type-token">Semibold</span>
+        <span class="type-value">font-weight: 600</span>
+      </div>
+      <div class="type-preview" style="font-size: 0.875rem; font-weight: 600;">Semibold weight text (72 Semibold)</div>
+    </div>
+
+    <div class="type-row">
+      <div class="type-label">
+        <span class="type-token">Bold</span>
+        <span class="type-value">font-weight: 700</span>
+      </div>
+      <div class="type-preview" style="font-size: 0.875rem; font-weight: 700;">Bold weight text (72 Bold)</div>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">Line Height</div>
+
+    <div class="type-row" style="align-items: flex-start;">
+      <div class="type-label" style="padding-top: 0.125rem;">
+        <span class="type-token">--sapContent_LineHeight</span>
+        <span class="type-value">1.4</span>
+      </div>
+      <div class="type-preview" style="font-size: 0.875rem; font-weight: 400; line-height: 1.4;">SAP Fiori uses a line-height of 1.4 as the standard for body text. This ensures comfortable reading across all screen sizes and text lengths, providing adequate space between lines without excessive gaps. Use this value whenever setting line-height in application content areas.</div>
+    </div>
+  </div>
+</body>
+</html>

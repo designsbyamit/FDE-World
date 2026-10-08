@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upload Collection</title>
+  <script src="panel-init.js"></script>
+  <script type="module" src="../../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 600; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 300; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Light.woff2") format("woff2"); }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "72", sans-serif; font-size: 0.875rem; background: var(--sapBackgroundColor, #f5f6f7); padding: 2rem; color: var(--sapTextColor, #131e29); }
+    .panel-title { font-size: 1.5rem; font-weight: 700; color: #131e29; margin-bottom: 0.375rem; }
+    .panel-subtitle { font-size: 0.8125rem; color: var(--sapContent_LabelColor, #6a7588); margin-bottom: 2rem; }
+    .demo-section { background: #fff; border: 1px solid var(--sapList_BorderColor, #e5e5e5); border-radius: 8px; margin-bottom: 1.25rem; overflow: hidden; }
+    .demo-section-header { padding: 0.75rem 1rem; border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5); font-size: 0.8125rem; font-weight: 600; color: var(--sapContent_LabelColor, #6a7588); display: flex; align-items: center; justify-content: space-between; }
+    .demo-section-tag { font-family: monospace; font-size: 0.75rem; color: #0064d9; font-weight: 400; }
+    .demo-section-body { padding: 1.25rem 1rem; display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: flex-start; }
+    .demo-section-body.column { flex-direction: column; }
+    .demo-section-body.block { display: block; padding: 0; }
+    .uc-wrap { border: 1px solid var(--sapList_BorderColor,#e5e5e5); border-radius: 8px; overflow: hidden; background: #fff; }
+    .uc-info-bar { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: var(--sapBackgroundColor,#f5f6f7); border-bottom: 1px solid var(--sapList_BorderColor,#e5e5e5); font-size: 0.8125rem; color: var(--sapContent_LabelColor,#6a7588); }
+    .uc-toolbar { display: flex; align-items: center; gap: 0.5rem; padding: 0.375rem 0.75rem; border-bottom: 1px solid var(--sapList_BorderColor,#e5e5e5); }
+    .uc-toolbar-title { font-size: 1rem; font-weight: 700; color: var(--sapTextColor,#131e29); flex: 1; }
+    .uc-item { display: flex; align-items: flex-start; gap: 0.875rem; padding: 0.75rem 1rem; border-bottom: 1px solid var(--sapList_BorderColor,#e5e5e5); font-family: "72", sans-serif; }
+    .uc-item:last-child { border-bottom: none; }
+    .uc-item:hover { background: var(--sapList_Hover_Background,#f5f6f7); }
+    .uc-item.uc-editing { background: var(--sapList_SelectionBackgroundColor,#e8f0fe); }
+    .uc-thumb { width: 48px; height: 48px; flex-shrink: 0; border-radius: 6px; border: 1px solid var(--sapList_BorderColor,#e5e5e5); display: flex; align-items: center; justify-content: center; background: var(--sapBackgroundColor,#f5f6f7); font-size: 1.25rem; }
+    .uc-item-body { flex: 1; min-width: 0; }
+    .uc-item-name { font-size: 0.875rem; font-weight: 600; color: var(--sapLinkColor,#0064d9); cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .uc-item-name:hover { text-decoration: underline; }
+    .uc-item-name-input { width: 100%; font-family: "72", sans-serif; }
+    .uc-item-attrs { display: flex; flex-wrap: wrap; gap: 0.25rem 1rem; margin-top: 0.25rem; font-size: 0.75rem; color: var(--sapContent_LabelColor,#6a7588); }
+    .uc-item-attr-active { color: var(--sapLinkColor,#0064d9); cursor: pointer; }
+    .uc-item-attr-active:hover { text-decoration: underline; }
+    .uc-item-statuses { display: flex; flex-wrap: wrap; gap: 0.25rem 0.75rem; margin-top: 0.25rem; }
+    .uc-item-actions { display: flex; align-items: center; gap: 0.25rem; flex-shrink: 0; margin-top: 0.125rem; }
+    .uc-upload-area { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.5rem; padding: 2rem; border: 2px dashed var(--sapList_BorderColor,#e5e5e5); border-radius: 8px; color: var(--sapContent_LabelColor,#6a7588); font-size: 0.875rem; text-align: center; cursor: pointer; transition: background 0.15s; }
+    .uc-upload-area:hover { background: var(--sapList_SelectionBackgroundColor,#e8f0fe); border-color: var(--sapSelectedColor,#0064d9); }
+    .uc-upload-area ui5-icon { font-size: 2rem; color: var(--sapContent_LabelColor,#6a7588); }
+    .uc-progress { height: 3px; background: var(--sapList_BorderColor,#e5e5e5); border-radius: 2px; margin-top: 0.375rem; overflow: hidden; }
+    .uc-progress-bar { height: 100%; background: var(--sapSelectedColor,#0064d9); border-radius: 2px; transition: width 0.3s; }
+  </style>
+</head>
+<body>
+  <div class="panel-title">Upload Collection</div>
+  <div class="panel-subtitle">A list of uploaded files with thumbnails, attributes, statuses, inline rename/delete, and a drag-and-drop upload area. No direct Web Components equivalent — rendered as custom HTML styled to SAP Horizon. Equivalent to sap.m.UploadCollection.</div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">
+      Upload Collection with Toolbar, Items &amp; Upload Area
+      <span class="demo-section-tag">Custom HTML — sap.m.UploadCollection pattern</span>
+    </div>
+    <div class="demo-section-body block">
+
+      <div class="uc-info-bar">
+        <ui5-icon name="information"></ui5-icon>
+        <span>To add files, you can also use drag &amp; drop on your desktop or tablet.</span>
+        <span style="flex:1;"></span>
+        <ui5-button icon="action-settings" design="Transparent" tooltip="More settings"></ui5-button>
+      </div>
+
+      <div class="uc-wrap" style="margin-top:0.75rem;">
+
+        <div class="uc-toolbar">
+          <span class="uc-toolbar-title">Uploaded (8)</span>
+          <ui5-input id="uc-search" placeholder="Search" show-clear-icon style="width:10rem;">
+            <ui5-icon slot="icon" name="search"></ui5-icon>
+          </ui5-input>
+          <ui5-button id="uc-delete-btn" design="Transparent" disabled style="display:none;">Delete</ui5-button>
+          <ui5-toggle-button id="uc-select-all-btn" design="Transparent" disabled style="display:none;">Select all</ui5-toggle-button>
+          <ui5-button id="uc-upload-btn" design="Default" icon="upload">Upload</ui5-button>
+        </div>
+
+        <div id="uc-list">
+
+          <div class="uc-item" data-id="1">
+            <div class="uc-thumb">📄</div>
+            <div class="uc-item-body">
+              <div class="uc-item-name" onclick="ucDownload(this)">Document_2024_Q1_Report.pdf</div>
+              <div class="uc-item-attrs">
+                <span>Uploaded by: <span class="uc-item-attr-active">John Smith</span></span>
+                <span>Uploaded on: 04/10/2024</span>
+                <span>Size: 1.2 MB</span>
+              </div>
+              <div class="uc-item-statuses">
+                <ui5-tag design="Set3" color-scheme="7">Approved</ui5-tag>
+              </div>
+            </div>
+            <div class="uc-item-actions">
+              <ui5-button design="Transparent" icon="edit" tooltip="Rename" onclick="ucStartEdit(this)"></ui5-button>
+              <ui5-button design="Transparent" icon="delete" tooltip="Delete" onclick="ucDelete(this)"></ui5-button>
+            </div>
+          </div>
+
+          <div class="uc-item" data-id="2">
+            <div class="uc-thumb">🖼️</div>
+            <div class="uc-item-body">
+              <div class="uc-item-name" onclick="ucDownload(this)">product_photo_front.png</div>
+              <div class="uc-item-attrs">
+                <span>Uploaded by: <span class="uc-item-attr-active">Maria Garcia</span></span>
+                <span>Uploaded on: 04/09/2024</span>
+                <span>Size: 3.7 MB</span>
+              </div>
+              <div class="uc-item-statuses">
+                <ui5-tag design="Set3" color-scheme="8">In Review</ui5-tag>
+              </div>
+            </div>
+            <div class="uc-item-actions">
+              <ui5-button design="Transparent" icon="edit" tooltip="Rename" onclick="ucStartEdit(this)"></ui5-button>
+              <ui5-button design="Transparent" icon="delete" tooltip="Delete" onclick="ucDelete(this)"></ui5-button>
+            </div>
+          </div>
+
+          <div class="uc-item" data-id="3">
+            <div class="uc-thumb">📊</div>
+            <div class="uc-item-body">
+              <div class="uc-item-name" onclick="ucDownload(this)">Budget_Overview_FY2024.xlsx</div>
+              <div class="uc-item-attrs">
+                <span>Uploaded by: <span class="uc-item-attr-active">Tom Lee</span></span>
+                <span>Uploaded on: 04/08/2024</span>
+                <span>Size: 512 KB</span>
+              </div>
+              <div class="uc-item-statuses">
+                <ui5-tag design="Set3" color-scheme="5">Locked</ui5-tag>
+              </div>
+              <div class="uc-progress" style="width:180px;"><div class="uc-progress-bar" style="width:72%;"></div></div>
+            </div>
+            <div class="uc-item-actions">
+              <ui5-button design="Transparent" icon="edit" tooltip="Rename" onclick="ucStartEdit(this)"></ui5-button>
+              <ui5-button design="Transparent" icon="delete" tooltip="Delete" onclick="ucDelete(this)"></ui5-button>
+            </div>
+          </div>
+
+          <div class="uc-item" data-id="4">
+            <div class="uc-thumb">📝</div>
+            <div class="uc-item-body">
+              <div class="uc-item-name" onclick="ucDownload(this)">Meeting_Notes_March.docx</div>
+              <div class="uc-item-attrs">
+                <span>Uploaded by: <span class="uc-item-attr-active">Anna Brown</span></span>
+                <span>Uploaded on: 04/07/2024</span>
+                <span>Size: 88 KB</span>
+              </div>
+            </div>
+            <div class="uc-item-actions">
+              <ui5-button design="Transparent" icon="edit" tooltip="Rename" onclick="ucStartEdit(this)"></ui5-button>
+              <ui5-button design="Transparent" icon="delete" tooltip="Delete" onclick="ucDelete(this)"></ui5-button>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="uc-upload-area" id="uc-drop-area" style="margin:0.75rem; border-radius:6px;" onclick="document.getElementById('uc-file-input').click()">
+          <ui5-icon name="upload-to-cloud"></ui5-icon>
+          <span style="font-weight:600; color:var(--sapTextColor,#131e29);">Drop files here or click to upload</span>
+          <span style="font-size:0.75rem;">Supported: PDF, PNG, DOCX, XLSX · Max 200 MB per file</span>
+        </div>
+        <input type="file" id="uc-file-input" multiple style="display:none;" onchange="ucAddFiles(this.files)">
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function ucStartEdit(btn) {
+      var item = btn.closest('.uc-item');
+      var nameEl = item.querySelector('.uc-item-name');
+      var current = nameEl.textContent;
+      nameEl.style.display = 'none';
+      var input = document.createElement('ui5-input');
+      input.className = 'uc-item-name-input';
+      input.value = current;
+      nameEl.parentNode.insertBefore(input, nameEl);
+      item.classList.add('uc-editing');
+      btn.setAttribute('icon', 'accept');
+      btn.setAttribute('tooltip', 'Confirm rename');
+      btn.onclick = function() { ucConfirmEdit(btn, input, nameEl); };
+    }
+    function ucConfirmEdit(btn, input, nameEl) {
+      var item = btn.closest('.uc-item');
+      nameEl.textContent = input.value || nameEl.textContent;
+      input.remove();
+      nameEl.style.display = '';
+      item.classList.remove('uc-editing');
+      btn.setAttribute('icon', 'edit');
+      btn.setAttribute('tooltip', 'Rename');
+      btn.onclick = function() { ucStartEdit(btn); };
+    }
+    function ucDelete(btn) {
+      btn.closest('.uc-item').remove();
+    }
+    function ucDownload(el) { /* file download placeholder */ }
+    function ucAddFiles(files) {
+      var list = document.getElementById('uc-list');
+      var icons = ['📄','🖼️','📊','📝','📦'];
+      Array.from(files).forEach(function(f, i) {
+        var item = document.createElement('div');
+        item.className = 'uc-item';
+        var kb = (f.size / 1024).toFixed(0);
+        var size = f.size > 1048576 ? (f.size/1048576).toFixed(1)+' MB' : kb+' KB';
+        item.innerHTML = '<div class="uc-thumb">' + (icons[i % icons.length]) + '</div>' +
+          '<div class="uc-item-body">' +
+            '<div class="uc-item-name" onclick="ucDownload(this)">' + f.name + '</div>' +
+            '<div class="uc-item-attrs"><span>Size: ' + size + '</span></div>' +
+            '<div class="uc-progress"><div class="uc-progress-bar" style="width:0%" id="ucpb-' + Date.now() + '-' + i + '"></div></div>' +
+          '</div>' +
+          '<div class="uc-item-actions">' +
+            '<ui5-button design="Transparent" icon="edit" tooltip="Rename" onclick="ucStartEdit(this)"></ui5-button>' +
+            '<ui5-button design="Transparent" icon="delete" tooltip="Delete" onclick="ucDelete(this)"></ui5-button>' +
+          '</div>';
+        list.appendChild(item);
+        var bar = item.querySelector('.uc-progress-bar');
+        var pct = 0;
+        var iv = setInterval(function() {
+          pct = Math.min(pct + Math.random() * 18 + 4, 100);
+          bar.style.width = pct + '%';
+          if (pct >= 100) { clearInterval(iv); bar.closest('.uc-progress').style.display = 'none'; }
+        }, 200);
+      });
+      document.getElementById('uc-file-input').value = '';
+    }
+    var ucDrop = document.getElementById('uc-drop-area');
+    ucDrop.addEventListener('dragover', function(e) { e.preventDefault(); ucDrop.style.background = 'var(--sapList_SelectionBackgroundColor,#e8f0fe)'; });
+    ucDrop.addEventListener('dragleave', function() { ucDrop.style.background = ''; });
+    ucDrop.addEventListener('drop', function(e) { e.preventDefault(); ucDrop.style.background = ''; ucAddFiles(e.dataTransfer.files); });
+  </script>
+</body>
+</html>

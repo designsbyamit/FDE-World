@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" href="../../lib/assets/favicon.ico">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UI5 Components</title>
+
+  <script data-ui5-config type="application/json">{ "theme": "sap_horizon" }</script>
+  <script type="module" src="../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <script src="../../lib/shared/shellbar.js"></script>
+
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 600; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 300; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Light.woff2") format("woff2"); }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      font-family: "72", sans-serif;
+      background: var(--sapBackgroundColor, #f5f6f7);
+      color: var(--sapTextColor, #131e29);
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .shellbar-wrap { position: relative; }
+
+    /* ── Demo toolbar (right panel only) ── */
+    .demo-toolbar {
+      display: flex; align-items: center; justify-content: flex-end;
+      padding: 0 1rem; gap: 0.5rem; height: 42px; box-sizing: border-box;
+      background: var(--sapBaseColor, #fff); border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      border-top: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      flex-shrink: 0;
+    }
+    .demo-toolbar-label { font-size: 0.875rem; color: var(--sapContent_LabelColor, #6a7588); }
+    .demo-toolbar-select {
+      font-family: "72", sans-serif; font-size: 0.875rem;
+      border: 1px solid var(--sapField_BorderColor, #c0c8d0); border-radius: 0.25rem;
+      padding: 0.375rem 0.375rem; background: var(--sapBaseColor, #fff); color: var(--sapTextColor, #131e29);
+      outline: none; cursor: pointer; box-sizing: border-box;
+    }
+    .demo-toolbar-select:focus { border-color: var(--sapSelectedColor, #0064d9); }
+    .density-toggle { display: flex; border: 1px solid var(--sapField_BorderColor, #c0c8d0); border-radius: 0.25rem; overflow: hidden; }
+    .density-btn {
+      font-family: "72", sans-serif; font-size: 0.875rem; padding: 0.375rem 0.625rem;
+      background: var(--sapBaseColor, #fff); color: var(--sapTextColor, #131e29); border: none; cursor: pointer; box-sizing: border-box;
+    }
+    .density-btn + .density-btn { border-left: 1px solid var(--sapField_BorderColor, #c0c8d0); }
+    .density-btn.active { background: var(--sapSelectedColor, #0064d9); color: var(--sapButton_Emphasized_TextColor, #fff); }
+    .density-btn:not(.active):hover { background: var(--sapList_Hover_Background, #f5f6f7); }
+
+    .shell {
+      display: flex;
+      height: calc(100vh - 44px);
+    }
+
+    /* ── Left nav ── */
+    .nav {
+      width: 340px;
+      flex-shrink: 0;
+      background: var(--sapBaseColor, #fff);
+      border-right: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .nav-top {
+      flex-shrink: 0;
+    }
+    .nav-scroll {
+      flex: 1;
+      overflow-y: auto;
+    }
+    .nav-header {
+      padding: 1rem 1rem 0.5rem;
+      font-size: 0.6875rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--sapContent_LabelColor, #6a7588);
+    }
+
+    /* ── Nav search ── */
+    .nav-search-wrap {
+      padding: 0.5rem 0.75rem;
+      border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      border-top: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      position: relative;
+    }
+    .nav-search {
+      width: 100%;
+      padding: 0.375rem 2rem 0.375rem 0.625rem;
+      font-family: "72", sans-serif;
+      font-size: 0.875rem;
+      border: 1px solid var(--sapField_BorderColor, #c0c8d0);
+      border-radius: 0.25rem;
+      background: var(--sapBaseColor, #fff);
+      color: var(--sapTextColor, #131e29);
+      outline: none;
+    }
+    .nav-search:focus { border-color: var(--sapSelectedColor, #0064d9); }
+    .nav-search-clear {
+      position: absolute; right: 1.125rem; top: 50%; transform: translateY(-50%);
+      font-size: 0.75rem; color: var(--sapContent_LabelColor, #6a7588);
+      cursor: pointer; display: none; line-height: 1;
+      background: none; border: none; padding: 0;
+    }
+    .nav-search-clear:hover { color: var(--sapTextColor, #131e29); }
+    .nav-typeahead {
+      position: absolute; left: 0.75rem; right: 0.75rem; top: calc(100% - 0.25rem);
+      background: var(--sapBaseColor, #fff); border: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      border-top: none; border-radius: 0 0 0.25rem 0.25rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      z-index: 200; display: none; max-height: 320px; overflow-y: auto;
+    }
+    .nav-typeahead-item {
+      padding: 0.4rem 0.75rem; font-size: 0.875rem;
+      color: var(--sapTextColor, #131e29); cursor: pointer;
+      border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5);
+    }
+    .nav-typeahead-item:last-child { border-bottom: none; }
+    .nav-typeahead-item:hover, .nav-typeahead-item.focused {
+      background: var(--sapList_Hover_Background, #f5f6f7);
+    }
+    .nav-typeahead-item mark {
+      background: none; color: var(--sapSelectedColor, #0064d9); font-weight: 600;
+    }
+    .nav-typeahead-group {
+      font-size: 0.6875rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.06em; color: var(--sapContent_LabelColor, #6a7588);
+      padding: 0.5rem 0.75rem 0.2rem; pointer-events: none;
+    }
+
+    /* ── Expand/collapse all ── */
+    .nav-toolbar {
+      display: flex; align-items: center; justify-content: flex-end;
+      padding: 0.25rem 0.75rem 0.25rem;
+      border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      gap: 0.75rem;
+    }
+    .nav-toolbar-btn {
+      font-family: "72", sans-serif; font-size: 0.875rem;
+      color: var(--sapLinkColor, #0064d9); cursor: pointer;
+      background: none; border: none; padding: 0;
+    }
+    .nav-toolbar-btn:hover { text-decoration: underline; }
+    .nav-item {
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+      color: var(--sapTextColor, #131e29);
+      cursor: pointer;
+      border-left: 3px solid transparent;
+      transition: background 0.1s;
+    }
+    .nav-item:hover { background: var(--sapList_Hover_Background, #f5f6f7); }
+    .nav-item.active {
+      background: var(--sapList_SelectionBackgroundColor, #e8f0fe);
+      border-left-color: var(--sapSelectedColor, #0064d9);
+      font-weight: 600;
+      color: var(--sapSelectedColor, #0064d9);
+    }
+
+    /* ── Nav groups ── */
+    .nav-group-header {
+      display: flex; align-items: center; gap: 0.375rem;
+      padding: 0.625rem 1rem 0.375rem;
+      font-size: 1rem; font-weight: 700;
+      color: var(--sapContent_LabelColor,#6a7588);
+      cursor: pointer; user-select: none;
+      border-top: 1px solid var(--sapList_BorderColor,#e5e5e5);
+    }
+    .nav-group-header:first-child { border-top: none; }
+    .nav-group-header:hover { background: var(--sapList_Hover_Background,#f5f6f7); }
+    .nav-group-arrow { font-size: 0.6rem; transition: transform 0.2s; color: var(--sapContent_LabelColor,#6a7588); flex-shrink: 0; }
+    .nav-group.collapsed .nav-group-arrow { transform: rotate(-90deg); }
+    .nav-group-items { overflow: hidden; }
+    .nav-group.collapsed .nav-group-items { display: none; }
+    .nav-group .nav-item { padding-left: 1.875rem; }
+
+    .nav-dot {
+      display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+      background: var(--sapNegativeColor, #bb0000); vertical-align: middle; margin-left: 0.35rem; flex-shrink: 0;
+    }
+
+    /* ── Right content ── */
+    .content { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
+
+    .content iframe {
+      flex: 1;
+      width: 100%;
+      border: none;
+      display: none;
+    }
+
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+      gap: 0.75rem;
+      color: var(--sapContent_LabelColor, #6a7588);
+    }
+    .nav-item-external { display: flex; align-items: center; justify-content: space-between; }
+    .nav-external-icon { width: 12px; height: 12px; flex-shrink: 0; opacity: 0.5; }
+    .nav-item-external:hover .nav-external-icon { opacity: 1; }
+
+    .empty-state-text { font-size: 0.9375rem; }
+  </style>
+</head>
+<body>
+
+  <app-shellbar title="UI5 Components" base-path="../../" hide-menu hide-product-switch></app-shellbar>
+
+  <div class="shell">
+
+    <!-- Left nav -->
+    <nav class="nav">
+      <div class="nav-top">
+        <div class="nav-search-wrap">
+          <input id="navSearch" class="nav-search" type="text" placeholder="Search components…" autocomplete="off"
+            oninput="navSearchInput(this)" onkeydown="navSearchKey(event)">
+          <button class="nav-search-clear" id="navSearchClear" onclick="navSearchClearFn()" tabindex="-1">&#10005;</button>
+          <div class="nav-typeahead" id="navTypeahead"></div>
+        </div>
+
+        <!-- Expand / Collapse all -->
+        <div class="nav-toolbar">
+          <button class="nav-toolbar-btn" onclick="navExpandAll()">Expand all</button>
+          <button class="nav-toolbar-btn" onclick="navCollapseAll()">Collapse all</button>
+        </div>
+      </div>
+
+      <div class="nav-scroll">
+
+      <!-- Components group (@ui5/webcomponents) -->
+      <div class="nav-group collapsed" id="ng-components">
+        <div class="nav-group-header" onclick="toggleNavGroup('ng-components')">
+          <span class="nav-group-arrow">&#9660;</span> Components
+        </div>
+        <div class="nav-group-items">
+          <div class="nav-item" data-target="avatar" onclick="selectNav('avatar')">Avatar</div>
+          <div class="nav-item" data-target="bar" onclick="selectNav('bar')">Bar</div>
+          <div class="nav-item" data-target="breadcrumbs" onclick="selectNav('breadcrumbs')">Breadcrumbs</div>
+          <div class="nav-item" data-target="button" onclick="selectNav('button')">Button</div>
+          <div class="nav-item" data-target="card" onclick="selectNav('card')">Card</div>
+          <div class="nav-item" data-target="carousel" onclick="selectNav('carousel')">Carousel</div>
+          <div class="nav-item" data-target="checkbox" onclick="selectNav('checkbox')">CheckBox</div>
+          <div class="nav-item" data-target="combobox" onclick="selectNav('combobox')">ComboBox</div>
+          <div class="nav-item" data-target="datepicker" onclick="selectNav('datepicker')">DatePicker</div>
+          <div class="nav-item" data-target="dialog" onclick="selectNav('dialog')">Dialog</div>
+          <div class="nav-item" data-target="icon" onclick="selectNav('icon')">Icon</div>
+          <div class="nav-item" data-target="input" onclick="selectNav('input')">Input</div>
+          <div class="nav-item" data-target="label" onclick="selectNav('label')">Label</div>
+          <div class="nav-item" data-target="link" onclick="selectNav('link')">Link</div>
+          <div class="nav-item" data-target="list-standard" onclick="selectNav('list-standard')">List</div>
+          <div class="nav-item" data-target="menu" onclick="selectNav('menu')">Menu</div>
+          <div class="nav-item" data-target="message-strip" onclick="selectNav('message-strip')">Message Strip</div>
+          <div class="nav-item" data-target="multi-input" onclick="selectNav('multi-input')">Multi Input</div>
+          <div class="nav-item" data-target="panel" onclick="selectNav('panel')">Panel</div>
+          <div class="nav-item" data-target="popover" onclick="selectNav('popover')">Popover</div>
+          <div class="nav-item" data-target="radio-button" onclick="selectNav('radio-button')">Radio Button</div>
+          <div class="nav-item" data-target="segmented-button" onclick="selectNav('segmented-button')">Segmented Button</div>
+          <div class="nav-item" data-target="select" onclick="selectNav('select')">Select</div>
+          <div class="nav-item" data-target="split-button" onclick="selectNav('split-button')">Split Button</div>
+          <div class="nav-item" data-target="switch" onclick="selectNav('switch')">Switch</div>
+          <div class="nav-item" data-target="tab-container" onclick="selectNav('tab-container')">Tab Container</div>
+          <div class="nav-item" data-target="table" onclick="selectNav('table')">Table</div>
+          <div class="nav-item" data-target="tag" onclick="selectNav('tag')">Tag</div>
+          <div class="nav-item" data-target="text" onclick="selectNav('text')">Text</div>
+          <div class="nav-item" data-target="textarea" onclick="selectNav('textarea')">Text Area</div>
+          <div class="nav-item" data-target="timepicker" onclick="selectNav('timepicker')">Time Picker</div>
+          <div class="nav-item" data-target="title" onclick="selectNav('title')">Title</div>
+          <div class="nav-item" data-target="toast" onclick="selectNav('toast')">Toast</div>
+          <div class="nav-item" data-target="toggle-button" onclick="selectNav('toggle-button')">Toggle Button</div>
+          <div class="nav-item" data-target="token" onclick="selectNav('token')">Token</div>
+          <div class="nav-item" data-target="toolbar" onclick="selectNav('toolbar')">Toolbar</div>
+          <div class="nav-item" data-target="tree" onclick="selectNav('tree')">Tree</div>
+        </div>
+      </div>
+
+      <!-- Fiori Patterns group (@ui5/webcomponents-fiori) -->
+      <div class="nav-group collapsed" id="ng-fiori">
+        <div class="nav-group-header" onclick="toggleNavGroup('ng-fiori')">
+          <span class="nav-group-arrow">&#9660;</span> Fiori Patterns
+        </div>
+        <div class="nav-group-items">
+          <div class="nav-item" data-target="pattern-header" onclick="selectNav('pattern-header')">Header Pattern</div>
+          <div class="nav-item" data-target="pattern-action-bar" onclick="selectNav('pattern-action-bar')">Action Bar Pattern</div>
+          <div class="nav-item" data-target="pattern-form" onclick="selectNav('pattern-form')">Form Pattern</div>
+          <div class="nav-item" data-target="pattern-filter" onclick="selectNav('pattern-filter')">Filter Bar Pattern</div>
+          <div class="nav-item" data-target="pattern-dialog" onclick="selectNav('pattern-dialog')">Dialog Patterns</div>
+          <div class="nav-item" data-target="pattern-empty-state" onclick="selectNav('pattern-empty-state')">Empty State Pattern</div>
+          <div class="nav-item" data-target="pattern-master-detail" onclick="selectNav('pattern-master-detail')">Master-Detail Pattern</div>
+          <div class="nav-item" data-target="pattern-message" onclick="selectNav('pattern-message')">Message Patterns</div>
+          <div class="nav-item" data-target="dynamic-page" onclick="selectNav('dynamic-page')">Dynamic Page</div>
+          <div class="nav-item" data-target="filter-bar" onclick="selectNav('filter-bar')">Filter Bar</div>
+          <div class="nav-item" data-target="filter-item" onclick="selectNav('filter-item')">Filter Item</div>
+          <div class="nav-item" data-target="flexible-column-layout" onclick="selectNav('flexible-column-layout')">Flexible Column Layout</div>
+          <div class="nav-item" data-target="media-gallery" onclick="selectNav('media-gallery')">Media Gallery</div>
+          <div class="nav-item" data-target="shellbar" onclick="selectNav('shellbar')">Shell Bar</div>
+          <div class="nav-item" data-target="side-navigation" onclick="selectNav('side-navigation')">Side Navigation</div>
+          <div class="nav-item" data-target="timeline" onclick="selectNav('timeline')">Timeline</div>
+          <div class="nav-item" data-target="wizard" onclick="selectNav('wizard')">Wizard</div>
+        </div>
+      </div>
+
+      <!-- Resources group -->
+      <div class="nav-group collapsed" id="ng-icons">
+        <div class="nav-group-header" onclick="toggleNavGroup('ng-icons')">
+          <span class="nav-group-arrow">&#9660;</span> Resources
+        </div>
+        <div class="nav-group-items">
+          <div class="nav-item" data-target="icons" onclick="selectNav('icons')">Icons</div>
+          <div class="nav-item" data-target="colors" onclick="selectNav('colors')">Colors</div>
+          <div class="nav-item" data-target="typography" onclick="selectNav('typography')">Typography</div>
+          <div class="nav-item" data-target="spacing" onclick="selectNav('spacing')">Spacing</div>
+          <div class="nav-item" data-target="design-tokens" onclick="selectNav('design-tokens')">Design Tokens</div>
+        </div>
+      </div>
+
+      <!-- Floorplans group -->
+      <div class="nav-group collapsed" id="ng-floorplans">
+        <div class="nav-group-header" onclick="toggleNavGroup('ng-floorplans')">
+          <span class="nav-group-arrow">&#9660;</span> Floorplans
+        </div>
+        <div class="nav-group-items">
+          <div class="nav-item nav-item-external" data-target="floorplan-list-report" onclick="selectNav('floorplan-list-report')">List Report <svg class="nav-external-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 3H3a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-3M9 2h5m0 0v5m0-5L7 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="nav-item nav-item-external" data-target="floorplan-object-page" onclick="selectNav('floorplan-object-page')">Object Page <svg class="nav-external-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 3H3a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-3M9 2h5m0 0v5m0-5L7 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="nav-item nav-item-external" data-target="floorplan-worklist" onclick="selectNav('floorplan-worklist')">Worklist <svg class="nav-external-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 3H3a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-3M9 2h5m0 0v5m0-5L7 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="nav-item nav-item-external" data-target="floorplan-overview-page" onclick="selectNav('floorplan-overview-page')">Overview Page <svg class="nav-external-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 3H3a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-3M9 2h5m0 0v5m0-5L7 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="nav-item nav-item-external" data-target="floorplan-analytical-list-page" onclick="selectNav('floorplan-analytical-list-page')">Analytical List Page <svg class="nav-external-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 3H3a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-3M9 2h5m0 0v5m0-5L7 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </div>
+      </div>
+
+      <!-- Templates group -->
+      <div class="nav-group collapsed" id="ng-templates">
+        <div class="nav-group-header" onclick="toggleNavGroup('ng-templates')">
+          <span class="nav-group-arrow">&#9660;</span> Other Templates
+        </div>
+        <div class="nav-group-items">
+          <div class="nav-item nav-item-external" data-target="template-instances" onclick="selectNav('template-instances')">Instances <svg class="nav-external-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 3H3a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-3M9 2h5m0 0v5m0-5L7 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="nav-item nav-item-external" data-target="template-home" onclick="selectNav('template-home')">Home <svg class="nav-external-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 3H3a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-3M9 2h5m0 0v5m0-5L7 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="nav-item nav-item-external" data-target="template-users" onclick="selectNav('template-users')">List — Simple <svg class="nav-external-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 3H3a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-3M9 2h5m0 0v5m0-5L7 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="nav-item nav-item-external" data-target="template-list-filter" onclick="selectNav('template-list-filter')">List — Filters &amp; Variants <svg class="nav-external-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 3H3a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-3M9 2h5m0 0v5m0-5L7 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="nav-item nav-item-external" data-target="template-list-kpi" onclick="selectNav('template-list-kpi')">List — KPI Tiles <svg class="nav-external-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 3H3a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-3M9 2h5m0 0v5m0-5L7 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="nav-item nav-item-external" data-target="template-news-hub" onclick="selectNav('template-news-hub')">News Hub <svg class="nav-external-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 3H3a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-3M9 2h5m0 0v5m0-5L7 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="nav-item nav-item-external" data-target="template-settings" onclick="selectNav('template-settings')">Settings <svg class="nav-external-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 3H3a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-3M9 2h5m0 0v5m0-5L7 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="nav-item nav-item-external" data-target="template-detail-two-column" onclick="selectNav('template-detail-two-column')">Detail — Two Column <svg class="nav-external-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 3H3a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-3M9 2h5m0 0v5m0-5L7 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="nav-item nav-item-external" data-target="template-document-review" onclick="selectNav('template-document-review')">Document Review <svg class="nav-external-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 3H3a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-3M9 2h5m0 0v5m0-5L7 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </div>
+      </div>
+
+      </div><!-- /.nav-scroll -->
+    </nav>
+
+    <!-- Right content — panel files load here in an iframe -->
+    <div class="content">
+      <div class="demo-toolbar">
+        <span class="demo-toolbar-label">Theme</span>
+        <select id="themeSelect" class="demo-toolbar-select" onchange="applySettings()" disabled title="Theme switching coming soon">
+          <option value="sap_horizon">Horizon</option>
+          <option value="sap_horizon_dark">Horizon Dark</option>
+          <option value="sap_horizon_hcb">Horizon HCB</option>
+          <option value="sap_horizon_hcw">Horizon HCW</option>
+        </select>
+        <span class="demo-toolbar-label" style="margin-left:0.5rem;">Density</span>
+        <div class="density-toggle">
+          <button id="btnCozy" class="density-btn active" onclick="setDensity('cozy')">Cozy</button>
+          <button id="btnCompact" class="density-btn" onclick="setDensity('compact')">Compact</button>
+        </div>
+      </div>
+      <iframe id="panelFrame"></iframe>
+      <div class="empty-state" id="emptyState">
+        <ui5-icon name="ui-notifications" style="font-size:3rem; color:#c0c8d0;"></ui5-icon>
+        <div class="empty-state-text">Select a component from the left to view demos</div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    var PANELS = new Set([
+      // Components
+      'avatar','bar','breadcrumbs','button','card','carousel','checkbox','combobox',
+      'datepicker','dialog','icon','input','label','link','list-standard','menu',
+      'message-strip','multi-input','panel','popover','radio-button','segmented-button',
+      'select','split-button','switch','tab-container','table','tag','text','textarea',
+      'timepicker','title','toast','toggle-button','token','toolbar','tree',
+      // Fiori Patterns
+      'pattern-header','pattern-action-bar','pattern-form','pattern-filter',
+      'pattern-dialog','pattern-empty-state','pattern-master-detail','pattern-message',
+      'dynamic-page','filter-bar','filter-item','flexible-column-layout',
+      'media-gallery','shellbar','side-navigation','timeline','wizard',
+      // Icons
+      'icons','colors','typography','spacing','design-tokens'
+    ]);
+
+
+    function toggleNavGroup(id) {
+      document.getElementById(id).classList.toggle('collapsed');
+    }
+
+    function navExpandAll() {
+      document.querySelectorAll('.nav-group').forEach(function(g) { g.classList.remove('collapsed'); });
+    }
+
+    function navCollapseAll() {
+      document.querySelectorAll('.nav-group').forEach(function(g) { g.classList.add('collapsed'); });
+    }
+
+    // Build flat list of all nav items for search — runs after DOM is ready
+    var NAV_ITEMS = [];
+    document.addEventListener('DOMContentLoaded', function() {
+      document.querySelectorAll('.nav-group').forEach(function(group) {
+        var headerText = '';
+        group.querySelector('.nav-group-header').childNodes.forEach(function(n) { if (n.nodeType === 3) headerText += n.textContent; });
+        headerText = headerText.trim();
+        group.querySelectorAll('.nav-item').forEach(function(el) {
+          var text = el.childNodes[0] ? el.childNodes[0].textContent.trim() : el.textContent.trim();
+          NAV_ITEMS.push({ text: text, target: el.dataset.target, group: headerText });
+        });
+      });
+    });
+
+    var taFocusIdx = -1;
+
+    function navSearchInput(input) {
+      var q = input.value.trim();
+      document.getElementById('navSearchClear').style.display = q ? 'block' : 'none';
+      var ta = document.getElementById('navTypeahead');
+      if (!q) { ta.style.display = 'none'; taFocusIdx = -1; return; }
+      var lower = q.toLowerCase();
+      var matches = NAV_ITEMS.filter(function(i) { return i.text.toLowerCase().includes(lower); });
+      if (!matches.length) { ta.innerHTML = '<div class="nav-typeahead-item" style="color:var(--sapContent_LabelColor,#6a7588);pointer-events:none;">No results</div>'; ta.style.display = 'block'; return; }
+      var grouped = {};
+      matches.forEach(function(m) {
+        if (!grouped[m.group]) grouped[m.group] = [];
+        grouped[m.group].push(m);
+      });
+      var html = '';
+      var idx = 0;
+      Object.keys(grouped).forEach(function(g) {
+        html += '<div class="nav-typeahead-group">' + g + '</div>';
+        grouped[g].forEach(function(m) {
+          var highlighted = m.text.replace(new RegExp('(' + q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + ')', 'gi'), '<mark>$1</mark>');
+          html += '<div class="nav-typeahead-item" data-target="' + m.target + '" data-idx="' + idx + '" onclick="navTypeaheadSelect(\'' + m.target + '\')">' + highlighted + '</div>';
+          idx++;
+        });
+      });
+      ta.innerHTML = html;
+      ta.style.display = 'block';
+      taFocusIdx = -1;
+    }
+
+    function navSearchKey(e) {
+      var ta = document.getElementById('navTypeahead');
+      var items = ta.querySelectorAll('.nav-typeahead-item[data-target]');
+      if (!items.length) return;
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        taFocusIdx = Math.min(taFocusIdx + 1, items.length - 1);
+        navTypeaheadFocus(items);
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        taFocusIdx = Math.max(taFocusIdx - 1, 0);
+        navTypeaheadFocus(items);
+      } else if (e.key === 'Enter') {
+        if (taFocusIdx >= 0 && items[taFocusIdx]) {
+          navTypeaheadSelect(items[taFocusIdx].dataset.target);
+        }
+      } else if (e.key === 'Escape') {
+        navSearchClearFn();
+      }
+    }
+
+    function navTypeaheadFocus(items) {
+      items.forEach(function(i) { i.classList.remove('focused'); });
+      if (items[taFocusIdx]) { items[taFocusIdx].classList.add('focused'); items[taFocusIdx].scrollIntoView({ block: 'nearest' }); }
+    }
+
+    function navTypeaheadSelect(target) {
+      document.getElementById('navTypeahead').style.display = 'none';
+      document.getElementById('navSearch').value = '';
+      document.getElementById('navSearchClear').style.display = 'none';
+      taFocusIdx = -1;
+      var item = document.querySelector('.nav-item[data-target="' + target + '"]');
+      if (item) { var group = item.closest('.nav-group'); if (group) group.classList.remove('collapsed'); }
+      selectNav(target);
+    }
+
+    function navSearchClearFn() {
+      document.getElementById('navSearch').value = '';
+      document.getElementById('navSearchClear').style.display = 'none';
+      document.getElementById('navTypeahead').style.display = 'none';
+      taFocusIdx = -1;
+    }
+
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('.nav-search-wrap')) {
+        document.getElementById('navTypeahead').style.display = 'none';
+        taFocusIdx = -1;
+      }
+    });
+
+    var currentDensity = 'cozy';
+
+    function setDensity(d) {
+      currentDensity = d;
+      document.getElementById('btnCozy').classList.toggle('active', d === 'cozy');
+      document.getElementById('btnCompact').classList.toggle('active', d === 'compact');
+      applySettings();
+    }
+
+    function applySettings() {
+      var frame = document.getElementById('panelFrame');
+      if (!frame.src || frame.style.display === 'none') return;
+      var base = frame.src.split('?')[0];
+      frame.src = base + '?theme=' + document.getElementById('themeSelect').value + '&density=' + currentDensity;
+    }
+
+    function selectNav(id) {
+      var item = document.querySelector('.nav-item[data-target="' + id + '"]');
+      if (item && (item.closest('#ng-templates') || item.closest('#ng-floorplans'))) {
+        window.open(id + '.html', '_blank');
+        return;
+      }
+      document.querySelectorAll('.nav-item').forEach(function(el) {
+        el.classList.toggle('active', el.dataset.target === id);
+      });
+      var frame = document.getElementById('panelFrame');
+      var file = PANELS.has(id) ? id + '.html' : '_blank.html';
+      frame.src = 'demokit-panels/' + file + '?theme=' + document.getElementById('themeSelect').value + '&density=' + currentDensity;
+      frame.style.display = 'block';
+      document.getElementById('emptyState').style.display = 'none';
+    }
+  </script>
+
+</body>
+</html>

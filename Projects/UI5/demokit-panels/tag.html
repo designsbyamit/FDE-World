@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <script src="panel-init.js"></script>
+  <script type="module" src="../../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    body { font-family: "72", sans-serif; font-size: 0.875rem; background: #f5f6f7; color: #131e29; margin: 0; padding: 2rem; }
+    .panel-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .panel-subtitle { font-size: 0.875rem; color: #6a7588; margin-bottom: 2rem; }
+    .demo-section { margin-bottom: 2rem; }
+    .demo-section-header { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #6a7588; margin-bottom: 1rem; padding-bottom: 0.375rem; border-bottom: 1px solid #e5e5e5; }
+    .demo-section-body { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; }
+  </style>
+</head>
+<body>
+  <div class="panel-title">Tag</div>
+  <div class="panel-subtitle">Compact label for status, category, or metadata display.</div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">Semantic Designs</div>
+    <div class="demo-section-body">
+      <ui5-tag>Default</ui5-tag>
+      <ui5-tag design="Positive">Approved</ui5-tag>
+      <ui5-tag design="Negative">Rejected</ui5-tag>
+      <ui5-tag design="Critical">Pending</ui5-tag>
+      <ui5-tag design="Information">Info</ui5-tag>
+      <ui5-tag design="Success">Success</ui5-tag>
+      <ui5-tag design="Warning">Warning</ui5-tag>
+      <ui5-tag design="Error">Error</ui5-tag>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">Neutral Color Schemes</div>
+    <div class="demo-section-body">
+      <ui5-tag color-scheme="1">Scheme 1</ui5-tag>
+      <ui5-tag color-scheme="2">Scheme 2</ui5-tag>
+      <ui5-tag color-scheme="3">Scheme 3</ui5-tag>
+      <ui5-tag color-scheme="4">Scheme 4</ui5-tag>
+      <ui5-tag color-scheme="5">Scheme 5</ui5-tag>
+      <ui5-tag color-scheme="6">Scheme 6</ui5-tag>
+      <ui5-tag color-scheme="7">Scheme 7</ui5-tag>
+      <ui5-tag color-scheme="8">Scheme 8</ui5-tag>
+      <ui5-tag color-scheme="9">Scheme 9</ui5-tag>
+      <ui5-tag color-scheme="10">Scheme 10</ui5-tag>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">With Icons</div>
+    <div class="demo-section-body">
+      <ui5-tag icon="employee" design="Information">HR</ui5-tag>
+      <ui5-tag icon="product" color-scheme="5">Goods</ui5-tag>
+      <ui5-tag icon="calendar" design="Positive">Scheduled</ui5-tag>
+      <ui5-tag icon="alert" design="Negative">Overdue</ui5-tag>
+      <ui5-tag icon="status-critical" design="Critical">Review</ui5-tag>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">Interactive</div>
+    <div class="demo-section-body">
+      <ui5-tag interactive design="Information">Clickable Tag</ui5-tag>
+      <ui5-tag interactive color-scheme="3">Filter: Germany</ui5-tag>
+      <ui5-tag interactive color-scheme="7">Filter: Q1 2025</ui5-tag>
+    </div>
+  </div>
+</body>
+</html>

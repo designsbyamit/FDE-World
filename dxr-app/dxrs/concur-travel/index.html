@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Concur Travel</title>
+<style>
+  @font-face{font-family:"72";font-weight:400;src:url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2")}
+  @font-face{font-family:"72";font-weight:700;src:url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2")}
+  @font-face{font-family:"72";font-weight:600;src:url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2")}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"72","72full",-apple-system,sans-serif;background:#f5f6f7;color:#1d2d3e;}
+  .header{background:#fff;border-bottom:1px solid #e5e5e5;padding:1.25rem 2rem 1.5rem;position:sticky;top:0;z-index:10;}
+  .layout{display:grid;grid-template-columns:300px 1fr;max-width:1280px;margin:0 auto;padding:2rem;gap:0;align-items:start;}
+  .nav{position:sticky;top:calc(var(--hh,120px) + 2rem);background:#fff;border:1px solid #e5e5e5;border-radius:0.5rem;padding:1rem 0;margin-right:2rem;}
+  .nav-label{font-size:0.6875rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#556b82;padding:0 1rem 0.5rem;}
+  .nav a{display:block;padding:0.4375rem 1rem;font-size:0.8125rem;color:#1d2d3e;text-decoration:none;}
+  .nav a:hover{background:#f0f4f8;color:#0064d9;}
+  p{font-size:0.875rem;line-height:1.6;margin-bottom:0.75rem;}
+  p:last-child{margin-bottom:0;}
+  ul,ol{padding-left:1.25rem;margin-bottom:0.75rem;}
+  li{font-size:0.875rem;line-height:1.6;margin-bottom:0.25rem;}
+  strong{font-weight:700;}
+</style>
+</head>
+<body>
+<div class="header" id="hdr">
+  <div style="font-size:0.8125rem;color:#0064d9;margin-bottom:0.375rem;"><a href="../" style="color:#0064d9;text-decoration:none;">← FDE Design Excellence Reviews</a></div>
+  <div style="font-size:1.5rem;font-weight:700;margin-bottom:0.375rem;">Concur Travel</div>
+  <div style="font-size:0.875rem;color:#556b82;display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+    <span>Product: Concur</span><span>·</span>
+    <span>Created by J. Doe · 2026-06-02T23:08:58.243445+00:00</span><span>·</span>
+    <span>Last edited by J. Doe · 2026-06-02T23:21:34.375199+00:00</span><span>·</span>
+    <span style="display:inline-block;font-size:0.75rem;font-weight:600;padding:0.2rem 0.625rem;border-radius:0.75rem;background:#e8edf2;color:#4a6785">Draft</span>
+  </div>
+</div>
+<div class="layout">
+  <nav class="nav">
+    <div class="nav-label">Contents</div>
+    <a href="#sintro">Introduction</a><a href="#sstrengths">Strengths</a><a href="#sareas_of_improvement">Areas of Improvement</a><a href="#srecommendations">Recommendations</a>
+  </nav>
+  <div>
+        <div style="background:#fff;border:1px solid #e5e5e5;border-radius:0.5rem;overflow:hidden;margin-bottom:1.5rem;" id="sintro">
+          <div style="padding:1rem 1.25rem;border-bottom:1px solid #e5e5e5;background:#f7f8f9;">
+            <div style="font-size:0.9375rem;font-weight:700;">Introduction</div>
+          </div>
+          <div style="padding:1.25rem;"><p>Concur Travel's new Trip Planner represents an ambitious consolidation of what was historically a fragmented, vertical-by-vertical booking experience — flights, hotels, cars, and rail — into a single search, shop, and confirmation flow. Reviewed against the live integration build and supporting product context, the experience demonstrates clear conceptual progress and measurably higher Qualtrics satisfaction scores than the legacy rinse-and-repeat method, yet it sits at an uneven point in its UX maturity. Several foundational interaction patterns, content choices, and visual decisions still betray the seams of its origins, and a number of recurring issues — premature errors, ambiguous controls, customization-driven confusion, and inconsistent visual treatment — collectively undercut the polish and confidence the product otherwise aspires to. Overall, the Trip Planner is a directionally strong reimagining of business travel booking that needs deliberate refinement across foundations, content, and visual craft before it can fully replace the legacy flow.</p></div>
+        </div>
+        <div style="background:#fff;border:1px solid #e5e5e5;border-radius:0.5rem;overflow:hidden;margin-bottom:1.5rem;" id="sstrengths">
+          <div style="padding:1rem 1.25rem;border-bottom:1px solid #e5e5e5;background:#f7f8f9;">
+            <div style="font-size:0.9375rem;font-weight:700;">Strengths</div>
+          </div>
+          <div style="padding:1.25rem;"><ul style="padding-left:1.25rem;margin-bottom:0.75rem;"><li>A single consolidated search, shop, and confirmation flow now spans flight, hotel, car, and rail, replacing the previous repetitive per-vertical workflow and aligning Concur competitively with offerings like Navan.</li><li>The product genuinely supports multi-city, multi-hotel, and multi-car itineraries out of the box, even though SAP's own customer-imposed configuration masks this capability for many internal users.</li><li>Smart defaulting via the Match Flight Booking feature automatically aligns hotel and car dates and locations to the flight, reducing redundant input and accommodating overnight or international arrivals gracefully.</li><li>The unified left-panel itinerary gives users contextual visibility into their trip as they build it, supporting a stronger mental model than the legacy flow where users had to remember prior bookings.</li><li>A single Finalize step at the end of the flow reduces the orphan-booking abandonment pattern seen previously, where users walked away thinking individual confirmations meant the trip was complete.</li><li>Qualtrics data shows the new flow consistently scores higher in user satisfaction than the legacy method, and this advantage has held steady over a year of parallel availability.</li></ul></div>
+        </div>
+        <div style="background:#fff;border:1px solid #e5e5e5;border-radius:0.5rem;overflow:hidden;margin-bottom:1.5rem;" id="sareas_of_improvement">
+          <div style="padding:1rem 1.25rem;border-bottom:1px solid #e5e5e5;background:#f7f8f9;">
+            <div style="font-size:0.9375rem;font-weight:700;">Areas of Improvement</div>
+          </div>
+          <div style="padding:1.25rem;"><ul style="padding-left:1.25rem;margin-bottom:0.75rem;"><li><strong>Premature and poorly-timed error signaling</strong>: Required fields in multi-city flight entry display error states before any user interaction, and mandatory fields like Trip Description are not surfaced on the main screen until validation fails. This pattern blames users for mistakes they have not made and hides requirements until they become blockers, eroding confidence in the system's predictability.</li><li><strong>Weak affordance and discoverability of primary actions</strong>: The Search button's placement in the left panel disconnects it from the input fields on the right, the Add to Trip control is silently disabled without explaining the multi-city conversion path, and labels like Skip Search and Edit are ambiguous about what they actually do. Users repeatedly cannot tell what action is available, where to take it, or what will happen next.</li><li><strong>Mental model mismatches between product concepts and user expectations</strong>: The intro dialog uses the term segment in a way that conflicts with industry meaning, the left-panel timeline groups hotels separately rather than interleaving them chronologically with flights, and the distinction between booking individual items and finalizing the trip — including the four-hour cancellation window — is not communicated. Users must reverse-engineer how the product thinks about a trip.</li><li><strong>System-centric, inconsistent content and terminology</strong>: Tile labels mix system nouns with user goals, outage messaging is long and anxiety-inducing, loading states reuse payment-processing language, and specialized terms like Cabin, Marine fares, Brand, and Parent Brand assume domain fluency. The voice across the product reads as built for the system rather than for the traveler.</li><li><strong>Visual inconsistency and unpolished craft</strong>: The home page header has weak hierarchy and awkward negative space, the New Trip card reads as detached from its child content, spacing and padding are inconsistent across screens, drop shadows are applied where no elevation is needed, and the initial landing page lacks the margins used elsewhere. Individually minor, these issues compound into a perception of fragility.</li><li><strong>Insufficient onboarding and contextual guidance for a customizable product</strong>: WalkMe content and menus are missing on the Plan a Trip page, users frequently misattribute customer-specific configuration limits to Concur itself, and the Trip Planning workspace offers no instructional hierarchy to orient first-time or infrequent users to the new consolidated model.</li></ul></div>
+        </div>
+        <div style="background:#fff;border:1px solid #e5e5e5;border-radius:0.5rem;overflow:hidden;margin-bottom:1.5rem;" id="srecommendations">
+          <div style="padding:1rem 1.25rem;border-bottom:1px solid #e5e5e5;background:#f7f8f9;">
+            <div style="font-size:0.9375rem;font-weight:700;">Recommendations</div>
+          </div>
+          <div style="padding:1.25rem;"><ul style="padding-left:1.25rem;margin-bottom:0.75rem;"><li>Defer validation errors until users attempt to save or interact with required fields, and surface mandatory inputs like Trip Description visibly on the main screen with required indicators or helper text, so users understand requirements before encountering blockers.</li><li>Strengthen affordance and discoverability by relocating the Search action into the input panel (or adopting the planned floating footer), enabling explicit paths to multi-city conversion, and renaming ambiguous controls — for example, Skip Flight instead of Skip Search, Rename Trip instead of Edit, and clearer labels for Brand, Distance, and Match Flight Booking.</li><li>Evolve the left-panel itinerary into a true chronological timeline that interleaves flights, hotels, and cars in trip order with drag-and-drop reordering, and add explicit messaging near the Finalize Trip action explaining the time-bound consequence of not finalizing.</li><li>Conduct a content and terminology audit grounded in user goals rather than system states: rewrite outage and loading messages to focus on what users can do, replace jargon with plain-language equivalents, and ensure tile labels and CTAs read as actions the traveler is taking.</li><li>Run a visual consistency pass across the product covering header hierarchy, card relationships, spacing and padding tokens, shadow usage, and page margins, aligning all surfaces to Fiori design tokens and removing decorative depth where it adds noise rather than clarity.</li><li>Expand WalkMe coverage to include the Plan a Trip flow, add a welcome modal or contextual cue clarifying that the experience reflects the customer's specific configuration, and introduce progressive instructional content in the Trip Planning workspace to help users build the correct mental model on first encounter.</li></ul></div>
+        </div></div>
+</div>
+<script>
+  var hdr=document.getElementById('hdr');
+  function setHh(){document.documentElement.style.setProperty('--hh',hdr.offsetHeight+'px');}
+  setHh(); window.addEventListener('scroll',setHh);
+</script>
+</body>
+</html>

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upload Set with Table Plugin</title>
+  <script src="panel-init.js"></script>
+  <script type="module" src="../../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 600; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 300; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Light.woff2") format("woff2"); }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "72", sans-serif; font-size: 0.875rem; background: var(--sapBackgroundColor, #f5f6f7); padding: 2rem; color: var(--sapTextColor, #131e29); }
+    .panel-title { font-size: 1.5rem; font-weight: 700; color: #131e29; margin-bottom: 0.375rem; }
+    .panel-subtitle { font-size: 0.8125rem; color: var(--sapContent_LabelColor, #6a7588); margin-bottom: 2rem; }
+    .demo-section { background: #fff; border: 1px solid var(--sapList_BorderColor, #e5e5e5); border-radius: 8px; margin-bottom: 1.25rem; overflow: hidden; }
+    .demo-section-header { padding: 0.75rem 1rem; border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5); font-size: 0.8125rem; font-weight: 600; color: var(--sapContent_LabelColor, #6a7588); display: flex; align-items: center; justify-content: space-between; }
+    .demo-section-tag { font-family: monospace; font-size: 0.75rem; color: #0064d9; font-weight: 400; }
+    .demo-section-body { padding: 1.25rem 1rem; display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: flex-start; }
+    .demo-section-body.column { flex-direction: column; }
+    .demo-section-body.block { display: block; padding: 0; }
+    .uc-toolbar { display: flex; align-items: center; gap: 0.5rem; padding: 0.375rem 0.75rem; }
+    .uc-toolbar-title { font-size: 1rem; font-weight: 700; color: var(--sapTextColor,#131e29); flex: 1; }
+    .cell-link { color: var(--sapLinkColor,#0064d9); cursor: pointer; text-decoration: none; }
+    .cell-link:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="panel-title">Upload Set with Table Plugin</div>
+  <div class="panel-subtitle">Upload Set rendered as a table — files as rows with File Name, ID, Revision, Status, File Size, and Last Modified columns. Toolbar provides Upload, Download, Add URL, Remove, Rename, Edit URL. Equivalent to sap.m.upload.UploadSetwithTable plugin on sap.m.Table.</div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">
+      Documents Table with Upload Actions
+      <span class="demo-section-tag">ui5-table · sap.m.upload.UploadSetwithTable pattern</span>
+    </div>
+    <div class="demo-section-body block" style="padding:0;">
+
+      <div class="uc-toolbar" style="border-bottom:1px solid var(--sapList_BorderColor,#e5e5e5); padding:0.375rem 0.75rem;">
+        <span class="uc-toolbar-title" id="ust-title">Documents (5)</span>
+        <ui5-input id="ust-search" placeholder="Search" show-clear-icon style="width:20%;">
+          <ui5-icon slot="icon" name="search"></ui5-icon>
+        </ui5-input>
+        <div style="width:1px; height:1.25rem; background:var(--sapList_BorderColor,#e5e5e5);"></div>
+        <ui5-button id="ust-upload-btn" design="Emphasized" icon="upload">Upload</ui5-button>
+        <ui5-button id="ust-download-btn" design="Default" disabled>Download</ui5-button>
+        <ui5-button id="ust-add-url-btn" design="Transparent">Add · URL</ui5-button>
+        <ui5-button id="ust-remove-btn" design="Transparent" disabled>Remove</ui5-button>
+        <ui5-button id="ust-rename-btn" design="Transparent" disabled>Rename</ui5-button>
+        <ui5-button id="ust-edit-url-btn" design="Transparent" disabled>Edit URL</ui5-button>
+      </div>
+      <input type="file" id="ust-file-input" multiple style="display:none;" onchange="ustAddFiles(this.files)">
+
+      <ui5-table id="ust-table">
+        <ui5-table-selection-multi slot="features"></ui5-table-selection-multi>
+        <ui5-table-header-row slot="headerRow">
+          <ui5-table-header-cell style="padding-inline-start:1rem;" width="260px">File Name</ui5-table-header-cell>
+          <ui5-table-header-cell width="80px">ID</ui5-table-header-cell>
+          <ui5-table-header-cell width="90px">Revision</ui5-table-header-cell>
+          <ui5-table-header-cell width="110px">Status</ui5-table-header-cell>
+          <ui5-table-header-cell width="90px">File Size</ui5-table-header-cell>
+          <ui5-table-header-cell>Last Modified</ui5-table-header-cell>
+          <ui5-table-header-cell width="48px"></ui5-table-header-cell>
+        </ui5-table-header-row>
+
+        <ui5-table-row interactive data-id="1">
+          <ui5-table-cell style="padding-inline-start:1rem;">
+            <div style="display:flex;align-items:center;gap:0.5rem;">
+              <ui5-icon name="pdf-attachment" style="font-size:1.25rem;color:#e53935;flex-shrink:0;"></ui5-icon>
+              <div>
+                <a class="cell-link" style="color:var(--sapLinkColor,#0064d9);font-weight:600;">Q1_Report_2024.pdf</a>
+                <div style="font-size:0.75rem;color:var(--sapContent_LabelColor,#6a7588);">Financial Report</div>
+              </div>
+            </div>
+          </ui5-table-cell>
+          <ui5-table-cell>DOC-001</ui5-table-cell>
+          <ui5-table-cell><a class="cell-link">v1.2</a></ui5-table-cell>
+          <ui5-table-cell><ui5-tag design="Set3" color-scheme="7">Complete</ui5-tag></ui5-table-cell>
+          <ui5-table-cell>2.4 MB</ui5-table-cell>
+          <ui5-table-cell>
+            <div>John Smith</div>
+            <div style="font-size:0.75rem;color:var(--sapContent_LabelColor,#6a7588);">04/10/2024</div>
+          </ui5-table-cell>
+          <ui5-table-cell><ui5-button design="Transparent" icon="decline" tooltip="Remove" onclick="ustRemoveRow(this)"></ui5-button></ui5-table-cell>
+        </ui5-table-row>
+
+        <ui5-table-row interactive data-id="2">
+          <ui5-table-cell style="padding-inline-start:1rem;">
+            <div style="display:flex;align-items:center;gap:0.5rem;">
+              <ui5-icon name="doc-attachment" style="font-size:1.25rem;color:#1565c0;flex-shrink:0;"></ui5-icon>
+              <div>
+                <a class="cell-link" style="color:var(--sapLinkColor,#0064d9);font-weight:600;">Specification_v3.docx</a>
+                <div style="font-size:0.75rem;color:var(--sapContent_LabelColor,#6a7588);">Product Spec</div>
+              </div>
+            </div>
+          </ui5-table-cell>
+          <ui5-table-cell>DOC-002</ui5-table-cell>
+          <ui5-table-cell><a class="cell-link">v3.0</a></ui5-table-cell>
+          <ui5-table-cell><ui5-tag design="Set3" color-scheme="8">In Review</ui5-tag></ui5-table-cell>
+          <ui5-table-cell>540 KB</ui5-table-cell>
+          <ui5-table-cell>
+            <div>Maria Garcia</div>
+            <div style="font-size:0.75rem;color:var(--sapContent_LabelColor,#6a7588);">04/09/2024</div>
+          </ui5-table-cell>
+          <ui5-table-cell><ui5-button design="Transparent" icon="decline" tooltip="Remove" onclick="ustRemoveRow(this)"></ui5-button></ui5-table-cell>
+        </ui5-table-row>
+
+        <ui5-table-row interactive data-id="3">
+          <ui5-table-cell style="padding-inline-start:1rem;">
+            <div style="display:flex;align-items:center;gap:0.5rem;">
+              <ui5-icon name="excel-attachment" style="font-size:1.25rem;color:#2e7d32;flex-shrink:0;"></ui5-icon>
+              <div>
+                <a class="cell-link" style="color:var(--sapLinkColor,#0064d9);font-weight:600;">Budget_FY2024.xlsx</a>
+                <div style="font-size:0.75rem;color:var(--sapContent_LabelColor,#6a7588);">Budget</div>
+              </div>
+            </div>
+          </ui5-table-cell>
+          <ui5-table-cell>DOC-003</ui5-table-cell>
+          <ui5-table-cell><a class="cell-link">v2.1</a></ui5-table-cell>
+          <ui5-table-cell><ui5-tag design="Set3" color-scheme="7">Complete</ui5-tag></ui5-table-cell>
+          <ui5-table-cell>1.1 MB</ui5-table-cell>
+          <ui5-table-cell>
+            <div>Tom Lee</div>
+            <div style="font-size:0.75rem;color:var(--sapContent_LabelColor,#6a7588);">04/08/2024</div>
+          </ui5-table-cell>
+          <ui5-table-cell><ui5-button design="Transparent" icon="decline" tooltip="Remove" onclick="ustRemoveRow(this)"></ui5-button></ui5-table-cell>
+        </ui5-table-row>
+
+        <ui5-table-row interactive data-id="4">
+          <ui5-table-cell style="padding-inline-start:1rem;">
+            <div style="display:flex;align-items:center;gap:0.5rem;">
+              <ui5-icon name="picture" style="font-size:1.25rem;color:#6a1b9a;flex-shrink:0;"></ui5-icon>
+              <div>
+                <a class="cell-link" style="color:var(--sapLinkColor,#0064d9);font-weight:600;">product_image.png</a>
+                <div style="font-size:0.75rem;color:var(--sapContent_LabelColor,#6a7588);">Marketing Asset</div>
+              </div>
+            </div>
+          </ui5-table-cell>
+          <ui5-table-cell>DOC-004</ui5-table-cell>
+          <ui5-table-cell><a class="cell-link">v1.0</a></ui5-table-cell>
+          <ui5-table-cell><ui5-tag design="Set3" color-scheme="5">Uploading</ui5-tag></ui5-table-cell>
+          <ui5-table-cell>3.8 MB</ui5-table-cell>
+          <ui5-table-cell>
+            <div>Anna Brown</div>
+            <div style="font-size:0.75rem;color:var(--sapContent_LabelColor,#6a7588);">04/07/2024</div>
+          </ui5-table-cell>
+          <ui5-table-cell><ui5-button design="Transparent" icon="decline" tooltip="Remove" onclick="ustRemoveRow(this)"></ui5-button></ui5-table-cell>
+        </ui5-table-row>
+
+        <ui5-table-row interactive data-id="5">
+          <ui5-table-cell style="padding-inline-start:1rem;">
+            <div style="display:flex;align-items:center;gap:0.5rem;">
+              <ui5-icon name="attachment" style="font-size:1.25rem;color:var(--sapContent_LabelColor,#6a7588);flex-shrink:0;"></ui5-icon>
+              <div>
+                <a class="cell-link" style="color:var(--sapLinkColor,#0064d9);font-weight:600;">https://sap.com/docs/overview</a>
+                <div style="font-size:0.75rem;color:var(--sapContent_LabelColor,#6a7588);">URL Reference</div>
+              </div>
+            </div>
+          </ui5-table-cell>
+          <ui5-table-cell>DOC-005</ui5-table-cell>
+          <ui5-table-cell>—</ui5-table-cell>
+          <ui5-table-cell><ui5-tag design="Set3" color-scheme="2">URL</ui5-tag></ui5-table-cell>
+          <ui5-table-cell>—</ui5-table-cell>
+          <ui5-table-cell>
+            <div>James Wilson</div>
+            <div style="font-size:0.75rem;color:var(--sapContent_LabelColor,#6a7588);">04/06/2024</div>
+          </ui5-table-cell>
+          <ui5-table-cell><ui5-button design="Transparent" icon="decline" tooltip="Remove" onclick="ustRemoveRow(this)"></ui5-button></ui5-table-cell>
+        </ui5-table-row>
+
+      </ui5-table>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('ust-upload-btn').addEventListener('click', function() { document.getElementById('ust-file-input').click(); });
+    function ustUpdateTitle() {
+      var count = document.querySelectorAll('#ust-table ui5-table-row').length;
+      document.getElementById('ust-title').textContent = 'Documents (' + count + ')';
+    }
+    function ustRemoveRow(btn) {
+      btn.closest('ui5-table-row').remove();
+      ustUpdateTitle();
+    }
+    function ustAddFiles(files) {
+      var table = document.getElementById('ust-table');
+      var iconMap = {pdf:'pdf-attachment',doc:'doc-attachment',docx:'doc-attachment',xlsx:'excel-attachment',png:'picture',jpg:'picture'};
+      var colorMap = {pdf:'#e53935',doc:'#1565c0',docx:'#1565c0',xlsx:'#2e7d32',png:'#6a1b9a',jpg:'#6a1b9a'};
+      var count = table.querySelectorAll('ui5-table-row').length;
+      Array.from(files).forEach(function(f) {
+        count++;
+        var ext = f.name.split('.').pop().toLowerCase();
+        var icon = iconMap[ext] || 'attachment';
+        var color = colorMap[ext] || 'var(--sapContent_LabelColor,#6a7588)';
+        var size = f.size > 1048576 ? (f.size/1048576).toFixed(1)+' MB' : (f.size/1024).toFixed(0)+' KB';
+        var row = document.createElement('ui5-table-row');
+        row.setAttribute('interactive', '');
+        row.innerHTML =
+          '<ui5-table-cell style="padding-inline-start:1rem;">' +
+            '<div style="display:flex;align-items:center;gap:0.5rem;">' +
+              '<ui5-icon name="' + icon + '" style="font-size:1.25rem;color:' + color + ';flex-shrink:0;"></ui5-icon>' +
+              '<a class="cell-link" style="color:var(--sapLinkColor,#0064d9);font-weight:600;">' + f.name + '</a>' +
+            '</div>' +
+          '</ui5-table-cell>' +
+          '<ui5-table-cell>DOC-00' + count + '</ui5-table-cell>' +
+          '<ui5-table-cell><a class="cell-link">v1.0</a></ui5-table-cell>' +
+          '<ui5-table-cell><ui5-tag design="Set3" color-scheme="8">Ready</ui5-tag></ui5-table-cell>' +
+          '<ui5-table-cell>' + size + '</ui5-table-cell>' +
+          '<ui5-table-cell><div>You</div><div style="font-size:0.75rem;color:var(--sapContent_LabelColor,#6a7588);">Today</div></ui5-table-cell>' +
+          '<ui5-table-cell><ui5-button design="Transparent" icon="decline" tooltip="Remove" onclick="ustRemoveRow(this)"></ui5-button></ui5-table-cell>';
+        table.appendChild(row);
+      });
+      ustUpdateTitle();
+      document.getElementById('ust-file-input').value = '';
+    }
+    document.getElementById('ust-search').addEventListener('input', function(e) {
+      var q = (e.target.value || '').toLowerCase();
+      document.querySelectorAll('#ust-table ui5-table-row').forEach(function(row) {
+        var name = row.querySelector('a.cell-link');
+        row.style.display = (!q || (name && name.textContent.toLowerCase().includes(q))) ? '' : 'none';
+      });
+    });
+  </script>
+</body>
+</html>

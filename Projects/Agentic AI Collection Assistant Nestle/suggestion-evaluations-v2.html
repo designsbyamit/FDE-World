@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Suggestion Evaluations V2 — Collection Assistant</title>
+  <link rel="icon" href="../../lib/assets/favicon.ico">
+
+  <script data-ui5-config type="application/json">
+    { "theme": "sap_horizon" }
+  </script>
+  <script type="module" src="../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <script src="../../lib/shared/shellbar.js"></script>
+
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 600; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 300; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Light.woff2") format("woff2"); }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { font-family: "72", sans-serif; background: var(--sapBackgroundColor, #f5f6f7); color: var(--sapTextColor, #131e29); min-height: 100vh; }
+
+    /* ── Page header ── */
+    .page-header {
+      padding: 1rem 2rem 0;
+      background: var(--sapBaseColor, #fff);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      position: sticky; top: 44px; z-index: 50;
+    }
+    .page-header-top { padding-bottom: 0.875rem; }
+    .page-title { font-size: 1.5rem; font-weight: 700; color: var(--sapTextColor); }
+    .page-subtitle { font-size: 0.8125rem; color: var(--sapContent_LabelColor); margin-top: 0.2rem; }
+
+    /* ── Tabs ── */
+    .tab-bar {
+      display: flex; gap: 0; border-top: 1px solid var(--sapList_BorderColor, #e5e5e5); margin-top: 0.75rem;
+    }
+    .tab-btn {
+      padding: 0.625rem 1.375rem; font-family: "72", sans-serif; font-size: 0.9375rem;
+      font-weight: 600; color: var(--sapContent_LabelColor); background: none; border: none;
+      cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -1px;
+      transition: color 0.15s, border-color 0.15s; white-space: nowrap;
+    }
+    .tab-btn:hover { color: var(--sapTextColor); }
+    .tab-btn.active { color: var(--sapBrandColor, #0070f2); border-bottom-color: var(--sapBrandColor, #0070f2); }
+
+    /* ── Content ── */
+    .page-content { padding: 1.75rem 2rem 3rem; max-width: 1100px; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ── KPI strip ── */
+    .kpi-strip { display: flex; gap: 1rem; margin-bottom: 1.75rem; flex-wrap: wrap; }
+    .kpi-tile { background: #fff; border: 1px solid var(--sapList_BorderColor); border-radius: 0.75rem; padding: 1rem 1.375rem; flex: 1; min-width: 150px; display: flex; flex-direction: column; justify-content: space-between; }
+    .kpi-tile-label { font-size: 0.75rem; color: var(--sapContent_LabelColor); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.375rem; min-height: 2.25rem; display: flex; align-items: flex-start; }
+    .kpi-tile-value { font-size: 1.75rem; font-weight: 700; color: var(--sapTextColor); line-height: 1.1; }
+    .kpi-tile-sub { font-size: 0.8125rem; color: var(--sapContent_LabelColor); margin-top: 0.25rem; }
+    .kpi-tile-value.positive { color: var(--sapPositiveColor, #107e3e); }
+    .kpi-tile-value.critical  { color: var(--sapCriticalColor, #e9730c); }
+
+    /* ── Legend ── */
+    .legend {
+      display: flex; flex-wrap: wrap; gap: 1.25rem; margin-bottom: 1.5rem;
+      padding: 0.875rem 1.125rem; background: #fff;
+      border: 1px solid var(--sapList_BorderColor); border-radius: 0.75rem; align-items: center;
+    }
+    .legend-item { display: flex; align-items: center; gap: 0.4rem; font-size: 0.8125rem; color: var(--sapTextColor); }
+    .legend-item .desc { color: var(--sapContent_LabelColor); font-size: 0.75rem; }
+
+    /* ── Section label ── */
+    .section-label {
+      font-size: 0.8125rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+      color: var(--sapContent_LabelColor); margin-bottom: 0.75rem; padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--sapList_BorderColor);
+    }
+
+    /* ── Suggestion view: cards ── */
+    .card-grid { display: flex; flex-direction: column; gap: 1rem; }
+    .sug-card { background: #fff; border: 1px solid var(--sapList_BorderColor); border-radius: 0.75rem; padding: 1.125rem 1.375rem 1.25rem; }
+    .sug-card-header { display: flex; align-items: center; gap: 0.875rem; margin-bottom: 1.125rem; }
+    .sug-pill {
+      display: inline-flex; align-items: flex-start; gap: 0.5rem;
+      font-size: 0.875rem; color: var(--sapTextColor); background: #e8f0fb;
+      border-radius: 20px; padding: 0.5rem 1rem; line-height: 1.4; flex: 1;
+    }
+    .sug-pill svg { flex-shrink: 0; margin-top: 2px; }
+    .sug-pill-text { display: flex; flex-direction: column; gap: 0.125rem; }
+    .sug-pill-strategy { font-weight: 700; color: var(--sapTextColor); }
+    .sug-pill-example { font-weight: 400; color: var(--sapTextColor); }
+    .sug-meta-col { display: flex; flex-direction: column; align-items: flex-end; gap: 0.375rem; flex-shrink: 0; padding-left: 1rem; }
+    .sug-total { font-size: 0.8125rem; color: var(--sapContent_LabelColor); white-space: nowrap; }
+    .sug-total strong { font-size: 1.125rem; font-weight: 700; color: var(--sapTextColor); }
+
+    /* ── Outcome bars (shared) ── */
+    .outcome-row { display: grid; grid-template-columns: 280px 1fr 76px; align-items: center; gap: 0.875rem; margin-bottom: 0.5rem; }
+    .outcome-row:last-child { margin-bottom: 0; }
+    .outcome-label { font-size: 0.8125rem; font-weight: 600; color: var(--sapTextColor); line-height: 1.35; }
+    .outcome-label .sub { font-size: 0.75rem; font-weight: 400; color: var(--sapContent_LabelColor); display: block; margin-top: 1px;  }
+    .bar-track { height: 10px; background: var(--sapList_BorderColor, #e5e5e5); border-radius: 5px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 5px; }
+    .bar-fill.s1 { background: var(--sapPositiveColor, #107e3e); }
+    .bar-fill.s2 { background: #bb0000; }
+    .bar-fill.s3 { background: #1d4ed8; }
+    .bar-fill.s4 { background: #b0bac5; }
+    .outcome-count { font-size: 0.875rem; font-weight: 700; color: var(--sapTextColor); text-align: right; white-space: nowrap; }
+    .outcome-count .pct { font-size: 0.75rem; font-weight: 400; color: var(--sapContent_LabelColor); margin-left: 0.25rem; }
+    .outcome-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 0.4rem; flex-shrink: 0; }
+    .d1 { background: var(--sapPositiveColor, #107e3e); }
+    .d2 { background: #bb0000; }
+    .d3 { background: #1d4ed8; }
+    .d4 { background: #b0bac5; }
+
+    /* ── Effectiveness badge ── */
+    .eff-badge { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.25rem 0.625rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; white-space: nowrap; }
+    .eff-badge.high   { background: #e4f5ec; color: #107e3e; }
+    .eff-badge.medium { background: #fff3cd; color: #8a6000; }
+    .eff-badge.low    { background: #fde8e8; color: #9e0000; }
+
+    /* ── Collector view ── */
+    .collector-grid { display: flex; flex-direction: column; gap: 1.25rem; }
+
+    .collector-card {
+      background: #fff; border: 1px solid var(--sapList_BorderColor); border-radius: 0.75rem;
+      overflow: hidden;
+    }
+    .collector-card-header {
+      display: flex; align-items: center; gap: 1rem;
+      padding: 1rem 1.375rem; cursor: pointer; user-select: none;
+      border-bottom: 1px solid transparent; transition: border-color 0.15s;
+    }
+    .collector-card.expanded .collector-card-header { border-bottom-color: var(--sapList_BorderColor); }
+
+    .collector-avatar {
+      width: 40px; height: 40px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.875rem; font-weight: 700; color: #fff; flex-shrink: 0;
+    }
+    .collector-name { font-size: 0.9375rem; font-weight: 700; color: var(--sapTextColor); }
+    .collector-role { font-size: 0.8125rem; color: var(--sapContent_LabelColor); margin-top: 1px; }
+    .collector-stats-inline { font-size: 0.75rem; color: var(--sapContent_LabelColor); text-align: right; white-space: nowrap; }
+    .collector-stats-inline strong { color: var(--sapTextColor); font-weight: 600; }
+
+    .collector-summary-pills {
+      display: flex; gap: 0.5rem; margin-left: auto; flex-wrap: wrap; justify-content: flex-end;
+    }
+    .cpill {
+      display: inline-flex; align-items: center; gap: 0.35rem;
+      font-size: 0.75rem; font-weight: 600; padding: 0.25rem 0.625rem;
+      border-radius: 20px; white-space: nowrap;
+    }
+    .cpill.s1 { background: #e4f5ec; color: #107e3e; }
+    .cpill.s2 { background: #fde8e8; color: #9e0000; }
+    .cpill.s3 { background: #e8f0fb; color: #1d4ed8; }
+    .cpill.s4 { background: #f0f2f5; color: #556b82; }
+
+    .collector-chevron { color: var(--sapContent_LabelColor); flex-shrink: 0; transition: transform 0.2s; }
+    .collector-card.expanded .collector-chevron { transform: rotate(180deg); }
+
+    .collector-card-body { display: none; padding: 1.125rem 1.375rem 1.25rem; }
+    .collector-card.expanded .collector-card-body { display: block; }
+
+    /* ── Bar outcomes for collector view ── */
+    .collector-total-row { font-size: 0.8125rem; color: var(--sapContent_LabelColor); margin-bottom: 1.125rem; }
+    .collector-total-row strong { color: var(--sapTextColor); }
+
+    .coll-outcome-row {
+      display: grid;
+      grid-template-columns: 280px 1fr 90px;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 0.75rem;
+    }
+    .coll-outcome-row:last-child { margin-bottom: 0; }
+
+    .coll-outcome-label { font-size: 0.8125rem; font-weight: 600; color: var(--sapTextColor); line-height: 1.35; }
+    .coll-outcome-label .sub { font-size: 0.75rem; font-weight: 400; color: var(--sapContent_LabelColor); display: block; margin-top: 2px;  }
+    .coll-outcome-label .sub { font-size: 0.75rem; color: var(--sapContent_LabelColor); display: block; margin-top: 2px;  }
+
+    .coll-bar-track { height: 12px; background: var(--sapList_BorderColor, #e5e5e5); border-radius: 6px; overflow: hidden; }
+    .coll-bar-fill { height: 100%; border-radius: 6px; }
+    .coll-bar-fill.s1 { background: var(--sapPositiveColor, #107e3e); }
+    .coll-bar-fill.s2 { background: #bb0000; }
+    .coll-bar-fill.s3 { background: #1d4ed8; }
+    .coll-bar-fill.s4 { background: #b0bac5; }
+
+    .coll-outcome-count { font-size: 0.9375rem; font-weight: 700; color: var(--sapTextColor); text-align: right; white-space: nowrap; }
+    .coll-outcome-count .pct { font-size: 0.8125rem; font-weight: 400; color: var(--sapContent_LabelColor); margin-left: 0.3rem; }
+  </style>
+</head>
+<body>
+
+  <app-shellbar title="Collection Assistant" avatar-initials="JL" hide-product-switch base-path="../../" style="position:sticky;top:0;z-index:100;"></app-shellbar>
+
+  <div class="page-header">
+    <div class="page-header-top">
+      <div class="page-title">Suggestion Evaluations</div>
+      <div class="page-subtitle">Report generated: Aug 26, 2026 &nbsp;·&nbsp; Rolling 90 days</div>
+    </div>
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="switchTab('suggestions', this)">By Suggestion Type</button>
+      <button class="tab-btn" onclick="switchTab('collectors', this)">By Collectors</button>
+    </div>
+  </div>
+
+  <div class="page-content">
+
+    <!-- ══ TAB: By Suggestion ══ -->
+    <div class="tab-panel active" id="panel-suggestions">
+
+      <div class="kpi-strip">
+        <div class="kpi-tile">
+          <div class="kpi-tile-label">Total Suggestions Made</div>
+          <div class="kpi-tile-value">1,284</div>
+          <div class="kpi-tile-sub">Across 9 insight types</div>
+        </div>
+        <div class="kpi-tile">
+          <div class="kpi-tile-label">Took suggestion → got paid</div>
+          <div class="kpi-tile-value positive">633</div>
+          <div class="kpi-tile-sub">49% of all suggestions</div>
+        </div>
+        <div class="kpi-tile">
+          <div class="kpi-tile-label">Took suggestion → did not get paid</div>
+          <div class="kpi-tile-value" style="color:#bb0000">252</div>
+          <div class="kpi-tile-sub">20% of all suggestions</div>
+        </div>
+        <div class="kpi-tile">
+          <div class="kpi-tile-label">Ignored suggestion → own approach → got paid</div>
+          <div class="kpi-tile-value" style="color:#1d4ed8">233</div>
+          <div class="kpi-tile-sub">18% of all suggestions</div>
+        </div>
+        <div class="kpi-tile">
+          <div class="kpi-tile-label">Ignored suggestion → own approach → did not get paid</div>
+          <div class="kpi-tile-value critical">166</div>
+          <div class="kpi-tile-sub">13% of all suggestions</div>
+        </div>
+      </div>
+
+      
+      <div class="card-grid" id="sugCardGrid"></div>
+    </div>
+
+    <!-- ══ TAB: By Collector ══ -->
+    <div class="tab-panel" id="panel-collectors">
+
+      <div class="kpi-strip">
+        <div class="kpi-tile">
+          <div class="kpi-tile-label">Collectors Tracked</div>
+          <div class="kpi-tile-value">10</div>
+          <div class="kpi-tile-sub">Collection specialists</div>
+        </div>
+        <div class="kpi-tile">
+          <div class="kpi-tile-label">Total Suggestions</div>
+          <div class="kpi-tile-value" id="kpi-coll-total">—</div>
+          <div class="kpi-tile-sub">Across all collectors</div>
+        </div>
+        <div class="kpi-tile">
+          <div class="kpi-tile-label">Avg Follow-Through</div>
+          <div class="kpi-tile-value positive" id="kpi-coll-followthrough">—</div>
+          <div class="kpi-tile-sub">Suggestions acted on</div>
+        </div>
+        <div class="kpi-tile">
+          <div class="kpi-tile-label">Avg Payment Rate</div>
+          <div class="kpi-tile-value positive" id="kpi-coll-payrate">—</div>
+          <div class="kpi-tile-sub">Suggestions that led to payment</div>
+        </div>
+      </div>
+
+      
+      <div class="collector-grid" id="collectorGrid"></div>
+    </div>
+
+  </div>
+
+  <script>
+    var SPARKLE = '<svg width="13" height="13" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.77386 5.51772C5.00416 4.82742 5.99565 4.82746 6.22601 5.51772C7.03711 7.8988 8.09862 8.9593 10.4819 9.76967C11.1728 10.0098 11.1728 11.0005 10.4819 11.2306C8.09867 12.041 7.0371 13.1015 6.22601 15.4826C5.99555 16.1726 5.00425 16.1726 4.77386 15.4826C3.96275 13.1015 2.90125 12.041 0.517998 11.2306C-0.172689 10.9904 -0.172643 9.99991 0.517998 9.76967C2.90124 8.9593 3.96275 7.89878 4.77386 5.51772ZM12.6049 0.284318C12.735 -0.0948015 13.2648 -0.0947441 13.395 0.284318C13.835 1.58216 14.4153 2.16146 15.7153 2.60072C16.095 2.7306 16.0951 3.26972 15.7153 3.39955C14.4153 3.83882 13.835 4.41812 13.395 5.71596C13.2647 6.09477 12.7351 6.09482 12.6049 5.71596C12.1649 4.41812 11.5846 3.83882 10.2846 3.39955C9.90511 3.2696 9.90515 2.73073 10.2846 2.60072C11.5846 2.16146 12.1649 1.58216 12.6049 0.284318Z" fill="#0064d9"/></svg>';
+
+    // ── Suggestion data ──────────────────────────────────────────────────────
+    var SUGGESTIONS = [
+      { strategy: 'Early morning email outreach',      text: 'Customer paid same day on 4 of the last 5 occasions when emailed before 9:00 AM.', suggested: 187, s1: 112, s2: 21, s3: 33, s4: 21 },
+      { strategy: 'Proactive pre-due-date contact',    text: 'Pre-due-date outreach prevented late payment in both prior cycles for this account.', suggested: 164, s1: 98, s2: 18, s3: 29, s4: 19 },
+      { strategy: 'Issue firm written deadline',       text: 'Customer settled within 2 days on every occasion a firm written deadline was issued.', suggested: 152, s1: 87, s2: 24, s3: 22, s4: 19 },
+      { strategy: 'Manager-level escalation',          text: 'The last two manager-level contacts on this account resulted in payment within 4 days.', suggested: 138, s1: 61, s2: 31, s3: 24, s4: 22 },
+      { strategy: 'Credit-level escalation',           text: 'Both prior escalations at this credit level triggered partial payment within 3 days.', suggested: 121, s1: 52, s2: 33, s3: 21, s4: 15 },
+      { strategy: 'Direct phone call',                 text: 'Customer paid within 2 days of a direct call in 3 of the last 4 payment cycles.', suggested: 176, s1: 104, s2: 19, s3: 31, s4: 22 },
+      { strategy: 'Act before day 65 threshold',       text: 'In 3 prior instances, acting before day 65 prevented this account entering legal review.', suggested: 98, s1: 38, s2: 27, s3: 20, s4: 13 },
+      { strategy: 'Same-day invoice copy resolution',  text: 'Invoice copy requests resolved same day have led to payment within 3 days, 3 times in a row.', suggested: 143, s1: 47, s2: 41, s3: 31, s4: 24 },
+      { strategy: 'Obtain firm written commitment',    text: 'Payment promise was broken twice before — a firm written commitment with a due date is recommended.', suggested: 105, s1: 34, s2: 38, s3: 22, s4: 11 }
+    ];
+
+    // ── Collector data ───────────────────────────────────────────────────────
+    var AVATAR_COLORS = ['#1d4ed8','#107e3e','#9e3e00','#6b21a8','#0e7490','#9e0000','#166534','#1e40af','#7c2d12','#374151'];
+
+    var COLLECTORS = [
+      { name: 'Jordan Lee',     initials: 'JL', role: 'Senior Collection Specialist',  total: 148, s1: 89, s2: 14, s3: 28, s4: 17 },
+      { name: 'Sarah Mitchell', initials: 'SM', role: 'Collection Specialist',          total: 134, s1: 72, s2: 21, s3: 18, s4: 23 },
+      { name: 'Ben Whitmore',   initials: 'BW', role: 'Collection Specialist',          total: 121, s1: 61, s2: 19, s3: 22, s4: 19 },
+      { name: 'Laura Hennessy', initials: 'LH', role: 'Collection Specialist',          total: 139, s1: 53, s2: 31, s3: 36, s4: 19 },
+      { name: 'Mark Purdy',     initials: 'MP', role: 'Collection Specialist',          total: 112, s1: 44, s2: 28, s3: 24, s4: 16 },
+      { name: 'Priya Nair',     initials: 'PN', role: 'Senior Collection Specialist',   total: 157, s1: 98, s2: 11, s3: 29, s4: 19 },
+      { name: 'Greg Tanner',    initials: 'GT', role: 'Collection Specialist',          total: 118, s1: 38, s2: 41, s3: 21, s4: 18 },
+      { name: 'Claire Donovan', initials: 'CD', role: 'Collection Specialist',          total: 103, s1: 29, s2: 18, s3: 31, s4: 25 },
+      { name: 'Kevin Oduya',    initials: 'KO', role: 'Senior Collection Specialist',   total: 142, s1: 87, s2: 16, s3: 24, s4: 15 },
+      { name: 'Dan Kowalski',   initials: 'DK', role: 'Collection Specialist',          total: 110, s1: 41, s2: 33, s3: 22, s4: 14 }
+    ];
+
+    // ── Tab switching ────────────────────────────────────────────────────────
+    function switchTab(id, btn) {
+      document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+      document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+      btn.classList.add('active');
+      document.getElementById('panel-' + id).classList.add('active');
+    }
+
+    // ── Helpers ──────────────────────────────────────────────────────────────
+    function pct(n, d) { return d > 0 ? Math.round(n / d * 100) : 0; }
+    function pctStr(n, d) { return pct(n, d) + '%'; }
+
+    function bar(count, total, cls) {
+      var w = pct(count, total);
+      return '<div class="bar-track"><div class="bar-fill ' + cls + '" style="width:' + w + '%"></div></div>';
+    }
+
+    function effBadge(s1, total) {
+      var taken = s1;
+      var p = pct(taken, total);
+      if (p >= 55) return '<span class="eff-badge high">' + SPARKLE + ' High effectiveness</span>';
+      if (p >= 35) return '<span class="eff-badge medium">' + SPARKLE.replace('#0064d9','#8a6000') + ' Medium effectiveness</span>';
+      return '<span class="eff-badge low">' + SPARKLE.replace('#0064d9','#9e0000') + ' Low effectiveness</span>';
+    }
+
+    // ── Render: suggestion tab ───────────────────────────────────────────────
+    function renderSuggestions() {
+      var grid = document.getElementById('sugCardGrid');
+      var html = '';
+      SUGGESTIONS.forEach(function(s) {
+        html += '<div class="sug-card">';
+        html += '<div class="sug-card-header">';
+        html += '<span class="sug-pill">' + SPARKLE + '<span class="sug-pill-text"><span class="sug-pill-strategy">Strategy: ' + s.strategy + '</span><span class="sug-pill-example">Example: ' + s.text + '</span></span></span>';
+        html += '<div class="sug-meta-col">';
+        html += '<div class="sug-total">Suggested <strong>' + s.suggested + '</strong> times</div>';
+        
+        html += '</div></div>';
+
+        var rows = [
+          { label: 'Took suggestion → got paid',       sub: 'Human followed the AI insight; customer got paid',              count: s.s1, cls: 's1', dot: 'd1' },
+          { label: 'Took suggestion → did not get paid',        sub: 'Human followed the AI insight; customer did not get paid',       count: s.s2, cls: 's2', dot: 'd2' },
+          { label: 'Ignored suggestion → own approach → got paid',    sub: 'Human overrode insight, acted differently; customer got paid',  count: s.s3, cls: 's3', dot: 'd3' },
+          { label: 'Ignored suggestion → own approach → did not get paid', sub: 'Human overrode insight, acted differently; customer did not get paid',    count: s.s4, cls: 's4', dot: 'd4' }
+        ];
+        rows.forEach(function(r) {
+          html += '<div class="outcome-row">';
+          html += '<div class="outcome-label">' + r.label + '<span class="sub">' + r.sub + '</span></div>';
+          html += bar(r.count, s.suggested, r.cls);
+          html += '<div class="outcome-count">' + r.count + '<span class="pct">/ ' + pctStr(r.count, s.suggested) + '</span></div>';
+          html += '</div>';
+        });
+        html += '</div>';
+      });
+      grid.innerHTML = html;
+    }
+
+    // ── Render: collector tab ────────────────────────────────────────────────
+    function renderCollectors() {
+      var grid = document.getElementById('collectorGrid');
+      var html = '';
+
+      // Compute KPIs
+      var bestAlign = COLLECTORS[0], bestPay = COLLECTORS[0], coachingCount = 0;
+      COLLECTORS.forEach(function(c) {
+        var alignRate = pct(c.s1 + c.s2, c.total);
+        var payRate   = pct(c.s1 + c.s3, c.total);
+        var ignoreRate = pct(c.s3 + c.s4, c.total);
+        var payRateBest = pct(bestPay.s1 + bestPay.s3, bestPay.total);
+        var alignRateBest = pct(bestAlign.s1 + bestAlign.s2, bestAlign.total);
+        if (alignRate > alignRateBest) bestAlign = c;
+        if (payRate > payRateBest) bestPay = c;
+        if (ignoreRate > 40 && pct(c.s1 + c.s3, c.total) < 50) coachingCount++;
+      });
+      var totalSugg = 0, totalTaken = 0, totalPaid = 0;
+      COLLECTORS.forEach(function(c) {
+        totalSugg  += c.total;
+        totalTaken += c.s1 + c.s2;
+        totalPaid  += c.s1 + c.s3;
+      });
+      document.getElementById('kpi-coll-total').textContent = totalSugg.toLocaleString();
+      document.getElementById('kpi-coll-followthrough').textContent = pct(totalTaken, totalSugg) + '%';
+      document.getElementById('kpi-coll-payrate').textContent = pct(totalPaid, totalSugg) + '%';
+
+      COLLECTORS.forEach(function(c, i) {
+        var taken    = c.s1 + c.s2;
+        var ignored  = c.s3 + c.s4;
+        var payTotal = c.s1 + c.s3;
+
+        var alignPct = pct(taken, c.total);
+        var payPct   = pct(payTotal, c.total);
+
+        html += '<div class="collector-card" id="cc-' + i + '">';
+
+        // Header
+        html += '<div class="collector-card-header" onclick="toggleCollector(' + i + ')">';
+        html += '<div class="collector-avatar" style="background:' + AVATAR_COLORS[i] + '">' + c.initials + '</div>';
+        html += '<div><div class="collector-name">' + c.name + '</div><div class="collector-role">' + c.role + '</div></div>';
+        html += '<div class="collector-summary-pills">';
+        html += '</div>';
+        html += '<div class="collector-stats-inline"><strong>' + c.total + '</strong> suggestions &nbsp;·&nbsp; <strong>' + alignPct + '%</strong> follow-through &nbsp;·&nbsp; <strong>' + payPct + '%</strong> payment rate</div>';
+        html += '<svg class="collector-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+        html += '</div>';
+
+        // Body
+        html += '<div class="collector-card-body">';
+
+        var rows = [
+          { label: 'Took suggestion → got paid',       sub: 'Followed the AI insight; collection was successful',        count: c.s1, cls: 's1', dot: 'd1' },
+          { label: 'Took suggestion → did not get paid',        sub: 'Followed the AI insight; collection was unsuccessful',      count: c.s2, cls: 's2', dot: 'd2' },
+          { label: 'Ignored suggestion → own approach → got paid',    sub: 'Used own judgement instead; collection was successful',     count: c.s3, cls: 's3', dot: 'd3' },
+          { label: 'Ignored suggestion → own approach → did not get paid', sub: 'Used own judgement instead; collection was unsuccessful',   count: c.s4, cls: 's4', dot: 'd4' }
+        ];
+        rows.forEach(function(r) {
+          var w = pct(r.count, c.total);
+          html += '<div class="coll-outcome-row">';
+          html += '<div class="coll-outcome-label">' + r.label + '<span class="sub">' + r.sub + '</span></div>';
+          html += '<div class="coll-bar-track"><div class="coll-bar-fill ' + r.cls + '" style="width:' + w + '%"></div></div>';
+          html += '<div class="coll-outcome-count">' + r.count + '<span class="pct">/ ' + w + '%</span></div>';
+          html += '</div>';
+        });
+
+        html += '</div>'; // body
+        html += '</div>'; // card
+      });
+
+      grid.innerHTML = html;
+    }
+
+    function scrollToCollector(i) {
+      var card = document.getElementById('cc-' + i);
+      if (!card) return;
+      if (!card.classList.contains('expanded')) card.classList.add('expanded');
+      setTimeout(function() {
+        card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 50);
+    }
+
+    function toggleCollector(i) {
+      var card = document.getElementById('cc-' + i);
+      card.classList.toggle('expanded');
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      renderSuggestions();
+      renderCollectors();
+    });
+
+    setTimeout(function() {
+      var sb = document.querySelector('app-shellbar ui5-shellbar') || document.querySelector('ui5-shellbar');
+      if (!sb) return;
+      sb.addEventListener('profile-click', function() {});
+    }, 400);
+  </script>
+
+</body>
+</html>

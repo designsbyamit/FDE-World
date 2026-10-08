@@ -1,0 +1,2725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Collection Assistant</title>
+  <link rel="icon" href="../../lib/assets/favicon.ico">
+
+  <script data-ui5-config type="application/json">
+    { "theme": "sap_horizon" }
+  </script>
+  <script type="module" src="../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <script src="../../lib/shared/shellbar.js"></script>
+
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 600; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 300; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Light.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 900; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Black.woff2") format("woff2"); }
+
+    ui5-button { --sapButton_FontFamily: "72", sans-serif; }
+    ui5-button::part(text) { font-family: "72", sans-serif; font-weight: 400; }
+
+    html, body {
+      margin: 0;
+      height: 100%;
+      font-family: "72", sans-serif;
+      background: var(--sapBackgroundColor);
+      color: var(--sapTextColor);
+    }
+
+    .app { display: flex; flex-direction: column; height: 100vh; }
+
+    /* ── Sub-header ── */
+    .sub-header {
+      background: var(--sapGroup_ContentBackground);
+      border-bottom: 1px solid var(--sapGroup_ContentBorderColor);
+      padding: 0.75rem 2rem 0.875rem;
+    }
+    .sub-header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 0.5rem;
+    }
+    .sub-header-meta {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      flex-wrap: wrap;
+      font-size: 0.875rem;
+      color: var(--sapTextColor);
+    }
+    .sub-header-meta-item {
+      display: flex;
+      align-items: center;
+      padding-right: 1rem;
+      margin-right: 1rem;
+      border-right: 1px solid var(--sapGroup_ContentBorderColor);
+    }
+    .sub-header-meta-item:last-child {
+      border-right: none;
+      padding-right: 0;
+      margin-right: 0;
+    }
+    .sub-header-meta-item .label { color: var(--sapContent_LabelColor); margin-right: 0.3rem; }
+    .sub-header-meta-item .value { font-weight: 700; }
+    .sub-header-meta-item a { color: var(--sapLinkColor, #0070f2); font-weight: 700; text-decoration: none; }
+    .sub-header-meta-item a:hover { text-decoration: underline; }
+    .sub-header-actions {
+      display: flex;
+      gap: 0.5rem;
+      padding-top: 0.4rem;
+      flex-shrink: 0;
+    }
+
+    /* ── Two-column body ── */
+    .body {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .col-main {
+      flex: 1;
+      min-width: 0;
+      overflow-y: auto;
+      padding: 1.5rem 2rem 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2.25rem;
+    }
+
+    .col-side {
+      width: 450px;
+      flex-shrink: 0;
+      border-left: 1px solid var(--sapGroup_ContentBorderColor);
+      background: var(--sapGroup_ContentBackground);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    #side-panel-history,
+    #side-panel-agent {
+      flex: 1;
+      overflow-y: auto;
+      padding-top: 14px;
+    }
+
+    /* ── AI loader ── */
+    .ai-body.loading {
+      min-height: 160px;
+      padding: 0;
+      position: relative;
+    }
+    .ai-loader {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .ai-loader-dot {
+      border-radius: 50%;
+      background: var(--sapInformativeColor, #0070f2);
+      animation: ai-dot-pulse 1.2s ease-in-out infinite;
+    }
+    .ai-loader-dot:nth-child(1) { width: 10px; height: 10px; animation-delay: 0s; }
+    .ai-loader-dot:nth-child(2) { width: 14px; height: 14px; animation-delay: 0.2s; }
+    .ai-loader-dot:nth-child(3) { width: 18px; height: 18px; animation-delay: 0.4s; }
+    @keyframes ai-dot-pulse {
+      0%, 60%, 100% { opacity: 0.3; transform: scale(0.85); }
+      30% { opacity: 1; transform: scale(1); }
+    }
+    .ai-body-content {
+      opacity: 0;
+      transition: opacity 0.6s ease;
+    }
+    .ai-body-content.visible { opacity: 1; }
+
+    /* ── AI Summary panel body ──*/
+    ui5-card-header::part(title) { font-size: 1rem; }
+    .ai-body {
+      padding: 0.75rem 1rem 1rem;
+    }
+    .ai-summary-text {
+      line-height: 1.6;
+      margin: 0 0 1rem 0;
+      font-size: 0.875rem;
+    }
+    .action-box p, .action-box ul, .action-box li {
+      font-size: 0.875rem;
+    }
+    .action-box {
+      background: var(--sapInformationBackground);
+      border-radius: var(--sapButton_BorderCornerRadius);
+      padding: 0.875rem 1rem;
+      margin-bottom: 0.75rem;
+    }
+    .action-box:last-child { margin-bottom: 0; }
+    #action-cards { display: flex; flex-direction: column; gap: 1rem; }
+    .action-box p { margin: 0 0 0.4rem; }
+    .action-box ul {
+      margin: 0.2rem 0 0.6rem 1.25rem;
+      padding: 0;
+      line-height: 1.7;
+    }
+    .action-box-footer {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+    .action-tip {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.8125rem;
+      color: var(--sapBrandColor, #0070f2);
+      margin: 0.5rem 0 0.25rem;
+    }
+    .action-tip-divider {
+      width: 1px;
+      height: 14px;
+      background: var(--sapList_BorderColor);
+      margin: 0 0.25rem;
+      flex-shrink: 0;
+    }
+    .email-preview-pop {
+      padding: 1rem 1.25rem;
+      width: 380px;
+      max-height: 480px;
+      overflow-y: auto;
+      font-family: '72', sans-serif;
+      font-size: 0.875rem;
+      color: var(--sapTextColor);
+    }
+    .email-preview-title {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+      color: var(--sapTextColor);
+    }
+    .email-preview-meta {
+      font-size: 0.75rem;
+      color: var(--sapContent_LabelColor);
+      margin-bottom: 0.125rem;
+    }
+    .email-preview-meta span {
+      color: var(--sapTextColor);
+      font-weight: 600;
+    }
+    .email-preview-divider {
+      border: none;
+      border-top: 1px solid var(--sapList_BorderColor);
+      margin: 0.75rem 0;
+    }
+    .email-preview-body {
+      font-size: 0.8125rem;
+      line-height: 1.6;
+      color: var(--sapTextColor);
+    }
+    .no-action-card {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--sapList_SelectionBackgroundColor);
+      border-radius: 0.5rem;
+      padding: 0 1rem;
+      height: 48px;
+      font-size: 0.875rem;
+      color: var(--sapTextColor);
+      margin-top: 0.5rem;
+    }
+    .no-action-card svg { flex-shrink: 0; }
+
+    /* ── Tab panels ── */
+
+    /* ── Notes slide-in panel ── */
+    #notesPanel {
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 660px;
+      background: var(--sapGroup_ContentBackground);
+      box-shadow: var(--sapContent_Shadow2);
+      display: flex;
+      flex-direction: column;
+      transform: translateX(100%);
+      transition: transform 0.5s ease;
+      z-index: 99;
+      border-left: 1px solid var(--sapGroup_ContentBorderColor);
+      border-top: 1px solid var(--sapGroup_ContentBorderColor);
+      border-radius: 12px 0 0 0;
+      visibility: hidden;
+    }
+    #notesPanel.open { transform: translateX(0); visibility: visible; }
+    #notesPanel .email-panel-body { padding-bottom: 18px; }
+    #callScriptPanel.open { transform: translateX(0); visibility: visible; }
+    #callScriptPanel {
+      position: fixed; top: 0; right: 0; bottom: 0; width: 660px;
+      background: var(--sapGroup_ContentBackground);
+      box-shadow: var(--sapContent_Shadow2);
+      display: flex; flex-direction: column;
+      transform: translateX(100%); transition: transform 0.5s ease;
+      z-index: 99;
+      border-left: 1px solid var(--sapGroup_ContentBorderColor);
+      border-top: 1px solid var(--sapGroup_ContentBorderColor);
+      border-radius: 12px 0 0 0;
+      visibility: hidden;
+    }
+
+    /* ── Email slide-in panel ── */
+    #emailPanel {
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 660px;
+      background: var(--sapGroup_ContentBackground);
+      box-shadow: var(--sapContent_Shadow2);
+      display: flex;
+      flex-direction: column;
+      transform: translateX(100%);
+      transition: transform 0.5s ease;
+      z-index: 99;
+      border-left: 1px solid var(--sapGroup_ContentBorderColor);
+      border-top: 1px solid var(--sapGroup_ContentBorderColor);
+      border-radius: 12px 0 0 0;
+      visibility: hidden;
+    }
+    #emailPanel.open { transform: translateX(0); visibility: visible; }
+    .email-panel-header {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--sapGroup_ContentBorderColor);
+      font-size: 1rem;
+      font-weight: 600;
+      font-family: "72", sans-serif;
+      color: var(--sapTextColor);
+      flex-shrink: 0;
+    }
+    .email-panel-body {
+      flex: 1;
+      min-height: 0;
+      padding: 1.25rem 1.5rem 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.875rem;
+      overflow: hidden;
+    }
+    .email-msg-wrap {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      padding-bottom: 10px;
+      gap: 0;
+    }
+    .email-msg-wrap ui5-textarea {
+      flex: 1;
+      min-height: 0;
+      --sapField_BorderCornerRadius: 0 0 0.25rem 0.25rem;
+    }
+    .email-att-section {
+      padding: 0 1.5rem 0.75rem;
+      flex-shrink: 0;
+    }
+    .email-form-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .email-form-label {
+      font-size: 0.875rem;
+      font-family: "72", sans-serif;
+      color: var(--sapContent_LabelColor);
+      width: 55px;
+      flex-shrink: 0;
+    }
+    .email-form-label .req { color: var(--sapNegativeColor); }
+    .email-divider { border: none; border-top: 1px solid var(--sapGroup_ContentBorderColor); margin: 0.25rem 0; }
+    .email-msg-label {
+      font-size: 0.875rem;
+      font-family: "72", sans-serif;
+      color: var(--sapContent_LabelColor);
+      margin-bottom: 6px;
+    }
+    .email-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 0.2rem;
+      padding: 2px;
+      background: var(--sapInformationBackground, #e8f4ff);
+      border: none;
+      border-radius: var(--sapField_BorderCornerRadius) var(--sapField_BorderCornerRadius) 0 0;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .email-toolbar-spacer { flex: 1; }
+    .email-tb-sep { width: 1px; height: 1.25rem; background: var(--sapContent_LabelColor); margin: 0 0.1rem; align-self: center; opacity: 0.5; }
+    .email-panel-body ui5-input,
+    .email-panel-body ui5-select,
+    .email-panel-body ui5-textarea { --sapFontFamily: "72", sans-serif; }
+    .email-att-label { font-size: 0.875rem; font-family: "72", sans-serif; color: var(--sapContent_LabelColor); }
+    .email-att-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+    .email-att-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.3rem 0; border-bottom: 1px solid var(--sapList_BorderColor);
+      font-size: 0.875rem; font-family: "72", sans-serif;
+    }
+    .email-att-item:last-child { border-bottom: none; }
+    .email-att-name { display: flex; align-items: center; gap: 0.4rem; color: var(--sapLinkColor); }
+    .email-panel-footer {
+      padding: 0.875rem 1.5rem;
+      border-top: 1px solid var(--sapGroup_ContentBorderColor);
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.5rem;
+      flex-shrink: 0;
+    }
+    .account-card {
+      background: var(--sapTile_Background);
+      box-shadow: var(--sapContent_Shadow0);
+      border-radius: var(--sapTile_BorderCornerRadius);
+    }
+    .account-card > ui5-tabcontainer {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: var(--sapTile_BorderCornerRadius) var(--sapTile_BorderCornerRadius) 0 0;
+      overflow: hidden;
+    }
+    .account-card > ui5-tabcontainer::part(content) { display: none; }
+    .col-side > ui5-tabcontainer::part(content) { display: none; }
+    .tab-panel-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.625rem 1rem;
+      border-bottom: 1px solid var(--sapGroup_ContentBorderColor);
+    }
+    .tab-panel-title { font-size: 1rem; font-weight: 600; color: var(--sapTextColor); }
+    .tab-panel-wrap { overflow-x: auto; padding-bottom: 8px; }
+    .tab-panel-wrap ui5-table { width: 100%; }
+    ui5-table-cell.nav-cell { text-align: center; }
+    .col-main > ui5-card, .col-main > * { max-width: 100%; }
+
+    /* ── KPI tiles grid ── */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      padding: 1rem;
+    }
+    .kpi-tile {
+      background: var(--sapGroup_ContentBackground);
+      border: 1px solid var(--sapGroup_ContentBorderColor);
+      border-radius: var(--sapTile_BorderCornerRadius, 1rem);
+      padding: 1rem 1.25rem 1.25rem;
+    }
+    .kpi-value {
+      font-size: 2rem;
+      font-weight: 300;
+      color: var(--sapTextColor);
+      line-height: 1.2;
+      margin-bottom: 0.375rem;
+    }
+    .kpi-value.neg { color: var(--sapNegativeColor); }
+    .kpi-scale {
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: var(--sapContent_LabelColor);
+      margin-left: 0.25rem;
+    }
+    .kpi-value.neg .kpi-scale { color: var(--sapNegativeColor); }
+    .history-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      padding-left: calc(1rem + 3px);
+      border-left: 1px solid #c5cdd5;
+      margin-left: calc(1.25rem + 4px);
+      padding-top: 12px;
+    }
+    .history-item {
+      display: flex;
+      gap: 0;
+      padding: 0 0.75rem 1.25rem 0;
+      position: relative;
+      opacity: 1;
+      transform: translateY(0);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .history-item.green-seg::before {
+      content: '';
+      position: absolute;
+      left: calc(-1rem - 4px);
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: #107e3e;
+      opacity: 0.5;
+      z-index: 1;
+    }
+      opacity: 0;
+      transform: translateY(-12px);
+    }
+    .history-item:last-child { border-bottom: none; }
+    .history-dot-col {
+      flex-shrink: 0;
+      width: 0;
+      position: relative;
+    }
+    .history-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #758CA4;
+      box-shadow: 0 0 0 4px #EAECEE, 0 0 0 5px #ffffff;
+      position: absolute;
+      top: 0.2rem;
+      left: calc(-1.25rem - 3px);
+    }
+    .thread-toggle-dot {
+      width: 20px;
+      height: 20px;
+      min-width: 20px;
+      border-radius: 50%;
+      background: #556b82;
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 700;
+      line-height: 20px;
+      text-align: center;
+      position: absolute;
+      top: 0;
+      left: calc(-1.25rem - 9px);
+      box-shadow: 0 0 0 3px #fff;
+      user-select: none;
+      transition: background 0.15s;
+    }
+    .thread-parent:hover .thread-toggle-dot { background: var(--sapBrandColor, #0070f2); }
+    .history-list.mode-all .thread-child.expanded-child::before,
+    .history-list.mode-all .thread-parent.expanded::before { display: none; }
+    .history-list.mode-all .thread-parent.expanded { background: none; }
+    .history-list.mode-all .thread-child { overflow: visible; }
+    .history-list.mode-all .thread-header-row { display: none; }
+    .history-list.mode-all .thread-parent { cursor: default; }
+    .thread-parent.expanded::before { content:''; position:absolute; inset:0; left:0; right:-0.75rem; background:#f2f2f2; z-index:0; border-radius: 6px 6px 0 0; }
+    .thread-parent > * { position: relative; z-index: 1; }
+    .thread-child { overflow: hidden; max-height: 0; opacity: 0; transition: max-height 0.3s ease, opacity 0.3s ease; padding-top: 0 !important; padding-bottom: 0 !important; position: relative; }
+    .thread-child.expanded-child { max-height: 400px; opacity: 1; padding-top: unset !important; padding-bottom: 1.25rem !important; }
+    .thread-child.expanded-child::before { content:''; position:absolute; inset:0; left:0; right:-0.75rem; background:#f2f2f2; z-index:0; }
+    .thread-child.expanded-child > * { position: relative; z-index: 1; }
+    .thread-child.expanded-child.thread-last::before { border-radius: 0 0 6px 6px; }
+    .history-body { flex: 1; min-width: 0; padding-bottom: 0; }
+    .history-body { flex: 1; min-width: 0; padding-bottom: 1rem; }
+    .history-time {
+      font-size: 0.8125rem;
+      color: var(--sapContent_LabelColor);
+      font-weight: 400;
+      margin-bottom: 0.35rem;
+    }
+    .history-text {
+      font-size: 0.875rem;
+      color: var(--sapTextColor);
+      line-height: 1.5;
+      margin-bottom: 0.4rem;
+    }
+    .history-body ui5-link {
+      font-weight: 600;
+      text-decoration: underline;
+    }
+    .history-subtitle {
+      font-size: 0.8125rem;
+      color: var(--sapContent_LabelColor);
+      margin-bottom: 0.35rem;
+    }
+    .kpi-label { font-size: 0.875rem; color: var(--sapContent_LabelColor); }
+
+    @keyframes star-burst {
+      0%   { opacity: 1; transform: translate(0, 0) scale(1); }
+      100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(0.4); }
+    }
+    .burst-star {
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+      animation: star-burst 0.6s ease-out forwards;
+    }
+    .feedback-pill, .discard-pill {
+      font-family: "72", sans-serif;
+      font-size: 0.875rem;
+      color: var(--sapLinkColor);
+      background: var(--sapBaseColor, #fff);
+      border: 1px solid var(--sapLinkColor);
+      border-radius: 0.5rem;
+      padding: 0 0.875rem;
+      height: 26px;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+    .feedback-pill:hover, .discard-pill:hover { background: var(--sapList_SelectionBackgroundColor); }
+    .feedback-pill.selected, .discard-pill.selected {
+      background: var(--sapLinkColor);
+      color: var(--sapButton_Emphasized_TextColor, #fff);
+    }
+
+    .profile-pop-header { display:flex; flex-direction:column; align-items:center; padding:1.5rem 1rem 1rem; gap:0.25rem; }
+    .profile-pop-avatar-wrap { position:relative; margin-bottom:0.5rem; }
+    .profile-pop-avatar-wrap ui5-avatar { width:72px; height:72px; }
+    .profile-pop-name { font-size:1rem; font-weight:700; color:var(--sapTextColor); }
+    .profile-pop-email { font-size:0.8125rem; color:var(--sapContent_LabelColor); }
+    .profile-pop-role { font-size:0.8125rem; color:var(--sapContent_LabelColor); }
+    .profile-pop-menu { border-top:1px solid var(--sapList_BorderColor); }
+    .profile-pop-item { display:flex; align-items:center; gap:0.75rem; padding:0.75rem 1.25rem; cursor:pointer; font-size:0.875rem; color:var(--sapTextColor); }
+    .profile-pop-item:hover { background:var(--sapList_HoverBackground); }
+    .profile-pop-item ui5-icon { color:var(--sapContent_IconColor); flex-shrink:0; }
+    .profile-pop-item-arrow { margin-left:auto; color:var(--sapContent_LabelColor); }
+    .profile-pop-footer { border-top:1px solid var(--sapList_BorderColor); display:flex; justify-content:flex-end; padding:0.75rem 1.25rem; }
+    .profile-pop-signout { display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-size:0.875rem; color:var(--sapLinkColor,#0070f2); font-weight:600; }
+    .profile-pop-signout:hover { text-decoration:underline; }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <app-shellbar title="Collection Assistant" logo-height="22px" avatar-initials="JL" hide-product-switch base-path="../../"></app-shellbar>
+
+  <ui5-popover id="navMenu" placement="Bottom" horizontal-align="Start" style="width:280px">
+    <ui5-list separators="None">
+      <ui5-li onclick="location.href='worklist.html'" style="font-size:14px; cursor:pointer">Collection Worklist</ui5-li>
+      <ui5-li onclick="location.href='admin.html'" style="font-size:14px; cursor:pointer">Administration</ui5-li>
+    </ui5-list>
+  </ui5-popover>
+
+
+  <!-- Profile popover -->
+  <ui5-popover id="profilePop" placement="Bottom" horizontal-align="End" style="width:300px; --_ui5-v2-popover-header-shadow:none">
+    <div class="profile-pop-header">
+      <div class="profile-pop-avatar-wrap">
+        <ui5-avatar initials="JL" color-scheme="Accent6" style="width:72px;height:72px;font-size:1.5rem"></ui5-avatar>
+      </div>
+      <div class="profile-pop-name">Jordan Lee</div>
+      <div class="profile-pop-email">jordan.lee@bestrun.com</div>
+      <div class="profile-pop-role">Collection Specialist, BestRun</div>
+    </div>
+    <div class="profile-pop-menu">
+      <div class="profile-pop-item" id="profileSettingsBtn">
+        <ui5-icon name="action-settings"></ui5-icon>
+        Settings
+      </div>
+      </div>
+    <div class="profile-pop-footer">
+      <div class="profile-pop-signout">
+        <ui5-icon name="log"></ui5-icon>
+        Sign Out
+      </div>
+    </div>
+  </ui5-popover>
+
+
+  <!-- Sub-header -->
+  <div class="sub-header">
+    <div class="sub-header-top">
+      <div>
+        <div style="display:flex; align-items:center; gap:0.375rem; margin-bottom:0.375rem; font-size:14px; font-family:'72',sans-serif;">
+          <a href="worklist.html" style="color:var(--sapLinkColor, #0070f2); text-decoration:none;">Collection Worklist</a>
+          <span style="color:var(--sapContent_LabelColor, #8c9fac);">/</span>
+          <span id="breadcrumb-name" style="color:var(--sapContent_LabelColor, #556b82);">Fairvale Pantry Ltd</span>
+        </div>
+        <h1 id="page-title" style="font-size:1.5rem; font-weight:900; font-family:'72',sans-serif; color:var(--sapTextColor, #131e29); margin:0">Fairvale Pantry Ltd</h1>
+      </div>
+      <div class="sub-header-actions">
+        <ui5-button id="overflowBtn" design="Default" icon="overflow"></ui5-button>
+        <ui5-menu id="overflowMenu" horizontal-align="End" placement="Bottom">
+          <ui5-menu-item text="Email Customer"></ui5-menu-item>
+          <ui5-menu-item text="Generate Call Script"></ui5-menu-item>
+          <ui5-menu-item text="Add Notes"></ui5-menu-item>
+        </ui5-menu>
+        <ui5-button design="Default" onclick="location.href='worklist.html'">Close</ui5-button>
+      </div>
+    </div>
+    <div class="sub-header-meta">
+      <div class="sub-header-meta-item">
+        <span class="label">Customer Contact:</span>
+        <a href="#" id="meta-contact" onclick="openEmailPanel(true); return false;" style="font-weight:400; text-decoration:underline; font-family:'72',sans-serif">m.purdy@jklfood.com</a>
+      </div>
+      <div class="sub-header-meta-item">
+        <span class="label">Risk Score:</span>
+        <span class="value">95</span>
+      </div>
+      <div class="sub-header-meta-item">
+        <span class="label"><svg width="10" height="10" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:inline;vertical-align:middle;margin-right:3px"><path d="M4.77386 5.51772C5.00416 4.82742 5.99565 4.82746 6.22601 5.51772C7.03711 7.8988 8.09862 8.9593 10.4819 9.76967C11.1728 10.0098 11.1728 11.0005 10.4819 11.2306C8.09867 12.041 7.0371 13.1015 6.22601 15.4826C5.99555 16.1726 5.00425 16.1726 4.77386 15.4826C3.96275 13.1015 2.90125 12.041 0.517998 11.2306C-0.172689 10.9904 -0.172643 9.99991 0.517998 9.76967C2.90124 8.9593 3.96275 7.89878 4.77386 5.51772ZM12.6049 0.284318C12.735 -0.0948015 13.2648 -0.0947441 13.395 0.284318C13.835 1.58216 14.4153 2.16146 15.7153 2.60072C16.095 2.7306 16.0951 3.26972 15.7153 3.39955C14.4153 3.83882 13.835 4.41812 13.395 5.71596C13.2647 6.09477 12.7351 6.09482 12.6049 5.71596C12.1649 4.41812 11.5846 3.83882 10.2846 3.39955C9.90511 3.2696 9.90515 2.73073 10.2846 2.60072C11.5846 2.16146 12.1649 1.58216 12.6049 0.284318Z" fill="#788FA6"/></svg>Priority:</span>
+        <span id="meta-priority" style="background:var(--sapErrorBackground, #fce4e4); color:var(--sapNegativeColor, #bb0000); padding:0.2rem 0.6rem; border-radius:8px; font-size:0.8125rem; margin-left:0.25rem">High</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Two-column body -->
+  <div class="body">
+
+    <!-- Main column -->
+    <div class="col-main">
+
+      <!-- AI Generated Summary -->
+      <div style="background:var(--sapTile_Background); box-shadow:var(--sapContent_Shadow0); border-radius:var(--sapTile_BorderCornerRadius);">
+        <div style="display:flex; align-items:center; gap:0.5rem; padding:0.75rem 1rem; font-size:16px; font-weight:600; color:var(--sapTextColor);">
+          <svg width="18" height="18" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.77386 5.51772C5.00416 4.82742 5.99565 4.82746 6.22601 5.51772C7.03711 7.8988 8.09862 8.9593 10.4819 9.76967C11.1728 10.0098 11.1728 11.0005 10.4819 11.2306C8.09867 12.041 7.0371 13.1015 6.22601 15.4826C5.99555 16.1726 5.00425 16.1726 4.77386 15.4826C3.96275 13.1015 2.90125 12.041 0.517998 11.2306C-0.172689 10.9904 -0.172643 9.99991 0.517998 9.76967C2.90124 8.9593 3.96275 7.89878 4.77386 5.51772ZM12.6049 0.284318C12.735 -0.0948015 13.2648 -0.0947441 13.395 0.284318C13.835 1.58216 14.4153 2.16146 15.7153 2.60072C16.095 2.7306 16.0951 3.26972 15.7153 3.39955C14.4153 3.83882 13.835 4.41812 13.395 5.71596C13.2647 6.09477 12.7351 6.09482 12.6049 5.71596C12.1649 4.41812 11.5846 3.83882 10.2846 3.39955C9.90511 3.2696 9.90515 2.73073 10.2846 2.60072C11.5846 2.16146 12.1649 1.58216 12.6049 0.284318Z" fill="#0070f2"/></svg>
+          Insights and Recommendations
+        </div>
+        <div style="height:1px; background:var(--sapGroup_ContentBorderColor); margin:0;"></div>
+        <div class="ai-body loading">
+          <div id="ai-loader" class="ai-loader">
+            <div class="ai-loader-dot"></div>
+            <div class="ai-loader-dot"></div>
+            <div class="ai-loader-dot"></div>
+          </div>
+          <div id="ai-content" class="ai-body-content">
+            <p class="ai-summary-text">
+              An email from Priya Nair indicates that payment has been made against the outstanding invoices. Bank account confirms £96,750.00 received.
+            </p>
+
+            <div id="action-cards" style="display:none">
+              <div id="escalate-action-card" style="display:none">
+                <div class="action-box">
+                  <p><strong>Next Best Action: Escalate for Payment</strong></p>
+                  <p>£185,359.51 is overdue for 71 days with no payment received in 45 days despite three reminders and 3 broken commitments. Credit line utilisation is at 98%. This account requires immediate escalation to align on next steps and prevent further deterioration.</p>
+                  <p style="margin-top:0.5rem"><strong>Send the escalation email below, then confirm once you have aligned offline.</strong></p>
+                  <div class="action-tip"><svg width="10" height="10" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0"><path d="M4.77386 5.51772C5.00416 4.82742 5.99565 4.82746 6.22601 5.51772C7.03711 7.8988 8.09862 8.9593 10.4819 9.76967C11.1728 10.0098 11.1728 11.0005 10.4819 11.2306C8.09867 12.041 7.0371 13.1015 6.22601 15.4826C5.99555 16.1726 5.00425 16.1726 4.77386 15.4826C3.96275 13.1015 2.90125 12.041 0.517998 11.2306C-0.172689 10.9904 -0.172643 9.99991 0.517998 9.76967C2.90124 8.9593 3.96275 7.89878 4.77386 5.51772ZM12.6049 0.284318C12.735 -0.0948015 13.2648 -0.0947441 13.395 0.284318C13.835 1.58216 14.4153 2.16146 15.7153 2.60072C16.095 2.7306 16.0951 3.26972 15.7153 3.39955C14.4153 3.83882 13.835 4.41812 13.395 5.71596C13.2647 6.09477 12.7351 6.09482 12.6049 5.71596C12.1649 4.41812 11.5846 3.83882 10.2846 3.39955C9.90511 3.2696 9.90515 2.73073 10.2846 2.60072C11.5846 2.16146 12.1649 1.58216 12.6049 0.284318Z" fill="#0070f2"/></svg><span>Customer tends to pay the next day if you follow up with a call right after sending an email.</span></div>
+                  <div class="action-box-footer">
+                    <ui5-button id="sendEscalationEmailBtn" design="Default" icon="email">Send Escalation Email</ui5-button>
+                    <ui5-button id="confirmEscalateBtn" design="Default" icon="accept">Confirm Escalation</ui5-button>
+                  </div>
+                </div>
+              </div>
+              <div id="resend-action-card" style="display:none">
+                <div class="action-box">
+                  <p><strong>Next Best Action: Invoice Copy Request Detected</strong></p>
+                  <p><span class="customer-name"></span> (<span class="contact-email"></span>) has requested copies of outstanding invoices. Send the requested invoices before <strong id="invoiceDeadline"></strong>.</p>
+                  <div class="action-tip"><svg width="10" height="10" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0"><path d="M4.77386 5.51772C5.00416 4.82742 5.99565 4.82746 6.22601 5.51772C7.03711 7.8988 8.09862 8.9593 10.4819 9.76967C11.1728 10.0098 11.1728 11.0005 10.4819 11.2306C8.09867 12.041 7.0371 13.1015 6.22601 15.4826C5.99555 16.1726 5.00425 16.1726 4.77386 15.4826C3.96275 13.1015 2.90125 12.041 0.517998 11.2306C-0.172689 10.9904 -0.172643 9.99991 0.517998 9.76967C2.90124 8.9593 3.96275 7.89878 4.77386 5.51772ZM12.6049 0.284318C12.735 -0.0948015 13.2648 -0.0947441 13.395 0.284318C13.835 1.58216 14.4153 2.16146 15.7153 2.60072C16.095 2.7306 16.0951 3.26972 15.7153 3.39955C14.4153 3.83882 13.835 4.41812 13.395 5.71596C13.2647 6.09477 12.7351 6.09482 12.6049 5.71596C12.1649 4.41812 11.5846 3.83882 10.2846 3.39955C9.90511 3.2696 9.90515 2.73073 10.2846 2.60072C11.5846 2.16146 12.1649 1.58216 12.6049 0.284318Z" fill="#0070f2"/></svg><span>Customer tends to pay the next day if you follow up with a call right after sending an email.</span></div>
+                  <div class="action-box-footer">
+                    <ui5-button id="sendInvoiceCopiesBtn" design="Default" icon="email">Send Invoice Copies Now</ui5-button>
+                  </div>
+                </div>
+              </div>
+              <div id="confirm-payment-action-card" style="display:none">
+                <div class="action-box">
+                  <p><strong>Next Best Action: Complete Follow Up</strong></p>
+                  <div class="action-box-footer">
+                    <ui5-button id="markAsPaidBtn" design="Default" icon="accept">Completed Follow Up</ui5-button>
+                  </div>
+                </div>
+              </div>
+              <div id="credit-note-action-card" style="display:none">
+                <div class="action-box">
+                  <p><strong>Next Best Action: Send Payment Request with Credit Note</strong></p>
+                  <p>A credit note (CN-20260814, £8,500.00) linked to an accepted claim has been detected in the data feed. The associated dispute is now resolved. <span class="customer-name"></span> has been moved to the top of their priority band for collection follow-up.</p>
+                  <p style="margin-top:0.5rem">The net outstanding balance after applying the credit note is <strong>£65,680.00</strong>. Send a payment request with the credit note attached to prompt settlement of the net balance.</p>
+                  <div class="action-tip"><svg width="10" height="10" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0"><path d="M4.77386 5.51772C5.00416 4.82742 5.99565 4.82746 6.22601 5.51772C7.03711 7.8988 8.09862 8.9593 10.4819 9.76967C11.1728 10.0098 11.1728 11.0005 10.4819 11.2306C8.09867 12.041 7.0371 13.1015 6.22601 15.4826C5.99555 16.1726 5.00425 16.1726 4.77386 15.4826C3.96275 13.1015 2.90125 12.041 0.517998 11.2306C-0.172689 10.9904 -0.172643 9.99991 0.517998 9.76967C2.90124 8.9593 3.96275 7.89878 4.77386 5.51772ZM12.6049 0.284318C12.735 -0.0948015 13.2648 -0.0947441 13.395 0.284318C13.835 1.58216 14.4153 2.16146 15.7153 2.60072C16.095 2.7306 16.0951 3.26972 15.7153 3.39955C14.4153 3.83882 13.835 4.41812 13.395 5.71596C13.2647 6.09477 12.7351 6.09482 12.6049 5.71596C12.1649 4.41812 11.5846 3.83882 10.2846 3.39955C9.90511 3.2696 9.90515 2.73073 10.2846 2.60072C11.5846 2.16146 12.1649 1.58216 12.6049 0.284318Z" fill="#0070f2"/></svg><span>Customer tends to pay the next day if you follow up with a call right after sending an email.</span></div>
+                  <div class="action-box-footer">
+                    <ui5-button id="sendCreditNoteEmailBtn" design="Default" icon="email">Send Payment Request with Credit Note</ui5-button>
+                  </div>
+                </div>
+              </div>
+              <div id="proactive-outreach-action-card" style="display:none">
+                <div class="action-box">
+                  <p><strong>Next Best Action: Proactive Payment Reminder</strong></p>
+                  <p>Based on payment cycle analysis, <span class="customer-name"></span> is a cyclic payer who has made one-off payments in the last 2 cycles with changes in credit utilisation. Three open invoices totalling £143,200.00 are due within the next 14 days. The model predicts a high likelihood of late payment based on recent behaviour. Reaching out now, before the due date, reduces the risk of the invoices becoming overdue.</p>
+                  <div class="action-tip"><svg width="10" height="10" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0"><path d="M4.77386 5.51772C5.00416 4.82742 5.99565 4.82746 6.22601 5.51772C7.03711 7.8988 8.09862 8.9593 10.4819 9.76967C11.1728 10.0098 11.1728 11.0005 10.4819 11.2306C8.09867 12.041 7.0371 13.1015 6.22601 15.4826C5.99555 16.1726 5.00425 16.1726 4.77386 15.4826C3.96275 13.1015 2.90125 12.041 0.517998 11.2306C-0.172689 10.9904 -0.172643 9.99991 0.517998 9.76967C2.90124 8.9593 3.96275 7.89878 4.77386 5.51772ZM12.6049 0.284318C12.735 -0.0948015 13.2648 -0.0947441 13.395 0.284318C13.835 1.58216 14.4153 2.16146 15.7153 2.60072C16.095 2.7306 16.0951 3.26972 15.7153 3.39955C14.4153 3.83882 13.835 4.41812 13.395 5.71596C13.2647 6.09477 12.7351 6.09482 12.6049 5.71596C12.1649 4.41812 11.5846 3.83882 10.2846 3.39955C9.90511 3.2696 9.90515 2.73073 10.2846 2.60072C11.5846 2.16146 12.1649 1.58216 12.6049 0.284318Z" fill="#0070f2"/></svg><span>Customer tends to pay the next day if you follow up with a call right after sending an email.</span></div>
+                  <div class="action-box-footer">
+                    <ui5-button id="sendProactiveEmailBtn" design="Default" icon="email">Send Reminder Email</ui5-button>
+                  </div>
+                </div>
+              </div>
+              <div id="urgent-followup-action-card" style="display:none">
+                <div class="action-box">
+                  <p><strong>Next Best Action: Send Urgent Payment Reminder</strong></p>
+                  <p><span class="customer-name"></span> is a non-cyclic payer with invoices aged 45+ days overdue across 2 or more consecutive payment cycles. Despite previous reminders, payment has not been received. This pattern indicates a structural payment risk. An urgent, firm communication with a clear payment deadline is recommended.</p>
+                  <div class="action-tip"><svg width="10" height="10" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0"><path d="M4.77386 5.51772C5.00416 4.82742 5.99565 4.82746 6.22601 5.51772C7.03711 7.8988 8.09862 8.9593 10.4819 9.76967C11.1728 10.0098 11.1728 11.0005 10.4819 11.2306C8.09867 12.041 7.0371 13.1015 6.22601 15.4826C5.99555 16.1726 5.00425 16.1726 4.77386 15.4826C3.96275 13.1015 2.90125 12.041 0.517998 11.2306C-0.172689 10.9904 -0.172643 9.99991 0.517998 9.76967C2.90124 8.9593 3.96275 7.89878 4.77386 5.51772ZM12.6049 0.284318C12.735 -0.0948015 13.2648 -0.0947441 13.395 0.284318C13.835 1.58216 14.4153 2.16146 15.7153 2.60072C16.095 2.7306 16.0951 3.26972 15.7153 3.39955C14.4153 3.83882 13.835 4.41812 13.395 5.71596C13.2647 6.09477 12.7351 6.09482 12.6049 5.71596C12.1649 4.41812 11.5846 3.83882 10.2846 3.39955C9.90511 3.2696 9.90515 2.73073 10.2846 2.60072C11.5846 2.16146 12.1649 1.58216 12.6049 0.284318Z" fill="#0070f2"/></svg><span>Send the email reminder before 9:00 AM today for the best chance of a same-day response.</span></div>
+                  <div class="action-box-footer">
+                    <ui5-button id="sendUrgentEmailBtn" design="Default" icon="email">Send Urgent Reminder</ui5-button>
+                  </div>
+                </div>
+              </div>
+              <div id="remove-queue-action-card" style="display:none">
+                <div class="action-box">
+                  <p><strong>Next Best Action: Remove from Collection Queue</strong></p>
+                  <p>The AI agent has detected in an email conversation that <span class="customer-name"></span> has indicated they are unable to pay due to insufficient funds. Continued collection outreach is unlikely to result in payment and may damage the customer relationship. The recommended next step is to escalate internally and remove this account from the active collection queue.</p>
+                  <div class="action-tip"><svg width="10" height="10" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0"><path d="M4.77386 5.51772C5.00416 4.82742 5.99565 4.82746 6.22601 5.51772C7.03711 7.8988 8.09862 8.9593 10.4819 9.76967C11.1728 10.0098 11.1728 11.0005 10.4819 11.2306C8.09867 12.041 7.0371 13.1015 6.22601 15.4826C5.99555 16.1726 5.00425 16.1726 4.77386 15.4826C3.96275 13.1015 2.90125 12.041 0.517998 11.2306C-0.172689 10.9904 -0.172643 9.99991 0.517998 9.76967C2.90124 8.9593 3.96275 7.89878 4.77386 5.51772ZM12.6049 0.284318C12.735 -0.0948015 13.2648 -0.0947441 13.395 0.284318C13.835 1.58216 14.4153 2.16146 15.7153 2.60072C16.095 2.7306 16.0951 3.26972 15.7153 3.39955C14.4153 3.83882 13.835 4.41812 13.395 5.71596C13.2647 6.09477 12.7351 6.09482 12.6049 5.71596C12.1649 4.41812 11.5846 3.83882 10.2846 3.39955C9.90511 3.2696 9.90515 2.73073 10.2846 2.60072C11.5846 2.16146 12.1649 1.58216 12.6049 0.284318Z" fill="#0070f2"/></svg><span>Customer tends to pay the next day if you follow up with a call right after sending an email.</span></div>
+                  <div class="action-box-footer">
+                    <ui5-button id="escalateRemoveBtn" design="Default" icon="email">Escalate and Remove from Collection</ui5-button>
+                    <ui5-button id="ignoreRemoveBtn" design="Transparent">Ignore this recommendation</ui5-button>
+                  </div>
+                </div>
+              </div>
+              <div id="block-order-action-card" style="display:none">
+                <div class="action-box">
+                  <p><strong>Next Best Action: Ask credit team to place an order block</strong></p>
+                  <p>Analysis of the past 12 months shows a recurring pattern: overdue invoices are consistently cleared only when a new order is blocked. Credit utilisation remains below 100% but overdue exposure is active. Historically, order blocks triggered payment within days. Requesting a targeted order block via the credit team is the recommended lever to prompt clearance.</p>
+                  
+                  <div class="action-box-footer">
+                    <ui5-button id="blockOrderEmailBtn" design="Default" icon="email">Request Credit Block</ui5-button>
+                  </div>
+                </div>
+              </div>
+              <div id="call-action-card" style="display:none">
+                <div class="action-box">
+                  <p><strong>Next Best Action: Call Customer</strong></p>
+                  <p>No response has been received to the last two payment reminders. A direct call is recommended to establish contact, confirm payment intent, and set a firm commitment date before further escalation is required.</p>
+                  <div class="action-tip"><svg width="10" height="10" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0"><path d="M4.77386 5.51772C5.00416 4.82742 5.99565 4.82746 6.22601 5.51772C7.03711 7.8988 8.09862 8.9593 10.4819 9.76967C11.1728 10.0098 11.1728 11.0005 10.4819 11.2306C8.09867 12.041 7.0371 13.1015 6.22601 15.4826C5.99555 16.1726 5.00425 16.1726 4.77386 15.4826C3.96275 13.1015 2.90125 12.041 0.517998 11.2306C-0.172689 10.9904 -0.172643 9.99991 0.517998 9.76967C2.90124 8.9593 3.96275 7.89878 4.77386 5.51772ZM12.6049 0.284318C12.735 -0.0948015 13.2648 -0.0947441 13.395 0.284318C13.835 1.58216 14.4153 2.16146 15.7153 2.60072C16.095 2.7306 16.0951 3.26972 15.7153 3.39955C14.4153 3.83882 13.835 4.41812 13.395 5.71596C13.2647 6.09477 12.7351 6.09482 12.6049 5.71596C12.1649 4.41812 11.5846 3.83882 10.2846 3.39955C9.90511 3.2696 9.90515 2.73073 10.2846 2.60072C11.5846 2.16146 12.1649 1.58216 12.6049 0.284318Z" fill="#0070f2"/></svg><span>Best outreach time: Wednesday, 8:00 AM, based on historical payment response.</span></div>
+                  <div class="action-box-footer">
+                    <ui5-button id="confirmCallBtn" design="Default" icon="phone">Open Call Script</ui5-button>
+                  </div>
+                </div>
+              </div>
+              <div id="email-action-card" class="action-box" style="display:none">
+                <p><strong>Next Best Action: Chase Overdue Invoices</strong></p>
+                <p>£8,792.78 is overdue across 2 invoices, with the oldest now 24 days past due. The customer's average days-to-pay is 27. Escalating via a direct email with a firm deadline may prompt the overdue payment before month-end.</p>
+                <div class="action-tip"><svg width="10" height="10" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0"><path d="M4.77386 5.51772C5.00416 4.82742 5.99565 4.82746 6.22601 5.51772C7.03711 7.8988 8.09862 8.9593 10.4819 9.76967C11.1728 10.0098 11.1728 11.0005 10.4819 11.2306C8.09867 12.041 7.0371 13.1015 6.22601 15.4826C5.99555 16.1726 5.00425 16.1726 4.77386 15.4826C3.96275 13.1015 2.90125 12.041 0.517998 11.2306C-0.172689 10.9904 -0.172643 9.99991 0.517998 9.76967C2.90124 8.9593 3.96275 7.89878 4.77386 5.51772ZM12.6049 0.284318C12.735 -0.0948015 13.2648 -0.0947441 13.395 0.284318C13.835 1.58216 14.4153 2.16146 15.7153 2.60072C16.095 2.7306 16.0951 3.26972 15.7153 3.39955C14.4153 3.83882 13.835 4.41812 13.395 5.71596C13.2647 6.09477 12.7351 6.09482 12.6049 5.71596C12.1649 4.41812 11.5846 3.83882 10.2846 3.39955C9.90511 3.2696 9.90515 2.73073 10.2846 2.60072C11.5846 2.16146 12.1649 1.58216 12.6049 0.284318Z" fill="#0070f2"/></svg><span>Customer tends to pay same day if you email them before 9:00 AM.</span></div>
+                <div class="action-box-footer">
+                  <ui5-button id="sendEmailBtn" design="Default" icon="email">Send Email</ui5-button>
+                </div>
+              </div>
+            </div><!-- /action-cards -->
+
+            <div id="no-action-card" style="display:none">
+              <div class="no-action-card">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="10" fill="#2e7d32"/><path d="M5.5 10.5L8.5 13.5L14.5 7.5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                No action necessary at this time.
+              </div>
+            </div>
+          </div><!-- /ai-content -->
+        </div><!-- /ai-body -->
+      </div><!-- /ai-card -->
+
+      <!-- Account data -->
+      <div class="account-card">
+        <ui5-tabcontainer fixed id="accountTabs">
+          <ui5-tab text="Account Overview" selected id="tab-overview"></ui5-tab>
+          <ui5-tab text="Open Items" id="tab-open"></ui5-tab>
+          <ui5-tab text="Disputes" id="tab-disputes"></ui5-tab>
+        </ui5-tabcontainer>
+
+        <!-- Account Overview panel -->
+        <div id="panel-overview" class="kpi-grid">
+          <div class="kpi-tile">
+            <div class="kpi-value neg">92,011.93 <span class="kpi-scale" style="color:var(--sapTextColor)">GBP</span></div>
+            <div class="kpi-label">Total Overdue Amount</div>
+          </div>
+          <div class="kpi-tile">
+            <div class="kpi-value">120,101.82 <span class="kpi-scale">GBP</span></div>
+            <div class="kpi-label">Due by End of Month</div>
+          </div>
+          <div class="kpi-tile">
+            <div class="kpi-value">133 <span class="kpi-scale">Days</span></div>
+            <div class="kpi-label">Oldest Overdue Item</div>
+          </div>
+          <div class="kpi-tile">
+            <div class="kpi-value">150,000.00 <span class="kpi-scale">GBP</span></div>
+            <div class="kpi-label">Credit Limit</div>
+          </div>
+          <div class="kpi-tile">
+            <div class="kpi-value">7,500.00 <span class="kpi-scale">GBP</span></div>
+            <div class="kpi-label">Credit Balance</div>
+          </div>
+          <div class="kpi-tile">
+            <div class="kpi-value">142,500.00 <span class="kpi-scale">GBP</span></div>
+            <div class="kpi-label">Sum of Credit Items</div>
+          </div>
+          <div class="kpi-tile">
+            <div class="kpi-value">95%</div>
+            <div class="kpi-label">Credit Utilization</div>
+          </div>
+          <div class="kpi-tile">
+            <div class="kpi-value">8.02K <span class="kpi-scale">GBP</span> <span style="font-size:0.875rem; font-weight:400; color:var(--sapContent_LabelColor)">| 2 orders</span></div>
+            <div class="kpi-label">Blocked Order Amount</div>
+          </div>
+          <div class="kpi-tile">
+            <div class="kpi-value">34.20K <span class="kpi-scale">GBP</span> <span style="font-size:0.875rem; font-weight:400; color:var(--sapContent_LabelColor)">| 5 disputes</span></div>
+            <div class="kpi-label">Disputed Amount</div>
+          </div>
+        </div>
+
+
+        <!-- Open Items panel -->
+        <div id="panel-open" class="tab-panel" style="display:none">
+          <div class="tab-panel-wrap">
+            <div class="tab-panel-toolbar"><span class="tab-panel-title">Line Items (9)</span><ui5-button design="Transparent" icon="action-settings"></ui5-button></div>
+            <ui5-table>
+              <ui5-table-header-row slot="headerRow">
+                <ui5-table-header-cell width="110px" style="padding-inline-start:1rem">Division</ui5-table-header-cell>
+                <ui5-table-header-cell width="100px">Customer Number</ui5-table-header-cell>
+                <ui5-table-header-cell width="105px">Document Type</ui5-table-header-cell>
+                <ui5-table-header-cell>Reference Number</ui5-table-header-cell>
+                <ui5-table-header-cell width="155px">Payment Date With Cash Discount</ui5-table-header-cell>
+                <ui5-table-header-cell width="105px">Net Due Date</ui5-table-header-cell>
+                <ui5-table-header-cell width="130px" horizontal-align="End">Amount</ui5-table-header-cell>
+                <ui5-table-header-cell width="70px" horizontal-align="End">Arrears</ui5-table-header-cell>
+                <ui5-table-header-cell width="44px"></ui5-table-header-cell>
+              </ui5-table-header-row>
+              <ui5-table-row interactive><ui5-table-cell style="padding-inline-start:1rem">Pharma</ui5-table-cell><ui5-table-cell>9839281</ui5-table-cell><ui5-table-cell>RV</ui5-table-cell><ui5-table-cell>90F1382741</ui5-table-cell><ui5-table-cell data-rel="-7">01/08/2025</ui5-table-cell><ui5-table-cell><span style="color:#bb0000" data-rel="-2">10/15/2025</span></ui5-table-cell><ui5-table-cell horizontal-align="End">19,503.26 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">26</ui5-table-cell><ui5-table-cell class="nav-cell"><ui5-icon name="slim-arrow-right" style="color:var(--sapContent_NonInteractiveIconColor)"></ui5-icon></ui5-table-cell></ui5-table-row>
+              <ui5-table-row interactive><ui5-table-cell style="padding-inline-start:1rem">Consumer</ui5-table-cell><ui5-table-cell>9282524</ui5-table-cell><ui5-table-cell>AB</ui5-table-cell><ui5-table-cell>90F1394052</ui5-table-cell><ui5-table-cell data-rel="-10">01/15/2025</ui5-table-cell><ui5-table-cell><span style="color:#bb0000" data-rel="-5">11/03/2025</span></ui5-table-cell><ui5-table-cell horizontal-align="End">33,620.26 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">18</ui5-table-cell><ui5-table-cell class="nav-cell"><ui5-icon name="slim-arrow-right" style="color:var(--sapContent_NonInteractiveIconColor)"></ui5-icon></ui5-table-cell></ui5-table-row>
+              <ui5-table-row interactive><ui5-table-cell style="padding-inline-start:1rem">Radiology</ui5-table-cell><ui5-table-cell>3949403</ui5-table-cell><ui5-table-cell>RV</ui5-table-cell><ui5-table-cell>91A2047813</ui5-table-cell><ui5-table-cell data-rel="-15">02/03/2025</ui5-table-cell><ui5-table-cell><span style="color:#bb0000" data-rel="-10">11/28/2025</span></ui5-table-cell><ui5-table-cell horizontal-align="End">23,747.36 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">12</ui5-table-cell><ui5-table-cell class="nav-cell"><ui5-icon name="slim-arrow-right" style="color:var(--sapContent_NonInteractiveIconColor)"></ui5-icon></ui5-table-cell></ui5-table-row>
+              <ui5-table-row interactive><ui5-table-cell style="padding-inline-start:1rem">Crop</ui5-table-cell><ui5-table-cell>2765232</ui5-table-cell><ui5-table-cell>AB</ui5-table-cell><ui5-table-cell>91A2063590</ui5-table-cell><ui5-table-cell data-rel="-19">02/17/2025</ui5-table-cell><ui5-table-cell><span style="color:#bb0000" data-rel="-14">12/10/2025</span></ui5-table-cell><ui5-table-cell horizontal-align="End">51,451.56 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">31</ui5-table-cell><ui5-table-cell class="nav-cell"><ui5-icon name="slim-arrow-right" style="color:var(--sapContent_NonInteractiveIconColor)"></ui5-icon></ui5-table-cell></ui5-table-row>
+              <ui5-table-row interactive><ui5-table-cell style="padding-inline-start:1rem">Pharma</ui5-table-cell><ui5-table-cell>9283734</ui5-table-cell><ui5-table-cell>RV</ui5-table-cell><ui5-table-cell>92B3158407</ui5-table-cell><ui5-table-cell data-rel="+9">03/05/2025</ui5-table-cell><ui5-table-cell data-rel="+14">01/14/2026</ui5-table-cell><ui5-table-cell horizontal-align="End">13,881.69 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">5</ui5-table-cell><ui5-table-cell class="nav-cell"><ui5-icon name="slim-arrow-right" style="color:var(--sapContent_NonInteractiveIconColor)"></ui5-icon></ui5-table-cell></ui5-table-row>
+              <ui5-table-row interactive><ui5-table-cell style="padding-inline-start:1rem">Crop</ui5-table-cell><ui5-table-cell>2938367</ui5-table-cell><ui5-table-cell>RV</ui5-table-cell><ui5-table-cell>92B3174265</ui5-table-cell><ui5-table-cell data-rel="+11">03/19/2025</ui5-table-cell><ui5-table-cell data-rel="+16">01/18/2026</ui5-table-cell><ui5-table-cell horizontal-align="End">42,687.37 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">8</ui5-table-cell><ui5-table-cell class="nav-cell"><ui5-icon name="slim-arrow-right" style="color:var(--sapContent_NonInteractiveIconColor)"></ui5-icon></ui5-table-cell></ui5-table-row>
+              <ui5-table-row interactive><ui5-table-cell style="padding-inline-start:1rem">Consumer</ui5-table-cell><ui5-table-cell>5948372</ui5-table-cell><ui5-table-cell>AB</ui5-table-cell><ui5-table-cell>93D4209831</ui5-table-cell><ui5-table-cell data-rel="+13">04/02/2025</ui5-table-cell><ui5-table-cell data-rel="+18">02/21/2026</ui5-table-cell><ui5-table-cell horizontal-align="End">59,429.34 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">3</ui5-table-cell><ui5-table-cell class="nav-cell"><ui5-icon name="slim-arrow-right" style="color:var(--sapContent_NonInteractiveIconColor)"></ui5-icon></ui5-table-cell></ui5-table-row>
+              <ui5-table-row interactive><ui5-table-cell style="padding-inline-start:1rem">Pharma</ui5-table-cell><ui5-table-cell>4928722</ui5-table-cell><ui5-table-cell>RV</ui5-table-cell><ui5-table-cell>93D4221047</ui5-table-cell><ui5-table-cell data-rel="+15">04/14/2025</ui5-table-cell><ui5-table-cell data-rel="+20">02/28/2026</ui5-table-cell><ui5-table-cell horizontal-align="End">26,917.35 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">7</ui5-table-cell><ui5-table-cell class="nav-cell"><ui5-icon name="slim-arrow-right" style="color:var(--sapContent_NonInteractiveIconColor)"></ui5-icon></ui5-table-cell></ui5-table-row>
+              <ui5-table-row interactive><ui5-table-cell style="padding-inline-start:1rem">Consumer</ui5-table-cell><ui5-table-cell>3830924</ui5-table-cell><ui5-table-cell>AB</ui5-table-cell><ui5-table-cell>94E5367092</ui5-table-cell><ui5-table-cell data-rel="+16">05/08/2025</ui5-table-cell><ui5-table-cell data-rel="+21">03/09/2026</ui5-table-cell><ui5-table-cell horizontal-align="End">10,291.61 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">2</ui5-table-cell><ui5-table-cell class="nav-cell"><ui5-icon name="slim-arrow-right" style="color:var(--sapContent_NonInteractiveIconColor)"></ui5-icon></ui5-table-cell></ui5-table-row>
+            </ui5-table>
+          </div>
+        </div>
+
+        <!-- Payments / Reimbursements panel -->
+        <div id="panel-payments" class="tab-panel" style="display:none">
+          <div class="tab-panel-wrap">
+            <div class="tab-panel-toolbar"><span class="tab-panel-title">Line Items (23)</span><ui5-button design="Transparent" icon="action-settings"></ui5-button></div>
+            <ui5-table>
+              <ui5-table-header-row slot="headerRow">
+                <ui5-table-header-cell width="110px" style="padding-inline-start:1rem">Division</ui5-table-header-cell>
+                <ui5-table-header-cell width="100px">Customer Number</ui5-table-header-cell>
+                <ui5-table-header-cell width="105px">Document Type</ui5-table-header-cell>
+                <ui5-table-header-cell>Document Number</ui5-table-header-cell>
+                <ui5-table-header-cell width="115px">Payment Date</ui5-table-header-cell>
+                <ui5-table-header-cell width="130px" horizontal-align="End">Amount</ui5-table-header-cell>
+                <ui5-table-header-cell width="120px" horizontal-align="End">Cash Discount</ui5-table-header-cell>
+                <ui5-table-header-cell width="70px" horizontal-align="End">Arrears</ui5-table-header-cell>
+                <ui5-table-header-cell width="44px"></ui5-table-header-cell>
+              </ui5-table-header-row>
+              <ui5-table-row interactive><ui5-table-cell style="padding-inline-start:1rem">Radiology</ui5-table-cell><ui5-table-cell>9839281</ui5-table-cell><ui5-table-cell>ZP</ui5-table-cell><ui5-table-cell>5100847362</ui5-table-cell><ui5-table-cell data-rel="-60">03/12/2025</ui5-table-cell><ui5-table-cell horizontal-align="End">19,503.26 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">390.07 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">0</ui5-table-cell><ui5-table-cell class="nav-cell"><ui5-icon name="slim-arrow-right" style="color:var(--sapContent_NonInteractiveIconColor)"></ui5-icon></ui5-table-cell></ui5-table-row>
+              <ui5-table-row interactive><ui5-table-cell style="padding-inline-start:1rem">Crop</ui5-table-cell><ui5-table-cell>9282524</ui5-table-cell><ui5-table-cell>AB</ui5-table-cell><ui5-table-cell>5100853901</ui5-table-cell><ui5-table-cell data-rel="-52">03/18/2025</ui5-table-cell><ui5-table-cell horizontal-align="End">33,620.26 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">672.41 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">0</ui5-table-cell><ui5-table-cell class="nav-cell"><ui5-icon name="slim-arrow-right" style="color:var(--sapContent_NonInteractiveIconColor)"></ui5-icon></ui5-table-cell></ui5-table-row>
+              <ui5-table-row interactive><ui5-table-cell style="padding-inline-start:1rem">Crop</ui5-table-cell><ui5-table-cell>3949403</ui5-table-cell><ui5-table-cell>RV</ui5-table-cell><ui5-table-cell>5100861247</ui5-table-cell><ui5-table-cell data-rel="-45">04/02/2025</ui5-table-cell><ui5-table-cell horizontal-align="End">23,747.36 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">474.95 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">0</ui5-table-cell><ui5-table-cell class="nav-cell"><ui5-icon name="slim-arrow-right" style="color:var(--sapContent_NonInteractiveIconColor)"></ui5-icon></ui5-table-cell></ui5-table-row>
+              <ui5-table-row interactive><ui5-table-cell style="padding-inline-start:1rem">Pharma</ui5-table-cell><ui5-table-cell>2765232</ui5-table-cell><ui5-table-cell>ZP</ui5-table-cell><ui5-table-cell>5100874583</ui5-table-cell><ui5-table-cell data-rel="-38">04/11/2025</ui5-table-cell><ui5-table-cell horizontal-align="End">51,451.56 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">1,029.03 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">0</ui5-table-cell><ui5-table-cell class="nav-cell"><ui5-icon name="slim-arrow-right" style="color:var(--sapContent_NonInteractiveIconColor)"></ui5-icon></ui5-table-cell></ui5-table-row>
+              <ui5-table-row interactive><ui5-table-cell style="padding-inline-start:1rem">Pharma</ui5-table-cell><ui5-table-cell>9283734</ui5-table-cell><ui5-table-cell>AB</ui5-table-cell><ui5-table-cell>5100882016</ui5-table-cell><ui5-table-cell data-rel="-31">04/25/2025</ui5-table-cell><ui5-table-cell horizontal-align="End">13,881.69 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">277.63 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">0</ui5-table-cell><ui5-table-cell class="nav-cell"><ui5-icon name="slim-arrow-right" style="color:var(--sapContent_NonInteractiveIconColor)"></ui5-icon></ui5-table-cell></ui5-table-row>
+              <ui5-table-row interactive><ui5-table-cell style="padding-inline-start:1rem">Consumer</ui5-table-cell><ui5-table-cell>2938367</ui5-table-cell><ui5-table-cell>RV</ui5-table-cell><ui5-table-cell>5100896754</ui5-table-cell><ui5-table-cell data-rel="-24">05/07/2025</ui5-table-cell><ui5-table-cell horizontal-align="End">42,687.37 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">853.75 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">0</ui5-table-cell><ui5-table-cell class="nav-cell"><ui5-icon name="slim-arrow-right" style="color:var(--sapContent_NonInteractiveIconColor)"></ui5-icon></ui5-table-cell></ui5-table-row>
+              <ui5-table-row interactive><ui5-table-cell style="padding-inline-start:1rem">Radiology</ui5-table-cell><ui5-table-cell>5948372</ui5-table-cell><ui5-table-cell>ZP</ui5-table-cell><ui5-table-cell>5100903128</ui5-table-cell><ui5-table-cell data-rel="-18">05/20/2025</ui5-table-cell><ui5-table-cell horizontal-align="End">59,429.34 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">0.00 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">0</ui5-table-cell><ui5-table-cell class="nav-cell"><ui5-icon name="slim-arrow-right" style="color:var(--sapContent_NonInteractiveIconColor)"></ui5-icon></ui5-table-cell></ui5-table-row>
+              <ui5-table-row interactive><ui5-table-cell style="padding-inline-start:1rem">Pharma</ui5-table-cell><ui5-table-cell>4928722</ui5-table-cell><ui5-table-cell>AB</ui5-table-cell><ui5-table-cell>5100917465</ui5-table-cell><ui5-table-cell data-rel="-12">06/03/2025</ui5-table-cell><ui5-table-cell horizontal-align="End">26,917.35 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">538.35 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">0</ui5-table-cell><ui5-table-cell class="nav-cell"><ui5-icon name="slim-arrow-right" style="color:var(--sapContent_NonInteractiveIconColor)"></ui5-icon></ui5-table-cell></ui5-table-row>
+              <ui5-table-row interactive><ui5-table-cell style="padding-inline-start:1rem">Consumer</ui5-table-cell><ui5-table-cell>3830924</ui5-table-cell><ui5-table-cell>RV</ui5-table-cell><ui5-table-cell>5100924803</ui5-table-cell><ui5-table-cell data-rel="-7">06/17/2025</ui5-table-cell><ui5-table-cell horizontal-align="End">10,291.61 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">205.83 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">0</ui5-table-cell><ui5-table-cell class="nav-cell"><ui5-icon name="slim-arrow-right" style="color:var(--sapContent_NonInteractiveIconColor)"></ui5-icon></ui5-table-cell></ui5-table-row>
+            </ui5-table>
+          </div>
+        </div>
+
+        <!-- Disputes panel -->
+        <div id="panel-disputes" class="tab-panel" style="display:none">
+          <div class="tab-panel-wrap">
+            <div class="tab-panel-toolbar"><span class="tab-panel-title">Line Items (15)</span><ui5-button design="Transparent" icon="action-settings"></ui5-button></div>
+            <ui5-table>
+              <ui5-table-header-row slot="headerRow">
+                <ui5-table-header-cell width="100px" style="padding-inline-start:1rem">Billing Document</ui5-table-header-cell>
+                <ui5-table-header-cell width="170px">Reference Document Number</ui5-table-header-cell>
+                <ui5-table-header-cell width="100px">Document Date</ui5-table-header-cell>
+                <ui5-table-header-cell width="100px">Due Date</ui5-table-header-cell>
+                <ui5-table-header-cell width="130px" horizontal-align="End">Amount</ui5-table-header-cell>
+                <ui5-table-header-cell width="130px" horizontal-align="End">Amount in Euro</ui5-table-header-cell>
+                <ui5-table-header-cell>Dispute Reason Code</ui5-table-header-cell>
+                <ui5-table-header-cell width="70px" horizontal-align="End">Arrears</ui5-table-header-cell>
+                <ui5-table-header-cell width="44px"></ui5-table-header-cell>
+              </ui5-table-header-row>
+              <ui5-table-row interactive><ui5-table-cell style="padding-inline-start:1rem">9400183742</ui5-table-cell><ui5-table-cell>90F1382741</ui5-table-cell><ui5-table-cell data-rel="-90">01/08/2025</ui5-table-cell><ui5-table-cell data-rel="-60">02/07/2025</ui5-table-cell><ui5-table-cell horizontal-align="End">19,503.26 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">19,503.26 EUR</ui5-table-cell><ui5-table-cell>Pricing Error</ui5-table-cell><ui5-table-cell horizontal-align="End">62</ui5-table-cell><ui5-table-cell class="nav-cell"><ui5-icon name="slim-arrow-right" style="color:var(--sapContent_NonInteractiveIconColor)"></ui5-icon></ui5-table-cell></ui5-table-row>
+              <ui5-table-row interactive><ui5-table-cell style="padding-inline-start:1rem">9400196381</ui5-table-cell><ui5-table-cell>91A2047813</ui5-table-cell><ui5-table-cell data-rel="-78">02/03/2025</ui5-table-cell><ui5-table-cell data-rel="-48">03/05/2025</ui5-table-cell><ui5-table-cell horizontal-align="End">33,620.26 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">33,620.26 EUR</ui5-table-cell><ui5-table-cell>Goods Not Delivered</ui5-table-cell><ui5-table-cell horizontal-align="End">36</ui5-table-cell><ui5-table-cell class="nav-cell"><ui5-icon name="slim-arrow-right" style="color:var(--sapContent_NonInteractiveIconColor)"></ui5-icon></ui5-table-cell></ui5-table-row>
+              <ui5-table-row interactive><ui5-table-cell style="padding-inline-start:1rem">9400204057</ui5-table-cell><ui5-table-cell>91A2063590</ui5-table-cell><ui5-table-cell data-rel="-68">02/17/2025</ui5-table-cell><ui5-table-cell data-rel="-38">03/19/2025</ui5-table-cell><ui5-table-cell horizontal-align="End">23,747.36 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">23,747.36 EUR</ui5-table-cell><ui5-table-cell>Quantity Discrepancy</ui5-table-cell><ui5-table-cell horizontal-align="End">22</ui5-table-cell><ui5-table-cell class="nav-cell"><ui5-icon name="slim-arrow-right" style="color:var(--sapContent_NonInteractiveIconColor)"></ui5-icon></ui5-table-cell></ui5-table-row>
+              <ui5-table-row interactive><ui5-table-cell style="padding-inline-start:1rem">9400217694</ui5-table-cell><ui5-table-cell>92B3158407</ui5-table-cell><ui5-table-cell data-rel="-58">03/05/2025</ui5-table-cell><ui5-table-cell data-rel="-28">04/04/2025</ui5-table-cell><ui5-table-cell horizontal-align="End">51,451.56 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">51,451.56 EUR</ui5-table-cell><ui5-table-cell>Contract Terms Dispute</ui5-table-cell><ui5-table-cell horizontal-align="End">6</ui5-table-cell><ui5-table-cell class="nav-cell"><ui5-icon name="slim-arrow-right" style="color:var(--sapContent_NonInteractiveIconColor)"></ui5-icon></ui5-table-cell></ui5-table-row>
+              <ui5-table-row interactive><ui5-table-cell style="padding-inline-start:1rem">9400229815</ui5-table-cell><ui5-table-cell>92B3174265</ui5-table-cell><ui5-table-cell data-rel="-48">03/19/2025</ui5-table-cell><ui5-table-cell data-rel="-18">04/18/2025</ui5-table-cell><ui5-table-cell horizontal-align="End">13,881.69 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">13,881.69 EUR</ui5-table-cell><ui5-table-cell>Duplicate Invoice</ui5-table-cell><ui5-table-cell horizontal-align="End">-7</ui5-table-cell><ui5-table-cell class="nav-cell"><ui5-icon name="slim-arrow-right" style="color:var(--sapContent_NonInteractiveIconColor)"></ui5-icon></ui5-table-cell></ui5-table-row>
+              <ui5-table-row interactive><ui5-table-cell style="padding-inline-start:1rem">9400241376</ui5-table-cell><ui5-table-cell>93D4209831</ui5-table-cell><ui5-table-cell data-rel="-40">04/02/2025</ui5-table-cell><ui5-table-cell data-rel="-10">05/02/2025</ui5-table-cell><ui5-table-cell horizontal-align="End">42,687.37 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">42,687.37 EUR</ui5-table-cell><ui5-table-cell>Pricing Error</ui5-table-cell><ui5-table-cell horizontal-align="End">-2</ui5-table-cell><ui5-table-cell class="nav-cell"><ui5-icon name="slim-arrow-right" style="color:var(--sapContent_NonInteractiveIconColor)"></ui5-icon></ui5-table-cell></ui5-table-row>
+              <ui5-table-row interactive><ui5-table-cell style="padding-inline-start:1rem">9400258903</ui5-table-cell><ui5-table-cell>93D4221047</ui5-table-cell><ui5-table-cell data-rel="-35">04/14/2025</ui5-table-cell><ui5-table-cell data-rel="-5">05/14/2025</ui5-table-cell><ui5-table-cell horizontal-align="End">59,429.34 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">59,429.34 EUR</ui5-table-cell><ui5-table-cell>Short Shipment</ui5-table-cell><ui5-table-cell horizontal-align="End">-3</ui5-table-cell><ui5-table-cell class="nav-cell"><ui5-icon name="slim-arrow-right" style="color:var(--sapContent_NonInteractiveIconColor)"></ui5-icon></ui5-table-cell></ui5-table-row>
+              <ui5-table-row interactive><ui5-table-cell style="padding-inline-start:1rem">9400267541</ui5-table-cell><ui5-table-cell>94E5367092</ui5-table-cell><ui5-table-cell data-rel="-28">05/08/2025</ui5-table-cell><ui5-table-cell data-rel="+2">06/07/2025</ui5-table-cell><ui5-table-cell horizontal-align="End">26,917.35 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">26,917.35 EUR</ui5-table-cell><ui5-table-cell>Quality Defect</ui5-table-cell><ui5-table-cell horizontal-align="End">-5</ui5-table-cell><ui5-table-cell class="nav-cell"><ui5-icon name="slim-arrow-right" style="color:var(--sapContent_NonInteractiveIconColor)"></ui5-icon></ui5-table-cell></ui5-table-row>
+              <ui5-table-row interactive><ui5-table-cell style="padding-inline-start:1rem">9400279182</ui5-table-cell><ui5-table-cell>94E5381604</ui5-table-cell><ui5-table-cell data-rel="-20">05/22/2025</ui5-table-cell><ui5-table-cell data-rel="+10">06/21/2025</ui5-table-cell><ui5-table-cell horizontal-align="End">10,291.61 EUR</ui5-table-cell><ui5-table-cell horizontal-align="End">10,291.61 EUR</ui5-table-cell><ui5-table-cell>Wrong Product Delivered</ui5-table-cell><ui5-table-cell horizontal-align="End">-9</ui5-table-cell><ui5-table-cell class="nav-cell"><ui5-icon name="slim-arrow-right" style="color:var(--sapContent_NonInteractiveIconColor)"></ui5-icon></ui5-table-cell></ui5-table-row>
+            </ui5-table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Side column -->
+    <div class="col-side">
+      <div style="position:relative; display:flex; align-items:center; justify-content:space-between; padding: 0.75rem 1rem; border-bottom: 1px solid var(--sapList_BorderColor);">
+        <span style="font-size:1rem; font-weight:700; font-family:'72',sans-serif; color:var(--sapTextColor);">Account History</span>
+        <div class="ui5-content-density-compact">
+          <ui5-button id="historyFilterBtn" design="Transparent" icon="action-settings" tooltip="Settings"></ui5-button>
+        </div>
+      </div>
+      <ui5-popover id="historyFilterPop" placement="Bottom" horizontal-align="End" style="min-width:220px;">
+        <div style="padding:0.25rem 0;">
+          <div id="historyOptThread" style="padding:0.625rem 1rem; cursor:pointer; font-family:'72',sans-serif; font-size:0.875rem; color:var(--sapTextColor); display:flex; justify-content:space-between; align-items:center;">Threaded View<span id="historyOptThreadCheck" style="color:var(--sapTextColor)"></span></div>
+          <div id="historyOptAll" style="padding:0.625rem 1rem; cursor:pointer; font-family:'72',sans-serif; font-size:0.875rem; color:var(--sapTextColor); display:flex; justify-content:space-between; align-items:center;">Activity Timeline<span id="historyOptAllCheck" style="color:var(--sapTextColor)">✓</span></div>
+        </div>
+      </ui5-popover>
+
+      <div style="padding: 1rem 1rem 0;" class="ui5-content-density-compact">
+        <ui5-segmented-button id="historyRange">
+          <ui5-segmented-button-item pressed>3 Months</ui5-segmented-button-item>
+          <ui5-segmented-button-item>6 Months</ui5-segmented-button-item>
+          <ui5-segmented-button-item>9 Months</ui5-segmented-button-item>
+          <ui5-segmented-button-item>1 Year</ui5-segmented-button-item>
+        </ui5-segmented-button>
+      </div>
+
+      <div id="side-panel-history">
+        <ul class="history-list">
+
+          <!-- Payment received -->
+          <li class="history-item green-seg">
+            <div class="history-dot-col">
+              <div class="history-dot" style="background:#107e3e; box-shadow:0 0 0 4px #d5f2e3,0 0 0 5px #fff"></div>
+              <div class="history-line" style="background:#107e3e;opacity:0.4"></div>
+            </div>
+            <div class="history-body">
+              <div class="history-time">Aug 26, 2026, 8:41:02 AM</div>
+              <div class="history-text" style="display:flex;flex-direction:column;gap:0.375rem">
+                <span>Payment of <strong>£96,750.00</strong> received from <span class="customer-name"></span>. Account balance cleared in full.</span>
+                <span style="display:inline-flex;align-items:flex-start;gap:0.5rem;background:#e8f0fb;border-radius:12px;padding:0.375rem 0.75rem;font-size:0.8125rem;color:var(--sapTextColor);max-width:fit-content">
+                  <svg style="flex-shrink:0;margin-top:1px" width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M4.77386 5.51772C5.00416 4.82742 5.99565 4.82746 6.22601 5.51772C7.03711 7.8988 8.09862 8.9593 10.4819 9.76967C11.1728 10.0098 11.1728 11.0005 10.4819 11.2306C8.09867 12.041 7.0371 13.1015 6.22601 15.4826C5.99555 16.1726 5.00425 16.1726 4.77386 15.4826C3.96275 13.1015 2.90125 12.041 0.517998 11.2306C-0.172689 10.9904 -0.172643 9.99991 0.517998 9.76967C2.90124 8.9593 3.96275 7.89878 4.77386 5.51772ZM12.6049 0.284318C12.735 -0.0948015 13.2648 -0.0947441 13.395 0.284318C13.835 1.58216 14.4153 2.16146 15.7153 2.60072C16.095 2.7306 16.0951 3.26972 15.7153 3.39955C14.4153 3.83882 13.835 4.41812 13.395 5.71596C13.2647 6.09477 12.7351 6.09482 12.6049 5.71596C12.1649 4.41812 11.5846 3.83882 10.2846 3.39955C9.90511 3.2696 9.90515 2.73073 10.2846 2.60072C11.5846 2.16146 12.1649 1.58216 12.6049 0.284318Z" fill="#0064d9"/></svg>
+                  <span style="display:flex;flex-direction:column;gap:0.1rem">
+                    <span>AI suggestion taken → payment received same day.</span>
+                    <strong>Early morning email outreach</strong>
+                  </span>
+                </span>
+              </div>
+              <div class="history-subtitle">Payment Receipt · SAP Agentic Collections</div>
+            </div>
+          </li>
+
+          <!-- AI-driven email sent before 9 AM -->
+          <li class="history-item">
+            <div class="history-dot-col">
+              <div class="history-dot" style="background:#107e3e; box-shadow:0 0 0 4px #d5f2e3,0 0 0 5px #fff"></div>
+              <div class="history-line"></div>
+            </div>
+            <div class="history-body">
+              <div class="history-time">Aug 26, 2026, 4:48:55 AM</div>
+              <div class="history-text">AI agent suggested sending a same-day email reminder before 9:00 AM for the best chance of a same-day response. Jordan Lee acted on the recommendation and sent the email at 4:48 AM.</div>
+              <div class="history-subtitle">AI Recommendation Actioned · jordan.lee@bestrun.com</div>
+              <a href="#" data-email-id="email-1" class="view-email-link" onclick="return false;" style="font-size:0.875rem;color:var(--sapLinkColor,#0070f2);text-decoration:none;cursor:pointer">View Email</a>
+            </div>
+          </li>
+
+          <!-- End green segment -->
+
+          <!-- Thread: RE: Outstanding Balance & Settlement -->
+          <li class="history-item">
+            <div class="history-dot-col"><div class="history-dot"></div><div class="history-line"></div></div>
+            <div class="history-body">
+              <div class="history-time" data-hours-ago="30"></div>
+              <div class="history-text"><span class="contact-name"></span> responded requesting copies of the outstanding invoices and clarification on the overdue balance before arranging payment.</div>
+              <div class="history-subtitle">Inbound Email · <span class="contact-email"></span></div>
+              <a href="#" data-email-id="email-2" class="view-email-link" onclick="return false;" style="font-size:0.875rem; color:var(--sapLinkColor,#0070f2); text-decoration:none; cursor:pointer;">View Email</a>
+            </div>
+          </li>
+          <li class="history-item">
+            <div class="history-dot-col"><div class="history-dot"></div><div class="history-line"></div></div>
+            <div class="history-body">
+              <div class="history-time" data-hours-ago="36"></div>
+              <div class="history-text">Invoice copies sent to <span class="customer-name"></span> as requested — 6 invoices totalling <span class="meta-amount-ref"></span> GBP attached.</div>
+              <div class="history-subtitle">Outbound Email · jordan.lee@bestrun.com</div>
+              <a href="#" data-email-id="email-3" class="view-email-link" onclick="return false;" style="font-size:0.875rem; color:var(--sapLinkColor,#0070f2); text-decoration:none; cursor:pointer;">View Email</a>
+            </div>
+          </li>
+          <li class="history-item">
+            <div class="history-dot-col"><div class="history-dot"></div><div class="history-line"></div></div>
+            <div class="history-body">
+              <div class="history-time" data-hours-ago="51"></div>
+              <div class="history-text"><span class="contact-name"></span> confirmed receipt of invoices and said the finance team would review before confirming payment.</div>
+              <div class="history-subtitle">Inbound Email · <span class="contact-email"></span></div>
+              <a href="#" data-email-id="email-4" class="view-email-link" onclick="return false;" style="font-size:0.875rem; color:var(--sapLinkColor,#0070f2); text-decoration:none; cursor:pointer;">View Email</a>
+            </div>
+          </li>
+          <li class="history-item">
+            <div class="history-dot-col"><div class="history-dot"></div><div class="history-line"></div></div>
+            <div class="history-body">
+              <div class="history-time" data-hours-ago="60"></div>
+              <div class="history-text">Urgent follow-up sent requesting immediate payment or an alternative contact, highlighting the escalation deadline.</div>
+              <div class="history-subtitle">Outbound Email · jordan.lee@bestrun.com</div>
+              <ui5-link>View Email</ui5-link>
+            </div>
+          </li>
+          <li class="history-item">
+            <div class="history-dot-col"><div class="history-dot"></div><div class="history-line"></div></div>
+            <div class="history-body">
+              <div class="history-time" data-hours-ago="78"></div>
+              <div class="history-text"><span class="contact-name"></span> escalated internally and requested a two-week extension to finalise payment approval through their finance department.</div>
+              <div class="history-subtitle">Inbound Email · <span class="contact-email"></span></div>
+              <ui5-link>View Email</ui5-link>
+            </div>
+          </li>
+          <li class="history-item">
+            <div class="history-dot-col"><div class="history-dot"></div></div>
+            <div class="history-body">
+              <div class="history-time" data-hours-ago="96"></div>
+              <div class="history-text"><span class="contact-name"></span> confirmed commitment to make payment for the remaining amount in two weeks.</div>
+              <div class="history-subtitle">Inbound Email · <span class="contact-email"></span></div>
+              <ui5-link>View Email</ui5-link>
+            </div>
+          </li>
+          <li class="history-item">
+            <div class="history-dot-col"><div class="history-dot"></div><div class="history-line"></div></div>
+            <div class="history-body">
+              <div class="history-time" data-hours-ago="120"></div>
+              <div class="history-text">Collection note: Requested the account sales representative to contact the customer directly and follow up on the overdue balance.</div>
+              <div class="history-subtitle">Note · jordan.lee@bestrun.com</div>
+              <ui5-link>View Note</ui5-link>
+            </div>
+          </li>
+          <li class="history-item">
+            <div class="history-dot-col"><div class="history-dot"></div><div class="history-line"></div></div>
+            <div class="history-body">
+              <div class="history-time" data-hours-ago="168"></div>
+              <div class="history-text">Call placed to <span class="contact-name"></span>. Customer acknowledged the overdue balance and committed to partial payment within 5 business days.</div>
+              <div class="history-subtitle">Outbound Call · jordan.lee@bestrun.com</div>
+              <ui5-link>View Note</ui5-link>
+            </div>
+          </li>
+          <li class="history-item">
+            <div class="history-dot-col"><div class="history-dot"></div><div class="history-line"></div></div>
+            <div class="history-body">
+              <div class="history-time" data-hours-ago="270"></div>
+              <div class="history-text">Dispute raised by <span class="customer-name"></span> on invoice #INV-20260312 for £12,450.00 — customer claims pricing discrepancy on 3 line items.</div>
+              <div class="history-subtitle">Dispute Opened · <span class="contact-email"></span></div>
+              <ui5-link>View Dispute</ui5-link>
+            </div>
+          </li>
+          <li class="history-item">
+            <div class="history-dot-col"><div class="history-dot"></div><div class="history-line"></div></div>
+            <div class="history-body">
+              <div class="history-time" data-hours-ago="310"></div>
+              <div class="history-text"><span class="contact-name"></span> responded with a commitment to make payment for the remaining amount in two weeks.</div>
+              <div class="history-subtitle">Inbound Email · <span class="contact-email"></span></div>
+              <ui5-link>View Email</ui5-link>
+            </div>
+          </li>
+          <li class="history-item">
+            <div class="history-dot-col"><div class="history-dot"></div><div class="history-line"></div></div>
+            <div class="history-body">
+              <div class="history-time" data-hours-ago="363"></div>
+              <div class="history-text">Email sent to <span class="customer-name"></span> requesting the remaining <span class="meta-amount-ref"></span> GBP, acknowledging a partial payment and offering supporting documents.</div>
+              <div class="history-subtitle">Outbound Email · <span class="contact-email"></span></div>
+              <ui5-link>View Email</ui5-link>
+            </div>
+          </li>
+          <li class="history-item">
+            <div class="history-dot-col"><div class="history-dot"></div><div class="history-line"></div></div>
+            <div class="history-body">
+              <div class="history-time" data-hours-ago="410"></div>
+              <div class="history-text">Partial payment of £18,500.00 received. Remaining overdue balance updated accordingly. Promise to pay recorded.</div>
+              <div class="history-subtitle">Payment Received · SAP FSCM</div>
+              <ui5-link>View Details</ui5-link>
+            </div>
+          </li>
+          <li class="history-item">
+            <div class="history-dot-col"><div class="history-dot"></div><div class="history-line"></div></div>
+            <div class="history-body">
+              <div class="history-time" data-hours-ago="450"></div>
+              <div class="history-text"><span class="contact-name"></span> acknowledged receipt of the invoice and requested additional time to process payment due to internal approval delays.</div>
+              <div class="history-subtitle">Inbound Email · <span class="contact-email"></span></div>
+              <ui5-link>View Email</ui5-link>
+            </div>
+          </li>
+          <li class="history-item">
+            <div class="history-dot-col"><div class="history-dot"></div><div class="history-line"></div></div>
+            <div class="history-body">
+              <div class="history-time" data-hours-ago="500"></div>
+              <div class="history-text">7 orders blocked due to credit limit breach. Total blocked order value: £51,100.00. Customer notified automatically by system.</div>
+              <div class="history-subtitle">Order Block · SAP FSCM</div>
+              <ui5-link>View Details</ui5-link>
+            </div>
+          </li>
+          <li class="history-item">
+            <div class="history-dot-col"><div class="history-dot"></div><div class="history-line"></div></div>
+            <div class="history-body">
+              <div class="history-time" data-hours-ago="530"></div>
+              <div class="history-text">Initial payment reminder sent for overdue balance of <span class="meta-amount-ref"></span> GBP with a request to confirm payment timeline.</div>
+              <div class="history-subtitle">Outbound Email · <span class="contact-email"></span></div>
+              <ui5-link>View Email</ui5-link>
+            </div>
+          </li>
+          <li class="history-item">
+            <div class="history-dot-col"><div class="history-dot"></div><div class="history-line"></div></div>
+            <div class="history-body">
+              <div class="history-time" data-hours-ago="560"></div>
+              <div class="history-text">Promise to pay recorded — <span class="contact-name"></span> committed to full settlement by <span data-rel="14"></span>. Promise subsequently broken.</div>
+              <div class="history-subtitle">Promise to Pay · jordan.lee@bestrun.com</div>
+              <ui5-link>View Details</ui5-link>
+            </div>
+          </li>
+          <li class="history-item">
+            <div class="history-dot-col"><div class="history-dot"></div><div class="history-line"></div></div>
+            <div class="history-body">
+              <div class="history-time" data-hours-ago="590"></div>
+              <div class="history-text"><span class="contact-name"></span> contacted support to query the invoice amount and requested a breakdown of charges.</div>
+              <div class="history-subtitle">Inbound Email · <span class="contact-email"></span></div>
+              <ui5-link>View Email</ui5-link>
+            </div>
+          </li>
+          <li class="history-item">
+            <div class="history-dot-col"><div class="history-dot"></div><div class="history-line"></div></div>
+            <div class="history-body">
+              <div class="history-time" data-hours-ago="620"></div>
+              <div class="history-text">Credit limit reviewed and reduced from £160,000 to £150,000 following risk assessment. Customer notified.</div>
+              <div class="history-subtitle">Credit Limit Change · SAP FSCM</div>
+              <ui5-link>View Details</ui5-link>
+            </div>
+          </li>
+          <li class="history-item">
+            <div class="history-dot-col"><div class="history-dot"></div><div class="history-line"></div></div>
+            <div class="history-body">
+              <div class="history-time" data-hours-ago="650"></div>
+              <div class="history-text">Account flagged for escalation after invoice due date passed without payment or acknowledgement from customer.</div>
+              <div class="history-subtitle">Note · jordan.lee@bestrun.com</div>
+              <ui5-link>View Note</ui5-link>
+            </div>
+          </li>
+          <li class="history-item">
+            <div class="history-dot-col"><div class="history-dot"></div><div class="history-line"></div></div>
+            <div class="history-body">
+              <div class="history-time" data-hours-ago="700"></div>
+              <div class="history-text">Outbound call attempted — no answer. Voicemail left requesting callback to discuss overdue invoices.</div>
+              <div class="history-subtitle">Outbound Call · jordan.lee@bestrun.com</div>
+              <ui5-link>View Note</ui5-link>
+            </div>
+          </li>
+          <li class="history-item">
+            <div class="history-dot-col"><div class="history-dot"></div><div class="history-line"></div></div>
+            <div class="history-body">
+              <div class="history-time" data-hours-ago="740"></div>
+              <div class="history-text">Second overdue reminder sent. Customer has not responded to the previous reminder sent 5 days prior.</div>
+              <div class="history-subtitle">Outbound Email · <span class="contact-email"></span></div>
+              <ui5-link>View Email</ui5-link>
+            </div>
+          </li>
+          <li class="history-item">
+            <div class="history-dot-col"><div class="history-dot"></div></div>
+            <div class="history-body">
+              <div class="history-time" data-hours-ago="800"></div>
+              <div class="history-text">Invoice #INV-20260201 (£8,792.78) issued and delivered. Payment due within 30 days.</div>
+              <div class="history-subtitle">Invoice Issued · SAP FSCM</div>
+              <ui5-link>View Details</ui5-link>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <div id="side-panel-agent" style="display:none">
+        <ul class="history-list">
+          <li class="history-item">
+            <div class="history-dot-col"><div class="history-dot"></div><div class="history-line"></div></div>
+            <div class="history-body">
+              <div class="history-time" data-hours-ago="3">Feb 28, 2026, 3:25:35 PM</div>
+              <div class="history-text">Agent ran successfully. An overdue reminder email was sent to the customer to confirm settlement; account activity was reviewed, and no system errors were detected, but the communication should be reviewed.</div>
+              <div class="history-subtitle">Email Sent</div>
+              <ui5-link>View Details</ui5-link>
+            </div>
+          </li>
+          <li class="history-item">
+            <div class="history-dot-col"><div class="history-dot"></div><div class="history-line"></div></div>
+            <div class="history-body">
+              <div class="history-time" data-hours-ago="506">Feb 25, 2026, 9:44:28 AM</div>
+              <div class="history-text">Agent ran successfully. The customer responded with a commitment to make payment for the remaining amount within two weeks.</div>
+              <div class="history-subtitle">Email Received</div>
+              <ui5-link>View Details</ui5-link>
+            </div>
+          </li>
+          <li class="history-item">
+            <div class="history-dot-col"><div class="history-dot" style="background:var(--sapNegativeColor, #bb0000); box-shadow:0 0 0 4px #EAECEE, 0 0 0 5px #ffffff;"></div><div class="history-line"></div></div>
+            <div class="history-body">
+              <div class="history-time" data-hours-ago="530">Apr 5, 2026, 3:54:16 AM</div>
+              <div class="history-text">Agent run failed. The process repeated 25 times without finishing, so it was stopped; you can raise the limit if needed.</div>
+              <div class="history-subtitle">Failed</div>
+              <ui5-link>View Details</ui5-link>
+            </div>
+          </li>
+          <li class="history-item">
+            <div class="history-dot-col"><div class="history-dot"></div><div class="history-line"></div></div>
+            <div class="history-body">
+              <div class="history-time" data-hours-ago="650">Feb 20, 2026, 2:27:02 PM</div>
+              <div class="history-text">Agent ran successfully. No outbound communication was sent due to a cooldown period after recent contact.</div>
+              <div class="history-subtitle">No Action</div>
+              <ui5-link>View Details</ui5-link>
+            </div>
+          </li>
+          <li class="history-item">
+            <div class="history-dot-col"><div class="history-dot"></div><div class="history-line"></div></div>
+            <div class="history-body">
+              <div class="history-time" data-hours-ago="780">Mar 25, 2026, 6:16:42 PM</div>
+              <div class="history-text">Agent ran successfully. This was the customer's first run. An email draft was created for an overdue reminder and to request payment.</div>
+              <div class="history-subtitle">Email Sent</div>
+              <ui5-link>View Details</ui5-link>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+  <script>
+    const CUSTOMERS = {
+      'Meridian Oncology Partners':       { amount: '93,727.92',   priority: 'High',   priorityBg: 'var(--sapErrorBackground, #fce4e4)', priorityColor: 'var(--sapNegativeColor, #bb0000)', contact: 'James Whitfield',     email: 'j.whitfield@meridianoncology.com',   noAction: true  },
+      'Hartwell Medical Center':          { amount: '19,503.26',   priority: 'High',   priorityBg: 'var(--sapErrorBackground, #fce4e4)', priorityColor: 'var(--sapNegativeColor, #bb0000)', contact: 'Sandra Okafor',       email: 's.okafor@hartwellmedical.com',        noAction: true  },
+      'Clairmont Diagnostic Clinic':       { amount: '104,842.81',  priority: 'High',   priorityBg: 'var(--sapErrorBackground, #fce4e4)', priorityColor: 'var(--sapNegativeColor, #bb0000)', contact: 'David Nguyen',        email: 'd.nguyen@clairmontdiagnostic.com',    noAction: false, emailAction: true  },
+      'Bridgeview Health System':         { amount: '21,950.41',   priority: 'High',   priorityBg: 'var(--sapErrorBackground, #fce4e4)', priorityColor: 'var(--sapNegativeColor, #bb0000)', contact: 'Rachel Tompkins',     email: 'r.tompkins@bridgeviewhealth.com',     noAction: true  },
+      'Eastgate University Hospital':     { amount: '51,451.56',   priority: 'High',   priorityBg: 'var(--sapErrorBackground, #fce4e4)', priorityColor: 'var(--sapNegativeColor, #bb0000)', contact: 'Michael Brennan',     email: 'm.brennan@eastgateuniversityhospital.edu', noAction: false, callAction: true   },
+      'Valmont Surgical Associates':      { amount: '86.17',       priority: 'High',   priorityBg: 'var(--sapErrorBackground, #fce4e4)', priorityColor: 'var(--sapNegativeColor, #bb0000)', contact: 'Laura Stenberg',      email: 'l.stenberg@valmontsurgical.com',      noAction: true  },
+      "Pinecrest Women's Health Center":  { amount: '264.97',      priority: 'High',   priorityBg: 'var(--sapErrorBackground, #fce4e4)', priorityColor: 'var(--sapNegativeColor, #bb0000)', contact: 'Angela Ferreira',     email: 'a.ferreira@pinecrestwomens.com',      noAction: false, emailAction: true },
+      'Azurion Regional Hospital':        { amount: '185,359.51',  priority: 'High',   priorityBg: 'var(--sapErrorBackground, #fce4e4)', priorityColor: 'var(--sapNegativeColor, #bb0000)', contact: 'Thomas Adeyemi',      email: 't.adeyemi@azurionregional.org',       noAction: true  },
+      'Lakewood Integrated Health Group': { amount: '26,917.35',   priority: 'Medium', priorityBg: 'var(--sapWarningBackground, #fff3e0)', priorityColor: 'var(--sapWarningColor, #df6e0c)', contact: 'Christine Halvorsen', email: 'c.halvorsen@lakewoodihg.com',         noAction: true  },
+      'Solaris Private Hospital Group':   { amount: '9,512.74',    priority: 'Medium', priorityBg: 'var(--sapWarningBackground, #fff3e0)', priorityColor: 'var(--sapWarningColor, #df6e0c)', contact: 'Nathan Patel',        email: 'n.patel@solarisprivatehospital.com',  noAction: true  },
+      'Redwood Comprehensive Care Center':{ amount: '8,792.78',    priority: 'Medium', priorityBg: 'var(--sapWarningBackground, #fff3e0)', priorityColor: 'var(--sapWarningColor, #df6e0c)', contact: 'Olivia Marchetti',    email: 'o.marchetti@redwoodccc.org',          noAction: true  },
+      'Vantage Diagnostics Ltd':          { amount: '49,531.44',   priority: 'Medium', priorityBg: 'var(--sapWarningBackground, #fff3e0)', priorityColor: 'var(--sapWarningColor, #df6e0c)', contact: 'Samuel Eriksson',     email: 's.eriksson@vantagediagnostics.com',   noAction: true  },
+      'Northfield Hematology Clinic':     { amount: '206.97',      priority: 'Medium', priorityBg: 'var(--sapWarningBackground, #fff3e0)', priorityColor: 'var(--sapWarningColor, #df6e0c)', contact: 'Priya Chandrasekaran',email: 'p.chandrasekaran@northfieldhematology.com', noAction: true  },
+      'Crestline Academic Health Network':{ amount: '31,748.78',   priority: 'Low',    priorityBg: 'var(--sapNeutralBackground, #e0e0e0)', priorityColor: 'var(--sapNeutralColor, #444)',    contact: 'Benjamin Kowalski',   email: 'b.kowalski@crestlineahn.edu',         noAction: true  },
+      'Thornbury OB-GYN Associates':      { amount: '395.03',      priority: 'Low',    priorityBg: 'var(--sapNeutralBackground, #e0e0e0)', priorityColor: 'var(--sapNeutralColor, #444)',    contact: 'Helen Johansson',     email: 'h.johansson@thornburyobgyn.com',      noAction: true  },
+      'Grovemart Retail Group':           { amount: '93,727.92',   priority: 'High',   priorityBg: 'var(--sapNegativeBackground, #ffd0d0)', priorityColor: 'var(--sapNegativeTextColor, #8c0000)', contact: 'Sarah Mitchell',      email: 's.mitchell@grovemart.co.uk',    emailAction: true, updating: true },
+      'Pinnacle Food Distributors':       { amount: '78,340.50',   priority: 'High',   priorityBg: 'var(--sapErrorBackground, #fce4e4)', priorityColor: 'var(--sapNegativeColor, #bb0000)', contact: 'James Hartley',       email: 'j.hartley@pinnaclefood.co.uk',  noAction: true },
+      'Harborfield Wholesale Co':         { amount: '104,842.81',  priority: 'High',   priorityBg: 'var(--sapNegativeBackground, #ffd0d0)', priorityColor: 'var(--sapNegativeTextColor, #8c0000)', contact: 'Kevin Oduya',         email: 'k.oduya@harborfield.co.uk',     callAction: true, updating: true },
+      'Caldwell Fresh Markets':           { amount: '21,950.41',   priority: 'High',   priorityBg: 'var(--sapErrorBackground, #fce4e4)', priorityColor: 'var(--sapNegativeColor, #bb0000)', contact: 'Rachel Sweeney',      email: 'r.sweeney@caldwellfresh.co.uk', noAction: true },
+      'Stonegate Food Services':          { amount: '51,451.56',   priority: 'High',   priorityBg: 'var(--sapErrorBackground, #fce4e4)', priorityColor: 'var(--sapNegativeColor, #bb0000)', contact: 'Tom Bergmann',        email: 't.bergmann@stonegate-fs.co.uk', noAction: true },
+      'Elmwood Grocery Holdings':         { amount: '38,620.00',   priority: 'High',   priorityBg: 'var(--sapErrorBackground, #fce4e4)', priorityColor: 'var(--sapNegativeColor, #bb0000)', contact: 'Diana Ferreira',      email: 'd.ferreira@elmwoodgrocery.com', noAction: true },
+      'Fairvale Pantry Ltd':              { amount: '67,184.30',   priority: 'High',   priorityBg: 'var(--sapErrorBackground, #fce4e4)', priorityColor: 'var(--sapNegativeColor, #bb0000)', contact: 'Mark Purdy',          email: 'm.purdy@fairvalepantry.co.uk',  blockOrderAction: true },
+      'Northaven Consumer Goods':         { amount: '185,359.51',  priority: 'High',   priorityBg: 'var(--sapErrorBackground, #fce4e4)', priorityColor: 'var(--sapNegativeColor, #bb0000)', contact: 'Claire Donovan',      email: 'c.donovan@northavencg.co.uk',   escalateAction: true },
+      'Kestrel Distribution Ltd':         { amount: '143,200.00',  priority: 'High',   priorityBg: 'var(--sapNegativeBackground, #ffd0d0)', priorityColor: 'var(--sapNegativeTextColor, #8c0000)', contact: 'Ben Whitmore',        email: 'b.whitmore@kestreldist.co.uk',  proactiveOutreachAction: true },
+      'Thornfield Grocery Ltd':           { amount: '88,450.00',   priority: 'High',   priorityBg: 'var(--sapNegativeBackground, #ffd0d0)', priorityColor: 'var(--sapNegativeTextColor, #8c0000)', contact: 'Laura Hennessy',      email: 'l.hennessy@thornfieldgrocery.co.uk', urgentFollowupAction: true },
+      'Rowan Foods Group':                { amount: '96,750.00',   priority: 'High',   priorityBg: 'var(--sapNegativeBackground, #ffd0d0)', priorityColor: 'var(--sapNegativeTextColor, #8c0000)', contact: 'Priya Nair',          email: 'p.nair@rowanfoods.co.uk',       confirmPaymentAction: true },
+      'Velmont Retail Partners':          { amount: '74,180.00',   priority: 'High',   priorityBg: 'var(--sapNegativeBackground, #ffd0d0)', priorityColor: 'var(--sapNegativeTextColor, #8c0000)', contact: 'Dan Kowalski',        email: 'd.kowalski@velmontretail.co.uk', creditNoteAction: true },
+      'Brightfield Superstore Ltd':       { amount: '26,917.35',   priority: 'Medium', priorityBg: '#f7d4a8', priorityColor: '#7a4a0f', contact: 'Paul Ashworth',       email: 'p.ashworth@brightfield.co.uk',  noAction: true },
+      'Westbrook Provisions Co':          { amount: '9,512.74',    priority: 'Medium', priorityBg: '#f7d4a8', priorityColor: '#7a4a0f', contact: 'Niamh Carroll',       email: 'n.carroll@westbrookprov.co.uk', noAction: true },
+      'Mapleton Foods Inc':               { amount: '8,792.78',    priority: 'High',   priorityBg: 'var(--sapNegativeBackground, #ffd0d0)', priorityColor: 'var(--sapNegativeTextColor, #8c0000)', contact: 'Greg Tanner',         email: 'g.tanner@mapletonfoods.com',    resendAction: true },
+      'Redstone Pantry Group':            { amount: '49,531.44',   priority: 'Medium', priorityBg: '#f7d4a8', priorityColor: '#7a4a0f', contact: 'Fiona McLean',        email: 'f.mclean@redstonepantry.co.uk', noAction: true },
+      'Clearwater Trade Supply':          { amount: '3,847.60',    priority: 'Medium', priorityBg: '#f7d4a8', priorityColor: '#7a4a0f', contact: 'Steve Kowalczyk',     email: 's.kowalczyk@clearwatertrade.com', noAction: true },
+      'Sunridge Retail Partners':         { amount: '0.00',        priority: 'Low',    priorityBg: '#e0e0e0', priorityColor: '#444',    contact: 'Amy Thornton',        email: 'a.thornton@sunridgeretail.co.uk', noAction: true },
+      'Halcyon Food Group':               { amount: '2,180.00',    priority: 'Low',    priorityBg: '#e0e0e0', priorityColor: '#444',    contact: 'Sophie Mackenzie',    email: 's.mackenzie@halcyonfood.co.uk',   noAction: true },
+      'Briarwood Market Co':              { amount: '1,240.00',    priority: 'Low',    priorityBg: '#e0e0e0', priorityColor: '#444',    contact: 'Oliver Banks',        email: 'o.banks@briarwoodmarket.co.uk', noAction: true },
+    };
+
+    const name = new URLSearchParams(window.location.search).get('customer') || 'Rowan Foods Group';
+    if (name) {
+      document.getElementById('breadcrumb-name').textContent = name;
+      document.getElementById('page-title').textContent = name;
+      document.title = name + ' — Collection Assistant';
+
+      const c = CUSTOMERS[name];
+      if (c) {
+        var _ma = document.getElementById('meta-amount'); if (_ma) _ma.textContent = c.amount;
+        document.getElementById('meta-contact').textContent = c.contact;
+        const pri = document.getElementById('meta-priority');
+        pri.style.background = c.priorityBg;
+        pri.style.color = c.priorityColor;
+        if (c.updating) {
+          pri.textContent = c.priority;
+        } else {
+          pri.textContent = c.priority;
+        }
+        document.querySelectorAll('.customer-name').forEach(function(el) { el.textContent = name; });
+        document.querySelectorAll('.contact-name').forEach(function(el) { el.textContent = c.contact; });
+        document.querySelectorAll('.contact-email').forEach(function(el) { el.textContent = c.email; });
+        document.querySelectorAll('.meta-amount-ref').forEach(function(el) { el.textContent = c.amount; });
+        var _s = function(id, v) { var el = document.getElementById(id); if (el) el.style.display = v; };
+        _s('action-cards', (c.emailAction || c.callAction || c.resendAction || c.escalateAction || c.blockOrderAction || c.removeFromQueueAction || c.confirmPaymentAction || c.creditNoteAction || c.proactiveOutreachAction || c.urgentFollowupAction) ? '' : 'none');
+        _s('resend-action-card', c.resendAction ? '' : 'none');
+        _s('escalate-action-card', c.escalateAction ? '' : 'none');
+        _s('no-action-card', c.noAction ? '' : 'none');
+        _s('email-action-card', c.emailAction ? '' : 'none');
+        _s('block-order-action-card', c.blockOrderAction ? '' : 'none');
+        _s('remove-queue-action-card', c.removeFromQueueAction ? '' : 'none');
+        _s('confirm-payment-action-card', c.confirmPaymentAction ? '' : 'none');
+        _s('credit-note-action-card', c.creditNoteAction ? '' : 'none');
+        _s('proactive-outreach-action-card', c.proactiveOutreachAction ? '' : 'none');
+        _s('urgent-followup-action-card', c.urgentFollowupAction ? '' : 'none');
+        _s('call-action-card', c.callAction ? '' : 'none');
+        _s('no-action-card',    c.noAction    ? '' : 'none');
+      } else {
+        // Unknown customer — still clear the loader
+        document.getElementById('ai-loader').style.display = 'none';
+        document.querySelector('.ai-body').classList.remove('loading');
+        document.getElementById('ai-content').classList.add('visible');
+        document.getElementById('no-action-card').style.display = '';
+      }
+    }
+
+    var _accountTabs = document.getElementById('accountTabs');
+    if (_accountTabs) _accountTabs.addEventListener('tab-select', function(e) {
+      const panels = ['panel-overview', 'panel-open', 'panel-disputes'];
+      panels.forEach(id => document.getElementById(id).style.display = 'none');
+      const idx = Array.from(this.querySelectorAll('ui5-tab')).indexOf(e.detail.tab);
+      const show = panels[idx];
+      if (show) document.getElementById(show).style.display = idx === 0 ? 'grid' : 'block';
+    });
+
+    var _sideTabs = document.getElementById('sideTabs');
+    if (_sideTabs) _sideTabs.addEventListener('tab-select', function(e) {
+      const idx = Array.from(this.querySelectorAll('ui5-tab')).indexOf(e.detail.tab);
+      document.getElementById('side-panel-history').style.display = idx === 0 ? '' : 'none';
+      document.getElementById('side-panel-agent').style.display   = idx === 1 ? '' : 'none';
+    });
+
+    // History filter popover
+    (function() {
+      var btn = document.getElementById('historyFilterBtn');
+      var pop = document.getElementById('historyFilterPop');
+      var optThread = document.getElementById('historyOptThread');
+      var optAll = document.getElementById('historyOptAll');
+      var _active = 'all';
+
+      function applyMode(mode) {
+        var parent = document.getElementById('threadParent');
+        var dot = document.getElementById('threadToggleDot');
+        var children = document.querySelectorAll('.thread-child[data-thread="1"]');
+        var list = parent ? parent.closest('.history-list') : null;
+        if (mode === 'all') {
+          if (parent) { parent.style.cursor = ''; parent.classList.remove('expanded'); }
+          if (dot) dot.style.display = 'none';
+          var normalDot = document.getElementById('threadNormalDot');
+          if (normalDot) normalDot.style.display = '';
+          children.forEach(function(el) { el.classList.add('expanded-child'); });
+          if (list) { list.classList.remove('thread-expanded'); list.classList.add('mode-all'); }
+        } else {
+          // Thread mode: restore toggle
+          if (parent) parent.style.cursor = 'pointer';
+          if (dot) dot.style.display = '';
+          var normalDot2 = document.getElementById('threadNormalDot');
+          if (normalDot2) normalDot2.style.display = 'none';
+          var expanded = dot && dot.getAttribute('data-expanded') !== 'false';
+          children.forEach(function(el) {
+            el.classList.toggle('expanded-child', expanded);
+          });
+          if (parent) parent.classList.toggle('expanded', expanded);
+          if (list) { list.classList.remove('mode-all'); if (expanded) list.classList.add('thread-expanded'); }
+        }
+      }
+
+      function updateCheck() {
+        document.getElementById('historyOptThreadCheck').textContent = _active === 'thread' ? '✓' : '';
+        document.getElementById('historyOptAllCheck').textContent = _active === 'all' ? '✓' : '';
+      }
+      updateCheck();
+      applyMode(_active);
+
+      if (btn && pop) {
+        btn.addEventListener('click', function() { pop.opener = btn; pop.open = !pop.open; });
+      }
+      if (optThread) optThread.addEventListener('click', function() { _active = 'thread'; updateCheck(); applyMode('thread'); pop.open = false; });
+      if (optAll) optAll.addEventListener('click', function() { _active = 'all'; updateCheck(); applyMode('all'); pop.open = false; });
+    })();
+
+    var _overflowBtn = document.getElementById('overflowBtn');
+    if (_overflowBtn) _overflowBtn.addEventListener('click', function() {
+      var menu = document.getElementById('overflowMenu');
+      menu.opener = this;
+      menu.open = !menu.open;
+    });
+    document.getElementById('overflowMenu').addEventListener('item-click', function(e) {
+      var text = e.detail && e.detail.item && e.detail.item.text;
+      if (text === 'Email Customer') openEmailPanel(true);
+      if (text === 'Generate Call Script') openCallScriptPanel();
+      if (text === 'Add Notes') openAddNotesPanel();
+    });
+
+    // Force tab text to 14px semibold via shadow DOM injection
+    (function applyTabFont() {
+      function injectTabStyles() {
+        document.querySelectorAll('ui5-tabcontainer').forEach(function(tc) {
+          if (!tc.shadowRoot) return;
+          if (!tc._tabStyleEl) {
+            var s = document.createElement('style');
+            s.id = 'tab-font-override';
+            tc.shadowRoot.appendChild(s);
+            tc._tabStyleEl = s;
+          }
+          tc._tabStyleEl.textContent = [
+            '.ui5-tab-strip-item-text,',
+            '.ui5-tab-strip-item .ui5-tab-strip-item-text,',
+            'div[class*="tab"][class*="text"],',
+            'span[class*="tab"][class*="text"] {',
+            '  font-size: 14px !important;',
+            '  font-weight: 600 !important;',
+            '  font-family: "72", sans-serif !important;',
+            '}'
+          ].join(' ');
+        });
+      }
+      injectTabStyles();
+      setTimeout(injectTabStyles, 100);
+      setTimeout(injectTabStyles, 500);
+      setTimeout(injectTabStyles, 1500);
+      window.addEventListener('load', function() { injectTabStyles(); setTimeout(injectTabStyles, 500); });
+    })();
+    (function applySemibold() {
+      const sel = '.sub-header-actions ui5-button, .action-box-footer ui5-button';
+      function injectOne(btn) {
+        if (!btn.shadowRoot || btn._semiboldInjected) return;
+        const s = document.createElement('style');
+        s.textContent = 'bdi, .ui5-button-text { font-family: "72", sans-serif !important; font-weight: 400 !important; }';
+        btn.shadowRoot.prepend(s);
+        btn._semiboldInjected = true;
+      }
+      function inject() {
+        document.querySelectorAll(sel).forEach(injectOne);
+      }
+      inject();
+      setTimeout(inject, 300);
+      setTimeout(inject, 800);
+      setTimeout(inject, 2000);
+      const obs = new MutationObserver(function() { inject(); });
+      obs.observe(document.body, { childList: true, subtree: true });
+      window.addEventListener('load', function() { inject(); setTimeout(inject, 500); });
+    })();
+    (function () {
+      function relDate(offsetDays) {
+        const d = new Date();
+        d.setDate(d.getDate() + offsetDays);
+        return (d.getMonth() + 1).toString().padStart(2, '0') + '/' +
+               d.getDate().toString().padStart(2, '0') + '/' +
+               d.getFullYear();
+      }
+      function relDateISO(offsetDays) {
+        const d = new Date();
+        d.setDate(d.getDate() + offsetDays);
+        return d.getFullYear() + '-' +
+               (d.getMonth() + 1).toString().padStart(2, '0') + '-' +
+               d.getDate().toString().padStart(2, '0');
+      }
+      function relDateTime(hoursAgo) {
+        const d = new Date(Date.now() - hoursAgo * 3600000);
+        const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        let h = d.getHours(), ampm = h >= 12 ? 'PM' : 'AM';
+        h = h % 12 || 12;
+        const min = d.getMinutes().toString().padStart(2, '0');
+        const sec = d.getSeconds().toString().padStart(2, '0');
+        return months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear() + ', ' +
+               h + ':' + min + ':' + sec + ' ' + ampm;
+      }
+      document.querySelectorAll('.settlement-date').forEach(function(el) { el.textContent = relDate(14); });
+      document.querySelectorAll('[data-rel]').forEach(function (el) {
+        el.textContent = relDate(parseInt(el.getAttribute('data-rel'), 10));
+      });
+      document.querySelectorAll('[data-hours-ago]').forEach(function (el) {
+        el.textContent = relDateTime(parseInt(el.getAttribute('data-hours-ago'), 10));
+      });
+    })();
+
+    // AI loader → content transition
+    setTimeout(function() {
+      document.getElementById('ai-loader').style.display = 'none';
+      document.querySelector('.ai-body').classList.remove('loading');
+      document.getElementById('ai-content').classList.add('visible');
+      // Set invoice deadline to now + 24h
+      var dl = document.getElementById('invoiceDeadline');
+      if (dl) {
+        var d = new Date(Date.now() + 24 * 60 * 60 * 1000);
+        var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        var h = d.getHours(), ampm = h >= 12 ? 'PM' : 'AM';
+        h = h % 12 || 12;
+        var min = d.getMinutes().toString().padStart(2,'0');
+        dl.textContent = months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear() + ', ' + h + ':' + min + ' ' + ampm;
+      }
+    }, 1500);
+
+    // Email panel
+    var _emailContact = '', _emailAmount = '', _emailCustomer = '', _emailBlank = false, _emailHistoryText = '';
+
+    function buildInvoiceTable(rows, columns) {
+      var cols = columns || ['Invoice Number', 'Due Date', 'Amount'];
+      var th = cols.map(function(h) { return '<th style="border:1px solid #ccc;padding:6px 10px;background:#f5f5f5;text-align:left;font-weight:600;">' + h + '</th>'; }).join('');
+      var trs = rows.map(function(row) {
+        var tds = row.map(function(cell) { return '<td style="border:1px solid #ccc;padding:6px 10px;">' + cell + '</td>'; }).join('');
+        return '<tr>' + tds + '</tr>';
+      }).join('');
+      return '<br><table style="border-collapse:collapse;width:100%;font-family:\'72\',sans-serif;font-size:0.875rem;"><thead><tr>' + th + '</tr></thead><tbody>' + trs + '</tbody></table><br>';
+    }
+    function buildInvoiceCopiesEmail() {
+      var contact = _emailContact || 'Sir/Madam';
+      var email   = _emailContact || 'Sir/Madam';
+      var cust    = _emailCustomer;
+      var invoiceRows = buildInvoiceTable([
+        ['7100008792', '20/07/2026', '£5,412.40'],
+        ['7100008801', '28/07/2026', '£3,380.38']
+      ]);
+      var sig = '<br>Kind regards,<br>Jordan Lee<br>Collection Specialist<br>BestRun';
+      return 'Dear ' + contact + ','
+        + '<br><br>I hope you are doing well.'
+        + '<br><br>As requested, please find attached copies of the following invoice(s) for your reference:'
+        + invoiceRows
+        + 'To ensure efficient processing of future invoices, could you please confirm that this email address (<strong>' + document.getElementById('emailToInput').getAttribute('value') + '</strong>) is the correct contact for invoice receipt? If there is a different address or distribution list we should use, kindly share the updated details.'
+        + '<br><br>Additionally, we would appreciate your confirmation on whether these invoices can still be processed for payment within the agreed due date. If you have any queries, please let us know so we can address them promptly.'
+        + '<br><br>Thank you for your cooperation, and we look forward to your confirmation.'
+        + sig;
+    }
+
+    function buildEmailBody(tone) {
+      var contact = _emailContact || 'Sir/Madam';
+      var cust    = _emailCustomer;
+      var sig = '<br>Thank you,<br>Jordan Lee<br>Collection Specialist<br>BestRun';
+
+      var table = '<br><table style="border-collapse:collapse; width:100%; font-family:\'72\',sans-serif; font-size:0.875rem;">'
+        + '<thead><tr>'
+        + '<th style="border:1px solid #ccc; padding:6px 10px; background:#f5f5f5; text-align:left;">Invoice</th>'
+        + '<th style="border:1px solid #ccc; padding:6px 10px; background:#f5f5f5; text-align:left;">Invoice Ext. Ref (PO)</th>'
+        + '<th style="border:1px solid #ccc; padding:6px 10px; background:#f5f5f5; text-align:left;">Open amount</th>'
+        + '<th style="border:1px solid #ccc; padding:6px 10px; background:#f5f5f5; text-align:left;">Due date</th>'
+        + '<th style="border:1px solid #ccc; padding:6px 10px; background:#f5f5f5; text-align:left;">Overdue days</th>'
+        + '</tr></thead>'
+        + '<tbody>'
+        + '<tr><td style="border:1px solid #ccc; padding:6px 10px;">7100000461</td><td style="border:1px solid #ccc; padding:6px 10px;">N/A</td><td style="border:1px solid #ccc; padding:6px 10px;">£11,341.39</td><td style="border:1px solid #ccc; padding:6px 10px;">12/06/2025</td><td style="border:1px solid #ccc; padding:6px 10px;">426</td></tr>'
+        + '<tr><td style="border:1px solid #ccc; padding:6px 10px;">7100000461</td><td style="border:1px solid #ccc; padding:6px 10px;">N/A</td><td style="border:1px solid #ccc; padding:6px 10px;">£7,162.19</td><td style="border:1px solid #ccc; padding:6px 10px;">12/06/2025</td><td style="border:1px solid #ccc; padding:6px 10px;">426</td></tr>'
+        + '<tr><td style="border:1px solid #ccc; padding:6px 10px;">7100000851</td><td style="border:1px solid #ccc; padding:6px 10px;">N/A</td><td style="border:1px solid #ccc; padding:6px 10px;">£4,728.22</td><td style="border:1px solid #ccc; padding:6px 10px;">14/06/2025</td><td style="border:1px solid #ccc; padding:6px 10px;">424</td></tr>'
+        + '<tr><td style="border:1px solid #ccc; padding:6px 10px;">7100002055</td><td style="border:1px solid #ccc; padding:6px 10px;">N/A</td><td style="border:1px solid #ccc; padding:6px 10px;">£4,982.91</td><td style="border:1px solid #ccc; padding:6px 10px;">20/06/2025</td><td style="border:1px solid #ccc; padding:6px 10px;">418</td></tr>'
+        + '<tr><td style="border:1px solid #ccc; padding:6px 10px;">7100003993</td><td style="border:1px solid #ccc; padding:6px 10px;">N/A</td><td style="border:1px solid #ccc; padding:6px 10px;">£10,402.13</td><td style="border:1px solid #ccc; padding:6px 10px;">29/06/2025</td><td style="border:1px solid #ccc; padding:6px 10px;">409</td></tr>'
+        + '<tr><td style="border:1px solid #ccc; padding:6px 10px;">7100003993</td><td style="border:1px solid #ccc; padding:6px 10px;">N/A</td><td style="border:1px solid #ccc; padding:6px 10px;">£6,672.97</td><td style="border:1px solid #ccc; padding:6px 10px;">29/06/2025</td><td style="border:1px solid #ccc; padding:6px 10px;">409</td></tr>'
+        + '<tr><td style="border:1px solid #ccc; padding:6px 10px;">7100005034</td><td style="border:1px solid #ccc; padding:6px 10px;">N/A</td><td style="border:1px solid #ccc; padding:6px 10px;">£7,181.35</td><td style="border:1px solid #ccc; padding:6px 10px;">05/07/2025</td><td style="border:1px solid #ccc; padding:6px 10px;">403</td></tr>'
+        + '<tr><td style="border:1px solid #ccc; padding:6px 10px;">7100005034</td><td style="border:1px solid #ccc; padding:6px 10px;">N/A</td><td style="border:1px solid #ccc; padding:6px 10px;">£11,643.47</td><td style="border:1px solid #ccc; padding:6px 10px;">05/07/2025</td><td style="border:1px solid #ccc; padding:6px 10px;">403</td></tr>'
+        + '<tr><td style="border:1px solid #ccc; padding:6px 10px;">7100006323</td><td style="border:1px solid #ccc; padding:6px 10px;">N/A</td><td style="border:1px solid #ccc; padding:6px 10px;">£11,556.86</td><td style="border:1px solid #ccc; padding:6px 10px;">12/07/2025</td><td style="border:1px solid #ccc; padding:6px 10px;">396</td></tr>'
+        + '<tr><td style="border:1px solid #ccc; padding:6px 10px;">7100006323</td><td style="border:1px solid #ccc; padding:6px 10px;">N/A</td><td style="border:1px solid #ccc; padding:6px 10px;">£7,190.86</td><td style="border:1px solid #ccc; padding:6px 10px;">12/07/2025</td><td style="border:1px solid #ccc; padding:6px 10px;">396</td></tr>'
+        + '</tbody></table><br>';
+
+      var greeting = tone === 'Formal' ? 'Dear ' + contact + ',' : tone === 'Urgent' ? 'Dear ' + contact + ',' : 'Good morning ' + contact + ',';
+
+      var body;
+      if (tone === 'Formal') {
+        body = 'I am writing to formally bring to your attention an outstanding balance for ' + cust + ', which remains unpaid across multiple invoices. Please find the details below.'
+          + table
+          + 'We kindly request that you confirm the payment status or provide a structured payment timeline at your earliest convenience. Should you require any additional documentation or clarification, please do not hesitate to contact us.';
+      } else if (tone === 'Urgent') {
+        body = 'This is an urgent notice regarding overdue invoices for ' + cust + '. The following invoices require immediate attention:'
+          + table
+          + 'Failure to respond or arrange payment within 48 hours may result in escalation, including suspension of services and referral to our legal team. Please confirm payment or contact us immediately to avoid further action.';
+      } else {
+        body = 'I hope this message finds you well.'
+          + '<br><br>We are following up on the outstanding invoices for ' + cust + ' listed below.'
+          + table
+          + 'Please confirm the payment status or provide a payment timeline for these invoices, or let me know if you need any clarification or documentation to process payment.';
+      }
+
+      return greeting + '<br><br>' + body + '<br>' + sig;
+    }
+    function openEmailPanel(blank) {
+      _emailBlank = !!blank;
+      const customerName = new URLSearchParams(window.location.search).get('customer') || 'Clairmont Diagnostic Clinic';
+      const c = CUSTOMERS[customerName] || {};
+      _emailContact  = c.contact || 'Sir/Madam';
+      _emailAmount   = c.amount  || '';
+      _emailCustomer = customerName;
+      document.getElementById('emailPanelCustomer').textContent = customerName;
+      document.getElementById('emailToInput').setAttribute('value', c.email || _emailContact);
+      document.getElementById('emailSubject').setAttribute('value', '');
+      document.getElementById('emailBody').innerHTML = '';
+      // Attachments: hide in blank mode
+      document.getElementById('emailAttSection').style.display = blank ? 'none' : '';
+      var sb = document.querySelector('app-shellbar ui5-shellbar') || document.querySelector('ui5-shellbar');
+      var topOffset = sb ? sb.getBoundingClientRect().bottom : 44;
+      document.getElementById('emailPanel').style.top = (topOffset + 1) + 'px';
+      document.getElementById('emailPanel').classList.add('open');
+
+      if (blank) {
+        // Open immediately with empty fields, no loader
+        document.getElementById('emailBody').style.visibility = '';
+        document.getElementById('emailBodyLoader').style.display = 'none';
+        document.getElementById('emailSendBtn').removeAttribute('disabled');
+        // Reset tone
+        var toneSelect = document.getElementById('toneSelect');
+        if (toneSelect) { Array.from(toneSelect.querySelectorAll('ui5-option')).forEach(function(o) { o.selected = o.textContent.trim() === 'Neutral'; }); }
+      } else {
+        // AI-generated: show loader then populate
+        document.getElementById('emailBody').style.visibility = 'hidden';
+        document.getElementById('emailBodyLoader').style.display = 'flex';
+        document.getElementById('emailSendBtn').setAttribute('disabled', '');
+        var toneSelect = document.getElementById('toneSelect');
+        if (toneSelect) { Array.from(toneSelect.querySelectorAll('ui5-option')).forEach(function(o) { o.selected = o.textContent.trim() === 'Neutral'; }); }
+        setTimeout(function() {
+          document.getElementById('emailBodyLoader').style.display = 'none';
+          document.getElementById('emailBody').style.visibility = '';
+          document.getElementById('emailSubject').setAttribute('value', 'Outstanding balance of EUR ' + _emailAmount);
+          document.getElementById('emailBody').innerHTML = buildEmailBody('Neutral');
+          document.getElementById('emailSendBtn').removeAttribute('disabled');
+        }, 1500);
+      }
+    }
+
+    var _emailResizeObserver = null;
+    function resizeEmailBody() {}
+    function startEmailResizeObserver() {}
+    function closeEmailPanel() {
+      document.getElementById('emailPanel').classList.remove('open');
+      window._blockOrderEmailActive = false;
+    }
+    function closeNotesPanel() {
+      document.getElementById('notesPanel').classList.remove('open');
+    }
+    function openCallScriptPanel() {
+      const customerName = document.getElementById('page-title').textContent;
+      const c = CUSTOMERS[customerName] || {};
+      const contact = c.contact || 'the customer';
+      const amount  = c.amount  || '';
+      var firstName = contact.split(' ')[0] || contact;
+      var invoices = '  • 7033821540: EUR 18,219.40 (due 2026-02-10)\n  • 7033821539: EUR 36,438.80 (due 2026-02-10)\n  • 7033784215: EUR 13,664.55 (due 2025-09-01)';
+      const script =
+        'Hi, may I speak with ' + contact + ' please?\n\n' +
+        '[Wait for response]\n\n' +
+        'Good [morning/afternoon], ' + firstName + '. My name is Jordan Lee, I\'m calling from BestRun regarding an outstanding balance of EUR ' + amount + ' on the ' + customerName + ' account.\n\n' +
+        'The balance remains unpaid across the following invoices:\n\n' +
+        invoices + '\n\n' +
+        'I\'d like to understand the current status of these and work with you on a resolution. Could you provide an update on where things stand?\n\n' +
+        '[Listen — note any disputes, approvals pending, or cash flow issues]\n\n' +
+        'Thank you for that context. To bring this to a close, I\'d like to propose the following options:\n\n' +
+        '  1. Full settlement of EUR ' + amount + ' by a date that works for your team\n' +
+        '  2. A structured payment plan — for example, two instalments over 30 days\n' +
+        '  3. If any of these invoices are subject to a dispute, we can isolate those and process the undisputed portion separately\n\n' +
+        'Which of those would you like to proceed with?\n\n' +
+        '[Agree on a specific date or next step — write it down]\n\n' +
+        'Understood. I\'ll send a written summary of what we\'ve agreed to ' + (c.email || 'the email address we have on file') + ' immediately after this call. Please confirm that address is still current.\n\n' +
+        '[Wait for confirmation]\n\n' +
+        'Thank you, ' + firstName + '. I appreciate your time. You\'ll receive that confirmation shortly.';
+      var ta = document.getElementById('callScriptBody');
+      ta.value = '';
+      ta.style.visibility = 'hidden';
+      var loader = document.getElementById('callScriptLoader');
+      loader.style.display = 'flex';
+      var sb = document.querySelector('app-shellbar ui5-shellbar') || document.querySelector('ui5-shellbar');
+      var topOffset = sb ? sb.getBoundingClientRect().bottom : 44;
+      var panel = document.getElementById('callScriptPanel');
+      panel.style.top = (topOffset + 1) + 'px';
+      panel.classList.add('open');
+      setTimeout(function() {
+        ta.value = script;
+        setTimeout(function() { ta.value = script; }, 100);
+        loader.style.display = 'none';
+        ta.style.visibility = '';
+      }, 1500);
+    }
+    function closeCallScriptPanel() {
+      document.getElementById('callScriptPanel').classList.remove('open');
+    }
+    function openAddNotesPanel() {
+      var sb = document.querySelector('app-shellbar ui5-shellbar') || document.querySelector('ui5-shellbar');
+      var topOffset = sb ? sb.getBoundingClientRect().bottom : 44;
+      var panel = document.getElementById('notesPanel');
+      panel.style.top = (topOffset + 1) + 'px';
+      var header = panel.querySelector('.email-panel-header');
+      header.innerHTML = 'Add Notes';
+      document.getElementById('notesTextarea').value = '';
+      panel._saveMode = 'addnotes';
+      panel.classList.add('open');
+    }
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') { closeEmailPanel(); closeNotesPanel(); closeCallScriptPanel(); }
+    });
+    document.addEventListener('DOMContentLoaded', function() { try {
+      // Thumb button border on click, reset on mouseout
+      ['thumbUpBtn', 'thumbDownBtn'].forEach(function(id) {
+        var btn = document.getElementById(id);
+        if (!btn) return;
+        btn.addEventListener('click', function() { this.setAttribute('design', 'Default'); });
+        btn.addEventListener('mouseleave', function() {
+          this.setAttribute('design', 'Transparent');
+          this.blur();
+        });
+      });
+
+      // Thumbs up burst stars
+      var _thumbUp = document.getElementById('thumbUpBtn');
+      if (_thumbUp) _thumbUp.addEventListener('click', function() {
+        showToast('Thank you for your feedback!');
+        var rect = this.getBoundingClientRect();
+        var cx = rect.left + rect.width / 2;
+        var cy = rect.top + rect.height / 2;
+        var angles = [0, 40, 80, 130, 180, 220, 260, 310];
+        angles.forEach(function(angle) {
+          var dist = 28 + Math.random() * 18;
+          var rad = angle * Math.PI / 180;
+          var tx = Math.cos(rad) * dist;
+          var ty = Math.sin(rad) * dist;
+          var star = document.createElement('span');
+          star.className = 'burst-star';
+          star.textContent = '★';
+          star.style.cssText = 'left:' + cx + 'px; top:' + cy + 'px; font-size:' + (12 + Math.random() * 8) + 'px; color:var(--sapCriticalColor, #e9730c); --tx:' + tx + 'px; --ty:' + ty + 'px;';
+          document.body.appendChild(star);
+          setTimeout(function() { star.remove(); }, 650);
+        });
+      });
+
+      // Thumbs down dialog
+      var _thumbDown = document.getElementById('thumbDownBtn');
+      if (_thumbDown) _thumbDown.addEventListener('click', function() {
+        document.querySelectorAll('.feedback-pill').forEach(function(p) { p.classList.remove('selected'); });
+        document.getElementById('otherInputWrap').style.display = 'none';
+        document.getElementById('otherInput').setAttribute('value', '');
+        document.getElementById('thumbsDownOkBtn').setAttribute('disabled', '');
+        document.getElementById('thumbsDownDialog').open = true;
+      });
+      document.querySelectorAll('.feedback-pill').forEach(function(pill) {
+        pill.addEventListener('click', function() {
+          this.classList.toggle('selected');
+          if (this.id === 'otherPill') {
+            var wrap = document.getElementById('otherInputWrap');
+            wrap.style.display = this.classList.contains('selected') ? '' : 'none';
+            if (this.classList.contains('selected')) document.getElementById('otherInput').focus();
+          }
+          updateOkBtn();
+        });
+      });
+      function updateOkBtn() {
+        var selectedPills = document.querySelectorAll('.feedback-pill.selected');
+        var otherSelected = document.getElementById('otherPill').classList.contains('selected');
+        var otherText = (document.getElementById('otherInput').value || '').trim();
+        var nonOtherSelected = Array.from(selectedPills).some(function(p) { return p.id !== 'otherPill'; });
+        var valid = nonOtherSelected || (otherSelected && otherText.length > 0);
+        var okBtn = document.getElementById('thumbsDownOkBtn');
+        valid ? okBtn.removeAttribute('disabled') : okBtn.setAttribute('disabled', '');
+      }
+      document.getElementById('otherInput').addEventListener('input', updateOkBtn);
+
+      // Discard suggestion dialog
+      var _discardCallback = null;
+      function openDiscardDialog(callback) {
+        _discardCallback = callback;
+        document.querySelectorAll('.discard-pill').forEach(function(p) { p.classList.remove('selected'); });
+        document.getElementById('discardOtherInputWrap').style.display = 'none';
+        document.getElementById('discardOtherInput').setAttribute('value', '');
+        document.getElementById('discardDialogOkBtn').setAttribute('disabled', '');
+        document.getElementById('discardDialog').open = true;
+      }
+      function updateDiscardOkBtn() {
+        var selectedPills = document.querySelectorAll('.discard-pill.selected');
+        var otherSelected = document.getElementById('discardOtherPill').classList.contains('selected');
+        var otherText = (document.getElementById('discardOtherInput').value || '').trim();
+        var nonOtherSelected = Array.from(selectedPills).some(function(p) { return p.id !== 'discardOtherPill'; });
+        var valid = nonOtherSelected || (otherSelected && otherText.length > 0);
+        var okBtn = document.getElementById('discardDialogOkBtn');
+        valid ? okBtn.removeAttribute('disabled') : okBtn.setAttribute('disabled', '');
+      }
+      document.querySelectorAll('.discard-pill').forEach(function(pill) {
+        pill.addEventListener('click', function() {
+          this.classList.toggle('selected');
+          if (this.id === 'discardOtherPill') {
+            var wrap = document.getElementById('discardOtherInputWrap');
+            wrap.style.display = this.classList.contains('selected') ? '' : 'none';
+            if (this.classList.contains('selected')) document.getElementById('discardOtherInput').focus();
+          }
+          updateDiscardOkBtn();
+        });
+      });
+      document.getElementById('discardOtherInput').addEventListener('input', updateDiscardOkBtn);
+      document.getElementById('discardDialogOkBtn').addEventListener('click', function() {
+        document.getElementById('discardDialog').open = false;
+        if (_discardCallback) { _discardCallback(); _discardCallback = null; }
+        showToast('Thank you for your feedback. We will use it to improve our AI recommendations.');
+      });
+      document.getElementById('discardDialogCancelBtn').addEventListener('click', function() {
+        document.getElementById('discardDialog').open = false;
+        _discardCallback = null;
+      });
+      document.getElementById('thumbsDownOkBtn').addEventListener('click', function() {
+        document.getElementById('thumbsDownDialog').open = false;
+        document.getElementById('thumbDownBtn').setAttribute('design', 'Transparent');
+        document.getElementById('thumbDownBtn').blur();
+        showToast('Thank you for your feedback. We will use it to improve our AI recommendations.');
+      });
+      document.getElementById('thumbsDownCancelBtn').addEventListener('click', function() {
+        document.getElementById('thumbsDownDialog').open = false;
+        document.getElementById('thumbDownBtn').setAttribute('design', 'Transparent');
+        document.getElementById('thumbDownBtn').blur();
+      });
+
+      // Profile popover
+      setTimeout(function() {
+        var sb = document.querySelector('app-shellbar ui5-shellbar') || document.querySelector('ui5-shellbar');
+        if (sb) {
+          sb.addEventListener('profile-click', function(e) {
+            var pop = document.getElementById('profilePop');
+            pop.opener = e.detail && e.detail.targetRef ? e.detail.targetRef : sb;
+            pop.open = !pop.open;
+          });
+        }
+      }, 400);
+
+      setTimeout(function() {
+      var _psb = document.getElementById('profileSettingsBtn'); if (_psb) _psb.addEventListener('click', function() {
+        document.getElementById('profilePop').open = false;
+        document.getElementById('settingsDialog').open = true;
+      });
+      }, 600);
+
+      // Wire hamburger menu
+      setTimeout(function() {
+        var menuBtn = document.querySelector('app-shellbar ui5-button[icon="menu2"]');
+        if (menuBtn) {
+          menuBtn.addEventListener('click', function() {
+            var pop = document.getElementById('navMenu');
+            pop.opener = menuBtn;
+            pop.open = !pop.open;
+          });
+        }
+      }, 300);
+      document.getElementById('callScriptCloseBtn').addEventListener('click', closeCallScriptPanel);
+      document.getElementById('emailCancelBtn').addEventListener('click', closeEmailPanel);
+      document.getElementById('emailSendBtn').addEventListener('click', function() {
+        var panel = document.getElementById('emailPanel');
+        // 1. Brief pause then slide out
+        setTimeout(function() {
+          panel.classList.remove('open');
+          // 2. After panel slides out, show toast and swap action card
+          setTimeout(function() {
+            // Swap email action card → no action card
+            (document.getElementById('email-action-card')||{style:{}}).style.display = 'none';
+            (document.getElementById('block-order-action-card')||{style:{}}).style.display = 'none';
+            (document.getElementById('resend-action-card')||{style:{}}).style.display = 'none';
+            (document.getElementById('credit-note-action-card')||{style:{}}).style.display = 'none';
+            (document.getElementById('action-cards')||{style:{}}).style.display = 'none';
+            (document.getElementById('no-action-card')||{style:{}}).style.display = '';
+            // Add outbound email entry to account history
+            var now = new Date();
+            var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+            var h = now.getHours(), ampm = h >= 12 ? 'PM' : 'AM';
+            h = h % 12 || 12;
+            var min = now.getMinutes().toString().padStart(2,'0');
+            var sec = now.getSeconds().toString().padStart(2,'0');
+            var ts = months[now.getMonth()] + ' ' + now.getDate() + ', ' + now.getFullYear() + ', ' + h + ':' + min + ':' + sec + ' ' + ampm;
+            var newItem = document.createElement('li');
+            newItem.className = 'history-item';
+            var _sentSubject = document.getElementById('emailSubject').getAttribute('value') || document.getElementById('emailSubject').value || 'Email';
+            var _sentBody = document.getElementById('emailBody').innerHTML || '';
+            var _sentEmailId = 'sent-' + Date.now();
+            EMAIL_PREVIEWS[_sentEmailId] = {
+              subject: _sentSubject,
+              from: 'Jordan Lee <jordan.lee@bestrun.com>',
+              to: null,
+              hoursAgo: 0,
+              body: function(cu, co, am, sd) { return _sentBody; }
+            };
+            var _historyText = _emailHistoryText || ('Email sent to ' + (_emailCustomer || 'customer') + (_emailBlank ? '.' : ' regarding outstanding balance of GBP ' + (_emailAmount || '') + '.'));
+            _emailHistoryText = '';
+            newItem.innerHTML = '<div class="history-dot-col"><div class="history-dot"></div></div>' +
+              '<div class="history-body">' +
+              '<div class="history-time">' + ts + '</div>' +
+              '<div class="history-text">' + _historyText + '</div>' +
+              '<div class="history-subtitle">Outbound Email · jordan.lee@bestrun.com</div>' +
+              '<a href="#" data-email-id="' + _sentEmailId + '" class="view-email-link" onclick="return false;" style="font-size:0.875rem; color:var(--sapLinkColor,#0070f2); text-decoration:none; cursor:pointer;">View Email</a>' +
+              '</div>';
+            var historyList = document.querySelector('#side-panel-history .history-list');
+            newItem.classList.add('entering');
+            historyList.insertBefore(newItem, historyList.firstChild);
+            var newLink = newItem.querySelector('.view-email-link');
+            if (newLink && window.bindEmailHover) window.bindEmailHover(newLink, _sentEmailId);
+            requestAnimationFrame(function() {
+              requestAnimationFrame(function() {
+                newItem.classList.remove('entering');
+              });
+            });
+            // Show toast
+            var toast = document.getElementById('sendToast');
+            toast.textContent = 'Email sent to ' + (_emailCustomer || 'customer') + ' successfully.';
+            toast.style.opacity = '1';
+            toast.style.transform = 'translateX(-50%) translateY(0)';
+            setTimeout(function() {
+              toast.style.opacity = '0';
+              toast.style.transform = 'translateX(-50%) translateY(20px)';
+            }, 3000);
+          }, 600);
+        }, 900);
+      });
+      startEmailResizeObserver();
+
+      // Block order email tone variants
+      function buildBlockOrderEmailBody(tone) {
+        var customerName = new URLSearchParams(window.location.search).get('customer') || 'Fairvale Pantry Ltd';
+        if (tone === 'Formal') {
+          return 'Dear Credit Team Members,<br><br>' +
+            'I am writing to formally request your support in managing the payment behaviour of <strong>' + customerName + '</strong>. We continue to experience recurring overdue invoices, with payments consistently made only upon placement of new orders — a pattern that is not aligned with agreed payment terms.<br><br>' +
+            'In light of this, we respectfully request the following actions:<br>' +
+            '<ul style="margin:0.25rem 0 0.5rem 1.25rem; padding:0;">' +
+            '<li>Engaging the customer to transition to a Direct Debit arrangement for this account</li>' +
+            '<li>Reinforcing adherence to the agreed payment terms</li>' +
+            '<li>Providing any relevant commercial insight or constraints that may affect this request</li>' +
+            '</ul><br>' +
+            'Please find attached the invoice currently overdue by <strong>54 days</strong> for your reference.<br><br>' +
+            'We appreciate your continued support in addressing these payment challenges.<br><br>' +
+            'Yours sincerely,<br>Jordan Lee';
+        }
+        if (tone === 'Urgent') {
+          return 'Hi Credit Team Members,<br><br>' +
+            '<strong>Urgent action required.</strong><br><br>' +
+            '<strong>' + customerName + '</strong> has an overdue invoice outstanding for <strong>54 days</strong> with no resolution in sight. The pattern is clear: this customer only pays when a new order is at risk of being blocked. We need to act now.<br><br>' +
+            'Please action the following immediately:<br>' +
+            '<ul style="margin:0.25rem 0 0.5rem 1.25rem; padding:0;">' +
+            '<li>Initiate a Direct Debit transition with the customer without delay</li>' +
+            '<li>Place a formal order block until payment is received</li>' +
+            '<li>Flag any commercial sensitivities that could impact this escalation</li>' +
+            '</ul><br>' +
+            'The overdue invoice is attached. We cannot allow this to continue — your immediate support is critical.<br><br>' +
+            'Thank you,<br>Jordan Lee';
+        }
+        // Neutral (default)
+        return 'Hi Credit Team Members,<br><br>' +
+          'I hope you\'re doing well.<br><br>' +
+          'I\'m reaching out to ask for your support regarding <strong>' + customerName + '</strong> and their payment behaviour. As you are aware, we have been experiencing ongoing issues with overdue invoices, and unfortunately, we continue to receive limited visibility from the customer regarding payment timelines.<br><br>' +
+          'This has become a recurring pattern, where payments are typically made only prior to the placement of new orders, which is not aligned with the agreed payment terms.<br><br>' +
+          'Given these persistent delays, we believe it would be beneficial to transition this account to a Direct Debit setup to ensure more consistent and timely payments.<br><br>' +
+          'Could you please support with:<br>' +
+          '<ul style="margin:0.25rem 0 0.5rem 1.25rem; padding:0;">' +
+          '<li>Engaging the customer to transition to Direct Debit for this account</li>' +
+          '<li>Reinforcing the importance of adhering to agreed payment terms</li>' +
+          '<li>Providing any commercial insight or constraints that may impact this request</li>' +
+          '</ul><br>' +
+          'For reference, please see attached the invoice currently overdue by <strong>54 days</strong>:' +
+          buildInvoiceTable([['INV-20260318', '18/03/2026', '£67,184.30']]) +
+          'Your support and relationship with the customer will be key in helping us address these recurring payment challenges.<br><br>' +
+          'Thank you in advance for your support.<br><br>' +
+          'Kind regards,<br>Jordan Lee<br>Collection Specialist<br>BestRun';
+      }
+
+      // Credit Note — Velmont Retail Partners
+      (function() {
+        var btn = document.getElementById('sendCreditNoteEmailBtn');
+        if (!btn) return;
+        btn.addEventListener('click', function() {
+          var customerName = new URLSearchParams(window.location.search).get('customer') || 'Velmont Retail Partners';
+          var c = CUSTOMERS[customerName] || {};
+          var panel = document.getElementById('emailPanel');
+          var sb = document.querySelector('app-shellbar ui5-shellbar') || document.querySelector('ui5-shellbar');
+          var topOffset = sb ? sb.getBoundingClientRect().bottom : 44;
+          panel.style.top = (topOffset + 1) + 'px';
+          _emailCustomer = customerName;
+          _emailBlank = true;
+          window._blockOrderEmailActive = false;
+          document.getElementById('emailToInput').removeAttribute('readonly');
+          document.getElementById('emailToInput').setAttribute('value', c.email || '');
+          // Show attachment section with credit note pre-attached
+          var attSection = document.getElementById('emailAttSection');
+          attSection.style.display = '';
+          var att1 = document.getElementById('att1'); if (att1) att1.style.display = 'none';
+          var att2 = document.getElementById('att2'); if (att2) att2.style.display = 'none';
+          // Add credit note attachment if not already there
+          if (!document.getElementById('attCreditNote')) {
+            var attDiv = document.createElement('div');
+            attDiv.className = 'email-att-item';
+            attDiv.id = 'attCreditNote';
+            attDiv.innerHTML = '<span class="email-att-name"><ui5-icon name="attachment"></ui5-icon> <ui5-link>Credit Note CN-20260814.pdf</ui5-link></span>' +
+              '<ui5-button design="Transparent" icon="decline" onclick="document.getElementById(\'attCreditNote\').remove()"></ui5-button>';
+            attSection.appendChild(attDiv);
+          }
+          document.getElementById('emailSubject').setAttribute('value', 'Credit Notes Issued – Request to Proceed with Payment');
+          _emailHistoryText = 'Payment request with credit note CN-20260814 sent to ' + customerName + ' — net outstanding balance of £65,680.00 confirmed, payment date requested.';
+          document.getElementById('emailBody').innerHTML =
+            'Dear ' + (c.contact ? c.contact.split(' ')[0] : 'Sir/Madam') + ',<br><br>' +
+            'I hope you are doing well.<br><br>' +
+            'Please find attached the credit notes in relation to the below disputed invoices.' +
+            buildInvoiceTable([
+              ['INV-20260601', '01/06/2026', '£8,500.00'],
+              ['INV-20260615', '15/06/2026', '£65,680.00']
+            ]) +
+            'With these adjustments now processed, we kindly ask you to confirm that the remaining invoices can be released for payment.<br><br>' +
+            'Could you also please share the expected payment date for the outstanding balance of <strong>£65,680.00</strong>?<br><br>' +
+            'If there are any additional credit notes required or if further discrepancies remain, please let us know as soon as possible so we can review and resolve them promptly.<br><br>' +
+            'Thank you for your cooperation, and we look forward to your confirmation.<br><br>' +
+            'Kind regards,<br>Jordan Lee<br>Collection Specialist<br>BestRun';
+          panel.classList.add('open');
+        });
+      })();
+
+      // Confirm Payment — Rowan Foods Group
+      (document.getElementById('markAsPaidBtn') || {addEventListener:function(){}}).addEventListener('click', function() {
+        (document.getElementById('confirm-payment-action-card')||{style:{}}).style.display = 'none';
+        (document.getElementById('action-cards')||{style:{}}).style.display = 'none';
+        (document.getElementById('no-action-card')||{style:{}}).style.display = '';
+        addHistoryEntry('Invoice manually verified and marked as paid.', 'jordan.lee@bestrun.com');
+        showToast('Invoice marked as paid.');
+      });
+
+      // Proactive Outreach — Kestrel (friendly tone, not yet overdue)
+      (function() {
+        var btn = document.getElementById('sendProactiveEmailBtn');
+        if (!btn) return;
+        btn.addEventListener('click', function() {
+          var customerName = new URLSearchParams(window.location.search).get('customer') || 'Kestrel Distribution Ltd';
+          var c = CUSTOMERS[customerName] || {};
+          openEmailPanel(false);
+          _emailHistoryText = 'Overdue payment reminder sent to ' + customerName + ' for 3 invoices totalling £143,200.00 — immediate action requested.';
+          setTimeout(function() {
+            document.getElementById('emailToInput').setAttribute('value', c.email || '');
+            document.getElementById('emailSubject').setAttribute('value', 'Reminder: Overdue Invoice(s) – Immediate Action Required');
+            document.getElementById('emailBody').innerHTML =
+              'Dear ' + (c.contact || 'Sir/Madam') + ',<br><br>' +
+              'I hope this message finds you well.<br><br>' +
+              'We would like to bring to your attention that the following invoice(s) are currently overdue according to the payment terms agreed:' +
+              buildInvoiceTable([
+                ['INV-20260731', '31/08/2026', '£52,400.00'],
+                ['INV-20260802', '02/09/2026', '£48,600.00'],
+                ['INV-20260808', '08/09/2026', '£42,200.00']
+              ]) +
+              'As per our agreement, we kindly ask you to arrange payment per your payment terms of the outstanding balance as soon as possible.<br><br>' +
+              'If payment has already been made, please disregard this message and share the remittance advice so we can update our records accordingly.<br><br>' +
+              'Should there be any issues or discrepancies preventing payment, please let us know immediately so we can work together towards a resolution.<br><br>' +
+              'Thank you for your prompt attention to this matter.<br><br>' +
+              'Kind regards,<br>Jordan Lee<br>Collection Specialist<br>BestRun';
+          }, 1600);
+        });
+      })();
+
+      // Urgent Follow-up — Thornfield Grocery Ltd (firm tone, 45+ days)
+      (function() {
+        var btn = document.getElementById('sendUrgentEmailBtn');
+        if (!btn) return;
+        btn.addEventListener('click', function() {
+          var customerName = new URLSearchParams(window.location.search).get('customer') || 'Thornfield Grocery Ltd';
+          var c = CUSTOMERS[customerName] || {};
+          var d = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000);
+          var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+          var specificDate = d.getDate() + ' ' + months[d.getMonth()] + ' ' + d.getFullYear();
+          openEmailPanel(false);
+          _emailHistoryText = 'Urgent payment reminder sent to ' + customerName + ' for 3 overdue invoices totalling £88,450.00 — settlement deadline of ' + specificDate + ' stated.';
+          setTimeout(function() {
+            document.getElementById('emailToInput').setAttribute('value', c.email || '');
+            document.getElementById('emailSubject').setAttribute('value', 'Urgent: Overdue Invoice(s) – Action Required');
+            document.getElementById('emailBody').innerHTML =
+              'Dear ' + (c.contact || 'Sir/Madam') + ',<br><br>' +
+              'We note that the below invoice(s) remain unpaid beyond the agreed payment terms:' +
+              buildInvoiceTable([
+                ['INV-20260620', '20/06/2026', '£38,750.00'],
+                ['INV-20260704', '04/07/2026', '£31,200.00'],
+                ['INV-20260718', '18/07/2026', '£18,500.00']
+              ]) +
+              'Despite previous reminders, payment has not yet been received. We would like to emphasise the importance of adhering to the agreed payment terms.<br><br>' +
+              'Please arrange for immediate settlement of the outstanding amount or provide an update on the payment status by <strong>' + specificDate + '</strong>.<br><br>' +
+              'We appreciate your cooperation and look forward to your prompt response.<br><br>' +
+              'Kind regards,<br>Jordan Lee<br>Collection Specialist<br>BestRun';
+          }, 1600);
+        });
+      })();
+
+      // Remove from Queue — Kestrel (escalate internally)
+      (function() {
+        var escalateBtn = document.getElementById('escalateRemoveBtn');
+        var ignoreBtn = document.getElementById('ignoreRemoveBtn');
+        if (escalateBtn) escalateBtn.addEventListener('click', function() {
+          var customerName = new URLSearchParams(window.location.search).get('customer') || 'Kestrel Distribution Ltd';
+          var panel = document.getElementById('emailPanel');
+          var sb = document.querySelector('app-shellbar ui5-shellbar') || document.querySelector('ui5-shellbar');
+          var topOffset = sb ? sb.getBoundingClientRect().bottom : 44;
+          panel.style.top = (topOffset + 1) + 'px';
+          _emailCustomer = customerName;
+          _emailBlank = true;
+          window._blockOrderEmailActive = false;
+          document.getElementById('emailToInput').removeAttribute('readonly');
+          document.getElementById('emailToInput').setAttribute('value', 'accountmanager@bestrun.com; creditmanager@bestrun.com');
+          document.getElementById('emailAttSection').style.display = 'none';
+          document.getElementById('emailSubject').setAttribute('value', 'Escalation: ' + customerName + ' - Payment Risk Due to Insufficient Funds');
+          document.getElementById('emailBody').innerHTML =
+            'Dear AM/CM,<br><br>' +
+            'I would like to escalate a critical situation regarding <strong>' + customerName + '</strong>.<br><br>' +
+            'The customer has informed the AR team that they are currently experiencing insufficient funds and will not be able to settle the overdue invoices in line with the agreed payment terms.<br><br>' +
+            '<strong>Customer Account Summary</strong><br>' +
+            'Total Overdue Amount: £143,200.00' +
+            buildInvoiceTable([['INV-20260318', '18/03/2026', '£52,400.00']]) +
+            'Given this situation, your urgent input is required to define the next steps. Specifically:<br>' +
+            '<ul style="margin:0.25rem 0 0.5rem 1.25rem; padding:0;">' +
+            '<li>Confirmation of the commercial position and overall relationship strategy with the customer</li>' +
+            '<li>Guidance on whether we should proceed with a structured payment plan or initiate the bad debt process</li>' +
+            '</ul><br>' +
+            'Please share your guidance at your earliest convenience.<br><br>' +
+            'Kind regards,<br>Jordan Lee';
+          panel.classList.add('open');
+        });
+        if (ignoreBtn) ignoreBtn.addEventListener('click', function() {
+          (document.getElementById('remove-queue-action-card')||{style:{}}).style.display = 'none';
+          (document.getElementById('action-cards')||{style:{}}).style.display = 'none';
+          (document.getElementById('no-action-card')||{style:{}}).style.display = '';
+          addHistoryEntry('Recommendation to remove ' + (new URLSearchParams(window.location.search).get('customer') || 'customer') + ' from collection queue was ignored.', 'jordan.lee@bestrun.com');
+        });
+      })();
+
+      // Block Order — Credit Team (Fairvale only)
+      (function() {
+        var btn = document.getElementById('blockOrderEmailBtn');
+        if (!btn) return;
+        btn.addEventListener('click', function() {
+          var customerName = new URLSearchParams(window.location.search).get('customer') || 'Fairvale Pantry Ltd';
+          var c = CUSTOMERS[customerName] || {};
+          var contactEmail = c.email || '';
+          var contactName = c.contact || '';
+          var recipientFirst = contactName.split(' ')[0] || 'Team';
+          var panel = document.getElementById('emailPanel');
+          var sb = document.querySelector('app-shellbar ui5-shellbar') || document.querySelector('ui5-shellbar');
+          var topOffset = sb ? sb.getBoundingClientRect().bottom : 44;
+          panel.style.top = (topOffset + 1) + 'px';
+          _emailCustomer = customerName;
+          _emailBlank = true;
+          window._blockOrderEmailActive = true;
+          document.getElementById('emailToInput').removeAttribute('readonly');
+          document.getElementById('emailToInput').setAttribute('value', 'credit.team@bestrun.com');
+          document.getElementById('emailAttSection').style.display = '';
+          var att1 = document.getElementById('att1'); if (att1) att1.style.display = 'none';
+          var att2 = document.getElementById('att2'); if (att2) att2.style.display = 'none';
+          document.getElementById('emailSubject').setAttribute('value', 'Support Required: ' + customerName + ' – Ongoing Payment Delays');
+          _emailHistoryText = 'Credit team support request sent for ' + customerName + ' — Direct Debit transition requested, oldest invoice overdue 54 days attached.';
+          document.getElementById('emailBody').innerHTML = buildBlockOrderEmailBody('Neutral');
+          panel.classList.add('open');
+        });
+      })();
+
+      // Discard suggestion handler
+      (document.getElementById('discardEmailBtn') || {addEventListener:function(){}}).addEventListener('click', function() {
+        openDiscardDialog(function() {
+          (document.getElementById('email-action-card')||{style:{}}).style.display = 'none';
+          (document.getElementById('no-action-card')||{style:{}}).style.display = '';
+          addHistoryEntry('AI suggestion to email ' + (new URLSearchParams(window.location.search).get('customer') || 'the customer') + ' was discarded.', 'jordan.lee@bestrun.com');
+        });
+      });
+      setTimeout(function() {
+        var btn = document.getElementById('sendEmailBtn');
+        if (btn) btn.addEventListener('click', function() { openEmailPanel(false); });
+        var invoiceCopiesBtn = document.getElementById('sendInvoiceCopiesBtn');
+        if (invoiceCopiesBtn) invoiceCopiesBtn.addEventListener('click', function() {
+          openEmailPanel(false);
+          _emailHistoryText = 'Invoice copies sent to ' + (new URLSearchParams(window.location.search).get('customer') || 'customer') + ' as requested — 2 invoices totalling £8,792.78 GBP attached.';
+          setTimeout(function() {
+            var customerName = new URLSearchParams(window.location.search).get('customer') || '';
+            var c = CUSTOMERS[customerName] || {};
+            document.getElementById('emailToInput').setAttribute('value', c.email || '');
+            document.getElementById('emailSubject').setAttribute('value', 'Invoice Copies Attached & Confirmation of Billing Details');
+            document.getElementById('emailBody').innerHTML = buildInvoiceCopiesEmail();
+          }, 1600);
+        });
+        document.getElementById('ccToggleBtn').addEventListener('click', function() {
+          var ccRow = document.getElementById('emailCcRow');
+          ccRow.style.display = ccRow.style.display === 'none' ? 'flex' : 'none';
+        });
+        document.getElementById('emailAddAttBtn').addEventListener('click', function() {
+          document.getElementById('emailFileInput').click();
+        });
+        document.getElementById('toneSelect').addEventListener('change', function(e) {
+          // tone selection is decorative in this prototype — no action
+        });
+        // Make ui5-textarea fill its container
+
+      }, 500);
+
+      // ── Notes panel (Call Customer flow) ──
+      function openNotesPanel() {
+        var sb = document.querySelector('app-shellbar ui5-shellbar') || document.querySelector('ui5-shellbar');
+        var topOffset = sb ? sb.getBoundingClientRect().bottom : 44;
+        var panel = document.getElementById('notesPanel');
+        panel.style.top = (topOffset + 1) + 'px';
+        document.getElementById('notesPanelCustomer').textContent = document.getElementById('page-title').textContent;
+        document.getElementById('notesTextarea').value = '';
+        panel.classList.add('open');
+      }
+      function toggleThread() {
+        var children = document.querySelectorAll('.thread-child[data-thread="1"]');
+        var parent = document.getElementById('threadParent');
+        var dot = document.getElementById('threadToggleDot');
+        var list = parent.closest('.history-list');
+        var expanded = dot.getAttribute('data-expanded') !== 'false';
+        children.forEach(function(el) { el.classList.toggle('expanded-child', !expanded); });
+        dot.textContent = expanded ? '+' : '−';
+        dot.setAttribute('data-expanded', expanded ? 'false' : 'true');
+        parent.classList.toggle('expanded', !expanded);
+        if (list) list.classList.toggle('thread-expanded', !expanded);
+      }
+      var _threadParent = document.getElementById('threadParent');
+      if (_threadParent) {
+        _threadParent.addEventListener('click', function(e) {
+          if (e.target.tagName === 'A' || e.target.closest('a')) return;
+          var list = _threadParent.closest('.history-list');
+          if (list && list.classList.contains('mode-all')) return;
+          toggleThread();
+        });
+      }
+      var _threadDot = document.getElementById('threadToggleDot');
+      if (_threadDot) _threadDot.addEventListener('click', function(e) { e.stopPropagation(); toggleThread(); });      function showToast(msg) {
+        var toast = document.getElementById('sendToast');
+        toast.textContent = msg;
+        toast.style.opacity = '1';
+        toast.style.transform = 'translateX(-50%) translateY(0)';
+        setTimeout(function() {
+          toast.style.opacity = '0';
+          toast.style.transform = 'translateX(-50%) translateY(20px)';
+        }, 3000);
+      }
+      function addHistoryEntry(text, subtitle) {
+        var now = new Date();
+        var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        var h = now.getHours(), ampm = h >= 12 ? 'PM' : 'AM';
+        h = h % 12 || 12;
+        var min = now.getMinutes().toString().padStart(2,'0');
+        var sec = now.getSeconds().toString().padStart(2,'0');
+        var ts = months[now.getMonth()] + ' ' + now.getDate() + ', ' + now.getFullYear() + ', ' + h + ':' + min + ':' + sec + ' ' + ampm;
+        var newItem = document.createElement('li');
+        newItem.className = 'history-item entering';
+        newItem.innerHTML = '<div class="history-dot-col"><div class="history-dot"></div></div>' +
+          '<div class="history-body">' +
+          '<div class="history-time">' + ts + '</div>' +
+          '<div class="history-text">' + text + '</div>' +
+          '<div class="history-subtitle">' + subtitle + '</div>' +
+          '</div>';
+        var historyList = document.querySelector('#side-panel-history .history-list');
+        historyList.insertBefore(newItem, historyList.firstChild);
+        requestAnimationFrame(function() { requestAnimationFrame(function() { newItem.classList.remove('entering'); }); });
+      }
+
+      (document.getElementById('confirmCallBtn') || {addEventListener:function(){}}).addEventListener('click', openCallScriptPanel);
+      (document.getElementById('callScriptFromCardBtn') || {addEventListener:function(){}}).addEventListener('click', openCallScriptPanel);
+      document.getElementById('notesCancelBtn').addEventListener('click', closeNotesPanel);
+      document.getElementById('notesSaveBtn').addEventListener('click', function() {
+        var panel = document.getElementById('notesPanel');
+        var mode = panel._saveMode;
+        closeNotesPanel();
+        setTimeout(function() {
+          if (mode === 'followup') {
+            (document.getElementById('internal-followup-card')||{style:{}}).style.display = 'none';
+            _followupDone = true;
+            addHistoryEntry('Internal follow-up notes saved for ' + document.getElementById('page-title').textContent + '.', 'Internal Follow-up');
+            showToast('Your notes have been saved.');
+            checkPinecrestComplete();
+          } else if (mode === 'addnotes') {
+            addHistoryEntry('Notes added for ' + document.getElementById('page-title').textContent + '.', 'Notes · jordan.lee@bestrun.com');
+            showToast('Your notes have been saved.');
+          } else {
+            (document.getElementById('call-action-card')||{style:{}}).style.display = 'none';
+            (document.getElementById('no-action-card')||{style:{}}).style.display = '';
+            addHistoryEntry('Call with ' + document.getElementById('page-title').textContent + ' documented.', 'Outbound Call');
+            showToast('Your notes have been saved.');
+          }
+        }, 500);
+      });
+      (document.getElementById('discardCallBtn') || {addEventListener:function(){}}).addEventListener('click', function() {
+        openDiscardDialog(function() {
+          (document.getElementById('call-action-card')||{style:{}}).style.display = 'none';
+          (document.getElementById('no-action-card')||{style:{}}).style.display = '';
+          addHistoryEntry('AI suggestion to call the customer was discarded.', 'jordan.lee@bestrun.com');
+        });
+      });
+
+      // ── Pinecrest: two-card logic ──
+      var _followupDone = false;
+      var _serviceNowDone = false;
+
+      function checkPinecrestComplete() {
+        if (_followupDone && _serviceNowDone) {
+          document.getElementById('action-cards').style.display = 'none';
+          (document.getElementById('no-action-card')||{style:{}}).style.display = '';
+        }
+      }
+
+      // Notes panel for internal follow-up (reuse same panel, different header)
+      function openFollowupNotesPanel() {
+        var sb = document.querySelector('app-shellbar ui5-shellbar') || document.querySelector('ui5-shellbar');
+        var topOffset = sb ? sb.getBoundingClientRect().bottom : 44;
+        var panel = document.getElementById('notesPanel');
+        panel.style.top = (topOffset + 1) + 'px';
+        document.getElementById('notesPanelCustomer').textContent = '';
+        panel.querySelector('.email-panel-header').textContent = 'Document your Sales Escalation';
+        document.getElementById('notesTextarea').value = '';
+        panel._saveMode = 'followup';
+        panel.classList.add('open');
+      }
+
+      setTimeout(function() {
+        // Escalate to Sales handlers
+      (function() {
+        var confirmBtn = document.getElementById('confirmEscalateBtn');
+        var discardBtn = document.getElementById('discardEscalateBtn');
+        var sendEscBtn = document.getElementById('sendEscalationEmailBtn');
+        if (sendEscBtn) sendEscBtn.addEventListener('click', function() {
+          var customerName = new URLSearchParams(window.location.search).get('customer') || 'Northaven Consumer Goods';
+          var panel = document.getElementById('emailPanel');
+          var sb = document.querySelector('app-shellbar ui5-shellbar') || document.querySelector('ui5-shellbar');
+          var topOffset = sb ? sb.getBoundingClientRect().bottom : 44;
+          panel.style.top = (topOffset + 1) + 'px';
+          _emailCustomer = customerName;
+          _emailBlank = true;
+          window._blockOrderEmailActive = false;
+          document.getElementById('emailToInput').removeAttribute('readonly');
+          document.getElementById('emailToInput').setAttribute('value', 'accountmanager@bestrun.com; creditmanager@bestrun.com');
+          document.getElementById('emailAttSection').style.display = 'none';
+          document.getElementById('emailSubject').setAttribute('value', 'Escalation: ' + customerName + ' – Payment Risk Due to Insufficient Funds');
+          document.getElementById('emailBody').innerHTML =
+            'Dear Account Manager / Credit Manager,<br><br>' +
+            'I would like to escalate a critical situation regarding <strong>' + customerName + '</strong>.<br><br>' +
+            'The customer has informed the AR team that they are currently experiencing insufficient funds and will not be able to settle the overdue invoices in line with the agreed payment terms.<br><br>' +
+            '<strong>Customer Account Summary</strong>' +
+            buildInvoiceTable([['INV-20260318', '18/03/2026', '£185,359.51']], ['Oldest Invoice', 'Due Date', 'Amount']) +
+            'Total Overdue Amount: <strong>£185,359.51</strong><br><br>' +
+            'Given this situation, your urgent input is required to define the next steps. Specifically:<br>' +
+            '<ul style="margin:0.25rem 0 0.5rem 1.25rem; padding:0;">' +
+            '<li>Confirmation of the commercial position and overall relationship strategy with the customer</li>' +
+            '<li>Guidance on whether we should proceed with a structured payment plan or initiate the bad debt process</li>' +
+            '</ul><br>' +
+            'Please share your guidance at your earliest convenience.<br><br>' +
+            'Kind regards,<br>Jordan Lee<br>Collection Specialist<br>BestRun';
+          _emailHistoryText = 'Escalation email sent to AM/CM regarding ' + customerName + ' — £185,359.51 overdue, insufficient funds reported, next steps requested.';
+          panel.classList.add('open');
+        });
+        if (confirmBtn) confirmBtn.addEventListener('click', function() {
+          _s('escalate-action-card', 'none');
+          _s('action-cards', 'none');
+          _s('no-action-card', '');
+          addHistoryEntry('Account escalated for payment for ' + (new URLSearchParams(window.location.search).get('customer') || 'customer') + '.', 'Payment Escalation');
+          showToast('Escalation to sales confirmed.');
+        });
+        if (discardBtn) discardBtn.addEventListener('click', function() {
+          openDiscardDialog(function() {
+            _s('escalate-action-card', 'none');
+            _s('action-cards', 'none');
+            addHistoryEntry('AI suggestion to escalate for payment was discarded.', 'jordan.lee@bestrun.com');
+          });
+        });
+      })();
+
+      // Followup/ServiceNow cards removed — nothing to wire up here
+      }, 300);
+
+      // end Pinecrest logic
+
+      // Make notes textarea fill its container
+      setTimeout(function() {
+        var nta = document.getElementById('notesTextarea');
+        if (nta && nta.shadowRoot) {
+          var s = document.createElement('style');
+          s.textContent = ':host { height: 100%; } .ui5-textarea-root, textarea { height: 100% !important; box-sizing: border-box; font-size: 14px !important; }';
+          nta.shadowRoot.appendChild(s);
+        }
+        var csa = document.getElementById('callScriptBody');
+        if (csa && csa.shadowRoot) {
+          var s2 = document.createElement('style');
+          s2.textContent = ':host { height: 100%; } .ui5-textarea-root, textarea { height: 100% !important; box-sizing: border-box; font-size: 14px !important; font-family: "72", sans-serif !important; }';
+          csa.shadowRoot.appendChild(s2);
+        }
+      }, 500);
+    } catch(e) { console.error('DOMContentLoaded error:', e); }
+    });
+
+    // Email preview popover
+    window.addEventListener('load', function() { (function() {
+      var EMAIL_PREVIEWS = window.EMAIL_PREVIEWS = {
+        'email-1': {
+          subject: 'RE: Outstanding Balance & Settlement — Action Required',
+          from: 'Jordan Lee <jordan.lee@bestrun.com>',
+          to: null,
+          hoursAgo: 3,
+          body: function(customer, contact, amount, settlementDate) {
+            return 'Dear ' + contact + ',<br><br>'
+              + 'I hope this message finds you well.<br><br>'
+              + 'I am writing to follow up on the outstanding balance of <strong>£' + amount + '</strong> currently overdue on your account. Despite our previous communications, this balance remains unresolved and we have not yet received confirmation of a payment date.<br><br>'
+              + 'To avoid further escalation, we kindly ask that you settle the outstanding amount in full by <strong>' + settlementDate + '</strong>. If a lump sum payment is not feasible, we are open to discussing a structured payment plan.<br><br>'
+              + 'If you have any supporting documents — such as remittance advice or a payment confirmation — please share them with us.<br><br>'
+              + 'Please treat this as a priority and respond at your earliest convenience.<br><br>'
+              + 'Kind regards,<br><strong>Jordan Lee</strong><br>Collection Specialist<br>BestRun';
+          }
+        },
+        'email-2': {
+          subject: 'RE: Outstanding Balance & Settlement — Invoice Copies Request',
+          from: null,
+          to: 'Jordan Lee <jordan.lee@bestrun.com>',
+          hoursAgo: 6,
+          body: function(customer, contact, amount) {
+            return 'Dear Jordan,<br><br>'
+              + 'Thank you for your message regarding the outstanding balance on our account.<br><br>'
+              + 'Before we are able to arrange payment, could you please provide copies of all outstanding invoices so that our finance team can reconcile the amounts against our internal records? We would also appreciate a breakdown of the overdue balance of <strong>£' + amount + '</strong> by invoice.<br><br>'
+              + 'Once we have reviewed the documentation, we will be in a position to confirm a payment date.<br><br>'
+              + 'Kind regards,<br><strong>' + contact + '</strong><br>' + customer;
+          }
+        },
+        'email-3': {
+          subject: 'RE: Outstanding Balance & Settlement — Invoice Copies Attached',
+          from: 'Jordan Lee <jordan.lee@bestrun.com>',
+          to: null,
+          hoursAgo: 12,
+          body: function(customer, contact, amount) {
+            return 'Dear ' + contact + ',<br><br>'
+              + 'Thank you for your response. Please find attached copies of all 6 outstanding invoices totalling <strong>£' + amount + '</strong> for your reference and reconciliation.<br><br>'
+              + '<strong>Invoice summary:</strong>'
+              + '<br><table style="border-collapse:collapse;width:100%;font-family:\'72\',sans-serif;font-size:0.8125rem;margin:0.5rem 0 1rem;"><thead><tr>'
+              + '<th style="border:1px solid #ccc;padding:5px 8px;background:#f5f5f5;text-align:left;font-weight:600;">Invoice</th>'
+              + '<th style="border:1px solid #ccc;padding:5px 8px;background:#f5f5f5;text-align:left;font-weight:600;">Due Date</th>'
+              + '<th style="border:1px solid #ccc;padding:5px 8px;background:#f5f5f5;text-align:left;font-weight:600;">Amount</th>'
+              + '</tr></thead><tbody>'
+              + '<tr><td style="border:1px solid #ccc;padding:5px 8px;">INV-20260201</td><td style="border:1px solid #ccc;padding:5px 8px;">01/03/2026</td><td style="border:1px solid #ccc;padding:5px 8px;">£8,792.78</td></tr>'
+              + '<tr><td style="border:1px solid #ccc;padding:5px 8px;">INV-20260115</td><td style="border:1px solid #ccc;padding:5px 8px;">14/02/2026</td><td style="border:1px solid #ccc;padding:5px 8px;">£14,340.00</td></tr>'
+              + '<tr><td style="border:1px solid #ccc;padding:5px 8px;">INV-20260108</td><td style="border:1px solid #ccc;padding:5px 8px;">07/02/2026</td><td style="border:1px solid #ccc;padding:5px 8px;">£11,200.00</td></tr>'
+              + '<tr><td style="border:1px solid #ccc;padding:5px 8px;">INV-20251210</td><td style="border:1px solid #ccc;padding:5px 8px;">09/01/2026</td><td style="border:1px solid #ccc;padding:5px 8px;">£21,500.00</td></tr>'
+              + '<tr><td style="border:1px solid #ccc;padding:5px 8px;">INV-20251120</td><td style="border:1px solid #ccc;padding:5px 8px;">20/12/2025</td><td style="border:1px solid #ccc;padding:5px 8px;">£19,895.14</td></tr>'
+              + '<tr><td style="border:1px solid #ccc;padding:5px 8px;">INV-20251102</td><td style="border:1px solid #ccc;padding:5px 8px;">02/12/2025</td><td style="border:1px solid #ccc;padding:5px 8px;">£18,000.00</td></tr>'
+              + '</tbody></table>'
+              + 'Please confirm once your team has reviewed these and advise on the expected payment date. We would appreciate a response by end of this week.<br><br>'
+              + 'Kind regards,<br><strong>Jordan Lee</strong><br>Collection Specialist<br>BestRun';
+          }
+        },
+        'email-4': {
+          subject: 'RE: Outstanding Balance & Settlement — Invoice Review Confirmed',
+          from: null,
+          to: 'Jordan Lee <jordan.lee@bestrun.com>',
+          hoursAgo: 24,
+          body: function(customer, contact) {
+            return 'Dear Jordan,<br><br>'
+              + 'Thank you for sending over the invoice copies. We can confirm receipt.<br><br>'
+              + 'Our finance team is currently reviewing the documents against our purchase order records. We anticipate completing the reconciliation within the next 3–5 business days, at which point we will be in a position to confirm payment.<br><br>'
+              + 'We appreciate your patience and will be in touch shortly.<br><br>'
+              + 'Kind regards,<br><strong>' + contact + '</strong><br>' + customer;
+          }
+        }
+      };
+
+      var pop = document.getElementById('emailPreviewPop');
+      var _popTimer = null;
+      var _popHovered = false;
+
+      function showEmailPop(link, emailId) {
+        var data = EMAIL_PREVIEWS[emailId];
+        if (!data) return;
+
+        var customer = (document.getElementById('page-title') || {}).textContent || '';
+        var contactEl = document.querySelector('.contact-name');
+        var contact = contactEl ? contactEl.textContent : 'Sir/Madam';
+        var emailEl = document.querySelector('.contact-email');
+        var contactEmail = emailEl ? emailEl.textContent : '';
+        var amountEl = document.querySelector('.meta-amount-ref');
+        var amount = amountEl ? amountEl.textContent : '';
+        var settlementEl = document.querySelector('.settlement-date');
+        var settlementDate = settlementEl ? settlementEl.textContent : '';
+
+        var hoursAgo = data.hoursAgo || 3;
+        var d = new Date(Date.now() - hoursAgo * 3600000);
+        var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        var h = d.getHours(); var ampm = h >= 12 ? 'PM' : 'AM'; h = h % 12 || 12;
+        var dateStr = months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear() + ', ' + h + ':' + d.getMinutes().toString().padStart(2,'0') + ' ' + ampm;
+
+        document.getElementById('epSubject').textContent = data.subject;
+        document.getElementById('epFrom').textContent = data.from || (contact + ' <' + contactEmail + '>');
+        document.getElementById('epTo').textContent = data.to || (contact + ' <' + contactEmail + '>');
+        document.getElementById('epDate').textContent = dateStr;
+        document.getElementById('epBody').innerHTML = data.body(customer, contact, amount, settlementDate);
+
+        pop.opener = link;
+        pop.open = true;
+      }
+
+      function bindEmailHover(link, emailId) {
+        link.addEventListener('mouseenter', function() {
+          clearTimeout(_popTimer);
+          _popTimer = setTimeout(function() { showEmailPop(link, emailId); }, 200);
+        });
+        link.addEventListener('mouseleave', function() {
+          clearTimeout(_popTimer);
+          _popTimer = setTimeout(function() { if (!_popHovered) pop.open = false; }, 300);
+        });
+      }
+      window.bindEmailHover = bindEmailHover;
+
+      document.querySelectorAll('.view-email-link').forEach(function(link) {
+        var emailId = link.getAttribute('data-email-id');
+        if (!emailId) return;
+        bindEmailHover(link, emailId);
+      });
+
+      pop.addEventListener('mouseenter', function() { clearTimeout(_popTimer); _popHovered = true; });
+      pop.addEventListener('mouseleave', function() {
+        _popHovered = false;
+        clearTimeout(_popTimer);
+        _popTimer = setTimeout(function() { pop.open = false; }, 200);
+      });
+    })(); }); // end load
+  </script>
+
+  <!-- Email slide-in panel -->
+  <div id="emailPanel">
+    <div class="email-panel-header">Email <span id="emailPanelCustomer"></span></div>
+    <div class="email-panel-body">
+      <div style="display:flex; flex-direction:column; gap:0.25rem;">
+        <span class="email-form-label">From: <span class="req">*</span></span>
+        <ui5-input value="jordan.lee@bestrun.com" readonly style="width:100%"></ui5-input>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:0.25rem;">
+        <span class="email-form-label">To: <span class="req">*</span></span>
+        <div style="display:flex; align-items:center; gap:0.5rem;">
+          <ui5-input id="emailToInput" style="flex:1"></ui5-input>
+          <ui5-button design="Transparent" size="Small" id="ccToggleBtn">CC</ui5-button>
+        </div>
+      </div>
+      <div id="emailCcRow" style="display:none; flex-direction:column; gap:0.25rem;">
+        <span class="email-form-label">CC:</span>
+        <div style="display:flex; align-items:center; gap:0.5rem;">
+          <ui5-input id="emailCcInput" style="flex:1"></ui5-input>
+          <div style="width:var(--_ui5_button_compact_height, 2rem); flex-shrink:0; visibility:hidden;"></div>
+        </div>
+      </div>
+      <div style="display:flex; gap:0.75rem; align-items:flex-end;">
+        <div style="flex:1; display:flex; flex-direction:column; gap:0.25rem;">
+          <div class="email-form-label">Subject:</div>
+          <ui5-input id="emailSubject" style="width:100%"></ui5-input>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:0.25rem; width:140px; flex-shrink:0;">
+          <div class="email-form-label">Tone:</div>
+          <ui5-select id="toneSelect" style="width:100%">
+            <ui5-option selected>Neutral</ui5-option>
+            <ui5-option>Formal</ui5-option>
+            <ui5-option>Urgent</ui5-option>
+          </ui5-select>
+        </div>
+      </div>
+      <div class="email-msg-wrap">
+        <div class="email-msg-label">Message:</div>
+        <div class="email-toolbar">
+          <ui5-button design="Transparent" icon="bold-text" tooltip="Bold" style="margin-left:3px"></ui5-button>
+          <ui5-button design="Transparent" icon="italic-text" tooltip="Italic"></ui5-button>
+          <ui5-button design="Transparent" icon="underline-text" tooltip="Underline"></ui5-button>
+          <ui5-button design="Transparent" icon="strikethrough" tooltip="Strikethrough"></ui5-button>
+          <div class="email-tb-sep"></div>
+          <ui5-button design="Transparent" icon="text-align-justified" tooltip="Align"></ui5-button>
+          <div class="email-tb-sep"></div>
+          <div class="email-toolbar-spacer"></div>
+          <ui5-select style="width:140px; margin-right:3px">
+            <ui5-option selected>Paragraph</ui5-option>
+            <ui5-option>Heading 1</ui5-option>
+            <ui5-option>Heading 2</ui5-option>
+          </ui5-select>
+          <ui5-select style="width:160px; margin-right:3px">
+            <ui5-option selected>Arial</ui5-option>
+            <ui5-option>Times New Roman</ui5-option>
+            <ui5-option>Courier</ui5-option>
+          </ui5-select>
+        </div>
+        <div style="position:relative; flex:1; min-height:0; overflow:hidden;">
+          <div id="emailBody" contenteditable="true" style="width:100%; height:100%; overflow-y:auto; padding:0.625rem; font-family:'72',sans-serif; font-size:0.875rem; color:var(--sapTextColor); border:1px solid var(--sapField_BorderColor); border-radius:var(--sapField_BorderCornerRadius,0.25rem); box-sizing:border-box; outline:none; line-height:1.6; white-space:pre-wrap;"></div>
+          <div id="emailBodyLoader" style="display:none; position:absolute; inset:0; background:#fff; border:1px solid var(--sapField_BorderColor); border-radius:var(--sapField_BorderCornerRadius,0.25rem); align-items:center; justify-content:center; gap:10px;">
+            <div class="ai-loader-dot"></div>
+            <div class="ai-loader-dot"></div>
+            <div class="ai-loader-dot"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="email-att-section ui5-content-density-compact" id="emailAttSection">
+      <div class="email-att-header">
+        <span class="email-att-label">Attachments:</span>
+        <input type="file" id="emailFileInput" style="display:none" multiple>
+        <ui5-button design="Default" icon="add" id="emailAddAttBtn">Add</ui5-button>
+      </div>
+      <div class="email-att-item" id="att1">
+        <span class="email-att-name"><ui5-icon name="attachment"></ui5-icon> <ui5-link onclick="window.open('','_blank')">Account Overview.xlsx</ui5-link></span>
+        <ui5-button design="Transparent" icon="decline" onclick="document.getElementById('att1').remove()"></ui5-button>
+      </div>
+      <div class="email-att-item" id="att2">
+        <span class="email-att-name"><ui5-icon name="attachment"></ui5-icon> <ui5-link onclick="window.open('','_blank')">Overdue invoices.xlsx</ui5-link></span>
+        <ui5-button design="Transparent" icon="decline" onclick="document.getElementById('att2').remove()"></ui5-button>
+      </div>
+    </div>
+    <div class="email-panel-footer">
+      <ui5-button design="Emphasized" icon="paper-plane" id="emailSendBtn">Send</ui5-button>
+      <ui5-button design="Transparent" id="emailCancelBtn">Cancel</ui5-button>
+    </div>
+  </div>
+  <!-- Toast -->
+    <div id="notesPanel">
+    <div class="email-panel-header">Document your Sales Escalation — <span id="notesPanelCustomer"></span></div>
+    <div class="email-panel-body">
+      <span class="email-form-label">Notes:</span>
+      <ui5-textarea id="notesTextarea" placeholder="Add your notes here." style="flex:1; width:100%"></ui5-textarea>
+    </div>
+    <div class="email-panel-footer">
+      <ui5-button design="Emphasized" icon="accept" id="notesSaveBtn">Save</ui5-button>
+      <ui5-button design="Transparent" id="notesCancelBtn">Cancel</ui5-button>
+    </div>
+  </div>
+
+  <!-- Call Script slide-in panel -->
+  <div id="callScriptPanel">
+    <div class="email-panel-header">Call Script</div>
+    <div class="email-panel-body">
+      <div style="position:relative; flex:1; min-height:0; display:flex; flex-direction:column;">
+        <ui5-textarea id="callScriptBody" style="flex:1; width:100%; font-family:'72',sans-serif; font-size:14px;"></ui5-textarea>
+        <div id="callScriptLoader" style="display:none; position:absolute; inset:0; background:#fff; border:1px solid var(--sapField_BorderColor); border-radius:var(--sapField_BorderCornerRadius,0.25rem); align-items:center; justify-content:center; gap:10px;">
+          <div class="ai-loader-dot"></div>
+          <div class="ai-loader-dot"></div>
+          <div class="ai-loader-dot"></div>
+        </div>
+      </div>
+    </div>
+    <div class="email-panel-footer">
+      <ui5-button design="Transparent" id="callScriptCloseBtn">Close</ui5-button>
+    </div>
+  </div>
+
+  <!-- Discard Suggestion Dialog -->
+  <ui5-dialog id="discardDialog" header-text="What didn't work?" style="max-width:560px">
+    <div style="display:flex; flex-wrap:wrap; gap:0.625rem; box-sizing:border-box;">
+      <button class="discard-pill" data-label="Action taken already">Action taken already</button>
+      <button class="discard-pill" data-label="Timing is not right">Timing is not right</button>
+      <button class="discard-pill" data-label="Customer relationship sensitivity">Customer relationship sensitivity</button>
+      <button class="discard-pill" data-label="Other communication is currently taking place">Other communication is currently taking place</button>
+      <button class="discard-pill" data-label="Recommendation is not relevant">Recommendation is not relevant</button>
+      <button class="discard-pill" id="discardOtherPill" data-label="Other">Other</button>
+    </div>
+    <div id="discardOtherInputWrap" style="display:none; padding-top:0.75rem;">
+      <ui5-input id="discardOtherInput" placeholder="Tell us more..." style="width:100%"></ui5-input>
+    </div>
+    <div slot="footer" style="display:flex; justify-content:flex-end; align-items:center; gap:0.5rem; padding:0.5rem; width:100%; box-sizing:border-box;">
+      <ui5-button design="Emphasized" id="discardDialogOkBtn" disabled>OK</ui5-button>
+      <ui5-button design="Transparent" id="discardDialogCancelBtn">Cancel</ui5-button>
+    </div>
+  </ui5-dialog>
+
+  <!-- Thumbs Down Feedback Dialog -->
+  <ui5-dialog id="thumbsDownDialog" header-text="What didn't work?" style="max-width:520px">
+    <div style="display:flex; flex-wrap:wrap; gap:0.625rem; box-sizing:border-box;">
+      <button class="feedback-pill" data-label="Priority rating is too high">Priority rating is too high</button>
+      <button class="feedback-pill" data-label="Priority rating is too low">Priority rating is too low</button>
+      <button class="feedback-pill" data-label="Insights does not account all factors">Insights does not account all factors</button>
+      <button class="feedback-pill" data-label="Recommendation is not relevant">Recommendation is not relevant</button>
+      <button class="feedback-pill" data-label="Insights is ambiguous">Insights is ambiguous</button>
+      <button class="feedback-pill" id="otherPill" data-label="Other">Other</button>
+    </div>
+    <div id="otherInputWrap" style="display:none; padding-top:0.75rem;">
+      <ui5-input id="otherInput" placeholder="Tell us more..." style="width:100%"></ui5-input>
+    </div>
+    <div slot="footer" style="display:flex; justify-content:flex-end; align-items:center; gap:0.5rem; padding:0.5rem; width:100%; box-sizing:border-box;">
+      <ui5-button design="Emphasized" id="thumbsDownOkBtn">OK</ui5-button>
+      <ui5-button design="Transparent" id="thumbsDownCancelBtn">Cancel</ui5-button>
+    </div>
+  </ui5-dialog>
+
+  <div id="sendToast" style="
+    position:fixed; bottom:2rem; left:50%; transform:translateX(-50%) translateY(20px);
+    background:#223548; color:#fff; font-family:'72',sans-serif; font-size:14px;
+    padding:0.75rem 1.5rem; border-radius:8px; text-align:center;
+    opacity:0; transition:opacity 0.3s ease, transform 0.3s ease;
+    pointer-events:none; z-index:200; white-space:nowrap;">
+    Email sent successfully.
+  </div>
+
+
+  <!-- Settings dialog -->
+  <ui5-dialog id="settingsDialog" header-text="Settings" style="width:620px" prevent-initial-focus>
+    <div style="padding:1.5rem; display:flex; flex-direction:column; gap:1.25rem;">
+      <div style="display:flex; flex-direction:column; gap:0.25rem;">
+        <label class="filter-label" style="font-size:0.875rem; color:var(--sapContent_LabelColor)">Email</label>
+        <ui5-input id="settingsEmail" value="jordan.lee@bestrun.com" disabled style="width:100%"></ui5-input>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:0.25rem;">
+        <label class="filter-label" style="font-size:0.875rem; color:var(--sapContent_LabelColor)">Signature</label>
+        <ui5-textarea id="settingsSignature" value="Jordan Lee&#10;Collection Specialist&#10;BestRun" rows="5" style="width:100%"></ui5-textarea>
+      </div>
+    </div>
+    <div slot="footer" style="display:flex; justify-content:flex-end; align-items:center; gap:0.5rem; padding:0.5rem; width:100%; box-sizing:border-box">
+      <ui5-button design="Emphasized" onclick="document.getElementById('settingsDialog').open=false">Save</ui5-button>
+      <ui5-button design="Transparent" onclick="document.getElementById('settingsDialog').open=false">Cancel</ui5-button>
+    </div>
+  </ui5-dialog>
+  <ui5-popover id="emailPreviewPop" placement="Start" horizontal-align="End" hide-arrow style="--_ui5-v2-popover-header-shadow:none; border-radius:0.5rem;">
+    <div class="email-preview-pop">
+      <div class="email-preview-title">View Email</div>
+      <div class="email-preview-meta">Subject: <span id="epSubject"></span></div>
+      <div class="email-preview-meta">From: <span id="epFrom"></span></div>
+      <div class="email-preview-meta">To: <span id="epTo"></span></div>
+      <div class="email-preview-meta">Date: <span id="epDate"></span></div>
+      <hr class="email-preview-divider">
+      <div class="email-preview-body" id="epBody"></div>
+    </div>
+  </ui5-popover>
+
+</body>
+</html>

@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>S/4HANA Cloud</title>
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 600; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 300; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Light.woff2") format("woff2"); }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: hidden; }
+
+    body {
+      font-family: "72", sans-serif;
+      background: var(--sapBackgroundColor, #f5f6f7);
+      color: var(--sapTextColor, #1d2d3e);
+    }
+    .page-scroll { height: calc(100vh - 44px); overflow-y: auto; }
+
+    /* ── Nav Tabs ── */
+    .nav-tabs {
+      background: var(--sapBaseColor, #fff);
+      border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      display: flex;
+      padding: 0 1rem;
+      gap: 0;
+    }
+    .nav-tab {
+      padding: 0.6rem 1rem;
+      font-size: 0.875rem;
+      color: var(--sapContent_LabelColor, #556b82);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      white-space: nowrap;
+    }
+    .nav-tab.active {
+      color: var(--sapLinkColor, #0070f2);
+      border-bottom-color: var(--sapLinkColor, #0070f2);
+      font-weight: 600;
+    }
+
+    /* ── Hero Banner ── */
+    .hero-banner {
+      background: linear-gradient(135deg, #0057b8 0%, #0070f2 60%, #1a8fff 100%);
+      padding: 1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .hero-banner-left {}
+    .hero-date { font-size: 0.75rem; color: rgba(255,255,255,0.8); margin-bottom: 0.2rem; }
+    .hero-name { font-size: 1.5rem; font-weight: 700; color: #fff; }
+    .hero-banner-actions { display: flex; gap: 0.5rem; }
+    .banner-btn {
+      padding: 0.35rem 0.75rem;
+      border-radius: 0.25rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid rgba(255,255,255,0.5);
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+      transition: background 0.15s;
+    }
+    .banner-btn:hover { background: rgba(255,255,255,0.28); }
+
+    /* ── Page content ── */
+    .page { padding: 1rem 1.5rem 3rem; }
+
+    /* ── Section headers ── */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.75rem;
+    }
+    .section-title-row {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: var(--sapTextColor, #1d2d3e);
+      cursor: pointer;
+    }
+    .section-title-row svg { width: 14px; height: 14px; color: var(--sapContent_LabelColor, #556b82); }
+    .section-link {
+      font-size: 0.8rem;
+      color: var(--sapLinkColor, #0070f2);
+      cursor: pointer;
+      display: flex; align-items: center; gap: 0.25rem;
+    }
+    .section-link svg { width: 13px; height: 13px; }
+
+    /* ── Tabs ── */
+    .inline-tabs {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      margin-bottom: 0.75rem;
+    }
+    .inline-tab {
+      padding: 0.4rem 0.875rem;
+      font-size: 0.8125rem;
+      color: var(--sapContent_LabelColor, #556b82);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+    }
+    .inline-tab.active { color: var(--sapLinkColor, #0070f2); border-bottom-color: var(--sapLinkColor, #0070f2); font-weight: 600; }
+
+    /* ── To Do Cards ── */
+    .todos-section { margin-bottom: 1.5rem; }
+    .todos-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.75rem;
+    }
+    .todo-card {
+      background: var(--sapBaseColor, #fff);
+      border: 1px solid var(--sapList_BorderColor, #e8eaed);
+      border-radius: 0.375rem;
+      padding: 0.875rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .todo-card-header { display: flex; align-items: flex-start; gap: 0.5rem; }
+    .todo-card-icon {
+      width: 28px; height: 28px; flex-shrink: 0;
+      background: var(--sapInformationBackground, #e8f0fe); border-radius: 0.25rem;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .todo-card-icon svg { width: 16px; height: 16px; fill: #0057b8; }
+    .todo-card-title { font-size: 0.8125rem; font-weight: 500; color: var(--sapTextColor, #1d2d3e); line-height: 1.35; }
+    .prio-tag {
+      display: inline-flex; align-items: center; gap: 0.2rem;
+      font-size: 0.6875rem; font-weight: 600;
+      padding: 0.1rem 0.4rem; border-radius: 0.1875rem;
+    }
+    .prio-tag svg { width: 10px; height: 10px; }
+    .prio-high { background: var(--sapErrorBackground, #fdecea); color: var(--sapNegativeColor, #c62828); }
+    .prio-medium { background: var(--sapWarningBackground, #fff3e0); color: var(--sapWarningColor, #e65100); }
+    .prio-low { background: var(--sapSuccessBackground, #e8f5e9); color: var(--sapPositiveColor, #2e7d32); }
+    .todo-meta {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.2rem 0.5rem;
+      font-size: 0.7rem;
+      margin-top: 0.2rem;
+    }
+    .todo-meta-label { color: var(--sapContent_LabelColor, #556b82); }
+    .todo-meta-value { color: var(--sapTextColor, #1d2d3e); }
+    .todo-meta-link { color: var(--sapLinkColor, #0070f2); cursor: pointer; }
+    .todo-actions { display: flex; gap: 0.4rem; margin-top: 0.3rem; flex-wrap: wrap; align-items: center; }
+    .todo-btn {
+      padding: 0.25rem 0.6rem;
+      border-radius: 0.25rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid;
+      transition: opacity 0.15s;
+    }
+    .todo-btn:hover { opacity: 0.8; }
+    .todo-btn.approve { background: var(--sapSuccessBackground, #f6fff9); color: var(--sapPositiveColor, #256f3a); border-color: var(--sapPositiveColor, #256f3a); }
+    .todo-btn.reject  { background: var(--sapErrorBackground, #fce4e4); color: var(--sapNegativeColor, #bb0000); border-color: var(--sapNegativeColor, #bb0000); }
+    .todo-btn.more    { background: none; color: var(--sapContent_LabelColor, #556b82); border: none; font-size: 1rem; letter-spacing: 2px; padding: 0 0.25rem; }
+
+    /* ── News + Pages two-col ── */
+    .news-pages-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .news-card {
+      background: var(--sapBaseColor, #fff);
+      border: 1px solid var(--sapList_BorderColor, #e8eaed);
+      border-radius: 0.375rem;
+      overflow: hidden;
+    }
+    .news-image {
+      width: 100%;
+      height: 130px;
+      background: linear-gradient(160deg, #b0c8e8 0%, #e8d8b0 50%, #d4e8c8 100%);
+      position: relative;
+      display: flex;
+      align-items: flex-end;
+    }
+    /* Birds silhouette */
+    .news-image-overlay {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .news-play-btn {
+      position: absolute;
+      right: 0.75rem; bottom: 0.75rem;
+      width: 28px; height: 28px;
+      background: rgba(255,255,255,0.9);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+    }
+    .news-play-btn svg { width: 12px; height: 12px; fill: var(--sapTextColor, #1d2d3e); margin-left: 2px; }
+    .news-body { padding: 0.75rem; }
+    .news-tag {
+      display: inline-flex; align-items: center; gap: 0.25rem;
+      background: var(--sapErrorBackground, #fce4e4); color: var(--sapNegativeColor, #bb0000);
+      font-size: 0.65rem; font-weight: 600;
+      padding: 0.15rem 0.4rem; border-radius: 0.1875rem;
+      margin-bottom: 0.4rem;
+    }
+    .news-tag svg { width: 8px; height: 8px; fill: var(--sapNegativeColor, #bb0000); }
+    .news-headline { font-size: 0.8125rem; font-weight: 600; color: var(--sapTextColor, #1d2d3e); margin-bottom: 0.2rem; }
+    .news-count { font-size: 0.7rem; color: var(--sapLinkColor, #0070f2); margin-bottom: 0.3rem; }
+    .news-desc { font-size: 0.75rem; color: var(--sapContent_LabelColor, #556b82); line-height: 1.5; }
+    .news-source { font-size: 0.7rem; color: var(--sapContent_LabelColor, #556b82); margin-top: 0.4rem; }
+    .news-dots {
+      display: flex; align-items: center; justify-content: center; gap: 0.3rem;
+      padding: 0.5rem;
+    }
+    .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--sapList_BorderColor, #e5e5e5); cursor: pointer; }
+    .dot.active { background: var(--sapLinkColor, #0070f2); }
+    .dot-nav { background: none; border: none; color: var(--sapList_BorderColor, #e5e5e5); cursor: pointer; font-size: 0.9rem; }
+
+    /* Pages grid */
+    .pages-section {
+      background: var(--sapBaseColor, #fff);
+      border: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      border-radius: 0.375rem;
+      padding: 0.75rem;
+    }
+    .pages-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.5rem;
+    }
+    .page-tile {
+      border-radius: 0.375rem;
+      padding: 0.75rem 0.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.4rem;
+      cursor: pointer;
+      transition: opacity 0.15s;
+      min-height: 80px;
+      justify-content: center;
+    }
+    .page-tile:hover { opacity: 0.85; }
+    .page-tile-icon svg { width: 22px; height: 22px; fill: #fff; }
+    .page-tile-name { font-size: 0.6875rem; font-weight: 600; color: #fff; text-align: center; line-height: 1.3; }
+    .page-tile-sub  { font-size: 0.6rem; color: rgba(255,255,255,0.8); text-align: center; line-height: 1.3; }
+    .tile-purple  { background: #6b35c8; }
+    .tile-magenta { background: #c0145a; }
+    .tile-orange  { background: #d14900; }
+    .tile-green   { background: #0a6e3c; }
+    .tile-brown   { background: #7a3b00; }
+    .tile-blue    { background: #0040b0; }
+    .tile-pink    { background: #a0005a; }
+    .tile-dkgreen { background: #1a5e20; }
+
+    /* ── Apps section ── */
+    .apps-section {
+      background: var(--sapBaseColor, #fff);
+      border: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      border-radius: 0.375rem;
+      padding: 0.75rem 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .apps-section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
+    .apps-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 0.1rem;
+    }
+    .app-item {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.5rem 0.4rem;
+      border-radius: 0.25rem;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .app-item:hover { background: var(--sapList_HoverBackground, #f0f2f5); }
+    .app-icon {
+      width: 24px; height: 24px; flex-shrink: 0;
+      border-radius: 0.25rem;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .app-icon svg { width: 14px; height: 14px; }
+    .app-name { font-size: 0.75rem; color: var(--sapTextColor, #1d2d3e); line-height: 1.3; }
+    .app-sub  { font-size: 0.65rem; color: var(--sapContent_LabelColor, #556b82); }
+    .app-icon-blue   { background: #e3f2fd; }
+    .app-icon-blue svg { fill: #1565c0; }
+    .app-icon-red    { background: #fdecea; }
+    .app-icon-red svg { fill: #c62828; }
+    .app-icon-orange { background: #fff3e0; }
+    .app-icon-orange svg { fill: #e65100; }
+    .app-icon-green  { background: #e8f5e9; }
+    .app-icon-green svg { fill: #2e7d32; }
+    .app-icon-purple { background: #f3e5f5; }
+    .app-icon-purple svg { fill: #6a1b9a; }
+    .app-icon-teal   { background: #e0f2f1; }
+    .app-icon-teal svg { fill: #00695c; }
+
+    /* ── Insights Tiles ── */
+    .insight-tiles-section {
+      background: var(--sapBaseColor, #fff);
+      border: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      border-radius: 0.375rem;
+      padding: 0.75rem 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .insight-tiles-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.75rem;
+    }
+    .insight-tiles-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 0.75rem;
+    }
+    .insight-tile {
+      border: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      border-radius: 0.375rem;
+      padding: 0.625rem 0.75rem;
+      min-height: 90px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+    .insight-tile-title { font-size: 0.75rem; font-weight: 600; color: var(--sapTextColor, #1d2d3e); line-height: 1.3; }
+    .insight-tile-sub   { font-size: 0.65rem; color: var(--sapContent_LabelColor, #556b82); }
+    .insight-tile-kpi   { font-size: 1.5rem; font-weight: 300; color: var(--sapTextColor, #1d2d3e); margin-top: auto; }
+    .insight-tile-kpi.neg { color: var(--sapNegativeColor, #bb0000); }
+    .insight-tile-kpi.pct { font-size: 1.25rem; }
+    .insight-tile-footer { font-size: 0.65rem; color: var(--sapContent_LabelColor, #556b82); display: flex; align-items: center; gap: 0.25rem; }
+    .insight-tile-footer svg { width: 11px; height: 11px; }
+    .insight-tile-icon { color: var(--sapContent_LabelColor, #556b82); }
+    .insight-tile-icon svg { width: 22px; height: 22px; }
+
+    /* ── Insights Cards ── */
+    .insight-cards-section { margin-bottom: 1.5rem; }
+    .insight-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.75rem;
+    }
+    .insight-card {
+      background: var(--sapBaseColor, #fff);
+      border: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      border-radius: 0.375rem;
+      padding: 0.75rem;
+    }
+    .insight-card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
+    .insight-card-title { font-size: 0.8125rem; font-weight: 600; color: var(--sapTextColor, #1d2d3e); }
+    .insight-card-menu  { color: var(--sapContent_LabelColor, #556b82); cursor: pointer; font-size: 1rem; letter-spacing: 2px; }
+    .ic-kpi-row { display: flex; align-items: baseline; gap: 0.5rem; margin-bottom: 0.1rem; }
+    .ic-kpi-big {
+      font-size: 1.75rem; font-weight: 300; color: var(--sapNegativeColor, #bb0000);
+      display: flex; align-items: baseline; gap: 0.15rem;
+    }
+    .ic-kpi-big .unit { font-size: 0.75rem; font-weight: 600; color: var(--sapNegativeColor, #bb0000); }
+    .ic-kpi-arrow { font-size: 0.75rem; }
+    .ic-kpi-meta { display: flex; gap: 1rem; font-size: 0.7rem; color: var(--sapContent_LabelColor, #556b82); margin-bottom: 0.1rem; }
+    .ic-period { font-size: 0.7rem; color: var(--sapContent_LabelColor, #556b82); margin-bottom: 0.5rem; }
+
+    /* Bar chart */
+    .bar-chart {
+      display: flex;
+      align-items: flex-end;
+      gap: 4px;
+      height: 70px;
+    }
+    .bc-group { display: flex; flex-direction: column; align-items: center; gap: 2px; flex: 1; }
+    .bc-bars  { display: flex; gap: 2px; align-items: flex-end; }
+    .bc-bar   { border-radius: 1px 1px 0 0; min-width: 8px; }
+    .bc-label { font-size: 0.6rem; color: var(--sapContent_LabelColor, #556b82); }
+    .chart-legend { display: flex; gap: 0.6rem; margin-top: 0.4rem; }
+    .legend-item { display: flex; align-items: center; gap: 0.2rem; font-size: 0.65rem; color: var(--sapContent_LabelColor, #556b82); }
+    .legend-dot  { width: 8px; height: 8px; border-radius: 1px; }
+
+    /* Donut chart */
+    .donut-wrap { display: flex; align-items: center; gap: 0.75rem; margin: 0.4rem 0; }
+    .donut-legend { display: flex; flex-direction: column; gap: 0.2rem; }
+    .donut-legend .legend-item { font-size: 0.62rem; }
+
+    /* List card */
+    .ic-list { display: flex; flex-direction: column; gap: 0.4rem; margin-top: 0.3rem; }
+    .ic-list-item { padding-bottom: 0.4rem; border-bottom: 1px solid var(--sapList_HoverBackground, #f0f2f5); }
+    .ic-list-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .ic-list-name { font-size: 0.78rem; font-weight: 500; color: var(--sapLinkColor, #0070f2); cursor: pointer; }
+    .ic-list-id   { font-size: 0.7rem; color: var(--sapContent_LabelColor, #556b82); }
+
+    /* KPI large */
+    .ic-kpi-xl { font-size: 2.25rem; font-weight: 300; color: var(--sapTextColor, #1d2d3e); line-height: 1; }
+    .ic-kpi-xl .unit { font-size: 0.75rem; font-weight: 600; color: var(--sapContent_LabelColor, #556b82); }
+  </style>
+  <script data-ui5-config type="application/json">{ "theme": "sap_horizon" }</script>
+  <script type="module" src="../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <script src="../../lib/shared/shellbar.js"></script>
+</head>
+<body>
+
+  <!-- Shell Bar -->
+  <app-shellbar title="S/4HANA Cloud" show-search base-path="../../"></app-shellbar>
+
+  <div class="page-scroll">
+  <!-- Nav Tabs -->
+  <nav class="nav-tabs">
+    <div class="nav-tab active">My Home</div>
+    <div class="nav-tab">Project Management</div>
+    <div class="nav-tab">Project Billing</div>
+  </nav>
+
+  <!-- Hero Banner -->
+  <div class="hero-banner">
+    <div class="hero-banner-left">
+      <div class="hero-date">Friday, April 3rd, 2026</div>
+      <div class="hero-name">Hello, Jordan</div>
+    </div>
+    <div class="hero-banner-actions">
+      <button class="banner-btn">+ Add Content</button>
+      <button class="banner-btn">Recap</button>
+      <button class="banner-btn">My Home Settings</button>
+    </div>
+  </div>
+
+  <!-- Page Content -->
+  <div class="page">
+
+    <!-- To Dos -->
+    <section class="todos-section">
+      <div class="section-header">
+        <div class="section-title-row">
+          To Dos
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
+        </div>
+        <div class="section-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          20 min. ago &nbsp; Show More
+        </div>
+      </div>
+
+      <div class="inline-tabs">
+        <div class="inline-tab active">Tasks (4)</div>
+        <div class="inline-tab">Situations (5)</div>
+      </div>
+
+      <div class="todos-grid">
+
+        <!-- Card 1 -->
+        <div class="todo-card">
+          <div class="todo-card-header">
+            <div class="todo-card-icon">
+              <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm4 18H6V4h7v5h5v11z"/></svg>
+            </div>
+            <div>
+              <div class="todo-card-title">Approve Centrally Managed Purchase Requisition Item 12345678910</div>
+              <div style="margin-top:0.3rem"><span class="prio-tag prio-high">● High Priority</span></div>
+            </div>
+          </div>
+          <div style="font-size:0.75rem;color:var(--sapLinkColor, #0070f2);cursor:pointer;margin-top:0.2rem">Alain Chevalier</div>
+          <div style="font-size:0.72rem;color:var(--sapLinkColor, #0070f2);cursor:pointer">SAP System Processing</div>
+          <div class="todo-meta">
+            <span class="todo-meta-label">Purchasing Organization:</span><span class="todo-meta-value">Purchasing Organization 1010 (1010)</span>
+            <span class="todo-meta-label">Purchase Order Net Value:</span><span class="todo-meta-value">2 480.00 EUR</span>
+            <span class="todo-meta-label">Supplier:</span><span class="todo-meta-link">Store Madrid (10300938)</span>
+            <span class="todo-meta-label">Posting Date:</span><span class="todo-meta-value">02/05/2025</span>
+          </div>
+          <div class="todo-actions">
+            <button class="todo-btn approve">Approve</button>
+            <button class="todo-btn reject">Reject</button>
+            <button class="todo-btn more">···</button>
+          </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="todo-card">
+          <div class="todo-card-header">
+            <div class="todo-card-icon">
+              <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm4 18H6V4h7v5h5v11z"/></svg>
+            </div>
+            <div>
+              <div class="todo-card-title">Approve Centrally Managed Purchase Requisition Item 12345678910</div>
+              <div style="margin-top:0.3rem"><span class="prio-tag prio-high">● High Priority</span></div>
+            </div>
+          </div>
+          <div style="font-size:0.72rem;color:var(--sapLinkColor, #0070f2);cursor:pointer;margin-top:0.2rem">SAP System Processing</div>
+          <div class="todo-meta">
+            <span class="todo-meta-label">Item Description:</span><span class="todo-meta-value">Trading Good 0015, PD, Regular Proc.</span>
+            <span class="todo-meta-label">Net Value:</span><span class="todo-meta-value">6,210.00 EUR</span>
+          </div>
+          <div class="todo-actions">
+            <button class="todo-btn approve">Approve</button>
+            <button class="todo-btn reject">Reject</button>
+            <button class="todo-btn more">···</button>
+          </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="todo-card">
+          <div class="todo-card-header">
+            <div class="todo-card-icon">
+              <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm4 18H6V4h7v5h5v11z"/></svg>
+            </div>
+            <div>
+              <div class="todo-card-title">Approve product purchase request due to low inventory</div>
+              <div style="margin-top:0.3rem"><span class="prio-tag prio-medium">● Medium Priority</span></div>
+            </div>
+          </div>
+          <div style="font-size:0.72rem;color:var(--sapLinkColor, #0070f2);cursor:pointer;margin-top:0.2rem">Robot Arm Series 9</div>
+          <div class="todo-meta">
+            <span class="todo-meta-label">Manufacturer:</span><span class="todo-meta-value">Robotech</span>
+            <span class="todo-meta-label">Factory:</span><span class="todo-meta-value">Orlando, FL</span>
+            <span class="todo-meta-label">Reference Purchase Order:</span><span class="todo-meta-value">000989</span>
+            <span class="todo-meta-label">Posting Date:</span><span class="todo-meta-value">02/05/2025</span>
+          </div>
+          <div class="todo-actions">
+            <button class="todo-btn approve">Approve</button>
+            <button class="todo-btn reject">Reject</button>
+            <button class="todo-btn more">···</button>
+          </div>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="todo-card">
+          <div class="todo-card-header">
+            <div class="todo-card-icon">
+              <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm4 18H6V4h7v5h5v11z"/></svg>
+            </div>
+            <div>
+              <div class="todo-card-title">Release Service Entry Sheet 0000000992 45000045991</div>
+              <div style="margin-top:0.3rem"><span class="prio-tag prio-low">● Low Priority</span></div>
+            </div>
+          </div>
+          <div style="font-size:0.72rem;color:var(--sapLinkColor, #0070f2);cursor:pointer;margin-top:0.2rem">Purchaser</div>
+          <div class="todo-meta">
+            <span class="todo-meta-label">Name of Service Entry Sheet:</span><span class="todo-meta-value">Purchasing Organization 1010 (1010)</span>
+            <span class="todo-meta-label">Purchase Order Net Value:</span><span class="todo-meta-value">6 480.00 EUR</span>
+            <span class="todo-meta-label">Supplier:</span><span class="todo-meta-link">Inlandslieferant DE 1 (10300001)</span>
+            <span class="todo-meta-label">Posting Date:</span><span class="todo-meta-value">02/06/2025</span>
+          </div>
+          <div class="todo-actions">
+            <button class="todo-btn approve">Approve</button>
+            <button class="todo-btn reject">Reject</button>
+            <button class="todo-btn more">···</button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- News + Pages -->
+    <div class="news-pages-row">
+
+      <!-- News -->
+      <div>
+        <div class="section-header">
+          <div class="section-title-row">
+            News
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
+          </div>
+        </div>
+        <div class="news-card">
+          <div class="news-image">
+            <!-- Sky/birds scene painted with SVG -->
+            <svg style="position:absolute;inset:0;width:100%;height:100%" viewBox="0 0 500 130" preserveAspectRatio="xMidYMid slice">
+              <defs>
+                <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#a8c8e8"/>
+                  <stop offset="60%" stop-color="#d4e8c8"/>
+                  <stop offset="100%" stop-color="#e8d8a0"/>
+                </linearGradient>
+              </defs>
+              <rect width="500" height="130" fill="url(#sky)"/>
+              <!-- Birds -->
+              <path d="M80 45 Q85 40 90 45 Q95 40 100 45" fill="none" stroke="#556b82" stroke-width="1.5"/>
+              <path d="M120 35 Q124 31 128 35 Q132 31 136 35" fill="none" stroke="#556b82" stroke-width="1.5"/>
+              <path d="M200 55 Q205 50 210 55 Q215 50 220 55" fill="none" stroke="#556b82" stroke-width="1.5"/>
+              <path d="M160 40 Q163 37 166 40 Q169 37 172 40" fill="none" stroke="#556b82" stroke-width="1.2"/>
+              <path d="M55 60 Q59 56 63 60 Q67 56 71 60" fill="none" stroke="#556b82" stroke-width="1.2"/>
+              <!-- Horizon haze -->
+              <rect x="0" y="90" width="500" height="40" fill="rgba(200,180,120,0.3)"/>
+            </svg>
+            <div class="news-play-btn">
+              <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            </div>
+          </div>
+          <div class="news-body">
+            <div class="news-tag">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01" stroke="#c62828" stroke-width="2" fill="none"/></svg>
+              Contains Critical News
+            </div>
+            <div class="news-headline">Sourcing and Procurement &nbsp;<span style="font-weight:400;color:var(--sapLinkColor, #0070f2)">3 News Articles</span></div>
+            <div class="news-desc">Discover new features and changes of this release.<br>Optional: The news / news group can have a second line of text too.</div>
+            <div class="news-source">SAP Cloud ERP</div>
+          </div>
+          <div class="news-dots">
+            <span class="dot-nav">‹</span>
+            <span class="dot active"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot-nav">›</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pages -->
+      <div>
+        <div class="section-header">
+          <div class="section-title-row">
+            Pages
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
+          </div>
+        </div>
+        <div class="pages-section">
+          <div class="pages-grid">
+            <div class="page-tile tile-purple">
+              <div class="page-tile-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg></div>
+              <div class="page-tile-name">My Business Role Assignment</div>
+              <div class="page-tile-sub">DLM - Internal SAP Tools</div>
+            </div>
+            <div class="page-tile tile-magenta">
+              <div class="page-tile-icon"><svg viewBox="0 0 24 24"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/></svg></div>
+              <div class="page-tile-name">Sales Analytics</div>
+            </div>
+            <div class="page-tile tile-orange">
+              <div class="page-tile-icon"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14l-5-5 1.41-1.41L12 14.17l7.59-7.59L21 8l-9 9z"/></svg></div>
+              <div class="page-tile-name">Fiori Launchpad</div>
+            </div>
+            <div class="page-tile tile-green">
+              <div class="page-tile-icon"><svg viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2V5c0-1.1.9-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg></div>
+              <div class="page-tile-name">Sales Resource Management for Projects</div>
+              <div class="page-tile-sub">Sales Management for Projects</div>
+            </div>
+            <div class="page-tile tile-brown">
+              <div class="page-tile-icon"><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg></div>
+              <div class="page-tile-name">My Inbox</div>
+            </div>
+            <div class="page-tile tile-blue">
+              <div class="page-tile-icon"><svg viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96C5 16.1 6.9 18 9 18h12v-2H9.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63H19c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg></div>
+              <div class="page-tile-name">Sales Products</div>
+              <div class="page-tile-sub">DLM - Internal SAP Tools</div>
+            </div>
+            <div class="page-tile tile-pink">
+              <div class="page-tile-icon"><svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg></div>
+              <div class="page-tile-name">Sales Processing</div>
+              <div class="page-tile-sub">Internal Sales</div>
+            </div>
+            <div class="page-tile tile-dkgreen">
+              <div class="page-tile-icon"><svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm4.24 16L12 15.45 7.77 18l1.12-4.81-3.73-3.23 4.92-.42L12 5l1.92 4.53 4.92.42-3.73 3.23L16.23 18z"/></svg></div>
+              <div class="page-tile-name">Sales Commissions and Incentives</div>
+              <div class="page-tile-sub">Internal Sales</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Apps -->
+    <section class="apps-section">
+      <div class="apps-section-header">
+        <div class="section-title-row">
+          Apps
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
+        </div>
+        <div class="section-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          Add Apps
+        </div>
+      </div>
+      <div class="inline-tabs" style="margin-bottom:0.6rem">
+        <div class="inline-tab active">Favorites</div>
+        <div class="inline-tab">Most Used</div>
+        <div class="inline-tab">Recently Used</div>
+        <div class="inline-tab">Recommended</div>
+      </div>
+      <div class="apps-grid">
+        <div class="app-item"><div class="app-icon app-icon-blue"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14l-5-5 1.41-1.41L12 14.17l7.59-7.59L21 8l-9 9z"/></svg></div><div><div class="app-name">Manage Sales Orders</div></div></div>
+        <div class="app-item"><div class="app-icon app-icon-blue"><svg viewBox="0 0 24 24"><path d="M9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4zm2 2H5V5h14v14zm0-16H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg></div><div><div class="app-name">Track Sales Orders</div></div></div>
+        <div class="app-item"><div class="app-icon app-icon-orange"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm1 7V3.5L18.5 9H15zm-3 8l-3-3h2V12h2v4h2l-3 3z"/></svg></div><div><div class="app-name">Create Sales Orders</div><div class="app-sub">Automatic Extraction</div></div></div>
+        <div class="app-item"><div class="app-icon app-icon-blue"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm1 7V3.5L18.5 9H15zM8 14h8v2H8zm0-4h5v2H8z"/></svg></div><div><div class="app-name">Create Sales Orders</div><div class="app-sub">VA01</div></div></div>
+        <div class="app-item"><div class="app-icon app-icon-blue"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm1 7V3.5L18.5 9H15zM8 14h8v2H8zm0-4h5v2H8z"/></svg></div><div><div class="app-name">Create Sales Orders</div></div></div>
+        <div class="app-item"><div class="app-icon app-icon-green"><svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg></div><div><div class="app-name">Sales Management Overview</div><div class="app-sub">Track Execution</div></div></div>
+        <div class="app-item"><div class="app-icon app-icon-red"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg></div><div><div class="app-name">My Sales Overview</div></div></div>
+        <div class="app-item"><div class="app-icon app-icon-teal"><svg viewBox="0 0 24 24"><path d="M20 7H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V9c0-1.1-.9-2-2-2zm0 12H4V9h16v10zM4 5h16v2H4z"/></svg></div><div><div class="app-name">Sales Order Fulfilment</div><div class="app-sub">Analyze and Resolve Issues</div></div></div>
+        <div class="app-item"><div class="app-icon app-icon-blue"><svg viewBox="0 0 24 24"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg></div><div><div class="app-name">Delivery Performance</div><div class="app-sub">Delivery as Requested</div></div></div>
+        <div class="app-item"><div class="app-icon app-icon-purple"><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg></div><div><div class="app-name">Manage Billing Documents</div></div></div>
+        <div class="app-item"><div class="app-icon app-icon-blue"><svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg></div><div><div class="app-name">Manage Customer Materials</div></div></div>
+        <div class="app-item"><div class="app-icon app-icon-orange"><svg viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg></div><div><div class="app-name">Set Material Prices</div></div></div>
+        <div class="app-item"><div class="app-icon app-icon-blue"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm1 7V3.5L18.5 9H15zM8 14h8v2H8zm0-4h5v2H8z"/></svg></div><div><div class="app-name">Create Billing Documents</div></div></div>
+        <div class="app-item"><div class="app-icon app-icon-teal"><svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg></div><div><div class="app-name">Manage Credit Memo Requests</div></div></div>
+        <div class="app-item"><div class="app-icon app-icon-green"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg></div><div><div class="app-name">Manage Customer Master Data</div></div></div>
+        <div class="app-item"><div class="app-icon app-icon-purple"><svg viewBox="0 0 24 24"><path d="M12 2a5 5 0 100 10A5 5 0 0012 2zm0 12c-5.33 0-8 2.67-8 4v2h16v-2c0-1.33-2.67-4-8-4z"/></svg></div><div><div class="app-name">Maintain Business Partner</div></div></div>
+        <div class="app-item"><div class="app-icon app-icon-orange"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14l-5-5 1.41-1.41L12 14.17l7.59-7.59L21 8l-9 9z"/></svg></div><div><div class="app-name">Stock</div><div class="app-sub">Single Material</div></div></div>
+        <div class="app-item"><div class="app-icon app-icon-blue"><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg></div><div><div class="app-name">Enter Supplier Invoice for Background Verification</div></div></div>
+      </div>
+    </section>
+
+    <!-- Insights Tiles -->
+    <section class="insight-tiles-section">
+      <div class="insight-tiles-header">
+        <div class="section-title-row">
+          Insights Tiles (12)
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
+        </div>
+        <div style="display:flex;gap:1rem">
+          <div class="section-link">Add Tiles</div>
+          <div class="section-link">Show More</div>
+        </div>
+      </div>
+      <div class="insight-tiles-grid">
+        <div class="insight-tile">
+          <div class="insight-tile-title">My Inbox</div>
+          <div class="insight-tile-sub">All Items</div>
+          <div style="margin-top:auto;display:flex;align-items:center;gap:0.5rem">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="#556b82"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+            <div class="insight-tile-kpi">97</div>
+          </div>
+        </div>
+        <div class="insight-tile">
+          <div class="insight-tile-title">SAP Analysis for Microsoft Excel</div>
+          <div style="margin-top:auto" class="insight-tile-icon">
+            <svg viewBox="0 0 24 24" fill="#556b82"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm1 7V3.5L18.5 9H15zM8 14h8v2H8zm0-4h5v2H8z"/></svg>
+          </div>
+        </div>
+        <div class="insight-tile">
+          <div class="insight-tile-title">Create Positive Pay Files</div>
+          <div class="insight-tile-sub">FCHX</div>
+          <div style="margin-top:auto" class="insight-tile-icon">
+            <svg viewBox="0 0 24 24" fill="#556b82"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
+          </div>
+        </div>
+        <div class="insight-tile">
+          <div class="insight-tile-title">Manage Customer Hierarchies</div>
+          <div style="margin-top:auto" class="insight-tile-icon">
+            <svg viewBox="0 0 24 24" fill="#556b82"><path d="M22 11V3h-7v3H9V3H2v8h7V8h2v10h4v3h7v-8h-7v3h-2V8h2v3h7zM7 9H4V5h3v4zm10 6h3v4h-3v-4zm0-10h3v4h-3V5z"/></svg>
+          </div>
+        </div>
+        <div class="insight-tile">
+          <div class="insight-tile-title">Sales Contract Fulfillment Rate</div>
+          <div class="insight-tile-sub">Currently Valid</div>
+          <div class="insight-tile-kpi pct" style="color:#1d2d3e;margin-top:auto">65.5<span style="font-size:0.9rem">%</span></div>
+          <div class="insight-tile-footer">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/></svg>
+            Now
+          </div>
+        </div>
+        <div class="insight-tile">
+          <div class="insight-tile-title">Monitor Purchase Order Items</div>
+          <div class="insight-tile-sub" style="color:#bb0000">Overdue</div>
+          <div class="insight-tile-kpi" style="margin-top:auto;color:#1d2d3e">112<span style="font-size:0.7rem;color:#556b82"> K</span></div>
+          <div class="insight-tile-footer">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/></svg>
+            40 min. ago
+          </div>
+        </div>
+        <div class="insight-tile">
+          <div class="insight-tile-title">Purchasing Spend</div>
+          <div class="insight-tile-sub">Comparison of Spend</div>
+          <div class="insight-tile-kpi neg" style="margin-top:auto">65.5<span style="font-size:0.7rem"> MM</span></div>
+          <div class="insight-tile-footer" style="color:#bb0000">
+            <svg viewBox="0 0 24 24" fill="#bb0000"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+            40 min. ago
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Insights Cards -->
+    <section class="insight-cards-section">
+      <div class="section-header">
+        <div class="section-title-row">
+          Insights Cards (7)
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
+        </div>
+      </div>
+      <div class="insight-cards-grid">
+
+        <!-- Card 1: Bar chart Revenue/Cost -->
+        <div class="insight-card">
+          <div class="insight-card-header">
+            <div class="insight-card-title">Sales Fulfillment of Department SP 17</div>
+            <span class="insight-card-menu">···</span>
+          </div>
+          <div class="ic-kpi-row">
+            <div class="ic-kpi-big">65.5<span class="unit">M</span> <span style="font-size:1rem;color:#bb0000">▲</span></div>
+          </div>
+          <div class="ic-kpi-meta">
+            <span>Target &nbsp; 500K</span>
+            <span>Deviation &nbsp; -89.75%</span>
+          </div>
+          <div class="ic-period">Q1, 2021</div>
+          <div style="font-size:0.72rem;color:#556b82;margin-bottom:0.4rem">By Revenue and Cost</div>
+          <div class="bar-chart">
+            <div class="bc-group"><div class="bc-bars"><div class="bc-bar" style="height:50px;background:#0070f2;width:10px"></div><div class="bc-bar" style="height:22px;background:#e6a118;width:10px"></div></div><div class="bc-label">CW14</div></div>
+            <div class="bc-group"><div class="bc-bars"><div class="bc-bar" style="height:42px;background:#0070f2;width:10px"></div><div class="bc-bar" style="height:18px;background:#e6a118;width:10px"></div></div><div class="bc-label">CW15</div></div>
+            <div class="bc-group"><div class="bc-bars"><div class="bc-bar" style="height:38px;background:#0070f2;width:10px"></div><div class="bc-bar" style="height:15px;background:#e6a118;width:10px"></div></div><div class="bc-label">CW16</div></div>
+            <div class="bc-group"><div class="bc-bars"><div class="bc-bar" style="height:30px;background:#0070f2;width:10px"></div><div class="bc-bar" style="height:12px;background:#e6a118;width:10px"></div></div><div class="bc-label">CW17</div></div>
+          </div>
+          <div class="chart-legend">
+            <div class="legend-item"><div class="legend-dot" style="background:#0070f2"></div>Revenue</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#e6a118"></div>Cost</div>
+          </div>
+        </div>
+
+        <!-- Card 2: Donut -->
+        <div class="insight-card">
+          <div class="insight-card-header">
+            <div class="insight-card-title">Sales Fulfillment of Department SP 17</div>
+            <span class="insight-card-menu">···</span>
+          </div>
+          <div class="ic-kpi-row">
+            <div class="ic-kpi-big">65.5<span class="unit">M</span> <span style="font-size:1rem;color:#bb0000">▲</span></div>
+          </div>
+          <div class="ic-kpi-meta">
+            <span>Target &nbsp; 500K</span>
+            <span>Deviation &nbsp; -89.75%</span>
+          </div>
+          <div class="ic-period">Q1, 2021 &nbsp; <span style="color:#8c9ab0">Revenue | EUR &nbsp; 6 of 12</span></div>
+          <div style="font-size:0.72rem;color:#556b82;margin-bottom:0.3rem">Total Purchase Order Value by Product Category</div>
+          <div class="donut-wrap">
+            <svg width="80" height="80" viewBox="0 0 80 80">
+              <circle cx="40" cy="40" r="30" fill="none" stroke="#e6a118" stroke-width="18"/>
+              <circle cx="40" cy="40" r="30" fill="none" stroke="#0070f2" stroke-width="18" stroke-dasharray="75 113" stroke-dashoffset="0"/>
+              <circle cx="40" cy="40" r="30" fill="none" stroke="#bb0000" stroke-width="18" stroke-dasharray="30 158" stroke-dashoffset="-75"/>
+              <circle cx="40" cy="40" r="21" fill="#fff"/>
+              <text x="40" y="44" text-anchor="middle" font-size="9" fill="#556b82">2.54M</text>
+            </svg>
+            <div>
+              <div style="font-size:0.7rem;color:#8c9ab0;margin-bottom:0.3rem">7.61M &nbsp; 15.22M &nbsp; 25.37M</div>
+              <div class="chart-legend" style="flex-direction:column;gap:0.25rem">
+                <div class="legend-item"><div class="legend-dot" style="background:#0070f2"></div>Computers/Laptops</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#e6a118"></div>Monitors</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#bb0000"></div>Networking Products</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#556b82"></div>Communication</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 3: List -->
+        <div class="insight-card">
+          <div class="insight-card-header">
+            <div class="insight-card-title">Urgent Purchase Requisition Items</div>
+            <span class="insight-card-menu">···</span>
+          </div>
+          <div style="font-size:0.7rem;color:#8c9ab0;margin-bottom:0.3rem">By delivery date and value &nbsp; 5 of 10</div>
+          <div class="ic-list">
+            <div class="ic-list-item"><div class="ic-list-name">Smartphone Leather Case Black</div><div class="ic-list-id">100035264</div><div class="ic-list-id">Material group A</div></div>
+            <div class="ic-list-item"><div class="ic-list-name">Cordless Mouse</div><div class="ic-list-id">100035266</div><div class="ic-list-id">Material group B</div></div>
+            <div class="ic-list-item"><div class="ic-list-name">Notebook Professional 15</div><div class="ic-list-id">100035888</div><div class="ic-list-id">Material group C</div></div>
+            <div class="ic-list-item"><div class="ic-list-name">Wireless DSL Router</div><div class="ic-list-id">100035261</div><div class="ic-list-id">Material group D</div></div>
+            <div class="ic-list-item"><div class="ic-list-name">Notebook Professional 14</div><div class="ic-list-id">100035260</div></div>
+          </div>
+        </div>
+
+        <!-- Card 4: Donut 2 -->
+        <div class="insight-card">
+          <div class="insight-card-header">
+            <div class="insight-card-title">Sales Fulfillment of Department SP 17</div>
+            <span class="insight-card-menu">···</span>
+          </div>
+          <div class="ic-kpi-xl">101<span class="unit"> K</span></div>
+          <div style="font-size:0.72rem;color:#556b82;margin:0.4rem 0 0.3rem">By Item Type</div>
+          <div class="donut-wrap">
+            <svg width="90" height="90" viewBox="0 0 90 90">
+              <circle cx="45" cy="45" r="32" fill="none" stroke="#7b68ee" stroke-width="20"/>
+              <circle cx="45" cy="45" r="32" fill="none" stroke="#0070f2" stroke-width="20" stroke-dasharray="30 171" stroke-dashoffset="0"/>
+              <circle cx="45" cy="45" r="32" fill="none" stroke="#e6a118" stroke-width="20" stroke-dasharray="15 186" stroke-dashoffset="-30"/>
+              <circle cx="45" cy="45" r="32" fill="none" stroke="#2e7d32" stroke-width="20" stroke-dasharray="10 191" stroke-dashoffset="-45"/>
+              <circle cx="45" cy="45" r="32" fill="none" stroke="#bb0000" stroke-width="20" stroke-dasharray="8 193" stroke-dashoffset="-55"/>
+              <circle cx="45" cy="45" r="25" fill="#fff"/>
+              <text x="45" y="48" text-anchor="middle" font-size="10" fill="#556b82">86.5K</text>
+            </svg>
+            <div class="chart-legend" style="flex-direction:column;gap:0.2rem">
+              <div class="legend-item"><div class="legend-dot" style="background:#7b68ee"></div>Catalog Items</div>
+              <div class="legend-item"><div class="legend-dot" style="background:#0070f2"></div>Free-Text Items</div>
+              <div class="legend-item"><div class="legend-dot" style="background:#e6a118"></div>Material Items</div>
+              <div class="legend-item"><div class="legend-dot" style="background:#2e7d32"></div>Free-Text Items (GUI)</div>
+              <div class="legend-item"><div class="legend-dot" style="background:#bb0000"></div>Material Items (GUI)</div>
+              <div class="legend-item"><div class="legend-dot" style="background:#556b82"></div>Non-Manual Items</div>
+            </div>
+          </div>
+          <div style="font-size:0.7rem;color:#8c9ab0">9.8K &nbsp; 3.1K</div>
+        </div>
+
+      </div>
+    </section>
+
+  </div>
+
+
+<script>
+  var SF_NAV = {
+    'SAP Start': 'index.html',
+    'S/4HANA Cloud': 's4hana.html',
+    'SuccessFactors': 'successfactors.html',
+    'Concur': 'concur.html',
+    'Sales Cloud': 'salescloud.html',
+    'Ariba': 'ariba.html',
+    'Business Data Cloud': 'businessdatacloud.html'
+  };
+  document.addEventListener('DOMContentLoaded', function () {
+    function wirePs() {
+      var popover = document.querySelector('#app-ps-popover');
+      if (!popover) { setTimeout(wirePs, 100); return; }
+      popover.addEventListener('click', function (e) {
+        var item = e.target.closest('.app-ps-item');
+        if (!item) return;
+        var label = item.querySelector('span');
+        if (!label) return;
+        var href = SF_NAV[label.textContent.trim()];
+        if (href) location.href = href;
+      });
+    }
+    wirePs();
+  });
+</script>
+  </div><!-- /page-scroll -->
+</body>
+</html>

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <script src="panel-init.js"></script>
+  <script type="module" src="../../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    body { font-family: "72", sans-serif; font-size: 0.875rem; background: #f5f6f7; color: #131e29; margin: 0; padding: 2rem; }
+    .panel-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .panel-subtitle { font-size: 0.875rem; color: #6a7588; margin-bottom: 2rem; }
+    .demo-section { margin-bottom: 2rem; }
+    .demo-section-header { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #6a7588; margin-bottom: 1rem; padding-bottom: 0.375rem; border-bottom: 1px solid #e5e5e5; }
+    .demo-section-body { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; }
+    .note { font-size: 0.8125rem; color: #6a7588; background: #fff; border: 1px solid #e5e5e5; border-radius: 0.375rem; padding: 0.75rem 1rem; max-width: 480px; }
+  </style>
+</head>
+<body>
+  <div class="panel-title">Token</div>
+  <div class="panel-subtitle">A compact tag-like element representing a selected value, typically within a Multi Input.</div>
+
+  <div class="note">
+    Tokens are normally used inside <strong>ui5-multi-input</strong> as slotted children. They can also be used standalone for display purposes.
+  </div>
+
+  <div class="demo-section" style="margin-top:1.5rem;">
+    <div class="demo-section-header">Basic Tokens</div>
+    <div class="demo-section-body">
+      <ui5-token text="Germany"></ui5-token>
+      <ui5-token text="France"></ui5-token>
+      <ui5-token text="United Kingdom"></ui5-token>
+      <ui5-token text="Netherlands"></ui5-token>
+      <ui5-token text="Sweden"></ui5-token>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">Read-only Tokens</div>
+    <div class="demo-section-body">
+      <ui5-token text="IT-Procurement" readonly></ui5-token>
+      <ui5-token text="HR-Admin" readonly></ui5-token>
+      <ui5-token text="Finance-Controller" readonly></ui5-token>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">Selected State</div>
+    <div class="demo-section-body">
+      <ui5-token text="Token A"></ui5-token>
+      <ui5-token text="Token B (selected)" selected></ui5-token>
+      <ui5-token text="Token C"></ui5-token>
+      <ui5-token text="Token D (selected)" selected></ui5-token>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">In Context — Multi Input</div>
+    <div class="demo-section-body">
+      <ui5-multi-input style="width:400px;" placeholder="Add more…">
+        <ui5-token slot="tokens" text="Acme Supplies GmbH"></ui5-token>
+        <ui5-token slot="tokens" text="Tech GmbH"></ui5-token>
+        <ui5-token slot="tokens" text="Office World AG"></ui5-token>
+      </ui5-multi-input>
+    </div>
+  </div>
+</body>
+</html>

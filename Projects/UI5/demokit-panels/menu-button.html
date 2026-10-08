@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Menu Button</title>
+  <script src="panel-init.js"></script>
+  <script type="module" src="../../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 600; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 300; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Light.woff2") format("woff2"); }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "72", sans-serif; font-size: 0.875rem; background: var(--sapBackgroundColor, #f5f6f7); padding: 2rem; color: var(--sapTextColor, #131e29); }
+    .panel-title { font-size: 1.5rem; font-weight: 700; color: #131e29; margin-bottom: 0.375rem; }
+    .panel-subtitle { font-size: 0.8125rem; color: var(--sapContent_LabelColor, #6a7588); margin-bottom: 2rem; }
+    .demo-section { background: #fff; border: 1px solid var(--sapList_BorderColor, #e5e5e5); border-radius: 8px; margin-bottom: 1.25rem; overflow: hidden; }
+    .demo-section-header { padding: 0.75rem 1rem; border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5); font-size: 0.8125rem; font-weight: 600; color: var(--sapContent_LabelColor, #6a7588); display: flex; align-items: center; justify-content: space-between; }
+    .demo-section-tag { font-family: monospace; font-size: 0.75rem; color: #0064d9; font-weight: 400; }
+    .demo-section-body { padding: 1.25rem 1rem; display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: flex-start; }
+    .demo-section-body.column { flex-direction: column; }
+    .demo-section-body.block { display: block; padding: 0; }
+  </style>
+</head>
+<body>
+  <div class="panel-title">Menu Button</div>
+  <div class="panel-subtitle">A button that opens a menu on press. Supports Regular mode (whole button opens menu) and Split mode (left part fires default action, arrow opens menu). Equivalent to sap.m.MenuButton.</div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">
+      In a Toolbar — Regular &amp; Split Mode
+      <span class="demo-section-tag">ui5-button + ui5-menu · ui5-split-button</span>
+    </div>
+    <div class="demo-section-body block" style="padding:0.75rem 1rem;">
+      <div style="display:flex; align-items:center; justify-content:center; gap:1rem; padding:0.5rem; background:var(--sapBackgroundColor,#f5f6f7); border-radius:6px; border:1px solid var(--sapList_BorderColor,#e5e5e5);">
+        <span style="font-size:0.875rem; color:var(--sapContent_LabelColor,#6a7588);">In a toolbar</span>
+        <ui5-button id="mb-file-btn" design="Default" icon="slim-arrow-down">File</ui5-button>
+        <ui5-menu id="mb-file-menu">
+          <ui5-menu-item text="Edit" icon="edit"></ui5-menu-item>
+          <ui5-menu-item text="Save" icon="save"></ui5-menu-item>
+          <ui5-menu-item text="Open" icon="open-folder"></ui5-menu-item>
+        </ui5-menu>
+        <ui5-split-button id="mb-calc-split" design="Default">Calculator</ui5-split-button>
+        <ui5-menu id="mb-calc-menu">
+          <ui5-menu-item text="Basic" icon="chalkboard">
+            <ui5-menu-item text="Add" icon="add"></ui5-menu-item>
+            <ui5-menu-item text="Subtract" icon="less"></ui5-menu-item>
+            <ui5-menu-item text="Multiply" icon="decline"></ui5-menu-item>
+          </ui5-menu-item>
+          <ui5-menu-item text="Complex" icon="display">
+            <ui5-menu-item text="Square" icon="status-completed"></ui5-menu-item>
+          </ui5-menu-item>
+        </ui5-menu>
+      </div>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">
+      Regular Mode
+      <span class="demo-section-tag">Full button opens menu</span>
+    </div>
+    <div class="demo-section-body column" style="gap:1rem;">
+      <div style="display:flex; align-items:center; gap:0.75rem;">
+        <ui5-label>Regular mode button</ui5-label>
+        <ui5-button id="mb-reg-btn" design="Default" icon="slim-arrow-down">File</ui5-button>
+        <ui5-menu id="mb-reg-menu">
+          <ui5-menu-item text="Edit" icon="edit"></ui5-menu-item>
+          <ui5-menu-item text="Save" icon="save"></ui5-menu-item>
+          <ui5-menu-item text="Open" icon="open-folder"></ui5-menu-item>
+        </ui5-menu>
+      </div>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">
+      Split Mode — Variants
+      <span class="demo-section-tag">ui5-split-button</span>
+    </div>
+    <div class="demo-section-body column" style="gap:1rem;">
+      <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+        <ui5-label style="width:280px;">Split mode with last action</ui5-label>
+        <ui5-split-button id="mb-split-1">File Menu</ui5-split-button>
+        <ui5-menu id="mb-split-menu-1">
+          <ui5-menu-item text="Edit" icon="edit"></ui5-menu-item>
+          <ui5-menu-item text="Save" icon="save"></ui5-menu-item>
+          <ui5-menu-item text="Open" icon="open-folder"></ui5-menu-item>
+        </ui5-menu>
+      </div>
+      <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+        <ui5-label style="width:280px;">Split mode — Accept type</ui5-label>
+        <ui5-split-button id="mb-split-accept" design="Positive">Accept</ui5-split-button>
+        <ui5-menu id="mb-split-menu-accept">
+          <ui5-menu-item text="Send the response now" icon="response"></ui5-menu-item>
+          <ui5-menu-item text="Edit the response before sending" icon="edit-outside"></ui5-menu-item>
+          <ui5-menu-item text="Do not send a response" icon="action"></ui5-menu-item>
+        </ui5-menu>
+      </div>
+      <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+        <ui5-label style="width:280px;">Split with complex submenu</ui5-label>
+        <ui5-split-button id="mb-split-calc">Calculator</ui5-split-button>
+        <ui5-menu id="mb-split-menu-calc">
+          <ui5-menu-item text="Basic" icon="chalkboard">
+            <ui5-menu-item text="Add" icon="add"></ui5-menu-item>
+            <ui5-menu-item text="Subtract" icon="less"></ui5-menu-item>
+            <ui5-menu-item text="Multiply" icon="decline"></ui5-menu-item>
+          </ui5-menu-item>
+          <ui5-menu-item text="Complex" icon="display">
+            <ui5-menu-item text="Square" icon="status-completed"></ui5-menu-item>
+          </ui5-menu-item>
+        </ui5-menu>
+      </div>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">
+      Event Feedback
+      <span class="demo-section-tag">item-click · click events</span>
+    </div>
+    <div class="demo-section-body column" style="gap:0.75rem;">
+      <div style="display:flex; align-items:center; gap:0.75rem;">
+        <ui5-split-button id="mb-event-btn" design="Emphasized">File Menu</ui5-split-button>
+        <ui5-menu id="mb-event-menu">
+          <ui5-menu-item text="Edit" icon="edit"></ui5-menu-item>
+          <ui5-menu-item text="Save" icon="save"></ui5-menu-item>
+          <ui5-menu-item text="Open" icon="open-folder"></ui5-menu-item>
+        </ui5-menu>
+        <span id="mb-event-feedback" style="font-size:0.875rem; color:var(--sapContent_LabelColor,#6a7588); font-style:italic;">No action yet</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    var mbPairs = [['mb-file-btn','mb-file-menu'],['mb-reg-btn','mb-reg-menu']];
+    mbPairs.forEach(function(p) {
+      document.getElementById(p[0]).addEventListener('click', function() { document.getElementById(p[1]).open = true; });
+    });
+    var mbSplitPairs = [
+      ['mb-calc-split','mb-calc-menu'],['mb-split-1','mb-split-menu-1'],
+      ['mb-split-accept','mb-split-menu-accept'],['mb-split-calc','mb-split-menu-calc'],
+      ['mb-event-btn','mb-event-menu']
+    ];
+    mbSplitPairs.forEach(function(p) {
+      document.getElementById(p[0]).addEventListener('arrow-click', function() { document.getElementById(p[1]).open = true; });
+    });
+    document.getElementById('mb-event-btn').addEventListener('click', function() {
+      var fb = document.getElementById('mb-event-feedback');
+      fb.textContent = 'Default action fired!'; fb.style.color = 'var(--sapPositiveColor,#196800)'; fb.style.fontStyle = 'normal';
+    });
+    document.getElementById('mb-event-menu').addEventListener('item-click', function(e) {
+      var fb = document.getElementById('mb-event-feedback');
+      fb.textContent = 'Menu item: "' + e.detail.item.text + '"'; fb.style.color = 'var(--sapInformativeColor,#0064d9)'; fb.style.fontStyle = 'normal';
+    });
+  </script>
+</body>
+</html>

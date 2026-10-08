@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Overflow Toolbar Menu Button</title>
+  <script src="panel-init.js"></script>
+  <script type="module" src="../../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 600; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 300; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Light.woff2") format("woff2"); }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "72", sans-serif; font-size: 0.875rem; background: var(--sapBackgroundColor, #f5f6f7); padding: 2rem; color: var(--sapTextColor, #131e29); }
+    .panel-title { font-size: 1.5rem; font-weight: 700; color: #131e29; margin-bottom: 0.375rem; }
+    .panel-subtitle { font-size: 0.8125rem; color: var(--sapContent_LabelColor, #6a7588); margin-bottom: 2rem; }
+    .demo-section { background: #fff; border: 1px solid var(--sapList_BorderColor, #e5e5e5); border-radius: 8px; margin-bottom: 1.25rem; overflow: hidden; }
+    .demo-section-header { padding: 0.75rem 1rem; border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5); font-size: 0.8125rem; font-weight: 600; color: var(--sapContent_LabelColor, #6a7588); display: flex; align-items: center; justify-content: space-between; }
+    .demo-section-tag { font-family: monospace; font-size: 0.75rem; color: #0064d9; font-weight: 400; }
+    .demo-section-body { padding: 1.25rem 1rem; display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: flex-start; }
+    .demo-section-body.column { flex-direction: column; }
+    .demo-section-body.block { display: block; padding: 0; }
+  </style>
+</head>
+<body>
+  <div class="panel-title">Overflow Toolbar Menu Button</div>
+  <div class="panel-subtitle">A split menu button designed for use inside toolbars. The left part fires a default action; the arrow opens a dropdown menu. Equivalent to sap.m.OverflowToolbarMenuButton — rendered using ui5-split-button + ui5-menu.</div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">
+      In a Table Header Toolbar
+      <span class="demo-section-tag">ui5-split-button + ui5-menu in toolbar</span>
+    </div>
+    <div class="demo-section-body block">
+      <div style="display:flex; align-items:center; gap:0.5rem; padding:0.5rem 0.75rem; border-bottom:1px solid var(--sapList_BorderColor,#e5e5e5); flex-wrap:wrap;">
+        <ui5-input placeholder="Search…" show-clear-icon style="max-width:300px; flex:1;">
+          <ui5-icon slot="icon" name="search"></ui5-icon>
+        </ui5-input>
+        <ui5-button design="Transparent">Reset</ui5-button>
+        <ui5-button design="Transparent" icon="sort" tooltip="Sort">Sort</ui5-button>
+        <ui5-button design="Transparent" icon="group-2" tooltip="Group">Group</ui5-button>
+        <ui5-split-button id="otmb-export" design="Transparent" icon="share" tooltip="Export">Export</ui5-split-button>
+        <ui5-menu id="otmb-export-menu">
+          <ui5-menu-item text="Export as PDF" icon="pdf-attachment"></ui5-menu-item>
+          <ui5-menu-item text="Export to Excel" icon="excel-attachment"></ui5-menu-item>
+        </ui5-menu>
+      </div>
+      <ui5-table>
+        <ui5-table-header-row slot="headerRow">
+          <ui5-table-header-cell style="padding-inline-start:1rem">Product</ui5-table-header-cell>
+          <ui5-table-header-cell>Supplier</ui5-table-header-cell>
+          <ui5-table-header-cell width="140px">Dimensions</ui5-table-header-cell>
+          <ui5-table-header-cell width="100px">Price</ui5-table-header-cell>
+        </ui5-table-header-row>
+        <ui5-table-row>
+          <ui5-table-cell style="padding-inline-start:1rem"><strong>Notebook Pro</strong><br><span style="font-size:0.75rem;color:#6a7588;">HT-1000</span></ui5-table-cell>
+          <ui5-table-cell>Very Best Screens</ui5-table-cell>
+          <ui5-table-cell>32 × 21 × 3 cm</ui5-table-cell>
+          <ui5-table-cell>956.00 EUR</ui5-table-cell>
+        </ui5-table-row>
+        <ui5-table-row>
+          <ui5-table-cell style="padding-inline-start:1rem"><strong>ITelO Vault</strong><br><span style="font-size:0.75rem;color:#6a7588;">HT-1001</span></ui5-table-cell>
+          <ui5-table-cell>Telecomunicaciones Star</ui5-table-cell>
+          <ui5-table-cell>9 × 5 × 1 cm</ui5-table-cell>
+          <ui5-table-cell>299.00 EUR</ui5-table-cell>
+        </ui5-table-row>
+        <ui5-table-row>
+          <ui5-table-cell style="padding-inline-start:1rem"><strong>Notebook Basic 15</strong><br><span style="font-size:0.75rem;color:#6a7588;">HT-1002</span></ui5-table-cell>
+          <ui5-table-cell>Exact Screens</ui5-table-cell>
+          <ui5-table-cell>38 × 28 × 3 cm</ui5-table-cell>
+          <ui5-table-cell>499.00 EUR</ui5-table-cell>
+        </ui5-table-row>
+      </ui5-table>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">
+      Standalone Variants
+      <span class="demo-section-tag">Default · Emphasized · Positive · icon-only arrow</span>
+    </div>
+    <div class="demo-section-body" style="gap:0.75rem; flex-wrap:wrap; align-items:center;">
+      <ui5-split-button id="otmb-s1" design="Default" icon="share">Export</ui5-split-button>
+      <ui5-menu id="otmb-m1">
+        <ui5-menu-item text="Export as PDF" icon="pdf-attachment"></ui5-menu-item>
+        <ui5-menu-item text="Export to Excel" icon="excel-attachment"></ui5-menu-item>
+      </ui5-menu>
+      <ui5-split-button id="otmb-s2" design="Emphasized" icon="add">Create</ui5-split-button>
+      <ui5-menu id="otmb-m2">
+        <ui5-menu-item text="New Order" icon="sales-order"></ui5-menu-item>
+        <ui5-menu-item text="New Invoice" icon="document"></ui5-menu-item>
+      </ui5-menu>
+      <ui5-split-button id="otmb-s3" design="Positive" icon="accept">Approve</ui5-split-button>
+      <ui5-menu id="otmb-m3">
+        <ui5-menu-item text="Approve with comment" icon="comment"></ui5-menu-item>
+        <ui5-menu-item text="Approve and forward" icon="forward"></ui5-menu-item>
+      </ui5-menu>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">
+      Event Feedback
+      <span class="demo-section-tag">click (default action) · arrow-click (menu)</span>
+    </div>
+    <div class="demo-section-body" style="gap:0.75rem; align-items:center;">
+      <ui5-split-button id="otmb-event" design="Default" icon="share">Export</ui5-split-button>
+      <ui5-menu id="otmb-event-menu">
+        <ui5-menu-item text="Export as PDF" icon="pdf-attachment"></ui5-menu-item>
+        <ui5-menu-item text="Export to Excel" icon="excel-attachment"></ui5-menu-item>
+      </ui5-menu>
+      <span id="otmb-feedback" style="font-size:0.875rem; color:var(--sapContent_LabelColor,#6a7588); font-style:italic;">No action yet</span>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('otmb-export').addEventListener('arrow-click', function() { document.getElementById('otmb-export-menu').open = true; });
+    [['otmb-s1','otmb-m1'],['otmb-s2','otmb-m2'],['otmb-s3','otmb-m3']].forEach(function(p) {
+      document.getElementById(p[0]).addEventListener('arrow-click', function() { document.getElementById(p[1]).open = true; });
+    });
+    document.getElementById('otmb-event').addEventListener('click', function() {
+      var fb = document.getElementById('otmb-feedback');
+      fb.textContent = 'Default action: Export fired!'; fb.style.color = 'var(--sapPositiveColor,#196800)'; fb.style.fontStyle = 'normal';
+    });
+    document.getElementById('otmb-event').addEventListener('arrow-click', function() { document.getElementById('otmb-event-menu').open = true; });
+    document.getElementById('otmb-event-menu').addEventListener('item-click', function(e) {
+      var fb = document.getElementById('otmb-feedback');
+      fb.textContent = 'Menu item: "' + e.detail.item.text + '"'; fb.style.color = 'var(--sapInformativeColor,#0064d9)'; fb.style.fontStyle = 'normal';
+    });
+  </script>
+</body>
+</html>

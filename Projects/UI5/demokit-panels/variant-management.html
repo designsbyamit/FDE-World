@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Variant Management</title>
+  <script src="panel-init.js"></script>
+  <script type="module" src="../../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 600; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 300; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Light.woff2") format("woff2"); }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "72", sans-serif; font-size: 0.875rem; background: var(--sapBackgroundColor, #f5f6f7); padding: 2rem; color: var(--sapTextColor, #131e29); }
+    .panel-title { font-size: 1.5rem; font-weight: 700; color: #131e29; margin-bottom: 0.375rem; }
+    .panel-subtitle { font-size: 0.8125rem; color: var(--sapContent_LabelColor, #6a7588); margin-bottom: 2rem; }
+    .demo-section { background: #fff; border: 1px solid var(--sapList_BorderColor, #e5e5e5); border-radius: 8px; margin-bottom: 1.25rem; overflow: hidden; }
+    .demo-section-header { padding: 0.75rem 1rem; border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5); font-size: 0.8125rem; font-weight: 600; color: var(--sapContent_LabelColor, #6a7588); display: flex; align-items: center; justify-content: space-between; }
+    .demo-section-tag { font-family: monospace; font-size: 0.75rem; color: #0064d9; font-weight: 400; }
+    .demo-section-body { padding: 1.25rem 1rem; display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: flex-start; }
+    .demo-section-body.column { flex-direction: column; }
+    .demo-section-body.block { display: block; padding: 0; }
+  </style>
+</head>
+<body>
+  <div class="panel-title">Variant Management</div>
+  <div class="panel-subtitle">Allows users to save, load, manage, and share named filter/view configurations ("variants"). Supports favorites, default variant, public/private sharing, and a Manage dialog. Equivalent to sap.m.VariantManagement — rendered using ui5-variant-management.</div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">
+      Variant Management in a Page Title
+      <span class="demo-section-tag">ui5-variant-management</span>
+    </div>
+    <div class="demo-section-body block">
+      <div style="background:#fff; border:1px solid var(--sapList_BorderColor,#e5e5e5); border-radius:8px; overflow:hidden;">
+
+        <div style="display:flex; align-items:center; padding:0.5rem 1rem; border-bottom:1px solid var(--sapList_BorderColor,#e5e5e5); background:var(--sapBackgroundColor,#f5f6f7);">
+          <span style="font-size:1rem; font-weight:700; color:var(--sapTextColor,#131e29); flex:1;">Custom Toolbar with a header text</span>
+          <ui5-button id="vm-modify-btn" design="Transparent">Toggle Modify View</ui5-button>
+        </div>
+
+        <div style="padding:1rem 1rem 0.75rem;">
+          <ui5-variant-management
+            id="vm-demo"
+            show-footer>
+            <ui5-variant-item
+              key="Standard"
+              title="Entry1"
+              author="B"
+              favorite
+              read-only>
+            </ui5-variant-item>
+            <ui5-variant-item
+              key="2"
+              title="Entry2"
+              author="A"
+              favorite
+              selected>
+            </ui5-variant-item>
+            <ui5-variant-item
+              key="3"
+              title="Entry3"
+              author="A"
+              favorite
+              apply-automatically>
+            </ui5-variant-item>
+            <ui5-variant-item
+              key="4"
+              title="Entry4"
+              author="A">
+            </ui5-variant-item>
+          </ui5-variant-management>
+        </div>
+
+        <div style="padding:0 1rem 1rem;">
+          <div id="vm-log" style="font-size:0.8125rem; color:var(--sapContent_LabelColor,#6a7588); font-style:italic; min-height:1.25rem;">Select or save a variant to see events here.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      var vm = document.getElementById('vm-demo');
+      var log = document.getElementById('vm-log');
+      if (!vm) return;
+      vm.addEventListener('selection-change', function(e) {
+        var key = e.detail && e.detail.selectedItem && e.detail.selectedItem.getAttribute('key');
+        var title = e.detail && e.detail.selectedItem && e.detail.selectedItem.getAttribute('title');
+        log.textContent = 'Selected: "' + (title || key) + '"';
+        log.style.color = 'var(--sapPositiveColor,#196800)';
+        log.style.fontStyle = 'normal';
+      });
+      vm.addEventListener('save', function(e) {
+        var name = e.detail && e.detail.name;
+        log.textContent = 'Saved variant: "' + name + '"';
+        log.style.color = 'var(--sapInformativeColor,#0064d9)';
+        log.style.fontStyle = 'normal';
+      });
+      vm.addEventListener('manage', function() {
+        log.textContent = 'Manage dialog opened.';
+        log.style.color = 'var(--sapContent_LabelColor,#6a7588)';
+        log.style.fontStyle = 'italic';
+      });
+      document.getElementById('vm-modify-btn').addEventListener('click', function() {
+        var ro = vm.querySelector('[key="Standard"]');
+        if (ro) {
+          var isReadOnly = ro.hasAttribute('read-only');
+          if (isReadOnly) ro.removeAttribute('read-only'); else ro.setAttribute('read-only', '');
+          log.textContent = 'Entry1 read-only: ' + !isReadOnly;
+          log.style.color = 'var(--sapContent_LabelColor,#6a7588)';
+          log.style.fontStyle = 'italic';
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

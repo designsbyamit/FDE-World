@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Home</title>
+
+  <script data-ui5-config type="application/json">{ "theme": "sap_horizon" }</script>
+  <script type="module" src="../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <script src="../../lib/shared/shellbar.js"></script>
+
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 600; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 300; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Light.woff2") format("woff2"); }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    ui5-button { --sapButton_FontFamily: "72", sans-serif; }
+    ui5-button::part(text) { font-family: "72", sans-serif; font-weight: 400; }
+
+    html, body {
+      font-family: "72", sans-serif;
+      background: var(--sapBackgroundColor, #f5f6f7);
+      color: var(--sapTextColor, #131e29);
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    app-shellbar { position: sticky; top: 0; z-index: 100; }
+
+    .shell {
+      display: flex;
+      height: calc(100vh - 44px);
+    }
+
+    /* ── Side navigation (collapsed icon rail) ── */
+    .sn-nav {
+      width: 52px;
+      flex-shrink: 0;
+      background: var(--sapBaseColor, #fff);
+      border-right: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .sn-scroll { flex: 1; overflow-y: auto; }
+    .sn-fixed { border-top: 1px solid var(--sapList_BorderColor, #e5e5e5); }
+    .sn-item {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.625rem 0;
+      cursor: pointer;
+      position: relative;
+      border-left: 3px solid transparent;
+    }
+    .sn-item:hover { background: var(--sapList_Hover_Background, #f5f6f7); }
+    .sn-item.active {
+      border-left-color: var(--sapSelectedColor, #0064d9);
+      background: var(--sapList_SelectionBackgroundColor, #e8f0fe);
+    }
+    .sn-item.active ui5-icon { color: var(--sapSelectedColor, #0064d9); }
+    .sn-group-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.125rem;
+      padding: 0.625rem 0;
+      cursor: pointer;
+      font-size: 0.625rem;
+      color: var(--sapContent_LabelColor, #556b82);
+    }
+    .sn-group-btn:hover { background: var(--sapList_Hover_Background, #f5f6f7); }
+
+    /* ── Main content ── */
+    .main {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Hero banner ── */
+    .hero-wrap {
+      padding: 1.5rem 1.5rem 0;
+      flex-shrink: 0;
+    }
+    .hero {
+      background: linear-gradient(135deg, var(--sapButton_Emphasized_Background, #0064d9) 0%, var(--sapHighlightColor, #0032a0) 60%, #3d1a6e 100%);
+      padding: 2rem 2.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 140px;
+      border-radius: var(--sapTile_BorderCornerRadius, 1rem);
+    }
+    .hero-text {}
+    .hero-greeting {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.3;
+    }
+    .hero-subtitle {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #fff;
+      margin-top: 0.25rem;
+    }
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-shrink: 0;
+    }
+
+    /* ── Page body ── */
+    .page-body {
+      flex: 1;
+      padding: 1.5rem 1.5rem 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    /* ── Quick links card ── */
+    .card {
+      background: var(--sapBaseColor, #fff);
+      border: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      border-radius: var(--sapTile_BorderCornerRadius, 1rem);
+      overflow: hidden;
+    }
+    .card-body { padding: 1rem 1.5rem 1.5rem; }
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      border-top: 1px solid var(--sapList_BorderColor, #e5e5e5);
+    }
+
+    /* quick links tabs */
+    .ql-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      padding: 0 1.5rem;
+    }
+    .ql-tab {
+      font-size: 0.9375rem;
+      color: var(--sapContent_LabelColor, #556b82);
+      padding: 0.75rem 1rem;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      white-space: nowrap;
+    }
+    .ql-tab:hover { color: var(--sapTextColor, #131e29); }
+    .ql-tab.active {
+      color: var(--sapSelectedColor, #0064d9);
+      border-bottom-color: var(--sapSelectedColor, #0064d9);
+      font-weight: 600;
+    }
+    .ql-tiles {
+      display: flex;
+      gap: 1.5rem;
+      padding: 1.25rem 1.5rem;
+    }
+    .ql-tile {
+      display: flex;
+      align-items: center;
+      gap: 0.625rem;
+      cursor: pointer;
+      font-size: 0.9375rem;
+      color: var(--sapTextColor, #131e29);
+      padding: 0.5rem 0.75rem;
+      border-radius: 0.5rem;
+    }
+    .ql-tile:hover { background: var(--sapList_Hover_Background, #f5f6f7); }
+    .ql-tile-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .ql-tile-icon.red    { background: var(--sapErrorBackground, #ffd4d5); }
+    .ql-tile-icon.yellow { background: var(--sapWarningBackground, #fff3b7); }
+    .ql-tile-icon.green  { background: var(--sapSuccessBackground, #d4efda); }
+    .ql-tile-icon.blue   { background: var(--sapInformativeBackground, #d3eefe); }
+    .ql-tile-icon.grey   { background: var(--sapNeutralBackground, #eaecee); }
+
+    /* ── Two and three column grid ── */
+    .card-grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+    .card-grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+    }
+
+    /* ── Card header ── */
+    .card-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--sapTextColor, #131e29);
+      margin-bottom: 0.25rem;
+    }
+    .card-desc {
+      font-size: 0.8125rem;
+      color: var(--sapContent_LabelColor, #556b82);
+      margin-bottom: 0.125rem;
+    }
+    .card-link {
+      font-size: 0.8125rem;
+      color: var(--sapLinkColor, #0064d9);
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .card-link:hover { text-decoration: underline; }
+    .card-count {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--sapTextColor, #131e29);
+      margin-top: 0.25rem;
+    }
+
+    /* ── Work items list ── */
+    .work-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      font-size: 0.875rem;
+    }
+    .work-item:last-child { border-bottom: none; }
+    .work-item-label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--sapTextColor, #131e29);
+    }
+    .work-item-count {
+      font-weight: 700;
+      color: var(--sapTextColor, #131e29);
+    }
+
+    /* ── Health badge ── */
+    .health-good {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      color: var(--sapPositiveColor, #196c3e);
+      font-size: 0.8125rem;
+      font-weight: 600;
+    }
+    .health-good ui5-icon { color: var(--sapPositiveColor, #196c3e); }
+
+    /* ── Requisitions table ── */
+    .req-health-pending {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      color: var(--sapWarningColor, #e76500);
+      font-size: 0.8125rem;
+      font-weight: 600;
+    }
+
+    /* ── Empty state card ── */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1.5rem;
+      gap: 1rem;
+      flex: 1;
+      text-align: center;
+    }
+    .empty-state-title {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: var(--sapTextColor, #131e29);
+    }
+    .empty-state-desc {
+      font-size: 0.875rem;
+      color: var(--sapContent_LabelColor, #556b82);
+    }
+
+    /* ── In Progress Items ── */
+    .pi-content {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      padding: 0.75rem 0;
+      width: 100%;
+    }
+    .progress-item-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 0.5rem;
+      background: var(--sapList_SelectionBackgroundColor, #e8f0fe);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .progress-item-body { flex: 1; min-width: 0; }
+    .progress-item-title {
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: var(--sapTextColor, #131e29);
+    }
+    .progress-item-meta {
+      font-size: 0.8125rem;
+      color: var(--sapContent_LabelColor, #556b82);
+      margin-top: 0.125rem;
+      line-height: 1.6;
+    }
+    .progress-item-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      flex-shrink: 0;
+      align-self: flex-end;
+    }
+  </style>
+</head>
+<body>
+
+  <app-shellbar title="Fieldglass" show-search base-path="../../"></app-shellbar>
+
+  <div class="shell">
+
+    <!-- Side nav (collapsed icon rail) -->
+    <nav class="sn-nav">
+      <div class="sn-scroll">
+        <div class="sn-item active">
+          <ui5-icon name="home" style="font-size:1.125rem;color:var(--sapContent_IconColor,#556b82);"></ui5-icon>
+        </div>
+        <div class="sn-group-btn">
+          <ui5-icon name="workflow-tasks" style="font-size:1rem;color:var(--sapContent_IconColor,#556b82);"></ui5-icon>
+          <ui5-icon name="slim-arrow-right" style="font-size:0.5rem;color:var(--sapContent_LabelColor,#556b82);"></ui5-icon>
+        </div>
+        <div class="sn-group-btn">
+          <ui5-icon name="machine" style="font-size:1rem;color:var(--sapContent_IconColor,#556b82);"></ui5-icon>
+          <ui5-icon name="slim-arrow-right" style="font-size:0.5rem;color:var(--sapContent_LabelColor,#556b82);"></ui5-icon>
+        </div>
+        <div class="sn-group-btn">
+          <ui5-icon name="business-objects-experience" style="font-size:1rem;color:var(--sapContent_IconColor,#556b82);"></ui5-icon>
+          <ui5-icon name="slim-arrow-right" style="font-size:0.5rem;color:var(--sapContent_LabelColor,#556b82);"></ui5-icon>
+        </div>
+        <div class="sn-group-btn">
+          <ui5-icon name="bar-chart" style="font-size:1rem;color:var(--sapContent_IconColor,#556b82);"></ui5-icon>
+          <ui5-icon name="slim-arrow-right" style="font-size:0.5rem;color:var(--sapContent_LabelColor,#556b82);"></ui5-icon>
+        </div>
+        <div class="sn-group-btn">
+          <ui5-icon name="group" style="font-size:1rem;color:var(--sapContent_IconColor,#556b82);"></ui5-icon>
+          <ui5-icon name="slim-arrow-right" style="font-size:0.5rem;color:var(--sapContent_LabelColor,#556b82);"></ui5-icon>
+        </div>
+        <div class="sn-group-btn">
+          <ui5-icon name="org-chart" style="font-size:1rem;color:var(--sapContent_IconColor,#556b82);"></ui5-icon>
+          <ui5-icon name="slim-arrow-right" style="font-size:0.5rem;color:var(--sapContent_LabelColor,#556b82);"></ui5-icon>
+        </div>
+        <div class="sn-group-btn">
+          <ui5-icon name="employee" style="font-size:1rem;color:var(--sapContent_IconColor,#556b82);"></ui5-icon>
+          <ui5-icon name="slim-arrow-right" style="font-size:0.5rem;color:var(--sapContent_LabelColor,#556b82);"></ui5-icon>
+        </div>
+      </div>
+      <div class="sn-fixed">
+        <div class="sn-item">
+          <ui5-icon name="write-new" style="font-size:1.125rem;color:var(--sapContent_IconColor,#556b82);"></ui5-icon>
+        </div>
+        <div class="sn-item">
+          <ui5-icon name="action-settings" style="font-size:1.125rem;color:var(--sapContent_IconColor,#556b82);"></ui5-icon>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main scrollable content -->
+    <div class="main">
+
+      <!-- Hero banner -->
+      <div class="hero-wrap">
+        <div class="hero">
+        <div class="hero-text">
+          <div class="hero-greeting">Hi, Alyssa!</div>
+          <div class="hero-subtitle">Welcome to SAP Fieldglass.</div>
+        </div>
+        <div class="hero-actions">
+          <ui5-button design="Default" icon="megaphone">What's New</ui5-button>
+          <ui5-button design="Default" icon="action-settings" tooltip="Settings"></ui5-button>
+        </div>
+        </div>
+      </div>
+
+      <div class="page-body">
+
+        <!-- Quick links card -->
+        <div class="card">
+          <div class="ql-tabs">
+            <div class="ql-tab">Recently Viewed Items</div>
+            <div class="ql-tab">Pinned Links</div>
+            <div class="ql-tab">Starred Items</div>
+            <div class="ql-tab active">Messages</div>
+          </div>
+          <div class="ql-tiles">
+            <div class="ql-tile">
+              <div class="ql-tile-icon red"><ui5-icon name="alert" style="color:var(--sapErrorColor,#aa0808);font-size:1.125rem;"></ui5-icon></div>
+              Alert
+            </div>
+            <div class="ql-tile">
+              <div class="ql-tile-icon yellow"><ui5-icon name="favorite" style="color:var(--sapWarningColor,#e76500);font-size:1.125rem;"></ui5-icon></div>
+              Starred
+            </div>
+            <div class="ql-tile">
+              <div class="ql-tile-icon green"><ui5-icon name="discussion" style="color:var(--sapPositiveColor,#196c3e);font-size:1.125rem;"></ui5-icon></div>
+              Chat
+            </div>
+            <div class="ql-tile">
+              <div class="ql-tile-icon blue"><ui5-icon name="bell" style="color:var(--sapInformativeColor,#0070f2);font-size:1.125rem;"></ui5-icon></div>
+              Notification
+            </div>
+            <div class="ql-tile">
+              <div class="ql-tile-icon grey"><ui5-icon name="megaphone" style="color:var(--sapContent_LabelColor,#556b82);font-size:1.125rem;"></ui5-icon></div>
+              Broadcast
+            </div>
+          </div>
+        </div>
+
+        <!-- Three-column row -->
+        <div class="card-grid-3">
+
+          <!-- My Work Items -->
+          <div class="card" style="display:flex;flex-direction:column;">
+            <div class="card-body" style="flex:1;">
+              <div class="card-title">My Work Items</div>
+              <div style="margin-top:1rem;">
+                <div class="work-item">
+                  <div class="work-item-label">
+                    <ui5-icon name="document-text" style="color:var(--sapContent_LabelColor,#556b82);font-size:1rem;"></ui5-icon>
+                    Requisition - Approve
+                  </div>
+                  <span class="work-item-count">22</span>
+                </div>
+                <div class="work-item">
+                  <div class="work-item-label">
+                    <ui5-icon name="employee" style="color:var(--sapContent_LabelColor,#556b82);font-size:1rem;"></ui5-icon>
+                    Worker - Manage Invoicing
+                  </div>
+                  <span class="work-item-count">4</span>
+                </div>
+                <div class="work-item">
+                  <div class="work-item-label">
+                    <ui5-icon name="person-placeholder" style="color:var(--sapContent_LabelColor,#556b82);font-size:1rem;"></ui5-icon>
+                    Candidate - Review
+                  </div>
+                  <span class="work-item-count">2</span>
+                </div>
+                <div class="work-item">
+                  <div class="work-item-label">
+                    <ui5-icon name="document" style="color:var(--sapContent_LabelColor,#556b82);font-size:1rem;"></ui5-icon>
+                    Statement of Work - Approve
+                  </div>
+                  <span class="work-item-count">2</span>
+                </div>
+                <div class="work-item">
+                  <div class="work-item-label">
+                    <ui5-icon name="time-overtime" style="color:var(--sapContent_LabelColor,#556b82);font-size:1rem;"></ui5-icon>
+                    Time Sheet - Approve
+                  </div>
+                  <span class="work-item-count">1</span>
+                </div>
+              </div>
+            </div>
+            <div class="card-footer">
+              <ui5-button design="Default">View All Work Items</ui5-button>
+            </div>
+          </div>
+
+          <!-- Linked Accounts -->
+          <div class="card" style="display:flex;flex-direction:column;">
+            <div class="card-body" style="flex:1;">
+              <div class="card-title">Linked Accounts</div>
+              <div style="margin-top:1rem;">
+                <ui5-select style="width:100%;">
+                  <ui5-option selected>Links from this User Account (2)</ui5-option>
+                </ui5-select>
+                <div style="margin-top:1rem;" class="ui5-content-density-compact">
+                  <ui5-table>
+                    <ui5-table-header-row slot="headerRow">
+                      <ui5-table-header-cell style="padding-inline-start:1rem;">Accounts</ui5-table-header-cell>
+                      <ui5-table-header-cell width="6rem">Work Items</ui5-table-header-cell>
+                    </ui5-table-header-row>
+                    <ui5-table-row>
+                      <ui5-table-cell style="padding-inline-start:1rem;"><ui5-link wrapping-type="None">Stella Sparks - Supplier (NonERS)</ui5-link></ui5-table-cell>
+                      <ui5-table-cell style="color:var(--sapContent_LabelColor,#556b82);">-</ui5-table-cell>
+                    </ui5-table-row>
+                    <ui5-table-row>
+                      <ui5-table-cell style="padding-inline-start:1rem;"><ui5-link wrapping-type="None">Lydia Robbins - Suppler (ERS)</ui5-link></ui5-table-cell>
+                      <ui5-table-cell style="color:var(--sapContent_LabelColor,#556b82);">-</ui5-table-cell>
+                    </ui5-table-row>
+                  </ui5-table>
+                </div>
+              </div>
+            </div>
+            <div class="card-footer">
+              <ui5-button design="Default">Update Work Item Counts</ui5-button>
+              <ui5-button design="Transparent" icon="wrench" tooltip="Settings"></ui5-button>
+            </div>
+          </div>
+
+          <!-- My Requisitions -->
+          <div class="card" style="display:flex;flex-direction:column;">
+            <div class="card-body" style="flex:1;">
+              <div class="card-title">My Requisitions</div>
+              <div class="card-desc">Lists active Requisitions that are created and/or managed by the user.</div>
+              <ui5-link class="card-link">My Requisitions</ui5-link>
+              <div class="card-count">6</div>
+              <div style="margin-top:1rem;">
+                <ui5-table>
+                  <ui5-table-header-row slot="headerRow">
+                    <ui5-table-header-cell width="10rem" style="padding-inline-start:1rem;">Requisition</ui5-table-header-cell>
+                    <ui5-table-header-cell width="7rem">Status</ui5-table-header-cell>
+                    <ui5-table-header-cell width="4rem">Candidates</ui5-table-header-cell>
+                    <ui5-table-header-cell width="7rem">Next Step</ui5-table-header-cell>
+                    <ui5-table-header-cell width="5rem">Health</ui5-table-header-cell>
+                  </ui5-table-header-row>
+                  <ui5-table-row>
+                    <ui5-table-cell style="padding-inline-start:1rem;"><ui5-link wrapping-type="None">TEST ITEM 3</ui5-link><div style="font-size:0.75rem;color:var(--sapContent_LabelColor,#556b82);">SADP22JP00000784</div></ui5-table-cell>
+                    <ui5-table-cell>Pending Approval</ui5-table-cell>
+                    <ui5-table-cell>0</ui5-table-cell>
+                    <ui5-table-cell>Need to approve</ui5-table-cell>
+                    <ui5-table-cell><span class="req-health-pending"><ui5-icon name="pending" style="font-size:0.875rem;"></ui5-icon>Pending</span></ui5-table-cell>
+                  </ui5-table-row>
+                  <ui5-table-row>
+                    <ui5-table-cell style="padding-inline-start:1rem;"><ui5-link wrapping-type="None">Project Team Member Level 4 | IC</ui5-link><div style="font-size:0.75rem;color:var(--sapContent_LabelColor,#556b82);">SADP22JP00000847</div></ui5-table-cell>
+                    <ui5-table-cell>Pending Approval</ui5-table-cell>
+                    <ui5-table-cell>0</ui5-table-cell>
+                    <ui5-table-cell>Need to approve</ui5-table-cell>
+                    <ui5-table-cell><span class="req-health-pending"><ui5-icon name="pending" style="font-size:0.875rem;"></ui5-icon>Pending</span></ui5-table-cell>
+                  </ui5-table-row>
+                  <ui5-table-row>
+                    <ui5-table-cell style="padding-inline-start:1rem;"><ui5-link wrapping-type="None">Billing Analyst</ui5-link><div style="font-size:0.75rem;color:var(--sapContent_LabelColor,#556b82);">SADP22JP00000409</div></ui5-table-cell>
+                    <ui5-table-cell>Submitted</ui5-table-cell>
+                    <ui5-table-cell>0</ui5-table-cell>
+                    <ui5-table-cell>Supplier needs to respond</ui5-table-cell>
+                    <ui5-table-cell><span class="health-good"><ui5-icon name="sys-enter-2" style="font-size:0.875rem;"></ui5-icon>Good</span></ui5-table-cell>
+                  </ui5-table-row>
+                  <ui5-table-row>
+                    <ui5-table-cell style="padding-inline-start:1rem;"><ui5-link wrapping-type="None">Billing Analyst</ui5-link><div style="font-size:0.75rem;color:var(--sapContent_LabelColor,#556b82);">SADP22JP00000422</div></ui5-table-cell>
+                    <ui5-table-cell>Submitted</ui5-table-cell>
+                    <ui5-table-cell>0</ui5-table-cell>
+                    <ui5-table-cell>Supplier needs to respond</ui5-table-cell>
+                    <ui5-table-cell><span class="health-good"><ui5-icon name="sys-enter-2" style="font-size:0.875rem;"></ui5-icon>Good</span></ui5-table-cell>
+                  </ui5-table-row>
+                  <ui5-table-row>
+                    <ui5-table-cell style="padding-inline-start:1rem;"><ui5-link wrapping-type="None">Billing Analyst</ui5-link><div style="font-size:0.75rem;color:var(--sapContent_LabelColor,#556b82);">SADP22JP00000414</div></ui5-table-cell>
+                    <ui5-table-cell>Submitted</ui5-table-cell>
+                    <ui5-table-cell>1</ui5-table-cell>
+                    <ui5-table-cell>Review responses</ui5-table-cell>
+                    <ui5-table-cell><span class="health-good"><ui5-icon name="sys-enter-2" style="font-size:0.875rem;"></ui5-icon>Good</span></ui5-table-cell>
+                  </ui5-table-row>
+                  <ui5-table-row>
+                    <ui5-table-cell style="padding-inline-start:1rem;"><ui5-link wrapping-type="None">Administrator | IC</ui5-link><div style="font-size:0.75rem;color:var(--sapContent_LabelColor,#556b82);">SADP22JP00000643</div></ui5-table-cell>
+                    <ui5-table-cell>Submitted</ui5-table-cell>
+                    <ui5-table-cell>0</ui5-table-cell>
+                    <ui5-table-cell>Supplier needs to respond</ui5-table-cell>
+                    <ui5-table-cell><span class="health-good"><ui5-icon name="sys-enter-2" style="font-size:0.875rem;"></ui5-icon>Good</span></ui5-table-cell>
+                  </ui5-table-row>
+                </ui5-table>
+              </div>
+            </div>
+            <div class="card-footer">
+              <ui5-button design="Default">Go to Requisition Dashboard</ui5-button>
+              <ui5-button design="Default">Create Requisition</ui5-button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Two-column row -->
+        <div class="card-grid-2">
+
+          <!-- My Workers -->
+          <div class="card" style="display:flex;flex-direction:column;">
+            <div class="card-body" style="flex:1;">
+              <div class="card-title">My Workers</div>
+              <div class="card-desc">This card shows up to 10 Workers. To view all your Workers, go to the Worker Dashboard.</div>
+              <ui5-link class="card-link">My Workers</ui5-link>
+              <div class="card-count">4</div>
+              <div style="margin-top:1rem;">
+                <ui5-table>
+                  <ui5-table-header-row slot="headerRow">
+                    <ui5-table-header-cell style="padding-inline-start:1rem;" width="12rem">Worker</ui5-table-header-cell>
+                    <ui5-table-header-cell>ID</ui5-table-header-cell>
+                    <ui5-table-header-cell width="7rem">End</ui5-table-header-cell>
+                    <ui5-table-header-cell width="5rem">Health</ui5-table-header-cell>
+                  </ui5-table-header-row>
+                  <ui5-table-row>
+                    <ui5-table-cell style="padding-inline-start:1rem;"><div style="display:flex;align-items:center;gap:0.5rem;"><ui5-avatar initials="BA" color-scheme="Accent1" size="XS"></ui5-avatar>Bharath Ajendla</div></ui5-table-cell>
+                    <ui5-table-cell><ui5-link>SADP22WO00000516</ui5-link></ui5-table-cell>
+                    <ui5-table-cell>05/31/2023</ui5-table-cell>
+                    <ui5-table-cell><span class="health-good"><ui5-icon name="sys-enter-2" style="font-size:0.875rem;"></ui5-icon>Good</span></ui5-table-cell>
+                  </ui5-table-row>
+                  <ui5-table-row>
+                    <ui5-table-cell style="padding-inline-start:1rem;"><div style="display:flex;align-items:center;gap:0.5rem;"><ui5-avatar initials="BA" color-scheme="Accent1" size="XS"></ui5-avatar>Bharath ajendla</div></ui5-table-cell>
+                    <ui5-table-cell><ui5-link>SADP22WO00000521</ui5-link></ui5-table-cell>
+                    <ui5-table-cell>05/31/2023</ui5-table-cell>
+                    <ui5-table-cell><span class="health-good"><ui5-icon name="sys-enter-2" style="font-size:0.875rem;"></ui5-icon>Good</span></ui5-table-cell>
+                  </ui5-table-row>
+                  <ui5-table-row>
+                    <ui5-table-cell style="padding-inline-start:1rem;"><div style="display:flex;align-items:center;gap:0.5rem;"><ui5-avatar initials="TH" color-scheme="Accent3" size="XS"></ui5-avatar>Tom Hanks</div></ui5-table-cell>
+                    <ui5-table-cell><ui5-link>SADP22WO00000509</ui5-link></ui5-table-cell>
+                    <ui5-table-cell>05/31/2023</ui5-table-cell>
+                    <ui5-table-cell><span class="health-good"><ui5-icon name="sys-enter-2" style="font-size:0.875rem;"></ui5-icon>Good</span></ui5-table-cell>
+                  </ui5-table-row>
+                  <ui5-table-row>
+                    <ui5-table-cell style="padding-inline-start:1rem;"><div style="display:flex;align-items:center;gap:0.5rem;"><ui5-avatar initials="JK" color-scheme="Accent6" size="XS"></ui5-avatar>John Kelvin</div></ui5-table-cell>
+                    <ui5-table-cell><ui5-link>SADP22WO00000651</ui5-link></ui5-table-cell>
+                    <ui5-table-cell>05/30/2025</ui5-table-cell>
+                    <ui5-table-cell><span class="health-good"><ui5-icon name="sys-enter-2" style="font-size:0.875rem;"></ui5-icon>Good</span></ui5-table-cell>
+                  </ui5-table-row>
+                </ui5-table>
+              </div>
+            </div>
+            <div class="card-footer">
+              <ui5-button design="Default">Go to Worker Dashboard</ui5-button>
+            </div>
+          </div>
+
+          <!-- My Statements of Work (empty state) -->
+          <div class="card" style="display:flex;flex-direction:column;">
+            <div class="card-body" style="flex:1;display:flex;flex-direction:column;">
+              <div class="card-title">My Statements of Work</div>
+              <div class="card-desc">Go to the Statements of Work Dashboard for more information.</div>
+              <div class="empty-state" style="flex:1;">
+                <ui5-illustrated-message name="NoData" size="Spot"></ui5-illustrated-message>
+                <div class="empty-state-title">You don't have any Statements of Work</div>
+                <div class="empty-state-desc">When you create Statements of Work, they are displayed here.</div>
+                <ui5-button design="Emphasized">Create Statement of Work</ui5-button>
+              </div>
+            </div>
+            <div class="card-footer">
+              <ui5-button design="Default">Go to Statement of Work Dashboard</ui5-button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- In Progress Items -->
+        <div class="card">
+          <div class="card-body">
+            <div class="card-title">In Progress Items</div>
+            <ui5-list style="margin-top:0.5rem;">
+
+              <ui5-li-custom>
+                <div class="pi-content">
+                  <div class="progress-item-icon">
+                    <ui5-icon name="document-text" style="font-size:1.25rem;color:var(--sapSelectedColor,#0064d9);"></ui5-icon>
+                  </div>
+                  <div class="progress-item-body">
+                    <div class="progress-item-title">Project Team Member Level 4 | IC</div>
+                    <div class="progress-item-meta">
+                      <ui5-link>SADP22JP00000847</ui5-link><br>
+                      Status: Pending Approval<br>
+                      Next Step: Need to approve<br>
+                      Start: 01/31/2025
+                    </div>
+                  </div>
+                  <div class="progress-item-actions">
+                    <ui5-button design="Transparent" icon="discussion" tooltip="Comment"></ui5-button>
+                    <ui5-button design="Transparent" icon="unfavorite" tooltip="Star"></ui5-button>
+                  </div>
+                </div>
+              </ui5-li-custom>
+
+              <ui5-li-custom>
+                <div class="pi-content">
+                  <div class="progress-item-icon">
+                    <ui5-icon name="document-text" style="font-size:1.25rem;color:var(--sapSelectedColor,#0064d9);"></ui5-icon>
+                  </div>
+                  <div class="progress-item-body">
+                    <div class="progress-item-title">TEST ITEM 3</div>
+                    <div class="progress-item-meta">
+                      <ui5-link>SADP22JP00000784</ui5-link><br>
+                      Status: Pending Approval<br>
+                      Next Step: Need to approve<br>
+                      Start: 11/01/2024
+                    </div>
+                  </div>
+                  <div class="progress-item-actions">
+                    <ui5-button design="Transparent" icon="discussion" tooltip="Comment"></ui5-button>
+                    <ui5-button design="Transparent" icon="unfavorite" tooltip="Star"></ui5-button>
+                  </div>
+                </div>
+              </ui5-li-custom>
+
+              <ui5-li-custom>
+                <div class="pi-content">
+                  <div class="progress-item-icon">
+                    <ui5-icon name="document-text" style="font-size:1.25rem;color:var(--sapSelectedColor,#0064d9);"></ui5-icon>
+                  </div>
+                  <div class="progress-item-body">
+                    <div class="progress-item-title">Administrator | IC</div>
+                    <div class="progress-item-meta">
+                      <ui5-link>SADP22JP00000643</ui5-link>
+                    </div>
+                  </div>
+                  <div class="progress-item-actions">
+                    <ui5-button design="Transparent" icon="discussion" tooltip="Comment"></ui5-button>
+                    <ui5-button design="Transparent" icon="unfavorite" tooltip="Star"></ui5-button>
+                  </div>
+                </div>
+              </ui5-li-custom>
+
+            </ui5-list>
+          </div>
+          <div class="card-footer">
+            <ui5-button design="Default">View All In Progress Items</ui5-button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

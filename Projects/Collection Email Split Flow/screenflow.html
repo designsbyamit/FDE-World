@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Collection Email Split Flow — Screenflow</title>
+  <link rel="icon" href="../../lib/assets/favicon.ico">
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:"72", sans-serif; background:#dde1e7; color:#1a1a2e; }
+    .toolbar { position:fixed; inset:0 0 auto 0; height:44px; z-index:10; display:flex; align-items:center; gap:1rem; padding:0 1rem; color:#fff; background:#2c2c2c; font-size:0.875rem; }
+    .toolbar-title { font-size:0.875rem; font-weight:700; }
+    .legend { display:flex; gap:0.75rem; align-items:center; }
+    .legend-item { display:flex; align-items:center; gap:0.3rem; }
+    .dot { width:9px; height:9px; border-radius:50%; background:#0369a1; }
+    .dot.system { background:#15803d; }
+    .spacer { flex:1; }
+    .view-prototype { padding:5px 14px; border:0; border-radius:4px; background:#fff; color:#1a1a2e; cursor:pointer; font:inherit; font-weight:700; }
+    .view-prototype:hover { background:#e8e8f0; }
+    .canvas { min-width:3900px; padding:92px 48px 80px; }
+    .flow-section { margin-bottom:72px; }
+    .flow-section-title { display:flex; align-items:center; gap:0.65rem; margin-bottom:1.5rem; font-size:1.375rem; font-weight:700; }
+    .flow-section-title span { padding:0.25rem 0.5rem; border-radius:4px; color:#fff; background:#1a1a2e; font-size:0.875rem; }
+    .flow-row { display:flex; align-items:flex-start; }
+    .screen { width:280px; flex:0 0 280px; }
+    .screen-label { display:flex; align-items:center; gap:0.4rem; margin-bottom:0.45rem; font-size:0.875rem; font-weight:600; }
+    .screen-frame { position:relative; width:280px; height:175px; border-radius:6px; overflow:hidden; background:#fff; box-shadow:0 2px 8px rgba(0,0,0,0.18),0 0 0 1px rgba(0,0,0,0.08); transition:transform .15s, box-shadow .15s; }
+    .screen-frame:hover { transform:translateY(-3px); box-shadow:0 8px 24px rgba(0,0,0,0.22),0 0 0 1px rgba(0,0,0,0.08); }
+    .screen-frame iframe { width:1280px; height:800px; border:0; transform:scale(.21875); transform-origin:top left; pointer-events:none; }
+    .screen-frame-overlay { position:absolute; inset:0; cursor:pointer; }
+    .caption { margin-top:0.5rem; max-width:280px; color:#1a1a2e; font-size:0.875rem; line-height:1.4; }
+    .connector { width:58px; flex:0 0 58px; display:flex; align-items:center; margin-top:113px; padding:0 6px; }
+    .arrow-shaft { height:2px; flex:1; background:#e91e8c; }
+    .arrow-shaft.dashed { background:repeating-linear-gradient(to right,#e91e8c 0,#e91e8c 6px,transparent 6px,transparent 10px); }
+    .arrow-head { width:0; height:0; border-top:5px solid transparent; border-bottom:5px solid transparent; border-left:8px solid #e91e8c; }
+    .section-divider { height:1px; margin:0 0 72px; background:rgba(0,0,0,.12); }
+  </style>
+</head>
+<body>
+  <div class="toolbar"><span class="toolbar-title">Collection Email Split Flow</span><div class="legend"><span class="legend-item"><span class="dot"></span>Collection specialist</span><span class="legend-item"><span class="dot system"></span>System-handled</span></div><span class="spacer"></span><button class="view-prototype" onclick="window.open('index.html','_blank')">View Prototype</button></div>
+  <main class="canvas">
+    <section class="flow-section"><h1 class="flow-section-title"><span>FLOW 1</span> Automatic split and successful completion</h1><div class="flow-row" id="happyFlow"></div></section>
+    <div class="section-divider"></div>
+    <section class="flow-section"><h2 class="flow-section-title"><span>FLOW 2</span> Partial completion and recovery</h2><div class="flow-row" id="resumeFlow"></div></section>
+  </main>
+  <script>
+    const screens = {
+      worklist:['Collection Worklist','index.html','Item selected; Next Best Action is Send Email.','user'],
+      detail:['Object page','detail.html?customer=Grovemart%20Retail%20Group','Next Best Action is available on the selected account detail page.','user'],
+      loading:['Email loading','detail.html?customer=Grovemart%20Retail%20Group&emailState=loading','Content is generated and invoice attachments are fetched.','system'],
+      limit:['Limit detected','detail.html?customer=Grovemart%20Retail%20Group&emailState=limit','The system detects 13.70 MB and creates two linked emails.','system'],
+      ready1:['Email 1 ready','detail.html?customer=Grovemart%20Retail%20Group&emailState=ready','The first email contains the maximum 7 invoices below 10 MB.','user'],
+      ready2:['Email 2 ready','detail.html?customer=Grovemart%20Retail%20Group&emailState=ready','The remaining 3 invoices are prepared as part of the same action.','user'],
+      sent1:['Email 1 sent','detail.html?customer=Grovemart%20Retail%20Group&emailState=sent1','Seven invoices are sent while Email 2 remains pending.','user'],
+      complete:['Action complete','detail.html?customer=Grovemart%20Retail%20Group&emailState=complete','All 10 invoices were delivered across two emails.','system'],
+      partial:['Partial completion','index.html?state=partial','Worklist preserves 7 of 10 sent and shows a resumable action.','system'],
+      resume:['Resume pending','detail.html?customer=Grovemart%20Retail%20Group&emailState=sent1','Email 2 reopens with all three remaining invoices attached.','user']
+    };
+    function screenCard(key) { const s=screens[key]; return `<article class="screen"><div class="screen-label"><span class="dot ${s[3]==='system'?'system':''}"></span>${s[0]}</div><div class="screen-frame"><iframe src="${s[1]}" title="${s[0]}"></iframe><div class="screen-frame-overlay" onclick="window.open('${s[1]}','_blank')"></div></div><div class="caption">${s[2]}</div></article>`; }
+    function connector(dashed=false) { return `<div class="connector"><div class="arrow-shaft ${dashed?'dashed':''}"></div><div class="arrow-head"></div></div>`; }
+    function render(id, keys, dashedAt=-1) { document.getElementById(id).innerHTML=keys.map((k,i)=>(i?connector(i===dashedAt):'')+screenCard(k)).join(''); }
+    render('happyFlow',['worklist','detail','loading','limit','ready1','ready2','sent1','complete']);
+    render('resumeFlow',['sent1','partial','resume','complete'],2);
+  </script>
+</body>
+</html>

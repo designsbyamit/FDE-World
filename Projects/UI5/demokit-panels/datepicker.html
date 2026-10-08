@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <script src="panel-init.js"></script>
+  <script type="module" src="../../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    body { font-family: "72", sans-serif; font-size: 0.875rem; background: #f5f6f7; color: #131e29; margin: 0; padding: 2rem; }
+    .panel-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .panel-subtitle { font-size: 0.875rem; color: #6a7588; margin-bottom: 2rem; }
+    .demo-section { margin-bottom: 2rem; }
+    .demo-section-header { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #6a7588; margin-bottom: 1rem; padding-bottom: 0.375rem; border-bottom: 1px solid #e5e5e5; }
+    .demo-section-body { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 1rem; }
+    ui5-date-picker { width: 220px; }
+  </style>
+</head>
+<body>
+  <div class="panel-title">DatePicker</div>
+  <div class="panel-subtitle">Lets users select a date from a calendar popup or type it manually.</div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">Basic</div>
+    <div class="demo-section-body">
+      <ui5-date-picker placeholder="Select date"></ui5-date-picker>
+      <ui5-date-picker value="Apr 22, 2025"></ui5-date-picker>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">Format Patterns</div>
+    <div class="demo-section-body">
+      <ui5-date-picker format-pattern="dd/MM/yyyy" value="22/04/2025" placeholder="DD/MM/YYYY"></ui5-date-picker>
+      <ui5-date-picker format-pattern="yyyy-MM-dd" value="2025-04-22" placeholder="YYYY-MM-DD"></ui5-date-picker>
+      <ui5-date-picker format-pattern="MM-dd-yyyy" value="04-22-2025" placeholder="MM-DD-YYYY"></ui5-date-picker>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">Value States</div>
+    <div class="demo-section-body">
+      <ui5-date-picker value-state="Positive" value="Apr 22, 2025"></ui5-date-picker>
+      <ui5-date-picker value-state="Critical" value="Dec 31, 2024"></ui5-date-picker>
+      <ui5-date-picker value-state="Negative" placeholder="Invalid date"></ui5-date-picker>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">Disabled &amp; Read-only</div>
+    <div class="demo-section-body">
+      <ui5-date-picker disabled value="Apr 22, 2025"></ui5-date-picker>
+      <ui5-date-picker readonly value="Apr 22, 2025"></ui5-date-picker>
+    </div>
+  </div>
+</body>
+</html>

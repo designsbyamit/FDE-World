@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <script src="panel-init.js"></script>
+  <script type="module" src="../../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    body { font-family: "72", sans-serif; font-size: 0.875rem; background: #f5f6f7; color: #131e29; margin: 0; padding: 2rem; }
+    .panel-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .panel-subtitle { font-size: 0.875rem; color: #6a7588; margin-bottom: 2rem; }
+    .demo-section { margin-bottom: 2rem; }
+    .demo-section-header { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #6a7588; margin-bottom: 1rem; padding-bottom: 0.375rem; border-bottom: 1px solid #e5e5e5; }
+    .demo-section-body { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 1rem; }
+    ui5-button { --sapButton_FontFamily: "72", sans-serif; }
+    ui5-button::part(text) { font-family: "72", sans-serif; font-weight: 400; }
+  </style>
+</head>
+<body>
+  <div class="panel-title">Toast</div>
+  <div class="panel-subtitle">A brief non-intrusive message that appears at the bottom of the screen and auto-dismisses.</div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">Trigger Toasts</div>
+    <div class="demo-section-body">
+      <ui5-button design="Emphasized" id="showSuccess">Show Success Toast</ui5-button>
+      <ui5-button id="showInfo">Show Info Toast</ui5-button>
+      <ui5-button design="Negative" id="showError">Show Error Toast</ui5-button>
+      <ui5-button design="Attention" id="showLong">Show Long Message</ui5-button>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">Duration Variants</div>
+    <div class="demo-section-body">
+      <ui5-button id="showShort">Short (1s)</ui5-button>
+      <ui5-button id="showMedium">Medium (3s)</ui5-button>
+      <ui5-button id="showLongDur">Long (6s)</ui5-button>
+    </div>
+  </div>
+
+  <ui5-toast id="successToast" duration="3000">Purchase order PO-2024-0049 approved successfully.</ui5-toast>
+  <ui5-toast id="infoToast" duration="3000">Your session will expire in 5 minutes.</ui5-toast>
+  <ui5-toast id="errorToast" duration="3000">Failed to submit form. Please try again.</ui5-toast>
+  <ui5-toast id="longToast" duration="4000">The annual budget reconciliation for FY 2025 has been submitted to the Finance department for approval.</ui5-toast>
+  <ui5-toast id="shortToast" duration="1000">Saved.</ui5-toast>
+  <ui5-toast id="mediumToast" duration="3000">Filter applied — showing 24 results.</ui5-toast>
+  <ui5-toast id="longDurToast" duration="6000">Background sync is running. Changes will be available shortly.</ui5-toast>
+
+  <script>
+    document.getElementById('showSuccess').addEventListener('click', function() { document.getElementById('successToast').show(); });
+    document.getElementById('showInfo').addEventListener('click', function() { document.getElementById('infoToast').show(); });
+    document.getElementById('showError').addEventListener('click', function() { document.getElementById('errorToast').show(); });
+    document.getElementById('showLong').addEventListener('click', function() { document.getElementById('longToast').show(); });
+    document.getElementById('showShort').addEventListener('click', function() { document.getElementById('shortToast').show(); });
+    document.getElementById('showMedium').addEventListener('click', function() { document.getElementById('mediumToast').show(); });
+    document.getElementById('showLongDur').addEventListener('click', function() { document.getElementById('longDurToast').show(); });
+  </script>
+</body>
+</html>

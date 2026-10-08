@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Supervisor Dashboard — Collection Assistant</title>
+  <link rel="icon" href="../../lib/assets/favicon.ico">
+
+  <script data-ui5-config type="application/json">
+    { "theme": "sap_horizon" }
+  </script>
+  <script type="module" src="../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <script src="../../lib/shared/shellbar.js"></script>
+
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 600; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 300; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Light.woff2") format("woff2"); }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { font-family: "72", sans-serif; background: var(--sapBackgroundColor, #f5f6f7); color: var(--sapTextColor, #131e29); min-height: 100vh; }
+
+    .page-header {
+      padding: 1rem 2rem 1.125rem;
+      background: var(--sapBaseColor, #fff);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      position: sticky; top: 44px; z-index: 50;
+    }
+    .page-title { font-size: 1.5rem; font-weight: 700; }
+    .page-subtitle { font-size: 0.8125rem; color: var(--sapContent_LabelColor); margin-top: 0.2rem; }
+
+    .page-content { padding: 1.75rem 2rem 3rem; max-width: 1400px; }
+
+    /* ── KPI tiles ── */
+    .kpi-strip { display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
+    .kpi-tile {
+      background: #fff;
+      border: 1px solid var(--sapList_BorderColor, #e5e5e5);
+      border-radius: 0.75rem;
+      padding: 1rem 1.375rem;
+      flex: 1; min-width: 150px;
+      cursor: pointer;
+      transition: box-shadow 0.15s, border-color 0.15s;
+      display: flex; flex-direction: column; justify-content: space-between;
+    }
+    .kpi-tile:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.09); border-color: #b0c4d8; }
+    .kpi-tile[style*="cursor:default"]:hover { box-shadow: none; border-color: var(--sapList_BorderColor, #e5e5e5); }
+    .kpi-tile[style*="cursor:default;background:#e8f0fb"]:hover { box-shadow: none; border-color: #b8d0f0; }
+    .kpi-tile.active { border-color: var(--sapBrandColor, #0070f2); box-shadow: 0 0 0 2px rgba(0,112,242,0.15); }
+    .kpi-tile-label { font-size: 0.75rem; color: var(--sapContent_LabelColor); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; min-height: 2.25rem; display: flex; align-items: flex-start; }
+    .kpi-tile-value { font-size: 1.75rem; font-weight: 700; color: var(--sapTextColor); line-height: 1.1; margin-top: 0.375rem; }
+    .kpi-tile-value.total  { color: var(--sapTextColor); }
+    .kpi-tile-value.taken  { color: var(--sapBrandColor, #0070f2); }
+    .kpi-tile-value.denied { color: var(--sapNegativeColor, #bb0000); }
+    .kpi-tile-value.noact  { color: #6b21a8; }
+    .kpi-tile-value.positive { color: var(--sapPositiveColor, #107e3e); }
+    .kpi-tile-sub { font-size: 0.8125rem; color: var(--sapContent_LabelColor); margin-top: 0.25rem; }
+
+    /* ── Section label ── */
+    .section-label {
+      font-size: 0.8125rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+      color: var(--sapContent_LabelColor); margin-bottom: 0.75rem; padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--sapList_BorderColor);
+    }
+
+    /* ── Table card ── */
+    .table-card { background: #fff; border: 1px solid var(--sapList_BorderColor); border-radius: 0.75rem; overflow: hidden; }
+
+    /* ── Status badge ── */
+    .status-badge {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      padding: 0.2rem 0.625rem; border-radius: 20px;
+      font-size: 0.75rem; font-weight: 600; white-space: nowrap;
+    }
+    .status-badge.accepted { background: #e4f5ec; color: #107e3e; }
+    .status-badge.rejected { background: #fde8e8; color: #9e0000; }
+
+    /* ── Sparkle pill ── */
+    .sug-pill {
+      display: inline-flex; align-items: flex-start; gap: 0.4rem;
+      background: #e8f0fb; border-radius: 12px; padding: 0.3rem 0.75rem;
+      font-size: 0.8125rem; color: var(--sapTextColor); max-width: 480px;
+    }
+    .sug-pill svg { flex-shrink: 0; margin-top: 2px; }
+    .sug-pill-text { display: flex; flex-direction: column; gap: 0.1rem; }
+    .sug-pill-strategy { font-weight: 700; }
+    .sug-pill-example { font-weight: 400; font-size: 0.75rem; color: var(--sapContent_LabelColor); }
+  </style>
+</head>
+<body>
+
+  <app-shellbar title="Collection Assistant" avatar-initials="JL" hide-product-switch base-path="../../" style="position:sticky;top:0;z-index:100;"></app-shellbar>
+
+  <div class="page-header">
+    <div class="page-title">Supervisor Dashboard</div>
+    <div class="page-subtitle">Report generated: Aug 26, 2026</div>
+  </div>
+
+  <div class="page-content">
+
+    <!-- Business Outcome strip -->
+    <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--sapContent_LabelColor);margin-bottom:0.625rem">Business Outcome</div>
+    <div class="kpi-strip" style="margin-bottom:2rem">
+      <div class="kpi-tile" style="cursor:default">
+        <div class="kpi-tile-label">Total Overdue</div>
+        <div class="kpi-tile-value">200M</div>
+        <div class="kpi-tile-sub">To be recovered by EOM</div>
+      </div>
+      <div class="kpi-tile" style="cursor:default">
+        <div class="kpi-tile-label">Total Recovered</div>
+        <div class="kpi-tile-value positive">150M</div>
+        <div class="kpi-tile-sub">Non Agentic + Agentic</div>
+      </div>
+      <div class="kpi-tile" style="cursor:default;background:#e8f0fb;border-color:#b8d0f0">
+        <div class="kpi-tile-label"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" style="vertical-align:middle;margin-right:4px;flex-shrink:0"><path d="M4.77386 5.51772C5.00416 4.82742 5.99565 4.82746 6.22601 5.51772C7.03711 7.8988 8.09862 8.9593 10.4819 9.76967C11.1728 10.0098 11.1728 11.0005 10.4819 11.2306C8.09867 12.041 7.0371 13.1015 6.22601 15.4826C5.99555 16.1726 5.00425 16.1726 4.77386 15.4826C3.96275 13.1015 2.90125 12.041 0.517998 11.2306C-0.172689 10.9904 -0.172643 9.99991 0.517998 9.76967C2.90124 8.9593 3.96275 7.89878 4.77386 5.51772ZM12.6049 0.284318C12.735 -0.0948015 13.2648 -0.0947441 13.395 0.284318C13.835 1.58216 14.4153 2.16146 15.7153 2.60072C16.095 2.7306 16.0951 3.26972 15.7153 3.39955C14.4153 3.83882 13.835 4.41812 13.395 5.71596C13.2647 6.09477 12.7351 6.09482 12.6049 5.71596C12.1649 4.41812 11.5846 3.83882 10.2846 3.39955C9.90511 3.2696 9.90515 2.73073 10.2846 2.60072C11.5846 2.16146 12.1649 1.58216 12.6049 0.284318Z" fill="#0064d9"/></svg>Recovered by Agentic</div>
+        <div class="kpi-tile-value positive">50M</div>
+        <div class="kpi-tile-sub">Based on total number of invoices cleared</div>
+      </div>
+      <div class="kpi-tile" style="cursor:default">
+        <div class="kpi-tile-label">Remaining to be Recovered</div>
+        <div class="kpi-tile-value" style="color:var(--sapTextColor,#131e29)">50M</div>
+        <div class="kpi-tile-sub">&nbsp;</div>
+      </div>
+    </div>
+
+    <!-- Agent Effectiveness -->
+    <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--sapContent_LabelColor);margin-bottom:0.625rem">Agent Effectiveness</div>
+    <div style="background:#fff;border:1px solid var(--sapList_BorderColor,#e5e5e5);border-radius:0.75rem;padding:1.25rem 1.5rem;margin-bottom:2rem;display:flex;align-items:center;gap:2.5rem;flex-wrap:wrap">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:0.25rem;min-width:100px">
+        <div style="font-size:3rem;font-weight:700;color:var(--sapPositiveColor,#107e3e);line-height:1">55%</div>
+        <div style="font-size:0.75rem;font-weight:600;color:var(--sapContent_LabelColor);text-transform:uppercase;letter-spacing:0.04em">Overall</div>
+      </div>
+      <div style="width:1px;height:80px;background:var(--sapList_BorderColor,#e5e5e5);flex-shrink:0"></div>
+      <div style="display:flex;justify-content:space-between;flex:1">
+        <div style="display:flex;flex-direction:column;gap:0.375rem;width:200px;flex-shrink:0">
+          <div style="font-size:0.75rem;font-weight:700;color:var(--sapContent_LabelColor);text-transform:uppercase;letter-spacing:0.04em">NBA Acceptance Rate</div>
+          <div style="display:flex;align-items:center;gap:0.75rem">
+            <div style="flex:1;height:8px;background:var(--sapList_BorderColor,#e5e5e5);border-radius:4px;overflow:hidden"><div style="width:60%;height:100%;background:var(--sapPositiveColor,#107e3e);border-radius:4px"></div></div>
+            <div style="font-size:1rem;font-weight:700;color:var(--sapTextColor,#131e29);white-space:nowrap">60%</div>
+          </div>
+          <div style="font-size:0.75rem;color:var(--sapContent_LabelColor)">Accepted Recommendations / total made</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:0.375rem;width:200px;flex-shrink:0">
+          <div style="font-size:0.75rem;font-weight:700;color:var(--sapContent_LabelColor);text-transform:uppercase;letter-spacing:0.04em">Prediction Accuracy</div>
+          <div style="display:flex;align-items:center;gap:0.75rem">
+            <div style="flex:1;height:8px;background:var(--sapList_BorderColor,#e5e5e5);border-radius:4px;overflow:hidden"><div style="width:55%;height:100%;background:var(--sapBrandColor,#0070f2);border-radius:4px"></div></div>
+            <div style="font-size:1rem;font-weight:700;color:var(--sapTextColor,#131e29);white-space:nowrap">55%</div>
+          </div>
+          <div style="font-size:0.75rem;color:var(--sapContent_LabelColor)">Avg predicted arrear days vs avg total arrear days</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:0.375rem;width:200px;flex-shrink:0">
+          <div style="font-size:0.75rem;font-weight:700;color:var(--sapContent_LabelColor);text-transform:uppercase;letter-spacing:0.04em">Payment Behaviour</div>
+          <div style="display:flex;align-items:center;gap:0.75rem">
+            <div style="flex:1;height:8px;background:var(--sapList_BorderColor,#e5e5e5);border-radius:4px;overflow:hidden"><div style="width:52%;height:100%;background:var(--sapBrandColor,#0070f2);border-radius:4px"></div></div>
+            <div style="font-size:1rem;font-weight:700;color:var(--sapTextColor,#131e29);white-space:nowrap">52%</div>
+          </div>
+          <div style="font-size:0.75rem;color:var(--sapContent_LabelColor)">Customer payment cyclicity</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI Recommendations section -->
+    <div class="section-label" style="margin-top:0.5rem">Agent Recommendation Snapshot</div>
+
+    <div class="kpi-strip" id="kpiStrip">
+
+      <div class="kpi-tile" data-filter="all" style="cursor:default">
+        <div class="kpi-tile-label">Total Recommendations Given</div>
+        <div class="kpi-tile-value total">500</div>
+        <div class="kpi-tile-sub">Strategy Driven + Timing Suggestion + Agent Learned</div>
+      </div>
+      <div class="kpi-tile" data-filter="taken" onclick="showDetails('taken', this)">
+        <div class="kpi-tile-label">Accepted</div>
+        <div class="kpi-tile-value taken">300</div>
+        <div class="kpi-tile-sub"><a href="#" onclick="event.stopPropagation();showDetails('taken',document.querySelector('[data-filter=taken]'));return false;" style="color:var(--sapLinkColor,#0070f2);font-size:0.8125rem;text-decoration:none">Show details</a></div>
+      </div>
+      <div class="kpi-tile" data-filter="rejected" onclick="showDetails('rejected', this)">
+        <div class="kpi-tile-label">Rejected</div>
+        <div class="kpi-tile-value denied">100</div>
+        <div class="kpi-tile-sub"><a href="#" onclick="event.stopPropagation();showDetails('rejected',document.querySelector('[data-filter=rejected]'));return false;" style="color:var(--sapLinkColor,#0070f2);font-size:0.8125rem;text-decoration:none">Show details</a></div>
+      </div>
+      <div class="kpi-tile" data-filter="noaction" onclick="showDetails('noaction', this)">
+        <div class="kpi-tile-label">Deferred</div>
+        <div class="kpi-tile-value noact">100</div>
+        <div class="kpi-tile-sub"><a href="#" onclick="event.stopPropagation();showDetails('noaction',document.querySelector('[data-filter=noaction]'));return false;" style="color:var(--sapLinkColor,#0070f2);font-size:0.8125rem;text-decoration:none">Show details</a></div>
+      </div>
+    </div>
+
+    <div id="tableSection" style="display:none">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;padding-bottom:0.5rem;border-bottom:1px solid var(--sapList_BorderColor)">
+        <div class="section-label" id="listLabel" style="margin:0;padding:0;border:none">Accepted (30)</div>
+        <ui5-button design="Transparent" icon="decline" onclick="closeTable()" tooltip="Close"></ui5-button>
+      </div>
+      <div class="table-card" style="padding:0 0.5rem">
+        <ui5-table id="recTable" style="width:100%">
+          <ui5-table-header-row slot="headerRow">
+            <ui5-table-header-cell style="padding-inline-start:1rem;font-size:14px">AI Suggestion</ui5-table-header-cell>
+            <ui5-table-header-cell style="font-size:14px;width:220px;white-space:nowrap">Customer</ui5-table-header-cell>
+            <ui5-table-header-cell style="font-size:14px;width:110px;white-space:nowrap">Status</ui5-table-header-cell>
+        </ui5-table-header-row>
+      </ui5-table>
+    </div>
+    </div><!-- /tableSection -->
+
+  </div>
+
+  <script>
+    var SPARKLE = '<svg width="11" height="11" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.77386 5.51772C5.00416 4.82742 5.99565 4.82746 6.22601 5.51772C7.03711 7.8988 8.09862 8.9593 10.4819 9.76967C11.1728 10.0098 11.1728 11.0005 10.4819 11.2306C8.09867 12.041 7.0371 13.1015 6.22601 15.4826C5.99555 16.1726 5.00425 16.1726 4.77386 15.4826C3.96275 13.1015 2.90125 12.041 0.517998 11.2306C-0.172689 10.9904 -0.172643 9.99991 0.517998 9.76967C2.90124 8.9593 3.96275 7.89878 4.77386 5.51772ZM12.6049 0.284318C12.735 -0.0948015 13.2648 -0.0947441 13.395 0.284318C13.835 1.58216 14.4153 2.16146 15.7153 2.60072C16.095 2.7306 16.0951 3.26972 15.7153 3.39955C14.4153 3.83882 13.835 4.41812 13.395 5.71596C13.2647 6.09477 12.7351 6.09482 12.6049 5.71596C12.1649 4.41812 11.5846 3.83882 10.2846 3.39955C9.90511 3.2696 9.90515 2.73073 10.2846 2.60072C11.5846 2.16146 12.1649 1.58216 12.6049 0.284318Z" fill="#0064d9"/></svg>';
+
+    var RECS = [
+      { strategy: 'Early morning email outreach',      example: 'Customer paid same day on 4 of the last 5 occasions when emailed before 9:00 AM.',                        customer: 'Grovemart Retail Group',    status: 'accepted' },
+      { strategy: 'Proactive pre-due-date contact',    example: 'Pre-due-date outreach prevented late payment in both prior cycles for this account.',                       customer: 'Kestrel Distribution Ltd', status: 'accepted' },
+      { strategy: 'Issue firm written deadline',       example: 'Customer settled within 2 days on every occasion a firm written deadline was issued.',                      customer: 'Thornfield Grocery Ltd',   status: 'accepted' },
+      { strategy: 'Manager-level escalation',          example: 'The last two manager-level contacts on this account resulted in payment within 4 days.',                    customer: 'Fairvale Pantry Ltd',      status: 'rejected' },
+      { strategy: 'Credit-level escalation',           example: 'Both prior escalations at this credit level triggered partial payment within 3 days.',                      customer: 'Northaven Consumer Goods', status: 'accepted' },
+      { strategy: 'Direct phone call',                 example: 'Customer paid within 2 days of a direct call in 3 of the last 4 payment cycles.',                          customer: 'Rowan Foods Group',        status: 'accepted' },
+      { strategy: 'Act before day 65 threshold',       example: 'In 3 prior instances, acting before day 65 prevented this account entering legal review.',                  customer: 'Harborfield Wholesale Co', status: 'rejected' },
+      { strategy: 'Same-day invoice copy resolution',  example: 'Invoice copy requests resolved same day have led to payment within 3 days, 3 times in a row.',             customer: 'Mapleton Foods Inc',       status: 'accepted' },
+      { strategy: 'Obtain firm written commitment',    example: 'Payment promise was broken twice before — a firm written commitment with a due date is recommended.',       customer: 'Velmont Retail Partners',  status: 'rejected' },
+      { strategy: 'Early morning email outreach',      example: 'Customer paid same day on 4 of the last 5 occasions when emailed before 9:00 AM.',                        customer: 'Velmont Retail Partners',  status: 'accepted' },
+      { strategy: 'Proactive pre-due-date contact',    example: 'Pre-due-date outreach prevented late payment in both prior cycles for this account.',                       customer: 'Harborfield Wholesale Co', status: 'accepted' },
+      { strategy: 'Direct phone call',                 example: 'Customer paid within 2 days of a direct call in 3 of the last 4 payment cycles.',                          customer: 'Kestrel Distribution Ltd', status: 'rejected' },
+      { strategy: 'Issue firm written deadline',       example: 'Customer settled within 2 days on every occasion a firm written deadline was issued.',                      customer: 'Rowan Foods Group',        status: 'accepted' },
+      { strategy: 'Manager-level escalation',          example: 'The last two manager-level contacts on this account resulted in payment within 4 days.',                    customer: 'Grovemart Retail Group',   status: 'accepted' },
+      { strategy: 'Credit-level escalation',           example: 'Both prior escalations at this credit level triggered partial payment within 3 days.',                      customer: 'Thornfield Grocery Ltd',   status: 'rejected' },
+      { strategy: 'Same-day invoice copy resolution',  example: 'Invoice copy requests resolved same day have led to payment within 3 days, 3 times in a row.',             customer: 'Northaven Consumer Goods', status: 'accepted' },
+      { strategy: 'Early morning email outreach',      example: 'Customer paid same day on 4 of the last 5 occasions when emailed before 9:00 AM.',                        customer: 'Mapleton Foods Inc',       status: 'accepted' },
+      { strategy: 'Obtain firm written commitment',    example: 'Payment promise was broken twice before — a firm written commitment with a due date is recommended.',       customer: 'Fairvale Pantry Ltd',      status: 'accepted' },
+      { strategy: 'Act before day 65 threshold',       example: 'In 3 prior instances, acting before day 65 prevented this account entering legal review.',                  customer: 'Rowan Foods Group',        status: 'rejected' },
+      { strategy: 'Direct phone call',                 example: 'Customer paid within 2 days of a direct call in 3 of the last 4 payment cycles.',                          customer: 'Grovemart Retail Group',   status: 'accepted' },
+      // noaction items
+      { strategy: 'Proactive pre-due-date contact',    example: 'Pre-due-date outreach prevented late payment in both prior cycles for this account.',                       customer: 'Velmont Retail Partners',  status: 'noaction' },
+      { strategy: 'Issue firm written deadline',       example: 'Customer settled within 2 days on every occasion a firm written deadline was issued.',                      customer: 'Harborfield Wholesale Co', status: 'noaction' },
+      { strategy: 'Manager-level escalation',          example: 'The last two manager-level contacts on this account resulted in payment within 4 days.',                    customer: 'Northaven Consumer Goods', status: 'noaction' },
+      { strategy: 'Direct phone call',                 example: 'Customer paid within 2 days of a direct call in 3 of the last 4 payment cycles.',                          customer: 'Thornfield Grocery Ltd',   status: 'noaction' },
+      { strategy: 'Same-day invoice copy resolution',  example: 'Invoice copy requests resolved same day have led to payment within 3 days, 3 times in a row.',             customer: 'Fairvale Pantry Ltd',      status: 'noaction' },
+      { strategy: 'Early morning email outreach',      example: 'Customer paid same day on 4 of the last 5 occasions when emailed before 9:00 AM.',                        customer: 'Kestrel Distribution Ltd', status: 'noaction' },
+      { strategy: 'Obtain firm written commitment',    example: 'Payment promise was broken twice before — a firm written commitment with a due date is recommended.',       customer: 'Mapleton Foods Inc',       status: 'noaction' },
+      { strategy: 'Credit-level escalation',           example: 'Both prior escalations at this credit level triggered partial payment within 3 days.',                      customer: 'Grovemart Retail Group',   status: 'noaction' },
+      { strategy: 'Act before day 65 threshold',       example: 'In 3 prior instances, acting before day 65 prevented this account entering legal review.',                  customer: 'Velmont Retail Partners',  status: 'noaction' },
+      { strategy: 'Proactive pre-due-date contact',    example: 'Pre-due-date outreach prevented late payment in both prior cycles for this account.',                       customer: 'Rowan Foods Group',        status: 'noaction' }
+    ];
+
+    var LABELS = {
+      all:      'All Recommendations (60)',
+      taken:    'Accepted (30)',
+      rejected: 'Rejected (20)',
+      noaction: 'Deferred (10)'
+    };
+
+    var currentFilter = 'taken';
+
+    function statusBadge(status) {
+      if (status === 'accepted') return '<span class="status-badge accepted">Accepted</span>';
+      if (status === 'rejected') return '<span class="status-badge rejected">Rejected</span>';
+      return '<span class="status-badge" style="background:#f3e8fb;color:#6b21a8">Deferred</span>';
+    }
+
+    function pillHtml(r) {
+      return '<span style="font-size:0.875rem;color:var(--sapTextColor)">' + r.example + '</span>';
+    }
+
+    function renderTable(filter) {
+      var rows = filter === 'all' ? RECS : RECS.filter(function(r) {
+        if (filter === 'taken')    return r.status === 'accepted';
+        if (filter === 'rejected') return r.status === 'rejected';
+        if (filter === 'noaction') return r.status === 'noaction';
+        return true;
+      });
+
+      var table = document.getElementById('recTable');
+      // Remove existing rows
+      table.querySelectorAll('ui5-table-row').forEach(function(r) { r.remove(); });
+
+      rows.forEach(function(r) {
+        var row = document.createElement('ui5-table-row');
+        row.setAttribute('interactive', '');
+        row.innerHTML =
+          '<ui5-table-cell style="padding-inline-start:1rem;vertical-align:middle;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + pillHtml(r) + '</ui5-table-cell>'
+          + '<ui5-table-cell style="vertical-align:middle;padding-inline-start:1.5rem;font-size:0.875rem;font-weight:600;color:var(--sapLinkColor,#0070f2)">' + r.customer + '</ui5-table-cell>'
+          + '<ui5-table-cell style="vertical-align:middle">' + statusBadge(r.status) + '</ui5-table-cell>';
+        table.appendChild(row);
+      });
+
+      document.getElementById('listLabel').textContent = LABELS[filter] || '';
+    }
+
+    function closeTable() {
+      document.getElementById('tableSection').style.display = 'none';
+      document.querySelectorAll('.kpi-tile').forEach(function(t) { t.classList.remove('active'); });
+    }
+
+    function showDetails(filter, tile) {
+      document.getElementById('tableSection').style.display = '';
+      setFilter(filter, tile);
+      setTimeout(function() {
+        document.getElementById('tableSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 50);
+    }
+
+    function setFilter(filter, tile) {
+      currentFilter = filter;
+      document.querySelectorAll('.kpi-tile').forEach(function(t) { t.classList.remove('active'); });
+      tile.classList.add('active');
+      renderTable(filter);
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      renderTable('taken');
+    });
+  </script>
+
+</body>
+</html>

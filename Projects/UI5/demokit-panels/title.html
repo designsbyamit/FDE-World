@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <script src="panel-init.js"></script>
+  <script type="module" src="../../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    body { font-family: "72", sans-serif; font-size: 0.875rem; background: #f5f6f7; color: #131e29; margin: 0; padding: 2rem; }
+    .panel-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .panel-subtitle { font-size: 0.875rem; color: #6a7588; margin-bottom: 2rem; }
+    .demo-section { margin-bottom: 2rem; }
+    .demo-section-header { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #6a7588; margin-bottom: 1rem; padding-bottom: 0.375rem; border-bottom: 1px solid #e5e5e5; }
+    .demo-section-body { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 1rem; flex-direction: column; }
+  </style>
+</head>
+<body>
+  <div class="panel-title">Title</div>
+  <div class="panel-subtitle">Heading component with semantic levels H1–H6 and visual size mapping.</div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">Levels</div>
+    <div class="demo-section-body">
+      <ui5-title level="H1">H1 — Page Title</ui5-title>
+      <ui5-title level="H2">H2 — Section Heading</ui5-title>
+      <ui5-title level="H3">H3 — Sub-section Heading</ui5-title>
+      <ui5-title level="H4">H4 — Group Header</ui5-title>
+      <ui5-title level="H5">H5 — Card Title</ui5-title>
+      <ui5-title level="H6">H6 — Label-weight Heading</ui5-title>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">Size Variants (independent of level)</div>
+    <div class="demo-section-body">
+      <ui5-title size="H1">Size H1</ui5-title>
+      <ui5-title size="H2">Size H2</ui5-title>
+      <ui5-title size="H3">Size H3</ui5-title>
+      <ui5-title size="H4">Size H4</ui5-title>
+      <ui5-title size="H5">Size H5</ui5-title>
+      <ui5-title size="H6">Size H6</ui5-title>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">Wrapping &amp; Truncation</div>
+    <div class="demo-section-body">
+      <div style="max-width:400px; display:flex; flex-direction:column; gap:1rem;">
+        <div>
+          <div style="font-size:0.75rem; color:#6a7588; margin-bottom:0.25rem;">Normal wrapping</div>
+          <ui5-title level="H3" wrapping-type="Normal">Annual Procurement Budget Review and Approval for Fiscal Year 2025</ui5-title>
+        </div>
+        <div>
+          <div style="font-size:0.75rem; color:#6a7588; margin-bottom:0.25rem;">No wrap (truncated)</div>
+          <ui5-title level="H3" wrapping-type="None">Annual Procurement Budget Review and Approval for Fiscal Year 2025</ui5-title>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Filter Bar</title>
+  <script src="panel-init.js"></script>
+  <script type="module" src="../../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 600; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 300; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Light.woff2") format("woff2"); }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "72", sans-serif; font-size: 0.875rem; background: var(--sapBackgroundColor, #f5f6f7); padding: 2rem; color: var(--sapTextColor, #131e29); }
+    .panel-title { font-size: 1.5rem; font-weight: 700; color: #131e29; margin-bottom: 0.375rem; }
+    .panel-subtitle { font-size: 0.8125rem; color: var(--sapContent_LabelColor, #6a7588); margin-bottom: 2rem; }
+    .demo-section { background: #fff; border: 1px solid var(--sapList_BorderColor, #e5e5e5); border-radius: 8px; margin-bottom: 1.25rem; overflow: hidden; }
+    .demo-section-header { padding: 0.75rem 1rem; border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5); font-size: 0.8125rem; font-weight: 600; color: var(--sapContent_LabelColor, #6a7588); display: flex; align-items: center; justify-content: space-between; }
+    .demo-section-tag { font-family: monospace; font-size: 0.75rem; color: #0064d9; font-weight: 400; }
+    .demo-section-body { padding: 1.25rem 1rem; display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: flex-start; }
+    .demo-section-body.column { flex-direction: column; }
+    .demo-section-body.block { display: block; padding: 0; }
+  </style>
+</head>
+<body>
+  <div class="panel-title">Smart Filter Bar</div>
+  <div class="panel-subtitle">A filter bar that reads field metadata from an OData service and renders filter fields automatically. Supports Live mode (filters apply on every change) and Manual mode (filters apply only on Go). Equivalent to sap.ui.comp.smartfilterbar.SmartFilterBar — rendered using ui5-filter-bar.</div>
+
+  <div class="demo-section">
+    <div class="demo-section-header">
+      Smart Filter Bar — Live / Manual mode toggle
+      <span class="demo-section-tag">sap.ui.comp.smartfilterbar · LiveMode · ManualMode</span>
+    </div>
+    <div class="demo-section-body block" style="padding:0;">
+
+      <div style="display:flex;align-items:center;gap:0.75rem;padding:0.625rem 1rem;border-bottom:1px solid var(--sapList_BorderColor,#e5e5e5);background:#fff;">
+        <span style="font-size:0.875rem;color:var(--sapContent_LabelColor,#6a7588);">Current mode:</span>
+        <ui5-tag id="sfb-mode-tag" design="Set3" color-scheme="7">Live Mode</ui5-tag>
+        <ui5-button id="sfb-toggle-btn" design="Default" onclick="sfbToggleMode()">Change to 'ManualMode'</ui5-button>
+      </div>
+
+      <div style="padding:0.75rem 1rem 1rem;background:#fff;border-bottom:1px solid var(--sapList_BorderColor,#e5e5e5);">
+        <div style="display:flex;flex-wrap:wrap;gap:0.75rem;align-items:flex-end;">
+          <div style="display:flex;flex-direction:column;gap:0.25rem;width:225px;">
+            <label style="font-size:0.75rem;color:var(--sapContent_LabelColor,#6a7588);">Product Name</label>
+            <ui5-input id="sfb-f-name" placeholder="Search…" show-clear-icon></ui5-input>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:0.25rem;width:225px;">
+            <label style="font-size:0.75rem;color:var(--sapContent_LabelColor,#6a7588);">Category</label>
+            <ui5-select id="sfb-f-cat">
+              <ui5-option value="">All</ui5-option>
+              <ui5-option value="Computers">Computers</ui5-option>
+              <ui5-option value="Phones">Phones</ui5-option>
+              <ui5-option value="Accessories">Accessories</ui5-option>
+              <ui5-option value="Projectors">Projectors</ui5-option>
+            </ui5-select>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:0.25rem;width:225px;">
+            <label style="font-size:0.75rem;color:var(--sapContent_LabelColor,#6a7588);">Price Range</label>
+            <ui5-select id="sfb-f-price">
+              <ui5-option value="">Any</ui5-option>
+              <ui5-option value="low">Under 500 EUR</ui5-option>
+              <ui5-option value="mid">500–1000 EUR</ui5-option>
+              <ui5-option value="high">Over 1000 EUR</ui5-option>
+            </ui5-select>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:0.25rem;width:225px;">
+            <label style="font-size:0.75rem;color:var(--sapContent_LabelColor,#6a7588);">Supplier</label>
+            <ui5-input id="sfb-f-supplier" placeholder="Supplier name…" show-clear-icon></ui5-input>
+          </div>
+          <div style="display:flex;align-items:flex-end;gap:0.5rem;" id="sfb-go-wrap">
+            <ui5-button design="Emphasized" id="sfb-go-btn" onclick="sfbApplyFilters()" style="display:none;">Go</ui5-button>
+            <span style="font-size:0.875rem;color:var(--sapLinkColor,#0064d9);cursor:pointer;padding-bottom:0.25rem;">Adapt Filters (2)</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="padding:0.5rem 0.75rem;border-bottom:1px solid var(--sapList_BorderColor,#e5e5e5);display:flex;align-items:center;justify-content:space-between;">
+        <span class="sfb-result-count" style="font-size:1rem;font-weight:700;">Products (5)</span>
+      </div>
+      <ui5-table id="sfb-table">
+        <ui5-table-header-row slot="headerRow">
+          <ui5-table-header-cell style="padding-inline-start:1rem" width="200px">Name</ui5-table-header-cell>
+          <ui5-table-header-cell width="130px">Category</ui5-table-header-cell>
+          <ui5-table-header-cell>Supplier</ui5-table-header-cell>
+          <ui5-table-header-cell width="110px">Price</ui5-table-header-cell>
+        </ui5-table-header-row>
+        <ui5-table-row data-name="Notebook Pro" data-cat="Computers" data-supplier="Very Best Screens" data-price="956" data-price-label="956.00 EUR">
+          <ui5-table-cell style="padding-inline-start:1rem">Notebook Pro</ui5-table-cell>
+          <ui5-table-cell>Computers</ui5-table-cell>
+          <ui5-table-cell>Very Best Screens</ui5-table-cell>
+          <ui5-table-cell>956.00 EUR</ui5-table-cell>
+        </ui5-table-row>
+        <ui5-table-row data-name="ITelO Vault" data-cat="Phones" data-supplier="Telecomunicaciones Star" data-price="299" data-price-label="299.00 EUR">
+          <ui5-table-cell style="padding-inline-start:1rem">ITelO Vault</ui5-table-cell>
+          <ui5-table-cell>Phones</ui5-table-cell>
+          <ui5-table-cell>Telecomunicaciones Star</ui5-table-cell>
+          <ui5-table-cell>299.00 EUR</ui5-table-cell>
+        </ui5-table-row>
+        <ui5-table-row data-name="Notebook Basic 15" data-cat="Computers" data-supplier="Exact Screens" data-price="499" data-price-label="499.00 EUR">
+          <ui5-table-cell style="padding-inline-start:1rem">Notebook Basic 15</ui5-table-cell>
+          <ui5-table-cell>Computers</ui5-table-cell>
+          <ui5-table-cell>Exact Screens</ui5-table-cell>
+          <ui5-table-cell>499.00 EUR</ui5-table-cell>
+        </ui5-table-row>
+        <ui5-table-row data-name="Flat X Large" data-cat="Accessories" data-supplier="Telecomunicaciones Star" data-price="1679" data-price-label="1,679.00 EUR">
+          <ui5-table-cell style="padding-inline-start:1rem">Flat X Large</ui5-table-cell>
+          <ui5-table-cell>Accessories</ui5-table-cell>
+          <ui5-table-cell>Telecomunicaciones Star</ui5-table-cell>
+          <ui5-table-cell>1,679.00 EUR</ui5-table-cell>
+        </ui5-table-row>
+        <ui5-table-row data-name="Ergo Screen" data-cat="Computers" data-supplier="Precise Controls" data-price="1230" data-price-label="1,230.00 EUR">
+          <ui5-table-cell style="padding-inline-start:1rem">Ergo Screen</ui5-table-cell>
+          <ui5-table-cell>Computers</ui5-table-cell>
+          <ui5-table-cell>Precise Controls</ui5-table-cell>
+          <ui5-table-cell>1,230.00 EUR</ui5-table-cell>
+        </ui5-table-row>
+      </ui5-table>
+
+    </div>
+  </div>
+
+  <script>
+    var sfbLiveMode = true;
+    function sfbToggleMode() {
+      sfbLiveMode = !sfbLiveMode;
+      var btn = document.getElementById('sfb-toggle-btn');
+      var tag = document.getElementById('sfb-mode-tag');
+      var goBtn = document.getElementById('sfb-go-btn');
+      btn.textContent = sfbLiveMode ? "Change to 'ManualMode'" : "Change to 'LiveMode'";
+      tag.textContent = sfbLiveMode ? 'Live Mode' : 'Manual Mode';
+      tag.setAttribute('color-scheme', sfbLiveMode ? '7' : '5');
+      goBtn.style.display = sfbLiveMode ? 'none' : '';
+      if (sfbLiveMode) sfbApplyFilters();
+    }
+    function sfbApplyFilters() {
+      var name = (document.getElementById('sfb-f-name').value || '').toLowerCase();
+      var cat = document.getElementById('sfb-f-cat').selectedOption ? document.getElementById('sfb-f-cat').selectedOption.value : '';
+      var price = document.getElementById('sfb-f-price').selectedOption ? document.getElementById('sfb-f-price').selectedOption.value : '';
+      var supplier = (document.getElementById('sfb-f-supplier').value || '').toLowerCase();
+      var rows = document.querySelectorAll('#sfb-table ui5-table-row');
+      var visible = 0;
+      rows.forEach(function(row) {
+        var nm = row.dataset.name.toLowerCase();
+        var ct = row.dataset.cat;
+        var pr = parseInt(row.dataset.price, 10);
+        var sp = row.dataset.supplier.toLowerCase();
+        var show = (!name || nm.includes(name))
+          && (!cat || ct === cat)
+          && (!price || (price === 'low' && pr < 500) || (price === 'mid' && pr >= 500 && pr <= 1000) || (price === 'high' && pr > 1000))
+          && (!supplier || sp.includes(supplier));
+        row.style.display = show ? '' : 'none';
+        if (show) visible++;
+      });
+      document.querySelector('.sfb-result-count').textContent = 'Products (' + visible + ')';
+    }
+    (function() {
+      ['sfb-f-name','sfb-f-supplier'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) el.addEventListener('input', function() { if (sfbLiveMode) sfbApplyFilters(); });
+      });
+      ['sfb-f-cat','sfb-f-price'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) el.addEventListener('change', function() { if (sfbLiveMode) sfbApplyFilters(); });
+      });
+    })();
+  </script>
+</body>
+</html>

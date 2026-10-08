@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Collection Worklist</title>
+  <link rel="icon" href="../../lib/assets/favicon.ico">
+
+  <script data-ui5-config type="application/json">
+    { "theme": "sap_horizon" }
+  </script>
+  <script type="module" src="../../lib/ui5-bundle/ui5-bundle.js"></script>
+  <script src="../../lib/shared/shellbar.js"></script>
+
+  <style>
+    @font-face { font-family: "72"; font-weight: 400; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Regular.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 700; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Bold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 600; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Semibold.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 300; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Light.woff2") format("woff2"); }
+    @font-face { font-family: "72"; font-weight: 900; src: url("https://cdn.jsdelivr.net/npm/@sap-theming/theming-base-content@11.33.0/content/Base/baseLib/baseTheme/fonts/72-Black.woff2") format("woff2"); }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      font-family: "72", sans-serif;
+      font-size: 14px;
+      background: #f5f6f7;
+      color: #131e29;
+      min-height: 100vh;
+    }
+
+    /* ── Page Header ── */
+    .page-header {
+      padding: 0.75rem 2rem 1rem;
+      background: #fff;
+      padding-top: calc(0.75rem + 6px);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+    .page-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: #131e29;
+      margin-top: 0.25rem;
+    }
+
+    /* ── Variant selector ── */
+    .variant-btn {
+      display: inline-flex; align-items: center;
+      font-size: 24px; font-weight: 900; font-family: "72", sans-serif;
+      color: #0040b0; background: none; border: none; cursor: pointer;
+      padding: 0;
+    }
+
+    /* ── Page Content ── */
+    .page-content { padding: 1.5rem 2rem; }
+
+    /* ── Table font sizes ── */
+    ui5-table-header-cell::part(column) { font-size: 14px; }
+    ui5-table-cell { font-size: 14px; }
+
+    /* ── Table Card ── */
+    .table-card {
+      background: #fff;
+      border: 1px solid #e5e5e5;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    /* ── Table Toolbar ── */
+    .toolbar-btn-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .table-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 0.75rem;
+      border-bottom: 1px solid #e5e5e5;
+      gap: 1rem;
+    }
+    .table-title { font-size: 16px; font-weight: 600; color: #131e29; white-space: nowrap; }
+    .table-toolbar-right { display: flex; align-items: center; gap: 0.375rem; }
+    .toolbar-separator { width: 1px; height: 1.25rem; background: #e5e5e5; margin: 0 0.125rem; }
+    .toolbar-search { width: 200px; }
+
+    /* ── Filter Bar (optional) ── */
+    .filter-bar {
+      background: #fff;
+      border-bottom: 1px solid #e5e5e5;
+      padding: 0 2rem 20px;
+    }
+    .filter-fields {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: flex-end;
+    }
+    .filter-fields.collapsed { display: none; }
+    .filter-field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      width: 225px;
+    }
+    .filter-field label { font-size: 14px; color: #556b82; }
+    .filter-field ui5-input,
+    .filter-field ui5-select { width: 225px; }
+    .filter-actions { display: flex; align-items: flex-end; gap: 0.5rem; }
+    .filter-adapt {
+      font-size: 14px; color: #0070f2;
+      cursor: pointer; white-space: nowrap;
+      padding-bottom: 0.25rem;
+    }
+    .filter-adapt:hover { text-decoration: underline; }
+    #adaptFiltersBtn::part(button) { font-size: 14px; }
+    .filter-actions ui5-button::part(button) { font-size: 14px; }
+    #variantPop [slot="footer"] ui5-button::part(button) { font-size: 14px; }
+
+    /* ── Skeleton loader ── */
+    @keyframes sap-pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.4; }
+    }
+    .skeleton-table { width: 100%; border-collapse: collapse; }
+    .skeleton-table td { padding: 0.75rem 0.5rem; border-bottom: 1px solid #e5e5e5; vertical-align: middle; }
+    .skeleton-table td:first-child { padding-inline-start: 1rem; }
+    .skel-bar {
+      background: #e0e4e9;
+      border-radius: 4px;
+      height: 14px;
+      display: block;
+      animation: sap-pulse 0.8s ease-in-out 1.5;
+    }
+    .filter-toggle-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.375rem;
+      height: 0;
+      position: relative;
+      z-index: 10;
+    }
+    .filter-toggle-line { display: none; }
+    .filter-toggle-row ui5-button::part(button) {
+      box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+      border-radius: 0.5rem;
+      background: #fff;
+    }
+    .filter-toggle-btn-wrap {
+      border-radius: 0.625rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.14);
+      background: #fff;
+      line-height: 0;
+    }
+    .filter-toggle-line { display: none; }
+
+
+    /* ── Priority popover ── */
+    .priority-tag { cursor: pointer; display: inline-block; }
+    .pop-header { display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1rem 0.625rem; border-bottom: 1px solid var(--sapList_BorderColor); }
+    .pop-header-icon { flex-shrink: 0; }
+    .pop-header-title { font-size: 14px; font-weight: 600; color: var(--sapTextColor); }
+    .pop-priority-row { display: flex; align-items: baseline; justify-content: space-between; padding: 0.625rem 1rem 0.5rem; border-bottom: 1px solid var(--sapList_BorderColor); }
+    .pop-priority-label { font-size: 13px; font-weight: 600; color: var(--sapTextColor); }
+    .pop-priority-label.high { color: #a61a1a; }
+    .pop-priority-label.medium { color: #7a4a0f; }
+    .pop-priority-label.low { color: #556b82; }
+    .pop-risk-score { font-size: 13px; color: var(--sapContent_LabelColor); white-space: nowrap; }
+    .pop-risk-score strong { color: var(--sapTextColor); }
+    .pop-body { padding: 0.75rem 1rem 0.875rem; }
+    .pop-insight-heading { font-size: 13px; font-weight: 700; color: var(--sapTextColor); margin-bottom: 0.375rem; }
+    .pop-insight-text { font-size: 13px; color: var(--sapTextColor); line-height: 1.5; }
+
+    /* ── KPI tags row ── */
+    .kpi-tags-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-left: 1rem;
+    }
+    .kpi-tag {
+      display: inline-flex;
+      align-items: stretch;
+      height: 25px;
+      border-radius: 9px;
+      background: #EFF1F2;
+      overflow: hidden;
+      white-space: nowrap;
+      font-family: "72", sans-serif;
+      box-shadow: 0 1px 2px rgba(34, 53, 72, 0.20);
+    }
+    .kpi-tag-handle {
+      width: 6px;
+      flex-shrink: 0;
+      background: #788FA6;
+      border-radius: 9px 0 0 9px;
+    }
+    .kpi-tag-body {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0 0.625rem 0 0.5rem;
+    }
+    .kpi-tag-label {
+      font-size: 12px;
+      color: var(--sapContent_LabelColor);
+    }
+    .kpi-tag-value {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--sapTextColor);
+    }
+    .kpi-tag-value.neg { color: var(--sapNegativeColor); }
+    .kpi-tag-unit {
+      font-size: 11px;
+      font-weight: 400;
+      color: var(--sapContent_LabelColor);
+    }
+
+    /* ── Cell link ── */
+    .cell-link { color: #0070f2; cursor: pointer; text-decoration: none; }
+    .cell-link:hover { text-decoration: underline; }
+
+    /* ── Pagination ── */
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.125rem;
+      padding: 0.875rem;
+      border-top: 1px solid #e5e5e5;
+    }
+    .page-btn {
+      min-width: 26px; height: 26px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 8px;
+      font-family: "72", sans-serif;
+      font-size: 0.875rem;
+      cursor: pointer;
+      border: none;
+      background: none;
+      color: #131e29;
+      padding: 0 0.35rem;
+      transition: background 0.15s;
+    }
+    .page-btn:hover { background: #f0f2f5; }
+    .page-btn.active { color: #0070f2; font-weight: 600; text-decoration: underline; }
+    .page-btn.nav { color: #556b82; }
+    .page-btn svg { width: 12px; height: 12px; }
+  </style>
+</head>
+<body>
+
+  <!-- Shell Bar -->
+  <app-shellbar title="Collection Assistant" hide-product-switch base-path="../../"></app-shellbar>
+
+  <ui5-popover id="navMenu" placement="Bottom" horizontal-align="Start" style="width:280px">
+    <ui5-list separators="None">
+      <ui5-li onclick="location.href='worklist.html'" style="font-size:14px; cursor:pointer">Collection Worklist</ui5-li>
+      <ui5-li onclick="location.href='admin.html'" style="font-size:14px; cursor:pointer">Administration</ui5-li>
+    </ui5-list>
+  </ui5-popover>
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div style="display:flex; align-items:center; justify-content:space-between">
+      <div>
+        <div style="display:flex; align-items:center; gap:0.25rem; padding-top:0.25rem">
+          <button class="variant-btn" id="variantBtn" onclick="toggleVariant(event)">
+            <span id="variantLabel">My Collection Worklist</span>
+          </button>
+          <ui5-button id="variantChevron" design="Transparent" icon="slim-arrow-down" size="Small" onclick="toggleVariant(event)" style="height:26px"></ui5-button>
+        </div>
+        <div id="syncSubtitle" style="font-size:12px; color:var(--sapContent_LabelColor); padding-top:0.2rem; padding-left:0.25rem"></div>
+      </div>
+      <div id="variantPopover" style="display:none"></div>
+    </div>
+  </div>
+
+  <ui5-popover id="variantPop" header-text="My Views" placement="Bottom" horizontal-align="Center" style="width:380px">
+    <ui5-list id="variantList" separators="None" mode="SingleSelect">
+      <ui5-li data-key="all" selected onclick="selectVariant('My Collection Worklist')">My Collection Worklist</ui5-li>
+      <ui5-li data-key="action" onclick="selectVariant('My Collection Worklist - In Cooldown Period')">My Collection Worklist - In Cooldown Period</ui5-li>
+    </ui5-list>
+    <div slot="footer" style="display:flex; justify-content:flex-end; align-items:center; gap:0.5rem; padding:0.5rem; width:100%; box-sizing:border-box">
+      <ui5-button design="Emphasized" style="height:26px">Save As</ui5-button>
+      <ui5-button design="Transparent" style="height:26px">Manage</ui5-button>
+    </div>
+  </ui5-popover>
+
+  <!-- Filter Bar -->
+  <div class="filter-bar" id="filterBar" style="display:none">
+    <div class="filter-fields" id="filterFields">
+      <div class="filter-field">
+        <label>Search:</label>
+        <ui5-input placeholder="Customer ID or Name" show-clear-icon>
+          <ui5-icon slot="icon" name="search"></ui5-icon>
+        </ui5-input>
+      </div>
+      <div class="filter-field">
+        <label>Priority:</label>
+        <ui5-select id="priorityFilter">
+          <ui5-option></ui5-option>
+          <ui5-option>High</ui5-option>
+          <ui5-option>Medium</ui5-option>
+          <ui5-option>Low</ui5-option>
+        </ui5-select>
+      </div>
+      <div class="filter-field">
+        <label>Overdue Amount:</label>
+        <ui5-input show-clear-icon>
+          <img slot="icon" src="../../lib/assets/app-icons/value-help-icon.svg" style="width:16px;height:16px;cursor:pointer">
+        </ui5-input>
+      </div>
+      <div class="filter-field">
+        <label>Due by End of Month:</label>
+        <ui5-input show-clear-icon>
+          <img slot="icon" src="../../lib/assets/app-icons/value-help-icon.svg" style="width:16px;height:16px;cursor:pointer">
+        </ui5-input>
+      </div>
+      <div class="filter-field">
+        <label>Blocked Order Amount:</label>
+        <ui5-input show-clear-icon>
+          <img slot="icon" src="../../lib/assets/app-icons/value-help-icon.svg" style="width:16px;height:16px;cursor:pointer">
+        </ui5-input>
+      </div>
+      <div class="filter-actions">
+        <ui5-button design="Emphasized" id="goBtn">Go</ui5-button>
+        <ui5-button design="Transparent" id="adaptFiltersBtn">Adapt Filters</ui5-button>
+      </div>
+    </div>
+  </div>
+
+  <div class="filter-toggle-row">
+    <div class="filter-toggle-btn-wrap"><ui5-button id="filterToggle" design="Default" icon="slim-arrow-down" tooltip="Expand filters" onclick="toggleFilter()"></ui5-button></div>
+    <div class="filter-toggle-btn-wrap" id="pinBtn" style="display:none"><ui5-button design="Default" icon="pushpin-off" tooltip="Pin filters"></ui5-button></div>
+  </div>
+
+  <script>
+    function toggleVariant(e) {
+      e.stopPropagation();
+      var pop = document.getElementById('variantPop');
+      pop.opener = document.getElementById('variantChevron');
+      // Sync selection state before opening
+      var currentLabel = document.getElementById('variantLabel').textContent.trim();
+      document.querySelectorAll('#variantList ui5-li').forEach(function(li) {
+        if (li.textContent.trim() === currentLabel) {
+          li.setAttribute('selected', '');
+        } else {
+          li.removeAttribute('selected');
+        }
+      });
+      pop.open = !pop.open;
+    }
+    function selectVariant(label) {
+      document.getElementById('variantLabel').textContent = label;
+      document.getElementById('variantPop').open = false;
+      var actionOnly = label === 'My Collection Worklist - In Cooldown Period';
+
+      if (actionOnly) {
+        var skeleton = document.getElementById('skeletonOverlay');
+        var realTable = document.getElementById('realTable');
+        skeleton.style.display = '';
+        realTable.style.display = 'none';
+        skeleton.querySelectorAll('.skel-bar').forEach(function(el) {
+          el.style.animation = 'none';
+          el.offsetHeight;
+          el.style.animation = '';
+        });
+        setTimeout(function() {
+          skeleton.style.display = 'none';
+          realTable.style.display = '';
+          var rows = document.querySelectorAll('ui5-table-row');
+          var visible = 0;
+          rows.forEach(function(row) {
+            var show = row.hasAttribute('data-action');
+            row.style.display = show ? '' : 'none';
+            if (show) visible++;
+          });
+          document.querySelector('.table-title').textContent = 'Accounts (' + visible + ')';
+          document.getElementById('pagination').style.display = 'none';
+          renderKPIs();
+        }, 1200);
+      } else {
+        var rows = document.querySelectorAll('ui5-table-row');
+        var visible = 0;
+        rows.forEach(function(row) {
+          row.style.display = '';
+          visible++;
+        });
+        document.querySelector('.table-title').textContent = 'Accounts (' + visible + ')';
+        document.getElementById('pagination').style.display = 'none';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      // Last Data Sync subtitle
+      (function() {
+        var d = new Date();
+        var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        var dateStr = months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+        document.getElementById('syncSubtitle').textContent = 'Last Data Sync: ' + dateStr + ', 01:00 AM';
+      })();
+
+      // KPI tag computation (runs over visible rows)
+      function computeKPIs() {
+        var totalOverdue = 0, totalEOM = 0, highCount = 0, totalBlocked = 0;
+        document.querySelectorAll('ui5-table-row').forEach(function(row) {
+          if (row.style.display === 'none') return;
+          var tag = row.querySelector('.priority-tag');
+          if (!tag) return;
+          var overdue = parseFloat((tag.dataset.overdue || '0').replace(/[^0-9.]/g, '')) || 0;
+          var eom     = parseFloat((tag.dataset.eom     || '0').replace(/[^0-9.]/g, '')) || 0;
+          var blocked = parseInt(tag.dataset.blocked || '0', 10) || 0;
+          var priority = tag.dataset.priority || '';
+          totalOverdue += overdue;
+          totalEOM     += eom;
+          totalBlocked += blocked;
+          if (priority === 'High') highCount++;
+        });
+        return { overdue: totalOverdue, eom: totalEOM, high: highCount, blocked: totalBlocked };
+      }
+
+      function formatM(val) {
+        if (val >= 1e6) return (val / 1e6).toFixed(2) + 'M';
+        if (val >= 1e3) return (val / 1e3).toFixed(1) + 'K';
+        return val.toFixed(2);
+      }
+
+      function renderKPIs() {
+        var k = computeKPIs();
+        var container = document.getElementById('kpiTagsRow');
+        if (!container) return;
+        var tags = [
+          { label: 'Overdue Amount',       value: formatM(k.overdue), unit: 'GBP', neg: true },
+          { label: 'Due by End of Month',  value: formatM(k.eom),     unit: 'GBP', neg: false },
+          { label: 'High Risk Customers',  value: k.high,             unit: '',    neg: false },
+          { label: 'Blocked Orders',       value: k.blocked,          unit: '',    neg: false }
+        ];
+        container.innerHTML = tags.map(function(t) {
+          return '<div class="kpi-tag">'
+            + '<div class="kpi-tag-handle"></div>'
+            + '<div class="kpi-tag-body">'
+            + '<span class="kpi-tag-label">' + t.label + '</span>'
+            + '<span class="kpi-tag-value' + (t.neg ? ' neg' : '') + '">'
+            + t.value
+            + (t.unit ? ' <span class="kpi-tag-unit">' + t.unit + '</span>' : '')
+            + '</span>'
+            + '</div>'
+            + '</div>';
+        }).join('');
+      }
+
+      // Priority filter (Go button)
+      document.getElementById('goBtn').addEventListener('click', function() {
+        var sel = document.getElementById('priorityFilter');
+        var chosen = sel ? sel.querySelector('ui5-option[selected]') : null;
+        var priority = chosen ? chosen.textContent.trim() : '';
+        var visible = 0;
+        document.querySelectorAll('ui5-table-row').forEach(function(row) {
+          var tag = row.querySelector('.priority-tag');
+          var rowPriority = tag ? tag.dataset.priority : '';
+          var show = !priority || rowPriority === priority;
+          row.style.display = show ? '' : 'none';
+          if (show) visible++;
+        });
+        document.querySelector('.table-title').textContent = 'Accounts (' + visible + ')';
+        renderKPIs();
+      });
+
+      // Skeleton loader then render KPIs
+      setTimeout(function() {
+        document.getElementById('skeletonOverlay').style.display = 'none';
+        document.getElementById('realTable').style.display = '';
+        renderKPIs();
+      }, 2400);
+
+      // Wire hamburger menu
+      setTimeout(function() {
+        var menuBtn = document.querySelector('app-shellbar ui5-button[icon="menu2"]');
+        if (menuBtn) {
+          menuBtn.addEventListener('click', function() {
+            var pop = document.getElementById('navMenu');
+            pop.opener = menuBtn;
+            pop.open = !pop.open;
+          });
+        }
+      }, 300);
+      // Apply default on load
+      selectVariant('My Collection Worklist');
+    });
+
+    function toggleFilter() {
+      const bar = document.getElementById('filterBar');
+      const btn = document.getElementById('filterToggle');
+      const pin = document.getElementById('pinBtn');
+      const header = document.querySelector('.page-header');
+      const collapsed = bar.style.display === 'none';
+      bar.style.display = collapsed ? '' : 'none';
+      btn.setAttribute('icon', collapsed ? 'slim-arrow-up' : 'slim-arrow-down');
+      btn.setAttribute('tooltip', collapsed ? 'Collapse filters' : 'Expand filters');
+      pin.style.display = collapsed ? '' : 'none';
+      header.style.boxShadow = collapsed ? 'none' : '0 2px 6px rgba(0,0,0,0.08)';
+      bar.style.boxShadow = collapsed ? '0 2px 6px rgba(0,0,0,0.08)' : 'none';
+    }
+  </script>
+
+  <!-- Page Content -->
+  <div class="page-content">
+    <div class="table-card">
+
+      <!-- Table Toolbar -->
+      <div class="table-toolbar">
+        <div style="display:flex; align-items:center; flex:1; min-width:0;">
+          <span class="table-title">Accounts (15)</span>
+          <div class="kpi-tags-row" id="kpiTagsRow"></div>
+        </div>
+        <div class="table-toolbar-right">
+          <div class="toolbar-btn-group">
+            <ui5-button design="Transparent" icon="action-settings" tooltip="Settings"></ui5-button>
+            <ui5-button design="Transparent" icon="full-screen" tooltip="Fullscreen"></ui5-button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Skeleton overlay -->
+      <div id="skeletonOverlay">
+        <table class="skeleton-table" aria-hidden="true">
+          <tbody>
+            <tr><td><span class="skel-bar" style="width:120px"></span></td><td><span class="skel-bar" style="width:160px"></span></td><td><span class="skel-bar" style="width:50px;border-radius:8px"></span></td><td style="text-align:right"><span class="skel-bar" style="width:90px;margin-left:auto"></span></td><td style="text-align:right"><span class="skel-bar" style="width:90px;margin-left:auto"></span></td><td style="text-align:right"><span class="skel-bar" style="width:30px;margin-left:auto"></span></td><td style="text-align:right"><span class="skel-bar" style="width:90px;margin-left:auto"></span></td><td></td></tr>
+            <tr><td><span class="skel-bar" style="width:120px"></span></td><td><span class="skel-bar" style="width:140px"></span></td><td><span class="skel-bar" style="width:50px;border-radius:8px"></span></td><td style="text-align:right"><span class="skel-bar" style="width:90px;margin-left:auto"></span></td><td style="text-align:right"><span class="skel-bar" style="width:90px;margin-left:auto"></span></td><td style="text-align:right"><span class="skel-bar" style="width:30px;margin-left:auto"></span></td><td style="text-align:right"><span class="skel-bar" style="width:90px;margin-left:auto"></span></td><td></td></tr>
+            <tr><td><span class="skel-bar" style="width:120px"></span></td><td><span class="skel-bar" style="width:175px"></span></td><td><span class="skel-bar" style="width:50px;border-radius:8px"></span></td><td style="text-align:right"><span class="skel-bar" style="width:90px;margin-left:auto"></span></td><td style="text-align:right"><span class="skel-bar" style="width:90px;margin-left:auto"></span></td><td style="text-align:right"><span class="skel-bar" style="width:30px;margin-left:auto"></span></td><td style="text-align:right"><span class="skel-bar" style="width:90px;margin-left:auto"></span></td><td></td></tr>
+            <tr><td><span class="skel-bar" style="width:120px"></span></td><td><span class="skel-bar" style="width:150px"></span></td><td><span class="skel-bar" style="width:50px;border-radius:8px"></span></td><td style="text-align:right"><span class="skel-bar" style="width:90px;margin-left:auto"></span></td><td style="text-align:right"><span class="skel-bar" style="width:90px;margin-left:auto"></span></td><td style="text-align:right"><span class="skel-bar" style="width:30px;margin-left:auto"></span></td><td style="text-align:right"><span class="skel-bar" style="width:90px;margin-left:auto"></span></td><td></td></tr>
+            <tr><td><span class="skel-bar" style="width:120px"></span></td><td><span class="skel-bar" style="width:130px"></span></td><td><span class="skel-bar" style="width:50px;border-radius:8px"></span></td><td style="text-align:right"><span class="skel-bar" style="width:90px;margin-left:auto"></span></td><td style="text-align:right"><span class="skel-bar" style="width:90px;margin-left:auto"></span></td><td style="text-align:right"><span class="skel-bar" style="width:30px;margin-left:auto"></span></td><td style="text-align:right"><span class="skel-bar" style="width:90px;margin-left:auto"></span></td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Table -->
+      <ui5-table id="realTable" style="display:none">
+        <ui5-table-selection-multi slot="features"></ui5-table-selection-multi>
+        <ui5-table-header-row slot="headerRow">
+          <ui5-table-header-cell width="160px" style="padding-inline-start: 1rem; font-size:14px">Customer ID</ui5-table-header-cell>
+          <ui5-table-header-cell style="font-size:14px">Customer Name</ui5-table-header-cell>
+          <ui5-table-header-cell width="120px" style="font-size:14px"><span style="display:inline-flex;align-items:center;gap:4px"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.77386 5.51772C5.00416 4.82742 5.99565 4.82746 6.22601 5.51772C7.03711 7.8988 8.09862 8.9593 10.4819 9.76967C11.1728 10.0098 11.1728 11.0005 10.4819 11.2306C8.09867 12.041 7.0371 13.1015 6.22601 15.4826C5.99555 16.1726 5.00425 16.1726 4.77386 15.4826C3.96275 13.1015 2.90125 12.041 0.517998 11.2306C-0.172689 10.9904 -0.172643 9.99991 0.517998 9.76967C2.90124 8.9593 3.96275 7.89878 4.77386 5.51772ZM12.6049 0.284318C12.735 -0.0948015 13.2648 -0.0947441 13.395 0.284318C13.835 1.58216 14.4153 2.16146 15.7153 2.60072C16.095 2.7306 16.0951 3.26972 15.7153 3.39955C14.4153 3.83882 13.835 4.41812 13.395 5.71596C13.2647 6.09477 12.7351 6.09482 12.6049 5.71596C12.1649 4.41812 11.5846 3.83882 10.2846 3.39955C9.90511 3.2696 9.90515 2.73073 10.2846 2.60072C11.5846 2.16146 12.1649 1.58216 12.6049 0.284318Z" fill="#223548"/></svg>Priority</span></ui5-table-header-cell>
+          <ui5-table-header-cell width="160px" horizontal-align="End" style="font-size:14px">Overdue Amount</ui5-table-header-cell>
+          <ui5-table-header-cell width="180px" horizontal-align="End" style="font-size:14px">Due by End of Month</ui5-table-header-cell>
+          <ui5-table-header-cell width="140px" horizontal-align="End" style="font-size:14px">Blocked Orders</ui5-table-header-cell>
+          <ui5-table-header-cell width="180px" horizontal-align="End" style="font-size:14px">Blocked Order Amount</ui5-table-header-cell>
+          <ui5-table-header-cell width="32px" style="padding-inline: 8px"></ui5-table-header-cell>
+        </ui5-table-header-row>
+
+        <ui5-table-row interactive onclick="location.href='detail.html?customer=Grovemart%20Retail%20Group'" style="cursor:pointer">
+          <ui5-table-cell style="padding-inline-start: 1rem"><span style="white-space:nowrap">232058679452165</span></ui5-table-cell>
+          <ui5-table-cell><span style="color:#0070f2; white-space:nowrap">Grovemart Retail Group</span></ui5-table-cell>
+          <ui5-table-cell><span class="priority-tag" data-customer="Grovemart Retail Group" data-priority="High" data-score="87" data-overdue="93,727.92 GBP" data-eom="120,500.00 GBP" data-blocked="7" data-blocked-amt="58,400.00 GBP" style="background:#f4a7a7; color:#7a1f1f; padding:0.2rem 0.6rem; border-radius:8px; font-size:0.8125rem; white-space:nowrap">High</span></ui5-table-cell>
+          <ui5-table-cell horizontal-align="End"><span style="white-space:nowrap">93,727.92 GBP</span></ui5-table-cell>
+          <ui5-table-cell horizontal-align="End"><span style="white-space:nowrap">120,500.00 GBP</span></ui5-table-cell>
+          <ui5-table-cell horizontal-align="End"><span style="white-space:nowrap">7</span></ui5-table-cell>
+          <ui5-table-cell horizontal-align="End"><span style="white-space:nowrap">58,400.00 GBP</span></ui5-table-cell>
+          <ui5-table-cell style="color:#8c9fac; text-align:center; padding-inline: 8px">›</ui5-table-cell>
+        </ui5-table-row>
+
+        <ui5-table-row interactive onclick="location.href='detail.html?customer=Pinnacle%20Food%20Distributors'" style="cursor:pointer">
+          <ui5-table-cell style="padding-inline-start: 1rem"><span style="white-space:nowrap">761302359006367</span></ui5-table-cell>
+          <ui5-table-cell><span style="color:#0070f2; white-space:nowrap">Pinnacle Food Distributors</span></ui5-table-cell>
+          <ui5-table-cell><span class="priority-tag" data-customer="Pinnacle Food Distributors" data-priority="High" data-score="92" data-overdue="78,340.50 GBP" data-eom="102,800.00 GBP" data-blocked="6" data-blocked-amt="44,200.00 GBP" style="background:#f4a7a7; color:#7a1f1f; padding:0.2rem 0.6rem; border-radius:8px; font-size:0.8125rem; white-space:nowrap">High</span></ui5-table-cell>
+          <ui5-table-cell horizontal-align="End"><span style="white-space:nowrap">78,340.50 GBP</span></ui5-table-cell>
+          <ui5-table-cell horizontal-align="End"><span style="white-space:nowrap">102,800.00 GBP</span></ui5-table-cell>
+          <ui5-table-cell horizontal-align="End"><span style="white-space:nowrap">6</span></ui5-table-cell>
+          <ui5-table-cell horizontal-align="End"><span style="white-space:nowrap">44,200.00 GBP</span></ui5-table-cell>
+          <ui5-table-cell style="color:#8c9fac; text-align:center; padding-inline: 8px">›</ui5-table-cell>
+        </ui5-table-row>
+
+        <ui5-table-row interactive data-action="true" onclick="location.href='detail.html?customer=Harborfield%20Wholesale%20Co'" style="cursor:pointer">
+          <ui5-table-cell style="padding-inline-start: 1rem"><span style="white-space:nowrap">305382373556494</span></ui5-table-cell>
+          <ui5-table-cell><span style="color:#0070f2; white-space:nowrap">Harborfield Wholesale Co</span></ui5-table-cell>
+          <ui5-table-cell><span class="priority-tag" data-customer="Harborfield Wholesale Co" data-priority="High" data-score="95" data-overdue="104,842.81 GBP" data-eom="135,000.00 GBP" data-blocked="8" data-blocked-amt="67,300.00 GBP" style="background:#f4a7a7; color:#7a1f1f; padding:0.2rem 0.6rem; border-radius:8px; font-size:0.8125rem; white-space:nowrap">High</span></ui5-table-cell>
+          <ui5-table-cell horizontal-align="End"><span style="white-space:nowrap">104,842.81 GBP</span></ui5-table-cell>
+          <ui5-table-cell horizontal-align="End"><span style="white-space:nowrap">135,000.00 GBP</span></ui5-table-cell>
+          <ui5-table-cell horizontal-align="End"><span style="white-space:nowrap">8</span></ui5-table-cell>
+          <ui5-table-cell horizontal-align="End"><span style="white-space:nowrap">67,300.00 GBP</span></ui5-table-cell>
+          <ui5-table-cell style="color:#8c9fac; text-align:center; padding-inline: 8px">›</ui5-table-cell>
+        </ui5-table-row>
+
+        <ui5-table-row interactive onclick="location.href='detail.html?customer=Caldwell%20Fresh%20Markets'" style="cursor:pointer">
+          <ui5-table-cell style="padding-inline-start: 1rem"><span style="white-space:nowrap">584481767262332</span></ui5-table-cell>
+          <ui5-table-cell><span style="color:#0070f2; white-space:nowrap">Caldwell Fresh Markets</span></ui5-table-cell>
+          <ui5-table-cell><span class="priority-tag" data-customer="Caldwell Fresh Markets" data-priority="High" data-score="83" data-overdue="21,950.41 GBP" data-eom="38,400.00 GBP" data-blocked="5" data-blocked-amt="29,800.00 GBP" style="background:#f4a7a7; color:#7a1f1f; padding:0.2rem 0.6rem; border-radius:8px; font-size:0.8125rem; white-space:nowrap">High</span></ui5-table-cell>
+          <ui5-table-cell horizontal-align="End"><span style="white-space:nowrap">21,950.41 GBP</span></ui5-table-cell>
+          <ui5-table-cell horizontal-align="End"><span style="white-space:nowrap">38,400.00 GBP</span></ui5-table-cell>
+          <ui5-table-cell horizontal-align="End"><span style="white-space:nowrap">5</span></ui5-table-cell>
+          <ui5-table-cell horizontal-align="End"><span style="white-space:nowrap">29,800.00 GBP</span></ui5-table-cell>
+          <ui5-table-cell style="color:#8c9fac; text-align:center; padding-inline: 8px">›</ui5-table-cell>
+        </ui5-table-row>
+
+        <ui5-table-row interactive data-action="true" onclick="location.href='detail.html?customer=Stonegate%20Food%20Services'" style="cursor:pointer">
+          <ui5-table-cell style="padding-inline-start: 1rem"><span style="white-space:nowrap">303923770901747</span></ui5-table-cell>
+          <ui5-table-cell><span style="color:#0070f2; white-space:nowrap">Stonegate Food Services</span></ui5-table-cell>
+          <ui5-table-cell><span class="priority-tag" data-customer="Stonegate Food Services" data-priority="High" data-score="89" data-overdue="51,451.56 GBP" data-eom="74,600.00 GBP" data-blocked="6" data-blocked-amt="48,900.00 GBP" style="background:#f4a7a7; color:#7a1f1f; padding:0.2rem 0.6rem; border-radius:8px; font-size:0.8125rem; white-space:nowrap">High</span></ui5-table-cell>
+          <ui5-table-cell horizontal-align="End"><span style="white-space:nowrap">51,451.56 GBP</span></ui5-table-cell>
+          <ui5-table-cell horizontal-align="End"><span style="white-space:nowrap">74,600.00 GBP</span></ui5-table-cell>
+          <ui5-table-cell horizontal-align="End"><span style="white-space:nowrap">6</span></ui5-table-cell>
+          <ui5-table-cell horizontal-align="End"><span style="white-space:nowrap">48,900.00 GBP</span></ui5-table-cell>
+          <ui5-table-cell style="color:#8c9fac; text-align:center; padding-inline: 8px">›</ui5-table-cell>
+        </ui5-table-row>
+
+        <ui5-table-row interactive onclick="location.href='detail.html?customer=Elmwood%20Grocery%20Holdings'" style="cursor:pointer">
+          <ui5-table-cell style="padding-inline-start: 1rem"><span style="white-space:nowrap">185758129903115</span></ui5-table-cell>
+          <ui5-table-cell><span style="color:#0070f2; white-space:nowrap">Elmwood Grocery Holdings</span></ui5-table-cell>
+          <ui5-table-cell><span class="priority-tag" data-customer="Elmwood Grocery Holdings" data-priority="High" data-score="85" data-overdue="38,620.00 GBP" data-eom="55,200.00 GBP" data-blocked="5" data-blocked-amt="32,500.00 GBP" style="background:#f4a7a7; color:#7a1f1f; padding:0.2rem 0.6rem; border-radius:8px; font-size:0.8125rem; white-space:nowrap">High</span></ui5-table-cell>
+          <ui5-table-cell horizontal-align="End"><span style="white-space:nowrap">38,620.00 GBP</span></ui5-table-cell>
+          <ui5-table-cell horizontal-align="End"><span style="white-space:nowrap">55,200.00 GBP</span></ui5-table-cell>
+          <ui5-table-cell horizontal-align="End"><span style="white-space:nowrap">5</span></ui5-table-cell>
+          <ui5-table-cell horizontal-align="End"><span style="white-space:nowrap">32,500.00 GBP</span></ui5-table-cell>
+          <ui5-table-cell style="color:#8c9fac; text-align:center; padding-inline: 8px">›</ui5-table-cell>
+        </ui5-table-row>
+
+        <ui5-table-row interactive data-action="true" onclick="location.href='detail.html?customer=Fairvale%20Pantry%20Ltd'" style="cursor:pointer">
+          <ui5-table-cell style="padding-inline-start: 1rem"><span style="white-space:nowrap">322877581627108</span></ui5-table-cell>
+          <ui5-table-cell><span style="color:#0070f2; white-space:nowrap">Fairvale Pantry Ltd</span></ui5-table-cell>
+          <ui5-table-cell><span class="priority-tag" data-customer="Fairvale Pantry Ltd" data-priority="High" data-score="91" data-overdue="67,184.30 GBP" data-eom="89,400.00 GBP" data-blocked="7" data-blocked-amt="51,100.00 GBP" style="background:#f4a7a7; color:#7a1f1f; padding:0.2rem 0.6rem; border-radius:8px; font-size:0.8125rem; white-space:nowrap">High</span></ui5-table-cell>
+          <ui5-table-cell horizontal-align="End"><span style="white-space:nowrap">67,184.30 GBP</span></ui5-table-cell>
+          <ui5-table-cell horizontal-align="End"><span style="white-space:nowrap">89,400.00 GBP</span></ui5-table-cell>
+          <ui5-table-cell horizontal-align="End"><span style="white-space:nowrap">7</span></ui5-table-cell>
+          <ui5-table-cell horizontal-align="End"><span style="white-space:nowrap">51,100.00 GBP</span></ui5-table-cell>
+          <ui5-table-cell style="color:#8c9fac; text-align:center; padding-inline: 8px">›</ui5-table-cell>
+        </ui5-table-row>
+
+        <ui5-table-row interactive onclick="location.href='detail.html?customer=Northaven%20Consumer%20Goods'" style="cursor:pointer">
+          <ui5-table-cell style="padding-inline-start: 1rem"><span style="white-space:nowrap">496978767984546</span></ui5-table-cell>
+          <ui5-table-cell><span style="color:#0070f2; white-space:nowrap">Northaven Consumer Goods</span></ui5-table-cell>
+          <ui5-table-cell><span class="priority-tag" data-customer="Northaven Consumer Goods" data-priority="High" data-score="96" data-overdue="185,359.51 GBP" data-eom="220,000.00 GBP" data-blocked="8" data-blocked-amt="112,500.00 GBP" style="background:#f4a7a7; color:#7a1f1f; padding:0.2rem 0.6rem; border-radius:8px; font-size:0.8125rem; white-space:nowrap">High</span></ui5-table-cell>
+          <ui5-table-cell horizontal-align="End"><span style="white-space:nowrap">185,359.51 GBP</span></ui5-table-cell>
+          <ui5-table-cell horizontal-align="End"><span style="white-space:nowrap">220,000.00 GBP</span></ui5-table-cell>
+          <ui5-table-cell horizontal-align="End"><span style="white-space:nowrap">8</span></ui5-table-cell>
+          <ui5-table-cell horizontal-align="End"><span style="white-space:nowrap">112,500.00 GBP</span></ui5-table-cell>
+          <ui5-table-cell style="color:#8c9fac; text-align:center; padding-inline: 8px">›</ui5-table-cell>
+        </ui5-table-row>
+
+        <ui5-table-row interactive onclick="location.href='detail.html?customer=Brightfield%20Superstore%20Ltd'" style="cursor:pointer">
+          <ui5-table-cell style="padding-inline-start: 1rem"><span style="white-space:nowrap">197153704660013</span></ui5-table-cell>
+          <ui5-table-cell><span style="color:#0070f2; white-space:nowrap">Brightfield Superstore Ltd</span></ui5-table-cell>
+          <ui5-table-cell><span class="priority-tag" data-customer="Brightfield Superstore Ltd" data-priority="Medium" data-score="71" data-overdue="26,917.35 GBP" data-eom="44,300.00 GBP" data-blocked="3" data-blocked-amt="21,600.00 GBP" style="background:#f7d4a8; color:#7a4a0f; padding:0.2rem 0.6rem; border-radius:8px; font-size:0.8125rem; white-space:nowrap">Medium</span></ui5-table-cell>
+          <ui5-table-cell horizontal-align="End"><span style="white-space:nowrap">26,917.35 GBP</span></ui5-table-cell>
+          <ui5-table-cell horizontal-align="End"><span style="white-space:nowrap">44,300.00 GBP</span></ui5-table-cell>
+          <ui5-table-cell horizontal-align="End"><span style="white-space:nowrap">3</span></ui5-table-cell>
+          <ui5-table-cell horizontal-align="End"><span style="white-space:nowrap">21,600.00 GBP</span></ui5-table-cell>
+          <ui5-table-cell style="color:#8c9fac; text-align:center; padding-inline: 8px">›</ui5-table-cell>
+        </ui5-table-row>
+
+        <ui5-table-row interactive onclick="location.href='detail.html?customer=Westbrook%20Provisions%20Co'" style="cursor:pointer">
+          <ui5-table-cell style="padding-inline-start: 1rem"><span style="white-space:nowrap">501284257229417</span></ui5-table-cell>
+          <ui5-table-cell><span style="color:#0070f2; white-space:nowrap">Westbrook Provisions Co</span></ui5-table-cell>
+          <ui5-table-cell><span class="priority-tag" data-customer="Westbrook Provisions Co" data-priority="Medium" data-score="68" data-overdue="9,512.74 GBP" data-eom="18,500.00 GBP" data-blocked="2" data-blocked-amt="8,750.00 GBP" style="background:#f7d4a8; color:#7a4a0f; padding:0.2rem 0.6rem; border-radius:8px; font-size:0.8125rem; white-space:nowrap">Medium</span></ui5-table-cell>
+          <ui5-table-cell horizontal-align="End"><span style="white-space:nowrap">9,512.74 GBP</span></ui5-table-cell>
+          <ui5-table-cell horizontal-align="End"><span style="white-space:nowrap">18,500.00 GBP</span></ui5-table-cell>
+          <ui5-table-cell horizontal-align="End"><span style="white-space:nowrap">2</span></ui5-table-cell>
+          <ui5-table-cell horizontal-align="End"><span style="white-space:nowrap">8,750.00 GBP</span></ui5-table-cell>
+          <ui5-table-cell style="color:#8c9fac; text-align:center; padding-inline: 8px">›</ui5-table-cell>
+        </ui5-table-row>
+
+        <ui5-table-row interactive onclick="location.href='detail.html?customer=Mapleton%20Foods%20Inc'" style="cursor:pointer">
+          <ui5-table-cell style="padding-inline-start: 1rem"><span style="white-space:nowrap">755752902920357</span></ui5-table-cell>
+          <ui5-table-cell><span style="color:#0070f2; white-space:nowrap">Mapleton Foods Inc</span></ui5-table-cell>
+          <ui5-table-cell><span class="priority-tag" data-customer="Mapleton Foods Inc" data-priority="Medium" data-score="63" data-overdue="8,792.78 GBP" data-eom="15,400.00 GBP" data-blocked="1" data-blocked-amt="4,200.00 GBP" style="background:#f7d4a8; color:#7a4a0f; padding:0.2rem 0.6rem; border-radius:8px; font-size:0.8125rem; white-space:nowrap">Medium</span></ui5-table-cell>
+          <ui5-table-cell horizontal-align="End"><span style="white-space:nowrap">8,792.78 GBP</span></ui5-table-cell>
+          <ui5-table-cell horizontal-align="End"><span style="white-space:nowrap">15,400.00 GBP</span></ui5-table-cell>
+          <ui5-table-cell horizontal-align="End"><span style="white-space:nowrap">1</span></ui5-table-cell>
+          <ui5-table-cell horizontal-align="End"><span style="white-space:nowrap">4,200.00 GBP</span></ui5-table-cell>
+          <ui5-table-cell style="color:#8c9fac; text-align:center; padding-inline: 8px">›</ui5-table-cell>
+        </ui5-table-row>
+
+        <ui5-table-row interactive onclick="location.href='detail.html?customer=Redstone%20Pantry%20Group'" style="cursor:pointer">
+          <ui5-table-cell style="padding-inline-start: 1rem"><span style="white-space:nowrap">909399664960801</span></ui5-table-cell>
+          <ui5-table-cell><span style="color:#0070f2; white-space:nowrap">Redstone Pantry Group</span></ui5-table-cell>
+          <ui5-table-cell><span class="priority-tag" data-customer="Redstone Pantry Group" data-priority="Medium" data-score="76" data-overdue="49,531.44 GBP" data-eom="67,800.00 GBP" data-blocked="4" data-blocked-amt="28,200.00 GBP" style="background:#f7d4a8; color:#7a4a0f; padding:0.2rem 0.6rem; border-radius:8px; font-size:0.8125rem; white-space:nowrap">Medium</span></ui5-table-cell>
+          <ui5-table-cell horizontal-align="End"><span style="white-space:nowrap">49,531.44 GBP</span></ui5-table-cell>
+          <ui5-table-cell horizontal-align="End"><span style="white-space:nowrap">67,800.00 GBP</span></ui5-table-cell>
+          <ui5-table-cell horizontal-align="End"><span style="white-space:nowrap">4</span></ui5-table-cell>
+          <ui5-table-cell horizontal-align="End"><span style="white-space:nowrap">28,200.00 GBP</span></ui5-table-cell>
+          <ui5-table-cell style="color:#8c9fac; text-align:center; padding-inline: 8px">›</ui5-table-cell>
+        </ui5-table-row>
+
+        <ui5-table-row interactive onclick="location.href='detail.html?customer=Clearwater%20Trade%20Supply'" style="cursor:pointer">
+          <ui5-table-cell style="padding-inline-start: 1rem"><span style="white-space:nowrap">894902127631940</span></ui5-table-cell>
+          <ui5-table-cell><span style="color:#0070f2; white-space:nowrap">Clearwater Trade Supply</span></ui5-table-cell>
+          <ui5-table-cell><span class="priority-tag" data-customer="Clearwater Trade Supply" data-priority="Medium" data-score="65" data-overdue="3,847.60 GBP" data-eom="12,600.00 GBP" data-blocked="2" data-blocked-amt="7,400.00 GBP" style="background:#f7d4a8; color:#7a4a0f; padding:0.2rem 0.6rem; border-radius:8px; font-size:0.8125rem; white-space:nowrap">Medium</span></ui5-table-cell>
+          <ui5-table-cell horizontal-align="End"><span style="white-space:nowrap">3,847.60 GBP</span></ui5-table-cell>
+          <ui5-table-cell horizontal-align="End"><span style="white-space:nowrap">12,600.00 GBP</span></ui5-table-cell>
+          <ui5-table-cell horizontal-align="End"><span style="white-space:nowrap">2</span></ui5-table-cell>
+          <ui5-table-cell horizontal-align="End"><span style="white-space:nowrap">7,400.00 GBP</span></ui5-table-cell>
+          <ui5-table-cell style="color:#8c9fac; text-align:center; padding-inline: 8px">›</ui5-table-cell>
+        </ui5-table-row>
+
+        <ui5-table-row interactive onclick="location.href='detail.html?customer=Sunridge%20Retail%20Partners'" style="cursor:pointer">
+          <ui5-table-cell style="padding-inline-start: 1rem"><span style="white-space:nowrap">104926358396187</span></ui5-table-cell>
+          <ui5-table-cell><span style="color:#0070f2; white-space:nowrap">Sunridge Retail Partners</span></ui5-table-cell>
+          <ui5-table-cell><span class="priority-tag" data-customer="Sunridge Retail Partners" data-priority="Low" data-score="38" data-overdue="0.00 GBP" data-eom="8,500.00 GBP" data-blocked="0" data-blocked-amt="0.00 GBP" style="background:#e0e0e0; color:#444; padding:0.2rem 0.6rem; border-radius:8px; font-size:0.8125rem; white-space:nowrap">Low</span></ui5-table-cell>
+          <ui5-table-cell horizontal-align="End"><span style="white-space:nowrap">0.00 GBP</span></ui5-table-cell>
+          <ui5-table-cell horizontal-align="End"><span style="white-space:nowrap">8,500.00 GBP</span></ui5-table-cell>
+          <ui5-table-cell horizontal-align="End"><span style="white-space:nowrap">0</span></ui5-table-cell>
+          <ui5-table-cell horizontal-align="End"><span style="white-space:nowrap">0.00 GBP</span></ui5-table-cell>
+          <ui5-table-cell style="color:#8c9fac; text-align:center; padding-inline: 8px">›</ui5-table-cell>
+        </ui5-table-row>
+
+        <ui5-table-row interactive onclick="location.href='detail.html?customer=Briarwood%20Market%20Co'" style="cursor:pointer">
+          <ui5-table-cell style="padding-inline-start: 1rem"><span style="white-space:nowrap">721336014941334</span></ui5-table-cell>
+          <ui5-table-cell><span style="color:#0070f2; white-space:nowrap">Briarwood Market Co</span></ui5-table-cell>
+          <ui5-table-cell><span class="priority-tag" data-customer="Briarwood Market Co" data-priority="Low" data-score="52" data-overdue="1,240.00 GBP" data-eom="9,200.00 GBP" data-blocked="0" data-blocked-amt="0.00 GBP" style="background:#e0e0e0; color:#444; padding:0.2rem 0.6rem; border-radius:8px; font-size:0.8125rem; white-space:nowrap">Low</span></ui5-table-cell>
+          <ui5-table-cell horizontal-align="End"><span style="white-space:nowrap">1,240.00 GBP</span></ui5-table-cell>
+          <ui5-table-cell horizontal-align="End"><span style="white-space:nowrap">9,200.00 GBP</span></ui5-table-cell>
+          <ui5-table-cell horizontal-align="End"><span style="white-space:nowrap">0</span></ui5-table-cell>
+          <ui5-table-cell horizontal-align="End"><span style="white-space:nowrap">0.00 GBP</span></ui5-table-cell>
+          <ui5-table-cell style="color:#8c9fac; text-align:center; padding-inline: 8px">›</ui5-table-cell>
+        </ui5-table-row>
+      </ui5-table>
+
+      <!-- Pagination hidden: shown only when all items view is active -->
+      <div class="pagination" id="pagination" style="display:none">
+        <button class="page-btn nav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg></button>
+        <button class="page-btn">1</button>
+        <button class="page-btn active">2</button>
+        <button class="page-btn">3</button>
+        <button class="page-btn">4</button>
+        <button class="page-btn">5</button>
+        <button class="page-btn nav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Priority explanation popover -->
+  <ui5-popover id="priorityPop" placement="End" style="width:340px; --_ui5-v2-popover-header-shadow:none">
+    <div id="popContent"></div>
+  </ui5-popover>
+
+  <script>
+    (function () {
+      function relDate(offsetDays) {
+        const d = new Date();
+        d.setDate(d.getDate() + offsetDays);
+        return (d.getMonth() + 1).toString().padStart(2, '0') + '/' +
+               d.getDate().toString().padStart(2, '0') + '/' +
+               d.getFullYear();
+      }
+      document.querySelectorAll('[data-rel]').forEach(function (el) {
+        el.textContent = relDate(parseInt(el.getAttribute('data-rel'), 10));
+      });
+    })();
+
+    (function () {
+      var pop = document.getElementById('priorityPop');
+      var popContent = document.getElementById('popContent');
+      var hideTimer;
+
+      var AI_SVG = '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.77386 5.51772C5.00416 4.82742 5.99565 4.82746 6.22601 5.51772C7.03711 7.8988 8.09862 8.9593 10.4819 9.76967C11.1728 10.0098 11.1728 11.0005 10.4819 11.2306C8.09867 12.041 7.0371 13.1015 6.22601 15.4826C5.99555 16.1726 5.00425 16.1726 4.77386 15.4826C3.96275 13.1015 2.90125 12.041 0.517998 11.2306C-0.172689 10.9904 -0.172643 9.99991 0.517998 9.76967C2.90124 8.9593 3.96275 7.89878 4.77386 5.51772ZM12.6049 0.284318C12.735 -0.0948015 13.2648 -0.0947441 13.395 0.284318C13.835 1.58216 14.4153 2.16146 15.7153 2.60072C16.095 2.7306 16.0951 3.26972 15.7153 3.39955C14.4153 3.83882 13.835 4.41812 13.395 5.71596C13.2647 6.09477 12.7351 6.09482 12.6049 5.71596C12.1649 4.41812 11.5846 3.83882 10.2846 3.39955C9.90511 3.2696 9.90515 2.73073 10.2846 2.60072C11.5846 2.16146 12.1649 1.58216 12.6049 0.284318Z" fill="#223548"/></svg>';
+
+      var INSIGHTS = {
+        'Grovemart Retail Group':      { heading: 'Unusual payment pattern noticed', text: '£93,727.92 overdue for 41 days across 5 invoices (78% of £120,500.00 EOM balance), with 2 broken payment promises and credit line utilisation at 74%. Customer typically settles within 28 days — this sustained silence alongside 7 blocked orders (£58,400.00) signals escalating financial strain and warrants direct intervention.' },
+        'Pinnacle Food Distributors':  { heading: 'Large exposure with escalating blockage risk', text: '£78,340.50 overdue for 48 days across 6 invoices (76% of £102,800.00 EOM balance). Credit line utilisation has reached 91%, 3 broken payment promises on record, and 6 blocked orders totalling £44,200.00 remain unresolved. Unresolved disputes on 2 high-value invoices signal severe credit exposure requiring immediate intervention.' },
+        'Harborfield Wholesale Co':    { heading: 'Persistent aging and multiple broken commitments', text: '£104,842.81 overdue for 62 days across 7 invoices (78% of £135,000.00 EOM balance) with 3 broken promises, repeated failed payment arrangements, and a 10-point credit score drop over the last quarter. 8 blocked orders (£67,300.00) highlight deteriorating payment reliability and urgent collection risk.' },
+        'Caldwell Fresh Markets':      { heading: 'Rising arrears and inconsistent follow-through', text: '£21,950.41 overdue for 35 days across 3 invoices (57% of £38,400.00 EOM balance), 1 broken promise, and average days-to-pay rising from 22 to 36 over the last quarter. 5 blocked orders (£29,800.00) and a credit score decline of 6 points suggest emerging liquidity pressure and warrant closer monitoring.' },
+        'Stonegate Food Services':     { heading: 'Multiple invoices entering second overdue cycle', text: '£51,451.56 overdue for 44 days across 5 invoices (69% of £74,600.00 EOM balance), with 2 invoices now entering their second 30-day cycle. Customer has historically settled within the first cycle — this deviation, combined with 6 blocked orders (£48,900.00) and credit utilisation at 86%, is a meaningful risk signal.' },
+        'Elmwood Grocery Holdings':    { heading: 'Late payment trend accelerating', text: '£38,620.00 overdue for 38 days across 4 invoices (70% of £55,200.00 EOM balance). Average days-to-pay has lengthened by ~38% since Q3 last year. 5 blocked orders (£32,500.00) have had limited effect on settlement behaviour, and credit utilisation now stands at 83% — proactive outreach is advised before EOM.' },
+        'Fairvale Pantry Ltd':         { heading: 'High overdue share with no response to reminders', text: '£67,184.30 overdue for 54 days across 6 invoices (75% of £89,400.00 EOM balance). Customer has not responded to the last two payment reminders, and 2 broken promises are on record. 7 blocked orders totalling £51,100.00 and credit utilisation at 89% — direct manager-level contact is recommended.' },
+        'Northaven Consumer Goods':    { heading: 'Critical exposure — immediate escalation required', text: '£185,359.51 overdue for 71 days across 8 invoices (84% of £220,000.00 EOM balance), credit line utilisation at 98%, and 3 broken payment commitments. No payment received in 45 days despite three reminders. 8 blocked orders (£112,500.00) and unresolved disputes on the two largest invoices signal severe risk requiring immediate escalation.' },
+        'Brightfield Superstore Ltd':  { heading: 'Increasing arrears and inconsistent follow-through', text: '£26,917.35 overdue for 28 days across 3 invoices (61% of £44,300.00 EOM balance), 1 broken promise, and a rising average arrears trend over the last quarter. Credit utilisation at 67% and 3 blocked orders (£21,600.00) suggest emerging pressure on liquidity — closer monitoring is warranted.' },
+        'Westbrook Provisions Co':     { heading: 'High utilisation and recent dispute activity', text: '£9,512.74 overdue for 31 days across 2 invoices (51% of £18,500.00 EOM balance), with credit line utilisation at 79%, one active invoice dispute, and a 4-point credit score decline. Partial payment was received last month but balance was left outstanding — medium-level risk as operational strain starts to surface.' },
+        'Mapleton Foods Inc':          { heading: 'Slow payer within expected range', text: '£8,792.78 overdue for 24 days across 2 invoices (57% of £15,400.00 EOM balance). Customer\'s average days-to-pay is 27 — current aging is slightly above norm but within historical variance. Credit utilisation at 54% and 1 blocked order (£4,200.00). Standard reminder cycle should be sufficient.' },
+        'Redstone Pantry Group':       { heading: 'Rising overdue trend — monitor before EOM', text: '£49,531.44 overdue for 33 days across 4 invoices (73% of £67,800.00 EOM balance), 1 broken promise, and overdue balance up 34% over the last two months. Credit utilisation has reached 81% and 4 blocked orders (£28,200.00) remain open — trend warrants a proactive call before the end of month.' },
+        'Clearwater Trade Supply':     { heading: 'Moderate delay — within manageable range', text: '£3,847.60 overdue for 21 days across 1 invoice (31% of £12,600.00 EOM balance). Credit line utilisation at 58% and no broken promises on record. Customer has a generally reliable payment history with only occasional short delays. 2 blocked orders (£7,400.00) may prompt faster settlement; standard follow-up is appropriate.' },
+        'Sunridge Retail Partners':    { heading: 'No overdue balance — healthy credit posture', text: 'No overdue invoices at this time. EOM balance of £8,500.00 is within normal trading terms and credit line utilisation stands at only 22%. Customer has a 20-month history of on-time payments with no broken promises or disputes. Risk score of 38 reflects a low-risk, self-correcting payment profile.' },
+        'Briarwood Market Co':         { heading: 'Strong payer with isolated minor delay', text: '£1,240.00 overdue for 18 days across 1 invoice (13% of £9,200.00 EOM balance). Combined with a 22-month history of on-time payments, low average arrears, and credit line utilisation at 31%, this signals a minimal-risk delay likely due to processing timing. Automated reminder at 21 days should be sufficient.' }
+      };
+
+      function priorityClass(p) { return p === 'High' ? 'high' : p === 'Medium' ? 'medium' : 'low'; }
+      function priorityLabel(p) { return p === 'High' ? 'High Priority Account' : p === 'Medium' ? 'Medium Priority Account' : 'Low Priority Account'; }
+
+      function buildPopover(d) {
+        var pc = priorityClass(d.priority);
+        var insight = INSIGHTS[d.customer] || { heading: 'Account insight', text: 'No detailed insight available for this account.' };
+        return '<div class="pop-header">'
+          + '<span class="pop-header-icon">' + AI_SVG + '</span>'
+          + '<div class="pop-header-title">Insights</div>'
+          + '</div>'
+          + '<div class="pop-priority-row">'
+          + '<span class="pop-priority-label ' + pc + '">' + priorityLabel(d.priority) + '</span>'
+          + '<span class="pop-risk-score">Risk Score: <strong>' + d.score + '</strong></span>'
+          + '</div>'
+          + '<div class="pop-body">'
+          + '<div class="pop-insight-heading">' + insight.heading + '</div>'
+          + '<div class="pop-insight-text">' + insight.text + '</div>'
+          + '</div>';
+      }
+
+      document.querySelectorAll('.priority-tag').forEach(function (tag) {
+        tag.addEventListener('mouseenter', function () {
+          clearTimeout(hideTimer);
+          var d = {
+            customer: tag.dataset.customer,
+            priority: tag.dataset.priority,
+            score:    tag.dataset.score
+          };
+          popContent.innerHTML = buildPopover(d);
+          pop.opener = tag;
+          pop.open = true;
+        });
+        tag.addEventListener('mouseleave', function () {
+          hideTimer = setTimeout(function () { pop.open = false; }, 200);
+        });
+      });
+
+      pop.addEventListener('mouseenter', function () { clearTimeout(hideTimer); });
+      pop.addEventListener('mouseleave', function () { pop.open = false; });
+    })();
+  </script>
+
+</body>
+</html>
