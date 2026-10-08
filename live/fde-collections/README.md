@@ -10,7 +10,7 @@ This guide assumes Claude Code is already installed. If not, follow the setup in
 
 Download the starter files from GitHub. They include a pre-bundled UI5 Web Components library, a component showcase, and a sample project.
 
-**[Download the Starter Files (.zip)](https://github.tools.sap/I753220/Claude-Code/archive/refs/heads/starter.zip)**
+**[Download the Starter Files (.zip)](downloads/fde-collections-starter.zip)**
 
 ---
 
